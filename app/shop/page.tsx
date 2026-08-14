@@ -1,3 +1,15 @@
 import ShopClient from "@/components/ShopClient";
-export const metadata={title:"Shop for You — Palevie"};
-export default function ShopPage(){return <div className="app-wrap"><div className="app-title"><div><div className="eyebrow">Shop for you</div><h1>Beauty that fits the profile.</h1><p>Color products are ranked by palette fit; skincare is ranked by saved preferences. Real partner feeds can replace the demo catalog without changing the UI.</p></div></div><ShopClient/></div>}
+
+export const metadata = { title: "Shop Your Palette — Palevie" };
+
+export default function ShopPage() {
+  return (
+    <div className="pvx-shop-page">
+      <div className="pvx-shop-page-head">
+        <div><span className="pvx-kicker compact">Curated around your color profile</span><h1>Shop your glow.</h1><p>Makeup shades are ranked by palette fit. Skincare stays preference-based, with real retailer offers kept clearly labeled.</p></div>
+        <span className="pvx-orbit-art pvx-shop-head-orbit" aria-hidden="true"><i/><i/><i/><b/></span>
+      </div>
+      <ShopClient />
+    </div>
+  );
+}

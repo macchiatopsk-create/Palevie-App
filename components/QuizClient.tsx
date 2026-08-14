@@ -1,5 +1,6 @@
 "use client";
-import { useEffect,useMemo,useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult } from "@/lib/quiz";
@@ -7,109 +8,294 @@ import { getToneProfile } from "@/lib/palettes";
 import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud } from "@/lib/cloudProfile";
-const STATE_KEY="palevie-quiz-state-v1";
-type SavedState={answers:(number|null)[];step:number};
-function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
-export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);
- useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
- const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
- function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
- function next(){if(selected===null)return;if(step<QUIZ_QUESTIONS.length-1)setStep(s=>s+1);else finish(answers as number[])}
- function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
- function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
- if(result)return <QuizResultView result={result} onRestart={restart}/>;
- if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
- return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>Question {String(step+1).padStart(2,"0")} of {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
+
+const STATE_KEY = "palevie-quiz-state-v1";
+type SavedState = { answers: (number | null)[]; step: number };
+
+type VisualStyle = CSSProperties & {
+  "--tone-a": string;
+  "--tone-b": string;
+  "--tone-c": string;
+};
+
+const visualPalettes = [
+  ["#f7c8bc", "#f2a98f", "#e78e78"],
+  ["#efb8cc", "#c8a5d7", "#9b73b9"],
+  ["#cdd9ef", "#8eadd5", "#607fae"],
+  ["#e8d8bd", "#c99d72", "#8d6146"],
+  ["#b7d6c5", "#7ba88e", "#52745f"],
+  ["#4f506d", "#7c4e67", "#b86d82"],
+];
+
+function loadState(): SavedState {
+  if (typeof window !== "undefined") {
+    try {
+      const raw = sessionStorage.getItem(STATE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.answers) && parsed.answers.length === QUIZ_QUESTIONS.length) return parsed;
+      }
+    } catch {}
+  }
+  return { answers: QUIZ_QUESTIONS.map(() => null), step: 0 };
 }
-function seasonArt(toneId:string){
-  if(toneId==="summer-soft"||toneId==="summer-muted"||toneId==="autumn-soft"||toneId==="autumn-muted")return "/img/s2_ss.webp";
-  const fam=toneId.split("-")[0];
-  return {spring:"/img/s2_sp.webp",summer:"/img/s2_su.webp",autumn:"/img/s2_au.webp",winter:"/img/s2_wi.webp"}[fam] ?? "/img/s2_ss.webp";
+
+function optionVisual(questionId: string, index: number): VisualStyle {
+  const offsets: Record<string, number> = {
+    jewelry: 3,
+    white: 0,
+    sun: 2,
+    hair: 3,
+    eyes: 5,
+    contrast: 4,
+    vividness: 1,
+    depth: 2,
+    lip: 0,
+    worst: 5,
+    black: 4,
+    group: 1,
+  };
+  const colors = visualPalettes[(index + (offsets[questionId] ?? 0)) % visualPalettes.length];
+  return { "--tone-a": colors[0], "--tone-b": colors[1], "--tone-c": colors[2] };
 }
-// Color-theory "avoid" palettes per season family: hues that fight the palette's
-// temperature/chroma (e.g. cool-muted summers are washed out by hot oranges).
-function avoidColors(toneId:string):string[]{
-  const fam=toneId.split("-")[0];
+
+export default function QuizClient() {
+  const [answers, setAnswers] = useState<(number | null)[]>(QUIZ_QUESTIONS.map(() => null));
+  const [step, setStep] = useState(0);
+  const [hydrated, setHydrated] = useState(false);
+  const [result, setResult] = useState<QuizResult | null>(null);
+  const [pending, setPending] = useState<QuizResult | null>(null);
+
+  useEffect(() => {
+    const saved = loadState();
+    setAnswers(saved.answers);
+    setStep(saved.step);
+    setHydrated(true);
+    track("quiz_started");
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) sessionStorage.setItem(STATE_KEY, JSON.stringify({ answers, step }));
+  }, [answers, step, hydrated]);
+
+  const question = QUIZ_QUESTIONS[step];
+  const selected = answers[step];
+  const progress = Math.round(((step + (selected !== null ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100);
+
+  function choose(index: number) {
+    const nextAnswers = [...answers];
+    nextAnswers[step] = index;
+    setAnswers(nextAnswers);
+    track("quiz_answered", { question: question.id, step: step + 1 });
+  }
+
+  function next() {
+    if (selected === null) return;
+    if (step < QUIZ_QUESTIONS.length - 1) setStep((current) => current + 1);
+    else finish(answers as number[]);
+  }
+
+  function finish(finalAnswers: number[]) {
+    const scored = scoreQuiz(finalAnswers);
+    setPending(scored);
+    const profile = {
+      primaryType: scored.ranked[0].id,
+      secondaryType: scored.ranked[1].id,
+      ranked: scored.ranked,
+      scores: scored.axes,
+      confidence: scored.confidence,
+      source: "quiz" as const,
+      createdAt: new Date().toISOString(),
+    };
+    saveProfile(profile);
+    void syncColorProfileToCloud(profile);
+    track("quiz_completed", { profile: scored.ranked[0].id, confidence: scored.confidence });
+    sessionStorage.removeItem(STATE_KEY);
+  }
+
+  function restart() {
+    setAnswers(QUIZ_QUESTIONS.map(() => null));
+    setStep(0);
+    setResult(null);
+    sessionStorage.removeItem(STATE_KEY);
+    track("quiz_started", { restart: true });
+  }
+
+  if (result) return <QuizResultView result={result} onRestart={restart} />;
+  if (pending) return <AnalyzingView onDone={() => { setResult(pending); setPending(null); }} />;
+
+  return (
+    <section className="pvx-quiz-shell">
+      <div className="pvx-quiz-topbar">
+        <button className="pvx-icon-button" aria-label="Previous question" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>←</button>
+        <Link className="pvx-quiz-wordmark" href="/">Palevie</Link>
+        <span className="pvx-question-count"><b>{step + 1}</b> / {QUIZ_QUESTIONS.length}</span>
+      </div>
+
+      <div className="pvx-progress-track" aria-label={`${progress}% complete`}><i style={{ width: `${progress}%` }} /></div>
+
+      <div className="pvx-question-copy">
+        <span className="pvx-kicker compact">Your color story · step {String(step + 1).padStart(2, "0")}</span>
+        <h1>{question.text}</h1>
+        <p>{question.help || "Choose the answer that feels most true in natural daylight."}</p>
+      </div>
+
+      <div className={`pvx-quiz-options ${question.options.length > 4 ? "many" : ""}`}>
+        {question.options.map((option, index) => (
+          <button
+            key={option.label}
+            className={`pvx-quiz-option ${selected === index ? "selected" : ""}`}
+            onClick={() => choose(index)}
+            aria-pressed={selected === index}
+          >
+            <span className="pvx-option-visual" style={optionVisual(question.id, index)}>
+              <i /><i /><i />
+              <b>{selected === index ? "✓" : ""}</b>
+            </span>
+            <span className="pvx-option-label">{option.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="pvx-quiz-actions">
+        <button className="pvx-secondary-button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>Back</button>
+        <button className="pvx-primary-button" disabled={selected === null} onClick={next}>
+          {step === QUIZ_QUESTIONS.length - 1 ? "Reveal my palette" : "Next"} <span>✦</span>
+        </button>
+      </div>
+      <p className="pvx-quiz-footnote">No camera required. Your quiz profile is stored in your browser unless you choose to sign in.</p>
+    </section>
+  );
+}
+
+function seasonArt(toneId: string) {
+  const family = toneId.split("-")[0];
+  if (toneId === "summer-soft" || toneId === "summer-muted") return "https://images.pexels.com/photos/32182008/pexels-photo-32182008.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop";
   return {
-    spring:["#8C9BAB","#5B5F6E","#7A3B52","#3E3A45","#9AA5B5","#63444E"],
-    summer:["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"],
-    autumn:["#9FD8E8","#C7CEEA","#F19AD1","#8FA6E8","#7FD1C8","#D671B8"],
-    winter:["#C8A165","#A98253","#B5A642","#8E7748","#D2B48C","#C77B4F"],
-  }[fam] ?? ["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"];
+    spring: "https://images.pexels.com/photos/31594655/pexels-photo-31594655.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
+    summer: "https://images.pexels.com/photos/31938769/pexels-photo-31938769.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
+    autumn: "https://images.pexels.com/photos/20756306/pexels-photo-20756306.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
+    winter: "https://images.pexels.com/photos/27013755/pexels-photo-27013755.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
+  }[family] ?? "https://images.pexels.com/photos/32182008/pexels-photo-32182008.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop";
 }
-function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
- const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
- const best=primary.colors[0];
- return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
-  <img className="lp-result-flower" src="/img/peony2.webp" alt=""/>
-  <div className="eyebrow">Your palette</div>
-  <h1 className="lp-result-name">{primary.name}</h1>
-  <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
-  <p className="lp-result-desc">{primary.description}</p>
 
-  <div className="lp-colors-card">
-   <small>Your 7 colors</small>
-   <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
-  </div>
+function avoidColors(toneId: string): string[] {
+  const family = toneId.split("-")[0];
+  return {
+    spring: ["#8C9BAB", "#5B5F6E", "#7A3B52", "#3E3A45", "#9AA5B5", "#63444E"],
+    summer: ["#E07B39", "#C98A2E", "#A9743F", "#D96C3F", "#B5651D", "#8B5A2B"],
+    autumn: ["#9FD8E8", "#C7CEEA", "#F19AD1", "#8FA6E8", "#7FD1C8", "#D671B8"],
+    winter: ["#C8A165", "#A98253", "#B5A642", "#8E7748", "#D2B48C", "#C77B4F"],
+  }[family] ?? ["#E07B39", "#C98A2E", "#A9743F", "#D96C3F", "#B5651D", "#8B5A2B"];
+}
 
-  <div className="lp-season-photo">
-   <img src={seasonArt(result.ranked[0].id)} alt=""/>
-   <div className="lp-season-caption"><small>Season mood</small><b>{primary.name}</b></div>
-  </div>
+function QuizResultView({ result, onRestart }: { result: QuizResult; onRestart: () => void }) {
+  const primary = useMemo(() => getToneProfile(result.ranked[0].id), [result]);
+  const best = primary.colors[0];
+  const traits = [primary.temperature, primary.chroma, primary.value];
 
-  <div className="lp-avoid-card">
-   <small>Colors to avoid</small>
-   <p>These fight your palette&apos;s balance — wear them away from your face.</p>
-   <div className="chips">{avoidColors(result.ranked[0].id).map(c=><i key={c} style={{background:c}}/>)}</div>
-  </div>
+  return (
+    <section className="pvx-result-shell" style={{ "--profile-accent": best } as CSSProperties}>
+      <div className="pvx-result-heading">
+        <span className="pvx-kicker compact">Your personal color season</span>
+        <h1>{primary.name}</h1>
+        <p>{traits.join(" · ")}</p>
+      </div>
 
-  <div className="lp-best-card">
-   <img src="/img/pearls2.webp" alt=""/>
-   <div>
-    <small>Best match for you</small>
-    <b style={{color:best}}>●</b>
-    <strong>Your signature shade</strong>
-    <p>{primary.temperature} · {primary.chroma} · your perfect harmony.</p>
-   </div>
-  </div>
+      <div className="pvx-result-hero">
+        <div className="pvx-result-photo">
+          <img src={seasonArt(result.ranked[0].id)} alt={`${primary.name} color season beauty portrait`} />
+          <span className="pvx-orbit-art pvx-result-orbit" aria-hidden="true"><i/><i/><i/><b/></span>
+          <span className="pvx-confidence"><b>{result.confidence}%</b> palette confidence</span>
+        </div>
 
-  <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
-  <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
+        <div className="pvx-result-content">
+          <span className="pvx-result-label">Your best colors</span>
+          <div className="pvx-result-swatches">{primary.colors.slice(0, 7).map((color) => <i key={color} style={{ background: color }} />)}</div>
+          <h2>Your calm glow, translated into color.</h2>
+          <p>{primary.description}</p>
+          <div className="pvx-result-actions">
+            <Link className="pvx-primary-button" href="/shop">Shop my match <span>✦</span></Link>
+            <Link className="pvx-secondary-button" href="/analyze">Check a product</Link>
+          </div>
+        </div>
+      </div>
 
-  <div className="button-row">
-   <Link className="lp-btn" href="/shop">See full analysis <span className="lp-arrow">→</span></Link>
-   <Link className="button secondary" href="/analyze">Check a product</Link>
-   <button className="text-button" onClick={onRestart}>Retake quiz</button>
-  </div>
- </div>}
+      <div className="pvx-result-grid">
+        <article className="pvx-result-panel pvx-makeup-panel">
+          <div><span className="pvx-kicker compact">Makeup picks</span><h3>Start with harmony, not hype.</h3><p>Use your palette as a filter for lip, cheek and eye colors.</p><Link href="/shop">See matched beauty →</Link></div>
+          <div className="pvx-result-products"><img src="/redesign/lip-tint.svg" alt="Lip tint recommendation"/><img src="/redesign/blusher.svg" alt="Blush recommendation"/><img src="/redesign/eyeshadow.svg" alt="Eyeshadow recommendation"/></div>
+        </article>
 
-function AnalyzingView({onDone}:{onDone:()=>void}){
- const STEPS=["Skin tone analysis","Undertone detection","Color harmony","Finalizing your palette"];
- const [pct,setPct]=useState(0);
- useEffect(()=>{
-  const t0=Date.now();const DUR=3400;
-  const iv=setInterval(()=>{
-   const p=Math.min(100,Math.round((Date.now()-t0)/DUR*100));
-   setPct(p);
-   if(p>=100){clearInterval(iv);setTimeout(onDone,420)}
-  },40);
-  return()=>clearInterval(iv);
- },[onDone]);
- const done=Math.floor(pct/25);
- return <div className="lp-analyzing">
-  <h2>Analyzing your colors…</h2>
-  <p className="lp-an-sub">Crafting your personal palette</p>
-  <div className="lp-an-orb">
-   <img src="/img/orb2.webp" alt="" className="lp-an-spin"/>
-   <svg className="lp-an-ring" viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="44" className="rb"/>
-    <circle cx="50" cy="50" r="44" className="rf" style={{strokeDashoffset:276.5*(1-pct/100)}}/>
-   </svg>
-   <span>{pct}%</span>
-  </div>
-  <ul className="lp-an-list">
-   {STEPS.map((st,i)=><li key={st} className={i<done?"done":i===done?"now":""}><b>{i<done?"✓":""}</b>{st}</li>)}
-  </ul>
- </div>;
+        <article className="pvx-result-panel pvx-avoid-panel">
+          <span className="pvx-kicker compact">Use thoughtfully</span>
+          <h3>Harder colors near your face</h3>
+          <p>These shades can fight your palette&apos;s balance. They can still work as small accents or farther from your face.</p>
+          <div className="pvx-avoid-swatches">{avoidColors(result.ranked[0].id).map((color) => <i key={color} style={{ background: color }} />)}</div>
+        </article>
+
+        <article className="pvx-result-panel pvx-ranking-panel">
+          <span className="pvx-kicker compact">Your closest profiles</span>
+          <div className="pvx-rank-list">{result.ranked.map((rank, index) => <div key={rank.id}><span><b>{index + 1}</b>{rank.name}</span><strong>{rank.pct}%</strong></div>)}</div>
+          <button className="pvx-text-button" onClick={onRestart}>Retake the quiz</button>
+        </article>
+      </div>
+
+      <p className="pvx-result-note">Palevie is style guidance, not a scientific or medical determination. Lighting, hair color and personal taste can shift what feels best.</p>
+    </section>
+  );
+}
+
+function AnalyzingView({ onDone }: { onDone: () => void }) {
+  const steps = ["Reading your undertone", "Mapping natural contrast", "Balancing depth and chroma", "Curating makeup shades"];
+  const [percentage, setPercentage] = useState(0);
+
+  useEffect(() => {
+    const started = Date.now();
+    const duration = 4300;
+    const timer = window.setInterval(() => {
+      const elapsed = Math.min(1, (Date.now() - started) / duration);
+      const eased = 1 - Math.pow(1 - elapsed, 2.2);
+      const next = Math.min(100, Math.round(eased * 100));
+      setPercentage(next);
+      if (next >= 100) {
+        window.clearInterval(timer);
+        window.setTimeout(onDone, 520);
+      }
+    }, 40);
+    return () => window.clearInterval(timer);
+  }, [onDone]);
+
+  const activeStep = Math.min(steps.length - 1, Math.floor(percentage / 25));
+
+  return (
+    <section className="pvx-analyzing-shell">
+      <div className="pvx-analyzing-copy">
+        <span className="pvx-kicker compact">Palevie color engine</span>
+        <h1>Analyzing your <em>color energy</em></h1>
+        <p>We&apos;re connecting undertone, contrast, depth and chroma into one personal palette.</p>
+      </div>
+
+      <div className="pvx-orbit-engine" aria-label={`Analysis ${percentage}% complete`}>
+        <div className="pvx-orbit-halo halo-a" />
+        <div className="pvx-orbit-halo halo-b" />
+        <div className="pvx-orbit-track orbit-one"><i /><i /></div>
+        <div className="pvx-orbit-track orbit-two"><i /><i /><i /></div>
+        <div className="pvx-orbit-track orbit-three"><i /></div>
+        <span className="pvx-orbit-art pvx-analyze-orbit-art" aria-hidden="true"><i/><i/><i/><b/></span>
+        <div className="pvx-orbit-progress" style={{ "--analysis-progress": `${percentage * 3.6}deg` } as CSSProperties}>
+          <span><b>{percentage}</b>%</span>
+        </div>
+      </div>
+
+      <div className="pvx-analysis-status">
+        {steps.map((label, index) => {
+          const done = index < activeStep || percentage === 100;
+          const active = index === activeStep && percentage < 100;
+          return <div key={label} className={`${done ? "done" : ""} ${active ? "active" : ""}`}><span>{done ? "✓" : active ? "✦" : ""}</span><b>{label}</b><small>{done ? "Complete" : active ? "In progress" : "Waiting"}</small></div>;
+        })}
+      </div>
+      <p className="pvx-analysis-caption">Your personalized palette is taking shape.</p>
+    </section>
+  );
 }
