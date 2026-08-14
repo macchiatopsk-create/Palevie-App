@@ -1,35 +1,161 @@
 import Link from "next/link";
 
 export default function HomePage(){return <>
-  <section className="home-hero">
-    <div className="home-copy">
-      <div className="eyebrow">Korean personal color · beauty · shopping</div>
-      <h1>your colors,<br/>made for <em>you.</em></h1>
-      <p>Palevie turns one color profile into everyday beauty decisions — makeup shades, skincare preferences and smarter shopping across multiple retailers.</p>
-      <div className="button-row"><Link className="button" href="/quiz">Find my palette ✦</Link><Link className="button secondary" href="/shop">Explore shop</Link></div>
-      <div className="hero-facts"><span>12-question free quiz</span><span>Optional AI second opinion</span><span>Skincare included</span></div>
+  <section className="lp-hero">
+    <div className="lp-hero-copy">
+      <h1>Your colors,<br/>made for <em>you.</em></h1>
+      <p className="lp-sub">Personal color analysis inspired by K-beauty expertise — your season, your best shades, and what to actually buy.</p>
+      <div className="lp-hero-actions">
+        <Link className="lp-btn" href="/quiz">Find my palette <span className="lp-arrow">→</span></Link>
+        <div className="lp-note"><b>Free quiz</b>12 questions · about 90 seconds</div>
+      </div>
+      <div className="lp-tags"><span>No selfie required</span><span>16 Korean tones</span><span>Shop your palette</span></div>
     </div>
-    <div className="acrylic-stage" aria-label="Abstract color palette visual">
-      <span className="glass-card g1"/><span className="glass-card g2"/><span className="glass-card g3"/><span className="glass-card g4"/>
-      <div className="palette-note"><small>SOFT SUMMER</small><b>mauve · rose · lilac</b><i>personalized</i></div>
+    <div className="lp-hero-media"><img src="/img/hero.webp" alt="Range of skin tones and undertones"/></div>
+  </section>
+
+  <section className="lp-sec">
+    <div className="lp-wrap">
+      <div className="lp-how">
+        <div className="lp-how-title">
+          <div className="eyebrow">How it works</div>
+          <h2>Your personal color journey in <em>3 simple steps</em></h2>
+        </div>
+        <Link className="lp-step" href="/quiz">
+          <div className="lp-step-num">1</div>
+          <h3>Answer the quiz</h3>
+          <p>Twelve quick questions about how colors behave on you. No photo needed.</p>
+          <div className="lp-step-art"><img src="/img/step1.webp" alt=""/></div>
+        </Link>
+        <Link className="lp-step" href="/quiz">
+          <div className="lp-step-num">2</div>
+          <h3>We match your tone</h3>
+          <p>Your answers map to undertone, value, chroma and contrast — the four axes behind every season.</p>
+          <div className="lp-step-art lp-orb-wrap"><img src="/img/step2.webp" alt=""/><span className="lp-orb-pct">78%</span></div>
+        </Link>
+        <Link className="lp-step" href="/quiz">
+          <div className="lp-step-num">3</div>
+          <h3>Get your palette</h3>
+          <p>Your season, your seven core colors, and product picks that match them.</p>
+          <div className="lp-step-art">
+            <div className="lp-swatches">
+              <span className="lbl">Soft Summer</span>
+              <i style={{background:"#c98ba4"}}/><i style={{background:"#d495ab"}}/><i style={{background:"#b9a7c9"}}/><i style={{background:"#a9b4d0"}}/>
+              <i style={{background:"#a24a63"}}/><i style={{background:"#9fb2c8"}}/><i style={{background:"#cfc3d8"}}/><i style={{background:"#7e94ad"}}/>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   </section>
 
-  <section className="home-sections">
-    <div className="section-title"><div className="eyebrow">One profile, repeat use</div><h2>Not a quiz you take once and forget.</h2><p>Personal color is the entry point. The recurring product is deciding what to buy next.</p></div>
-    <div className="feature-strip">
-      <Link href="/quiz"><b>01</b><h3>Find your palette</h3><p>Free deterministic quiz with a Korean-inspired 16-tone result.</p></Link>
-      <Link href="/analyze"><b>02</b><h3>Check before checkout</h3><p>Upload a clothing or makeup image and get BUY / MAYBE / SKIP without requiring AI.</p></Link>
-      <Link href="/skin"><b>03</b><h3>Build a skin profile</h3><p>Match texture, fragrance preference, cosmetic goal and budget — no medical diagnosis.</p></Link>
-      <Link href="/shop"><b>04</b><h3>Shop across retailers</h3><p>One product can link to Amazon, Sephora, Olive Young, YesStyle, Target, Walmart or iHerb.</p></Link>
+  <section className="lp-sec" style={{paddingTop:0}}>
+    <div className="lp-wrap">
+      <div className="lp-band">
+        <div className="lp-feats">
+          <div className="lp-feat">
+            <div className="lp-feat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg></div>
+            <b>Consistent results</b>
+            <p>A deterministic engine — the same answers always give the same season.</p>
+          </div>
+          <div className="lp-feat">
+            <div className="lp-feat-ic"><svg viewBox="0 0 24 24"><path d="M12 3c2.5 3 4.5 5 4.5 8a4.5 4.5 0 1 1-9 0c0-3 2-5 4.5-8z"/></svg></div>
+            <b>K-beauty grounded</b>
+            <p>Built on Korean personal-color practice and its 16-tone framework.</p>
+          </div>
+          <div className="lp-feat">
+            <div className="lp-feat-ic"><svg viewBox="0 0 24 24"><path d="M4 18V9m5 9V5m5 13v-6m5 6V8"/></svg></div>
+            <b>Made for shopping</b>
+            <p>Makeup, clothing and skincare picks tied to your palette, not generic advice.</p>
+          </div>
+          <div className="lp-feat">
+            <div className="lp-feat-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3 2"/></svg></div>
+            <b>Fast and free</b>
+            <p>Your palette in about ninety seconds, with no account required to start.</p>
+          </div>
+        </div>
+        <div className="lp-band-right">
+          <h2>Colors that fit <em>you</em>, not the other way around.</h2>
+          <Link href="/analyze" className="lp-learn">Try a product check</Link>
+          <div className="lp-band-art"><img src="/img/flatlay.webp" alt="Makeup products and palette swatches"/></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section className="repeat-band">
-    <div><span>COLOR</span><h2>What suits me?</h2><p>Palette + product shade matching.</p></div>
-    <div><span>SKIN</span><h2>What fits my routine?</h2><p>Preference-based skincare matching.</p></div>
-    <div><span>SHOP</span><h2>Where should I buy it?</h2><p>Multi-retailer offers and affiliate attribution.</p></div>
+  <section className="lp-sec" style={{paddingTop:0}}>
+    <div className="lp-wrap">
+      <div className="lp-seasons">
+        <div className="lp-seasons-head">Find your harmony</div>
+        <div className="lp-season-row">
+          <Link className="lp-season" href="/quiz">
+            <div className="pic"><img src="/img/season_sp.webp" alt="Spring"/></div>
+            <h4>Spring</h4>
+            <div className="chips"><i style={{background:"#f5a08a"}}/><i style={{background:"#f0b787"}}/><i style={{background:"#e8cf7e"}}/><i style={{background:"#b9cf90"}}/><i style={{background:"#7fbfa8"}}/></div>
+          </Link>
+          <Link className="lp-season" href="/quiz">
+            <div className="pic"><img src="/img/season_su.webp" alt="Summer"/></div>
+            <h4>Summer</h4>
+            <div className="chips"><i style={{background:"#e78ba8"}}/><i style={{background:"#eda3bb"}}/><i style={{background:"#f2ccd8"}}/><i style={{background:"#a9c0d8"}}/><i style={{background:"#8fa9c6"}}/></div>
+          </Link>
+          <Link className="lp-season on" href="/quiz">
+            <span className="lp-rec">Most common</span>
+            <div className="pic"><img src="/img/season_ss.webp" alt="Soft Summer"/></div>
+            <h4>Soft Summer</h4>
+            <div className="chips"><i style={{background:"#c07d97"}}/><i style={{background:"#b98aa4"}}/><i style={{background:"#9d8fae"}}/><i style={{background:"#8f9cb5"}}/><i style={{background:"#aab6c8"}}/></div>
+          </Link>
+          <Link className="lp-season" href="/quiz">
+            <div className="pic"><img src="/img/season_au.webp" alt="Autumn"/></div>
+            <h4>Autumn</h4>
+            <div className="chips"><i style={{background:"#d3a173"}}/><i style={{background:"#bc8354"}}/><i style={{background:"#a4763f"}}/><i style={{background:"#8b8244"}}/><i style={{background:"#6f7248"}}/></div>
+          </Link>
+          <Link className="lp-season" href="/quiz">
+            <div className="pic"><img src="/img/season_wi.webp" alt="Winter"/></div>
+            <h4>Winter</h4>
+            <div className="chips"><i style={{background:"#c2214b"}}/><i style={{background:"#a81d5a"}}/><i style={{background:"#1f3c74"}}/><i style={{background:"#5a5f68"}}/><i style={{background:"#2b2b2f"}}/></div>
+          </Link>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section className="partner-band"><div><div className="eyebrow">The business layer</div><h2>Traffic first. Then a U.S. launch channel for K-beauty.</h2></div><p>Affiliate commission can monetize consumer traffic. Once Palevie has enough U.S. preference and purchase data, the same product layer can support disclosed brand campaigns, launch tests, product feeds and matching APIs.</p></section>
-</>}
+  <section className="lp-sec" style={{paddingTop:0}}>
+    <div className="lp-wrap">
+      <div className="lp-trust">
+        <div className="lp-trust-bg"><img src="/img/silk.webp" alt=""/></div>
+        <div>
+          <blockquote>Find the colors that make you look like <em>you</em>.</blockquote>
+          <p className="lp-attrib">Your palette is a starting point for real shopping decisions — makeup, clothing and skincare.</p>
+        </div>
+        <div className="lp-trio">
+          <div>
+            <div className="lp-trio-ic"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></div>
+            <b>Private by design</b>
+            <p>The quiz needs no photo, and your answers stay on your device.</p>
+          </div>
+          <div>
+            <div className="lp-trio-ic"><svg viewBox="0 0 24 24"><path d="M12 3.5l7 3v5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9v-5z"/></svg></div>
+            <b>Honest about limits</b>
+            <p>Color guidance is a starting point, not a verdict. We say so plainly.</p>
+          </div>
+          <div>
+            <div className="lp-trio-ic"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.1 6.2 6.4.1-5.2 3.8 2 6.2-5.3-3.9-5.3 3.9 2-6.2-5.2-3.8 6.4-.1z"/></svg></div>
+            <b>Free to start</b>
+            <p>The quiz and product checks are free. No account needed to try.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section className="lp-sec" style={{paddingTop:0}}>
+    <div className="lp-wrap">
+      <div className="lp-cta">
+        <div className="eyebrow">Ready?</div>
+        <h2>Be first to find your palette.</h2>
+        <p>Ninety seconds from now you could know your season.</p>
+        <Link className="lp-btn" href="/quiz">Start the free quiz <span className="lp-arrow">→</span></Link>
+      </div>
+    </div>
+  </section>
+</>;}
