@@ -25,6 +25,22 @@ export const catalogProducts: CatalogProduct[] = [
     ],
   },
   {
+    id: "demo-rose-blush", brand: "Palevie Demo", name: "Soft Rose Blush", category: "makeup", subcategory: "blush",
+    description: "Demo blush for cool, soft palettes.", colorHex: "#D98A9C", tags: ["cool","soft","muted","summer"],
+    offers: [
+      { id: "offer-blush-sephora", retailer: "sephora", url: "https://www.sephora.com", priceLabel: "$19", priceCents: 1900, currency: "USD", affiliateReady: false },
+      { id: "offer-blush-yesstyle", retailer: "yesstyle", url: "https://www.yesstyle.com", priceLabel: "$15", priceCents: 1500, currency: "USD", affiliateReady: false },
+    ],
+  },
+  {
+    id: "demo-mauve-shadow", brand: "Palevie Demo", name: "Cool Mauve Shadow Palette", category: "makeup", subcategory: "eyeshadow",
+    description: "Demo palette for cool, muted eye looks.", colorHex: "#B9A7C9", tags: ["cool","muted","soft","summer","winter"],
+    offers: [
+      { id: "offer-shadow-amazon", retailer: "amazon", url: "https://www.amazon.com", priceLabel: "$26", priceCents: 2600, currency: "USD", affiliateReady: false },
+      { id: "offer-shadow-oliveyoung", retailer: "oliveyoung", url: "https://global.oliveyoung.com", priceLabel: "$22", priceCents: 2200, currency: "USD", affiliateReady: false },
+    ],
+  },
+  {
     id: "demo-gel-cleanser", brand: "Palevie Demo", name: "Gentle Gel Cleanser", category: "skincare", subcategory: "cleanser",
     description: "Preference-based demo match; not a treatment recommendation.", tags: ["gel","fragrance-free","gentle","lightweight","hydration"],
     ingredients: ["glycerin","panthenol"],

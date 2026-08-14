@@ -9,10 +9,20 @@ import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 
-function artFor(sub:string, cat:string){
-  const m:Record<string,string>={lip:"/img/lip_tint.webp",blush:"/img/blusher.webp",eyeshadow:"/img/shadow.webp",shadow:"/img/shadow.webp"};
-  if(m[sub])return m[sub];
-  return cat==="skincare"?"/img/flower.webp":"/img/acrylic.webp";
+function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
+  // Per-product art so the same render never repeats side by side.
+  const byId:Record<string,{src:string;hue?:number}>={
+    "demo-mauve-lip":{src:"/img/lip_tint.webp"},
+    "demo-coral-lip":{src:"/img/lip_tint.webp",hue:38},         // warm-shift the render toward coral
+    "demo-rose-blush":{src:"/img/blusher.webp"},
+    "demo-mauve-shadow":{src:"/img/shadow.webp"},
+    "demo-gel-cleanser":{src:"/img/pearls.webp"},
+    "demo-barrier-cream":{src:"/img/silk_panel.webp"},
+    "demo-bright-serum":{src:"/img/flower.webp"},
+  };
+  if(byId[id])return byId[id];
+  const bySub:Record<string,string>={lip:"/img/lip_tint.webp",blush:"/img/blusher.webp",eyeshadow:"/img/shadow.webp"};
+  return {src:bySub[sub] ?? (cat==="skincare"?"/img/flower.webp":"/img/acrylic.webp")};
 }
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"makeup"|"skincare">("all");
@@ -57,7 +67,7 @@ export default function ShopClient() {
 
     <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
-        <img src={artFor(p.subcategory, p.category)} alt="" loading="lazy"/>
+        {(()=>{const a=artFor(p.id,p.subcategory,p.category);return <img src={a.src} alt="" loading="lazy" style={a.hue?{filter:`hue-rotate(${a.hue}deg) saturate(1.05)`}:undefined}/>})()}
         {p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
       <div className="shop-meta">
