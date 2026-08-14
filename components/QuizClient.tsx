@@ -26,7 +26,7 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
  const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
  const best=primary.colors[0];
  return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
-  <img className="lp-result-flower" src="/img/flower.webp" alt=""/>
+  <img className="lp-result-flower" src="/img/peony2.webp" alt=""/>
   <div className="eyebrow">Your palette</div>
   <h1 className="lp-result-name">{primary.name}</h1>
   <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
@@ -38,7 +38,7 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
   </div>
 
   <div className="lp-best-card">
-   <img src="/img/pearls.webp" alt=""/>
+   <img src="/img/pearls2.webp" alt=""/>
    <div>
     <small>Best match for you</small>
     <b style={{color:best}}>●</b>
@@ -74,7 +74,7 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   <h2>Analyzing your colors…</h2>
   <p className="lp-an-sub">Crafting your personal palette</p>
   <div className="lp-an-orb">
-   <img src="/img/step2.webp" alt="" className="lp-an-spin"/>
+   <img src="/img/orb2.webp" alt="" className="lp-an-spin"/>
    <svg className="lp-an-ring" viewBox="0 0 100 100">
     <circle cx="50" cy="50" r="44" className="rb"/>
     <circle cx="50" cy="50" r="44" className="rf" style={{strokeDashoffset:276.5*(1-pct/100)}}/>

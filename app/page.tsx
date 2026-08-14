@@ -13,9 +13,13 @@ export default function HomePage(){return <>
         </Link>
       </div>
       <div className="lp-note" style={{marginTop:"14px"}}><b>Free quiz · 12 questions · about 90s</b>Photo scan is optional — a second opinion, with your consent.</div>
-      <div className="lp-tags"><span>No selfie required</span><span>16 Korean tones</span><span>Shop your palette</span></div>
+      <div className="lp-quicklinks">
+        <Link href="/quiz"><i>🎨</i><b>Color Analysis</b></Link>
+        <Link href="/shop"><i>💄</i><b>Makeup Picks</b></Link>
+        <Link href="/skin"><i>🧴</i><b>Skincare Match</b></Link>
+      </div>
     </div>
-    <div className="lp-hero-media"><img src="/img/hero.webp" alt="Range of skin tones and undertones"/></div>
+    <div className="lp-hero-media"><img src="/img/hero2.webp" alt="Diverse beauty — every undertone"/></div>
   </section>
 
   <section className="lp-sec">
@@ -29,7 +33,7 @@ export default function HomePage(){return <>
           <div className="lp-step-num">1</div>
           <h3>Answer the quiz</h3>
           <p>Twelve quick questions about how colors behave on you. No photo needed.</p>
-          <div className="lp-step-art"><img src="/img/step1.webp" alt=""/></div>
+          <div className="lp-step-art"><img src="/img/selfie2.webp" alt=""/></div>
         </Link>
         <Link className="lp-step" href="/quiz">
           <div className="lp-step-num">2</div>
@@ -88,7 +92,7 @@ export default function HomePage(){return <>
         <div className="lp-band-right">
           <h2>Colors that fit <em>you</em>, not the other way around.</h2>
           <Link href="/analyze" className="lp-learn">Try a product check</Link>
-          <div className="lp-band-art"><img src="/img/flatlay.webp" alt="Makeup products and palette swatches"/></div>
+          <div className="lp-band-art"><img src="/img/lip2.webp" alt="Makeup products and palette swatches"/></div>
         </div>
       </div>
     </div>
@@ -100,28 +104,28 @@ export default function HomePage(){return <>
         <div className="lp-seasons-head">Find your harmony</div>
         <div className="lp-season-row">
           <Link className="lp-season" href="/quiz">
-            <div className="pic"><img src="/img/season_sp.webp" alt="Spring"/></div>
+            <div className="pic"><img src="/img/s2_sp.webp" alt="Spring"/></div>
             <h4>Spring</h4>
             <div className="chips"><i style={{background:"#f5a08a"}}/><i style={{background:"#f0b787"}}/><i style={{background:"#e8cf7e"}}/><i style={{background:"#b9cf90"}}/><i style={{background:"#7fbfa8"}}/></div>
           </Link>
           <Link className="lp-season" href="/quiz">
-            <div className="pic"><img src="/img/season_su.webp" alt="Summer"/></div>
+            <div className="pic"><img src="/img/s2_su.webp" alt="Summer"/></div>
             <h4>Summer</h4>
             <div className="chips"><i style={{background:"#e78ba8"}}/><i style={{background:"#eda3bb"}}/><i style={{background:"#f2ccd8"}}/><i style={{background:"#a9c0d8"}}/><i style={{background:"#8fa9c6"}}/></div>
           </Link>
           <Link className="lp-season on" href="/quiz">
             <span className="lp-rec">Most common</span>
-            <div className="pic"><img src="/img/season_ss.webp" alt="Soft Summer"/></div>
+            <div className="pic"><img src="/img/s2_ss.webp" alt="Soft Summer"/></div>
             <h4>Soft Summer</h4>
             <div className="chips"><i style={{background:"#c07d97"}}/><i style={{background:"#b98aa4"}}/><i style={{background:"#9d8fae"}}/><i style={{background:"#8f9cb5"}}/><i style={{background:"#aab6c8"}}/></div>
           </Link>
           <Link className="lp-season" href="/quiz">
-            <div className="pic"><img src="/img/season_au.webp" alt="Autumn"/></div>
+            <div className="pic"><img src="/img/s2_au.webp" alt="Autumn"/></div>
             <h4>Autumn</h4>
             <div className="chips"><i style={{background:"#d3a173"}}/><i style={{background:"#bc8354"}}/><i style={{background:"#a4763f"}}/><i style={{background:"#8b8244"}}/><i style={{background:"#6f7248"}}/></div>
           </Link>
           <Link className="lp-season" href="/quiz">
-            <div className="pic"><img src="/img/season_wi.webp" alt="Winter"/></div>
+            <div className="pic"><img src="/img/s2_wi.webp" alt="Winter"/></div>
             <h4>Winter</h4>
             <div className="chips"><i style={{background:"#c2214b"}}/><i style={{background:"#a81d5a"}}/><i style={{background:"#1f3c74"}}/><i style={{background:"#5a5f68"}}/><i style={{background:"#2b2b2f"}}/></div>
           </Link>
@@ -133,7 +137,7 @@ export default function HomePage(){return <>
   <section className="lp-sec" style={{paddingTop:0}}>
     <div className="lp-wrap">
       <div className="lp-trust">
-        <div className="lp-trust-bg"><img src="/img/silk.webp" alt=""/></div>
+        <div className="lp-trust-bg"><img src="/img/silk2.webp" alt=""/></div>
         <div>
           <blockquote>Find the colors that make you look like <em>you</em>.</blockquote>
           <p className="lp-attrib">Your palette is a starting point for real shopping decisions — makeup, clothing and skincare.</p>

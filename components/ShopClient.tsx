@@ -12,17 +12,17 @@ import { trackedOfferHref } from "@/lib/attribution";
 function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
   // Per-product art so the same render never repeats side by side.
   const byId:Record<string,{src:string;hue?:number}>={
-    "demo-mauve-lip":{src:"/img/lip_tint.webp"},
-    "demo-coral-lip":{src:"/img/lip_tint.webp",hue:38},         // warm-shift the render toward coral
-    "demo-rose-blush":{src:"/img/blusher.webp"},
-    "demo-mauve-shadow":{src:"/img/shadow.webp"},
-    "demo-gel-cleanser":{src:"/img/pearls.webp"},
-    "demo-barrier-cream":{src:"/img/silk_panel.webp"},
-    "demo-bright-serum":{src:"/img/flower.webp"},
+    "demo-mauve-lip":{src:"/img/lip2.webp"},
+    "demo-coral-lip":{src:"/img/lip2.webp",hue:38},         // warm-shift the render toward coral
+    "demo-rose-blush":{src:"/img/blush2.webp"},
+    "demo-mauve-shadow":{src:"/img/shadow2.webp"},
+    "demo-gel-cleanser":{src:"/img/pearls2.webp"},
+    "demo-barrier-cream":{src:"/img/silk2.webp"},
+    "demo-bright-serum":{src:"/img/peony2.webp"},
   };
   if(byId[id])return byId[id];
-  const bySub:Record<string,string>={lip:"/img/lip_tint.webp",blush:"/img/blusher.webp",eyeshadow:"/img/shadow.webp"};
-  return {src:bySub[sub] ?? (cat==="skincare"?"/img/flower.webp":"/img/acrylic.webp")};
+  const bySub:Record<string,string>={lip:"/img/lip2.webp",blush:"/img/blush2.webp",eyeshadow:"/img/shadow2.webp"};
+  return {src:bySub[sub] ?? (cat==="skincare"?"/img/peony2.webp":"/img/orb2.webp")};
 }
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"makeup"|"skincare">("all");
