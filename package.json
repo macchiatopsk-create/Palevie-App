@@ -1,0 +1,31 @@
+{
+  "name": "palevie-mvp",
+  "version": "0.5.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:quiz": "tsc lib/quiz.ts lib/palettes.ts lib/types.ts --outDir .quiztest --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node scripts/test-quiz.cjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.110.2",
+    "next": "^16.3.0",
+    "postcss": "^8.5.12",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "sharp": "^0.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.9.0"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.10"
+    }
+  }
+}
