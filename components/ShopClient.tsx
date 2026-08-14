@@ -1,5 +1,7 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { catalogProducts } from "@/data/products";
 import { retailers } from "@/lib/retailers";
 import { loadProfile } from "@/lib/profile";
@@ -9,81 +11,152 @@ import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 
-function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
-  // Per-product art so the same render never repeats side by side.
-  const byId:Record<string,{src:string;hue?:number}>={
-    "demo-mauve-lip":{src:"/img/lip2.webp"},
-    "demo-coral-lip":{src:"/img/lip2.webp",hue:38},         // warm-shift the render toward coral
-    "demo-rose-blush":{src:"/img/blush2.webp"},
-    "demo-mauve-shadow":{src:"/img/shadow2.webp"},
-    "demo-gel-cleanser":{src:"/img/pearls2.webp"},
-    "demo-barrier-cream":{src:"/img/silk2.webp"},
-    "demo-bright-serum":{src:"/img/peony2.webp"},
+function artFor(id: string, subcategory: string, category: string): string {
+  const byId: Record<string, string> = {
+    "demo-mauve-lip": "/redesign/lip-tint.svg",
+    "demo-coral-lip": "/redesign/lip-tint.svg",
+    "demo-rose-blush": "/redesign/blusher.svg",
+    "demo-mauve-shadow": "/redesign/eyeshadow.svg",
+    "demo-gel-cleanser": "/redesign/cleanser.svg",
+    "demo-barrier-cream": "/redesign/cushion.svg",
+    "demo-bright-serum": "/redesign/serum.svg",
   };
-  if(byId[id])return byId[id];
-  const bySub:Record<string,string>={lip:"/img/lip2.webp",blush:"/img/blush2.webp",eyeshadow:"/img/shadow2.webp"};
-  return {src:bySub[sub] ?? (cat==="skincare"?"/img/peony2.webp":"/img/orb2.webp")};
+  if (byId[id]) return byId[id];
+  const bySubcategory: Record<string, string> = {
+    lip: "/redesign/lip-tint.svg",
+    blush: "/redesign/blusher.svg",
+    eyeshadow: "/redesign/eyeshadow.svg",
+    highlighter: "/redesign/highlighter.svg",
+    foundation: "/redesign/cushion.svg",
+    serum: "/redesign/serum.svg",
+    cleanser: "/redesign/cleanser.svg",
+  };
+  return bySubcategory[subcategory] ?? (category === "skincare" ? "/redesign/serum.svg" : "/redesign/highlighter.svg");
 }
+
 export default function ShopClient() {
-  const [tab, setTab] = useState<"all"|"makeup"|"skincare">("all");
+  const [tab, setTab] = useState<"all" | "makeup" | "skincare">("all");
+  const [query, setQuery] = useState("");
   const [ready, setReady] = useState(false);
+
   const profile = useMemo(() => {
     if (!ready) return null;
-    const p = loadProfile();
-    return p ? getToneProfile(p.primaryType) : null;
+    const saved = loadProfile();
+    return saved ? getToneProfile(saved.primaryType) : null;
   }, [ready]);
+
   const skin = useMemo(() => ready ? loadSkinProfile() : null, [ready]);
 
-  useEffect(() => { setReady(true); track("shop_viewed"); }, []);
+  useEffect(() => {
+    setReady(true);
+    track("shop_viewed");
+  }, []);
 
   const items = catalogProducts
-    .filter(p => tab === "all" || p.category === tab)
-    .map(p => {
+    .filter((product) => tab === "all" || product.category === tab)
+    .filter((product) => {
+      const haystack = `${product.name} ${product.brand} ${product.subcategory} ${product.description}`.toLowerCase();
+      return haystack.includes(query.trim().toLowerCase());
+    })
+    .map((product) => {
       let match: number | undefined;
       let reason = "";
-      if (p.category === "makeup" && p.colorHex && profile) {
-        const scored = scoreColor(hexToRgb(p.colorHex), profile);
+      if (product.category === "makeup" && product.colorHex && profile) {
+        const scored = scoreColor(hexToRgb(product.colorHex), profile);
         match = scored.colorFit;
         reason = `${profile.name} color match`;
       }
-      if (p.category === "skincare" && skin) {
-        const scored = scoreSkinProduct(skin, p.tags, p.offers.map(o=>o.priceCents).filter((n): n is number=>typeof n === "number"));
+      if (product.category === "skincare" && skin) {
+        const scored = scoreSkinProduct(
+          skin,
+          product.tags,
+          product.offers.map((offer) => offer.priceCents).filter((price): price is number => typeof price === "number"),
+        );
         match = scored.score;
         reason = scored.reasons[0] || "Preference match";
       }
-      return { ...p, match, reason };
+      return { ...product, match, reason };
     })
-    .sort((a,b)=>(b.match || 0) - (a.match || 0));
+    .sort((a, b) => (b.match || 0) - (a.match || 0));
 
-  return <>
-    <div className="shop-tabs" role="tablist">
-      <button className={tab==="all"?"active":""} onClick={()=>setTab("all")}>All</button>
-      <button className={tab==="makeup"?"active":""} onClick={()=>setTab("makeup")}>Makeup</button>
-      <button className={tab==="skincare"?"active":""} onClick={()=>setTab("skincare")}>Skincare</button>
-    </div>
-
-    {!profile && tab !== "skincare" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
-    {!skin && tab !== "makeup" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
-
-    <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
-      <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
-        {(()=>{const a=artFor(p.id,p.subcategory,p.category);return <img src={a.src} alt="" loading="lazy" style={a.hue?{filter:`hue-rotate(${a.hue}deg) saturate(1.05)`}:undefined}/>})()}
-        {p.sponsored && <b className="sponsored-badge">Sponsored</b>}
+  return (
+    <section className="pvx-shop-experience">
+      <div className="pvx-shop-toolbar">
+        <label className="pvx-shop-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products, shades or categories" />
+          {query && <button aria-label="Clear search" onClick={() => setQuery("")}>×</button>}
+        </label>
+        <div className="pvx-shop-tabs" role="tablist" aria-label="Product categories">
+          <button className={tab === "all" && query !== "tools" ? "active" : ""} onClick={() => { setTab("all"); setQuery(""); }}>✦ All</button>
+          <button className={tab === "makeup" && query !== "tools" ? "active" : ""} onClick={() => { setTab("makeup"); setQuery(""); }}>Makeup</button>
+          <button className={tab === "skincare" ? "active" : ""} onClick={() => { setTab("skincare"); setQuery(""); }}>Skincare</button>
+          <button className={query === "tools" ? "active" : ""} onClick={() => { setTab("all"); setQuery("tools"); }}>Tools</button>
+        </div>
       </div>
-      <div className="shop-meta">
-        <small>{p.brand} · {p.subcategory}</small>
-        <h3>{p.name}</h3>
-        <p>{p.description}</p>
-        {p.match !== undefined && <div className="match-row"><div className="match-chip">{p.match}% match</div><small>{p.reason}</small></div>}
-        <div className="retailer-list">{p.offers.map(o => {
-          const href = trackedOfferHref(o.id, getVisitorId());
-          return <a key={o.id} href={href} onClick={()=>track("affiliate_outbound_click",{retailer:o.retailer,product:p.id,offer:o.id})}>
-            <span>{retailers[o.retailer].name}{o.priceLabel ? <small>{o.priceLabel}</small> : null}</span><b>↗</b>
-          </a>;
-        })}</div>
-      </div>
-    </article>)}</div>
 
-    <p className="affiliate-disclosure"><strong>Disclosure:</strong> this build uses demo products and direct retailer links until approved affiliate feeds/tracking URLs are configured. Palevie must label affiliate links and any sponsored placement clearly.</p>
-  </>;
+      <div className="pvx-shop-context">
+        <div>
+          <span className="pvx-kicker compact">Recommended for you</span>
+          <h2>{profile ? `${profile.name} matches first` : "Beauty, beautifully filtered"}</h2>
+        </div>
+        {!profile && tab !== "skincare" && <LinkPrompt href="/quiz" label="Take the color quiz to unlock makeup match scores" />}
+        {!skin && tab !== "makeup" && <LinkPrompt href="/skin" label="Build your skin preferences for smarter skincare ranking" />}
+      </div>
+
+      {items.length ? (
+        <div className="pvx-product-grid">
+          {items.map((product) => {
+            const primaryOffer = product.offers[0];
+            const primaryHref = primaryOffer ? trackedOfferHref(primaryOffer.id, getVisitorId()) : "#";
+            return (
+              <article className="pvx-product-card" key={product.id}>
+                <div className="pvx-product-image" style={{ "--product-tint": product.colorHex || "#f5dbe6" } as CSSProperties}>
+                  <img src={artFor(product.id, product.subcategory, product.category)} alt={`${product.name} product render`} loading="lazy" />
+                  <button className="pvx-heart" aria-label={`Save ${product.name}`}>♡</button>
+                  {product.sponsored && <b className="pvx-sponsored">Sponsored</b>}
+                  {product.match !== undefined && <span className="pvx-match-badge">{product.match}% match</span>}
+                </div>
+                <div className="pvx-product-info">
+                  <small>{product.brand} · {product.subcategory}</small>
+                  <h3>{product.name}</h3>
+                  <p>{product.description}</p>
+                  {product.reason && <span className="pvx-match-reason">✦ {product.reason}</span>}
+                  <div className="pvx-product-buy-row">
+                    <span>{primaryOffer?.priceLabel || "See retailer"}</span>
+                    {primaryOffer ? (
+                      <a
+                        href={primaryHref}
+                        onClick={() => track("affiliate_outbound_click", { retailer: primaryOffer.retailer, product: product.id, offer: primaryOffer.id })}
+                        aria-label={`View ${product.name} at ${retailers[primaryOffer.retailer].name}`}
+                      >
+                        View <b>↗</b>
+                      </a>
+                    ) : <span />}
+                  </div>
+                  {product.offers.length > 1 && (
+                    <details className="pvx-retailer-details">
+                      <summary>Compare {product.offers.length} retailers</summary>
+                      <div>{product.offers.map((offer) => {
+                        const href = trackedOfferHref(offer.id, getVisitorId());
+                        return <a key={offer.id} href={href} onClick={() => track("affiliate_outbound_click", { retailer: offer.retailer, product: product.id, offer: offer.id })}><span>{retailers[offer.retailer].name}<small>{offer.priceLabel}</small></span><b>↗</b></a>;
+                      })}</div>
+                    </details>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="pvx-empty-shop"><span className="pvx-orbit-art pvx-empty-orbit" aria-hidden="true"><i/><i/><i/><b/></span><h3>No exact matches yet</h3><p>Try a broader search or switch back to All.</p><button className="pvx-secondary-button" onClick={() => { setTab("all"); setQuery(""); }}>Reset filters</button></div>
+      )}
+
+      <p className="pvx-affiliate-disclosure"><strong>Disclosure:</strong> this build uses demo products and direct retailer links until approved affiliate feeds and tracking URLs are configured. Palevie labels affiliate links and sponsored placement clearly.</p>
+    </section>
+  );
+}
+
+function LinkPrompt({ href, label }: { href: string; label: string }) {
+  return <a className="pvx-shop-prompt" href={href}><span>✦</span>{label}<b>→</b></a>;
 }
