@@ -286,3 +286,52 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}b
 .lp-avoid-card .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
 .lp-avoid-card .chips i{display:block;aspect-ratio:1;border-radius:9px;position:relative}
 .lp-avoid-card .chips i:after{content:"";position:absolute;inset:0;border-radius:9px;background:linear-gradient(135deg,transparent 44%,rgba(255,255,255,.85) 47%,rgba(255,255,255,.85) 53%,transparent 56%)}
+
+/* ============ mockup-first home (mh-*) ============ */
+.mh{max-width:1100px;margin:0 auto;padding:8px 20px 110px}
+.mh h2{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.01em;margin:0}
+
+.mh-hero{display:grid;grid-template-columns:1fr;gap:26px;padding:26px 0 8px}
+.mh-hero-copy h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,11vw,52px);line-height:1.06;letter-spacing:-.02em;margin:0}
+.mh-hero-copy>p{font-size:15px;color:var(--muted);margin:14px 0 22px;line-height:1.6;max-width:24rem}
+.mh-cta{display:flex;align-items:center;justify-content:center;width:100%;max-width:420px;min-height:54px;border-radius:999px;background:linear-gradient(135deg,#FF5C8A,#FF8A80);color:#fff;font-weight:600;font-size:16px;box-shadow:var(--shadow-cta);transition:transform .15s ease}
+.mh-cta:active{transform:scale(.985)}
+.mh-caption{font-size:12px;color:var(--muted);margin-top:12px}
+.mh-hero-media{display:none}
+
+.mh-why{background:var(--grad1);border-radius:var(--r-lg);padding:22px;margin-top:22px;box-shadow:var(--shadow-soft)}
+.mh-why-list{display:grid;gap:16px;margin-top:16px}
+.mh-why-item{display:flex;gap:13px;align-items:center}
+.mh-why-item .ic{width:42px;height:42px;flex:none;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(60,42,84,.10)}
+.mh-why-item .ic svg{width:19px;height:19px;stroke:var(--rose);fill:none;stroke-width:1.6;stroke-linejoin:round}
+.mh-why-item b{display:block;font-size:14.5px;font-weight:600}
+.mh-why-item small{font-size:12px;color:var(--muted)}
+
+.mh-seasons{margin-top:30px}
+.mh-sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.mh-sec-head a{font-size:13px;font-weight:600;color:var(--rose)}
+.mh-season-strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.mh-season-strip::-webkit-scrollbar{display:none}
+.mh-season{flex:0 0 132px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:8px;box-shadow:var(--shadow-soft);color:inherit}
+.mh-season img{width:100%;aspect-ratio:.72;object-fit:cover;object-position:center 18%;border-radius:10px;display:block}
+.mh-season b{display:block;text-align:center;font-family:var(--display);font-weight:700;font-size:14px;margin:9px 0 4px}
+
+.mh-scan{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--grad2);border-radius:var(--r-lg);padding:20px 22px;margin-top:26px;box-shadow:var(--shadow-soft)}
+.mh-scan small{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--rose)}
+.mh-scan b{display:block;font-size:16.5px;font-weight:600;margin:4px 0}
+.mh-scan p{font-size:12px;color:var(--muted);margin:0;line-height:1.5;max-width:20rem}
+.mh-scan-btn{display:inline-flex;align-items:center;gap:8px;flex:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:12px 20px;font-size:14px;font-weight:600;box-shadow:var(--shadow-soft);color:inherit}
+.mh-scan-btn svg{width:17px;height:17px;stroke:var(--rose);fill:none;stroke-width:1.6}
+
+@media(min-width:860px){
+  .mh{padding-top:30px}
+  .mh-hero{grid-template-columns:1.05fr 1fr;align-items:center;gap:44px;padding:36px 0 14px}
+  .mh-hero-copy h1{font-size:64px}
+  .mh-hero-media{display:block}
+  .mh-hero-media img{width:100%;border-radius:var(--r-lg);box-shadow:var(--shadow-float)}
+  .mh-cta{width:auto;min-width:260px;padding:0 34px}
+  .mh-why{padding:30px}
+  .mh-why-list{grid-template-columns:repeat(3,1fr);gap:22px}
+  .mh-season-strip{overflow:visible;flex-wrap:nowrap}
+  .mh-season{flex:1}
+}
