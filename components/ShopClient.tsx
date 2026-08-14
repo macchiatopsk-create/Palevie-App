@@ -9,6 +9,11 @@ import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 
+function artFor(sub:string, cat:string){
+  const m:Record<string,string>={lip:"/img/lip_tint.webp",blush:"/img/blusher.webp",eyeshadow:"/img/shadow.webp",shadow:"/img/shadow.webp"};
+  if(m[sub])return m[sub];
+  return cat==="skincare"?"/img/flower.webp":"/img/acrylic.webp";
+}
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"makeup"|"skincare">("all");
   const [ready, setReady] = useState(false);
@@ -51,8 +56,8 @@ export default function ShopClient() {
     {!skin && tab !== "makeup" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
     <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
-      <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}66)`:undefined}}>
-        <span>{p.category === "skincare" ? "SKIN" : "COLOR"}</span>
+      <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
+        <img src={artFor(p.subcategory, p.category)} alt="" loading="lazy"/>
         {p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
       <div className="shop-meta">

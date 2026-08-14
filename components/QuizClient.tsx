@@ -22,7 +22,40 @@ export default function QuizClient(){
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>{String(step+1).padStart(2,"0")} / {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
 }
-function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);return <div className="result-book" style={{"--profile-accent":primary.colors[0]} as CSSProperties}><div className="eyebrow">Your palette</div><h1>{primary.name}</h1><p className="profile-tags">{primary.temperature} · {primary.chroma} · {primary.value}</p><p>{primary.description}</p><div className="palette-ribbon">{primary.colors.slice(0,7).map(c=><span key={c} style={{background:c}}/>)}</div><div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div><div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div><div className="button-row"><Link className="button" href="/shop">Shop my palette</Link><Link className="button secondary" href="/analyze">Check a product</Link><button className="text-button" onClick={onRestart}>Retake quiz</button></div></div>}
+function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
+ const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
+ const best=primary.colors[0];
+ return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
+  <img className="lp-result-flower" src="/img/flower.webp" alt=""/>
+  <div className="eyebrow">Your palette</div>
+  <h1 className="lp-result-name">{primary.name}</h1>
+  <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
+  <p className="lp-result-desc">{primary.description}</p>
+
+  <div className="lp-colors-card">
+   <small>Your 7 colors</small>
+   <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
+  </div>
+
+  <div className="lp-best-card">
+   <img src="/img/pearls.webp" alt=""/>
+   <div>
+    <small>Best match for you</small>
+    <b style={{color:best}}>●</b>
+    <strong>Your signature shade</strong>
+    <p>{primary.temperature} · {primary.chroma} · your perfect harmony.</p>
+   </div>
+  </div>
+
+  <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
+  <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
+
+  <div className="button-row">
+   <Link className="lp-btn" href="/shop">See full analysis <span className="lp-arrow">→</span></Link>
+   <Link className="button secondary" href="/analyze">Check a product</Link>
+   <button className="text-button" onClick={onRestart}>Retake quiz</button>
+  </div>
+ </div>}
 
 function AnalyzingView({onDone}:{onDone:()=>void}){
  const STEPS=["Skin tone analysis","Undertone detection","Color harmony","Finalizing your palette"];
@@ -40,7 +73,14 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
  return <div className="lp-analyzing">
   <h2>Analyzing your colors…</h2>
   <p className="lp-an-sub">Crafting your personal palette</p>
-  <div className="lp-an-orb"><img src="/img/step2.webp" alt=""/><span>{pct}%</span></div>
+  <div className="lp-an-orb">
+   <img src="/img/step2.webp" alt="" className="lp-an-spin"/>
+   <svg className="lp-an-ring" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="44" className="rb"/>
+    <circle cx="50" cy="50" r="44" className="rf" style={{strokeDashoffset:276.5*(1-pct/100)}}/>
+   </svg>
+   <span>{pct}%</span>
+  </div>
   <ul className="lp-an-list">
    {STEPS.map((st,i)=><li key={st} className={i<done?"done":i===done?"now":""}><b>{i<done?"✓":""}</b>{st}</li>)}
   </ul>
