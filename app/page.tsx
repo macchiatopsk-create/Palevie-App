@@ -7,8 +7,12 @@ export default function HomePage(){return <>
       <p className="lp-sub">Personal color analysis inspired by K-beauty expertise — your season, your best shades, and what to actually buy.</p>
       <div className="lp-hero-actions">
         <Link className="lp-btn" href="/quiz">Find my palette <span className="lp-arrow">→</span></Link>
-        <div className="lp-note"><b>Free quiz</b>12 questions · about 90 seconds</div>
+        <Link className="lp-btn-ghost" href="/diagnose">
+          <svg viewBox="0 0 24 24"><path d="M4 8.5c0-1.1.9-2 2-2h1.6l1.2-1.8c.2-.3.5-.5.9-.5h4.6c.4 0 .7.2.9.5l1.2 1.8H18c1.1 0 2 .9 2 2V17c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V8.5z"/><circle cx="12" cy="12.5" r="3.4"/></svg>
+          AI photo scan
+        </Link>
       </div>
+      <div className="lp-note" style={{marginTop:"14px"}}><b>Free quiz · 12 questions · about 90s</b>Photo scan is optional — a second opinion, with your consent.</div>
       <div className="lp-tags"><span>No selfie required</span><span>16 Korean tones</span><span>Shop your palette</span></div>
     </div>
     <div className="lp-hero-media"><img src="/img/hero.webp" alt="Range of skin tones and undertones"/></div>
