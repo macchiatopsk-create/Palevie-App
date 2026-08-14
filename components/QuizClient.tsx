@@ -20,7 +20,23 @@ export default function QuizClient(){
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
- return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>{String(step+1).padStart(2,"0")} / {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
+ return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>Question {String(step+1).padStart(2,"0")} of {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
+}
+function seasonArt(toneId:string){
+  if(toneId==="summer-soft"||toneId==="summer-muted"||toneId==="autumn-soft"||toneId==="autumn-muted")return "/img/s2_ss.webp";
+  const fam=toneId.split("-")[0];
+  return {spring:"/img/s2_sp.webp",summer:"/img/s2_su.webp",autumn:"/img/s2_au.webp",winter:"/img/s2_wi.webp"}[fam] ?? "/img/s2_ss.webp";
+}
+// Color-theory "avoid" palettes per season family: hues that fight the palette's
+// temperature/chroma (e.g. cool-muted summers are washed out by hot oranges).
+function avoidColors(toneId:string):string[]{
+  const fam=toneId.split("-")[0];
+  return {
+    spring:["#8C9BAB","#5B5F6E","#7A3B52","#3E3A45","#9AA5B5","#63444E"],
+    summer:["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"],
+    autumn:["#9FD8E8","#C7CEEA","#F19AD1","#8FA6E8","#7FD1C8","#D671B8"],
+    winter:["#C8A165","#A98253","#B5A642","#8E7748","#D2B48C","#C77B4F"],
+  }[fam] ?? ["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"];
 }
 function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
  const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
@@ -35,6 +51,17 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
   <div className="lp-colors-card">
    <small>Your 7 colors</small>
    <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
+  </div>
+
+  <div className="lp-season-photo">
+   <img src={seasonArt(result.ranked[0].id)} alt=""/>
+   <div className="lp-season-caption"><small>Season mood</small><b>{primary.name}</b></div>
+  </div>
+
+  <div className="lp-avoid-card">
+   <small>Colors to avoid</small>
+   <p>These fight your palette&apos;s balance — wear them away from your face.</p>
+   <div className="chips">{avoidColors(result.ranked[0].id).map(c=><i key={c} style={{background:c}}/>)}</div>
   </div>
 
   <div className="lp-best-card">
