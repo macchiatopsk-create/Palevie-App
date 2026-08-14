@@ -31,7 +31,14 @@ export default function HomePage(){return <>
           <div className="lp-step-num">2</div>
           <h3>We match your tone</h3>
           <p>Your answers map to undertone, value, chroma and contrast — the four axes behind every season.</p>
-          <div className="lp-step-art lp-orb-wrap"><img src="/img/step2.webp" alt=""/><span className="lp-orb-pct">78%</span></div>
+          <div className="lp-step-art">
+            <div className="lp-axes">
+              <div className="ax"><span>Undertone</span><div className="bar"><i style={{width:"72%",background:"linear-gradient(90deg,#e8a9c0,#8fa9c6)"}}/></div></div>
+              <div className="ax"><span>Value</span><div className="bar"><i style={{width:"58%",background:"linear-gradient(90deg,#f2e4ea,#8a7d8f)"}}/></div></div>
+              <div className="ax"><span>Chroma</span><div className="bar"><i style={{width:"44%",background:"linear-gradient(90deg,#d8ccd8,#c2214b)"}}/></div></div>
+              <div className="ax"><span>Contrast</span><div className="bar"><i style={{width:"63%",background:"linear-gradient(90deg,#efe6ef,#2b2b2f)"}}/></div></div>
+            </div>
+          </div>
         </Link>
         <Link className="lp-step" href="/quiz">
           <div className="lp-step-num">3</div>
