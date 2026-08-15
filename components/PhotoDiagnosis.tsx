@@ -10,7 +10,7 @@ import { getVisitorId, track } from "@/lib/analytics";
 import { syncColorProfileToCloud } from "@/lib/cloudProfile";
 import BiometricConsent from "@/components/BiometricConsent";
 
-const SELFIE_MODEL = "https://images.pexels.com/photos/6973948/pexels-photo-6973948.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop";
+const SELFIE_MODEL = "https://images.unsplash.com/photo-1758600587833-c07c5bda5c70?auto=format&fit=crop&w=1800&h=2400&q=90";
 
 type AiResult = {
   primaryType: string;
@@ -122,7 +122,13 @@ export default function PhotoDiagnosis() {
           <img src={preview || SELFIE_MODEL} alt={preview ? "Selected selfie preview" : "Example selfie framing"} />
           <div className="pvx-camera-shade" />
           <div className="pvx-face-guide"><i /><i /><i /><i /><span /></div>
-          {loading && <div className="pvx-scan-loading"><span className="pvx-orbit-art pvx-scan-orbit-art" aria-hidden="true"><i/><i/><i/><b/></span><b>Reading your color profile…</b></div>}
+          {loading && (
+            <div className="pvx-scan-loading pvx-scan-loading-clean">
+              <span className="pvx-scan-loading-ring" aria-hidden="true"><i /></span>
+              <span className="pvx-scan-loading-line" aria-hidden="true" />
+              <b>Reading your color profile…</b>
+            </div>
+          )}
         </div>
         <div className="pvx-camera-controls">
           <label className="pvx-gallery-button" htmlFor="pvx-selfie-file" aria-label="Choose a selfie from your device">
