@@ -30,8 +30,7 @@ export default function QuizClient(){
   <div className="qz-bar"><i style={{width:`${progress}%`}}><u>✦</u></i></div>
   <div className="qz-head">
    <h2>{(()=>{const w=q.text.split(" ");const cut=Math.ceil(w.length/2);return <>{w.slice(0,cut).join(" ")} <em>{w.slice(cut).join(" ")}</em></>})()}</h2>
-   <img className="qz-orb" src="/img/orb3.webp" alt=""/>
-  </div>
+   </div>
   {q.help&&<p className="qz-help">{q.help}</p>}
   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
    const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onClick={()=>setSide(i)}>{o.label}</button>)}</div>;

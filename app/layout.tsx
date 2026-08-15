@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#FBF7F2", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="en"><body>
+  return <html lang="en"><head><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/></head><body>
     <AttributionCapture/>
     <header className="site-header">
       <Link className="brand" href="/"><span className="brand-word">palévie</span><small>personal beauty</small></Link>

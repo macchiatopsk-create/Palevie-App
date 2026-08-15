@@ -6,7 +6,7 @@
   --grad1:linear-gradient(135deg,#FFE6F0,#FFD6E7);--grad2:linear-gradient(135deg,#EDE7FF,#F9F0FF);--grad-cta:linear-gradient(95deg,#FF5C8A,#B96DF0);--grad-text:linear-gradient(95deg,#F0448F,#9D5CE8);
   --shadow-soft:0 8px 24px rgba(60,42,84,.08);--shadow-float:0 16px 40px rgba(60,42,84,.12);--shadow-cta:0 8px 20px rgba(255,92,138,.28);
   --r-lg:20px;--r-md:16px;--r-sm:12px;
-  --display:'Playfair Display',Georgia,"Times New Roman",serif;--ui:Poppins,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --display:'Fraunces','Playfair Display',Georgia,serif;--ui:Poppins,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 html{scroll-behavior:smooth;background:var(--bg)}
 body{margin:0;color:var(--ink);font-family:var(--ui);padding-bottom:0;position:relative;
@@ -422,7 +422,7 @@ body:has(.mk-home) .site-header{display:none}
 .qz-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .qz-back{width:44px;height:44px;border-radius:14px;border:none;background:rgba(255,255,255,.85);box-shadow:var(--shadow-soft);font-size:18px;cursor:pointer;color:var(--ink)}
 .qz-back:disabled{opacity:.35}
-.qz-logo{font-family:var(--display);font-weight:700;font-size:22px;color:var(--rose)}
+.qz-logo{font-family:var(--display);font-weight:600;font-size:23px;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .qz-count{font-size:15px;color:var(--muted);font-weight:600}
 .qz-count em{font-style:normal;color:var(--rose)}
 .qz-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1px 3px rgba(60,42,84,.08);overflow:visible;margin-top:14px;position:relative}
@@ -554,7 +554,7 @@ body:has(.rs) .app-title,body:has(.an3) .app-title,body:has(.qz) .app-title{disp
 .mh-season b{color:var(--plum);font-size:14.5px}
 /* home bottom duo */
 .mk-duo{display:grid;gap:14px}
-.mk-scanb,.mk-shopb{display:flex;align-items:center;gap:13px;background:linear-gradient(92deg,#FFDCEA,#FBCFE5 60%,#F6C6E4);border:none;border-radius:22px;padding:15px 18px;min-height:96px;box-shadow:0 8px 22px rgba(60,42,84,.10);color:inherit;position:relative}
+.mk-scanb,.mk-shopb{display:flex;align-items:center;gap:13px;min-height:0;background:linear-gradient(92deg,#FFDCEA,#FBCFE5 60%,#F6C6E4);border:none;border-radius:20px;padding:16px 18px;box-shadow:0 8px 22px rgba(60,42,84,.10);color:inherit;position:relative}
 
 .mk-scanb img{width:66px;height:66px;object-fit:cover;object-position:center 12%;border-radius:16px;flex:none}
 .mk-shopb .thumbs{display:flex;flex:none}
@@ -581,3 +581,6 @@ body:has(.rs) .app-title,body:has(.an3) .app-title,body:has(.qz) .app-title{disp
 button,a,.mk-hs{touch-action:manipulation}
 @media(hover:none){.lp-btn:hover,.qz-next:hover,.lp-quicklinks a:hover,.mh-season:hover,.lp-season:hover,.mh2-cta:hover,.mk-hs:hover{transform:none}}
 .dr-prev{display:block;margin:12px auto 0;border:none;background:none;font:inherit;font-size:13.5px;font-weight:600;color:#8a7c85;cursor:pointer}
+/* account form breathing room */
+input[type="email"]{margin-bottom:16px}
+.mk-scanb p,.mk-shopb p{max-width:15rem}
