@@ -30,6 +30,7 @@ export default function ShopClient() {
   const [qtext, setQtext] = useState("");
   const [sort, setSort] = useState<"match"|"lo"|"hi">("match");
   const [cols, setCols] = useState<2|3>(2);
+  const [menu, setMenu] = useState(false);
   const [ready, setReady] = useState(false);
   const profile = useMemo(() => {
     if (!ready) return null;
@@ -75,15 +76,16 @@ export default function ShopClient() {
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
     <div className="sh-tools">
-      <div className="sh-sort">
-        <button className={sort==="match"?"on":""} onPointerDown={()=>setSort("match")}>✦ Best match</button>
-        <button className={sort==="lo"?"on":""} onPointerDown={()=>setSort("lo")}>$ Low</button>
-        <button className={sort==="hi"?"on":""} onPointerDown={()=>setSort("hi")}>$$ High</button>
+      <div className="sh-dd">
+        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>⇅ {sort==="match"?"Best match":sort==="lo"?"Price: Low":"Price: High"} ▾</button>
+        {menu && <div className="sh-dd-menu">
+          {(["match","lo","hi"] as const).map(k=>
+            <button key={k} className={sort===k?"on":""} onPointerDown={()=>{setSort(k);setMenu(false)}}>
+              {k==="match"?"✦ Best match":k==="lo"?"$ Price: Low to High":"$$ Price: High to Low"}
+            </button>)}
+        </div>}
       </div>
-      <div className="sh-view">
-        <button className={cols===2?"on":""} onPointerDown={()=>setCols(2)} aria-label="2 columns">▦</button>
-        <button className={cols===3?"on":""} onPointerDown={()=>setCols(3)} aria-label="3 columns">▩</button>
-      </div>
+      <button className="sh-viewbtn" onPointerDown={()=>setCols(c=>c===2?3:2)} aria-label="Toggle grid density">{cols===2?"▦ 2":"▩ 3"}</button>
     </div>
 
     <div className={`shop-grid ${cols===3?"c3":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
