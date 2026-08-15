@@ -118,7 +118,6 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
   </div>
  </div>}
 function AnalyzingView({onDone}:{onDone:()=>void}){
- const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
  const [pct,setPct]=useState(0);
  useEffect(()=>{
   const t0=Date.now();const DUR=3800;
@@ -129,29 +128,12 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   },40);
   return()=>clearInterval(iv);
  },[onDone]);
- const done=Math.floor(pct/25);
- return <div className="an4">
-  <h2>Analyzing<br/><em>your color energy</em></h2>
-  <p className="an4-sub">We&apos;re mapping your undertone, contrast, and best palette.</p>
-  <div className="an4-stage">
-   <i className="an4-halo"/>
-   {[0,1,2,3,4,5].map(i=><b key={i} className="an4-sp" style={{animationDelay:`${i*1.4}s`,rotate:`${i*60}deg`}}/>)}
-   <svg className="an4-ring" viewBox="0 0 100 100">
-    <defs><linearGradient id="agr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FF5C8A"/><stop offset="1" stopColor="#B96DF0"/></linearGradient></defs>
-    <circle className="rb" cx="50" cy="50" r="47"/>
-    <circle className="rf" cx="50" cy="50" r="47" style={{strokeDashoffset:295.3*(1-pct/100)}}/>
-   </svg>
-   <img className="an4-orb" src="/img/orb3.webp" alt=""/>
-   <strong className="an4-pct">{pct}<small>%</small></strong>
+ return <div className="an3">
+  <img className="an3-art" src="/img/analyzing_art.webp" alt="Analyzing your color energy"/>
+  <div className="an3-foot">
+   <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
+   <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
+   <p>Your personalized results are loading… 💗</p>
   </div>
-  <ul className="an2-list">
-   {STEPS.map((st,i)=>{
-    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
-    return <li key={st} className={state}>
-     <b>{state==="done"?"✓":""}</b><span>{st}</span>
-    </li>;
-   })}
-  </ul>
-  <p className="an4-cap">Your personalized results are loading… 💗</p>
  </div>;
 }
