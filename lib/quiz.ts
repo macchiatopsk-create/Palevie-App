@@ -30,13 +30,6 @@ export type QuizResult = {
 };
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
-  { id: "jewelry", kind: "drape", text: "Which metal makes your face look brighter?",
-    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
-    options: [
-      { label: "Gold", hex: "#E3B966", t: 2 },
-      { label: "Silver", hex: "#CBD2DB", t: -2 },
-      { label: "Honestly can't tell" },
-    ]},
   { id: "skintone", text: "Which skin tone looks closest to yours?",
     help: "Choose the closest match in natural light.",
     options: [
@@ -44,20 +37,6 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Light", img: "/img/qs_light.webp", v: 1 },
       { label: "Medium", img: "/img/qs_medium.webp", v: -1 },
       { label: "Deep", img: "/img/qs_deep.webp", v: -2 },
-    ]},
-  { id: "white", kind: "drape", text: "Which white keeps your face fresh — not gray, not yellow?",
-    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
-    options: [
-      { label: "Ivory", hex: "#FAF1DC", t: 1.5 },
-      { label: "Pure white", hex: "#FFFFFF", t: -1.5, k: 0.5 },
-      { label: "Honestly can't tell" },
-    ]},
-  { id: "sun", text: "What does strong sun do to your skin?",
-    options: [
-      { label: "I burn or turn pink quickly", t: -1.5 },
-      { label: "I tan easily and evenly", t: 1.5 },
-      { label: "I burn first, then it turns to tan", t: -0.5 },
-      { label: "Barely changes" },
     ]},
   { id: "hair", text: "Your natural hair color (before any dye):",
     options: [
@@ -76,6 +55,13 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Hazel / green", t: 0.5 },
       { label: "Blue / gray", t: -1.5, k: -0.5 },
     ]},
+  { id: "sun", text: "What does strong sun do to your skin?",
+    options: [
+      { label: "I burn or turn pink quickly", t: -1.5 },
+      { label: "I tan easily and evenly", t: 1.5 },
+      { label: "I burn first, then it turns to tan", t: -0.5 },
+      { label: "Barely changes" },
+    ]},
   { id: "contrast", text: "Compare your skin against your hair and eyes. How strong is the difference?",
     help: "Example: fair skin + black hair = high. Everything similar depth = low.",
     options: [
@@ -83,25 +69,24 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Medium", k: 0 },
       { label: "Low — everything blends softly", k: -2 },
     ]},
-  { id: "vividness", kind: "drape", text: "Which one harmonizes with you — instead of wearing you?",
+  { id: "black", text: "When you wear black right next to your face:",
+    options: [
+      { label: "I look sharp and defined", k: 1.5, v: -1 },
+      { label: "I look tired or washed out", k: -1.5, v: 1 },
+      { label: "Neither — it's just neutral" },
+    ]},
+  { id: "jewelry", kind: "drape", text: "Which metal makes your face look brighter?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Vivid fuchsia", hex: "#E9339B", c: 2, k: 0.5 },
-      { label: "Dusty mauve", hex: "#B08699", c: -2, k: -0.5 },
+      { label: "Gold", hex: "#E3B966", t: 2 },
+      { label: "Silver", hex: "#CBD2DB", t: -2 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "depth", kind: "drape", text: "Which depth lets your face stay the focus?",
+  { id: "white", kind: "drape", text: "Which white keeps your face fresh — not gray, not yellow?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Soft powder pink", hex: "#F6CFD8", v: 2 },
-      { label: "Deep burgundy", hex: "#6E2136", v: -2 },
-      { label: "Honestly can't tell" },
-    ]},
-  { id: "lip", kind: "drape", text: "Which red lifts your whole face?",
-    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
-    options: [
-      { label: "Tomato red", hex: "#E8442E", t: 1.5 },
-      { label: "Berry red", hex: "#C2185B", t: -1.5 },
+      { label: "Ivory", hex: "#FAF1DC", t: 1.5 },
+      { label: "Pure white", hex: "#FFFFFF", t: -1.5, k: 0.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "worst", kind: "drape", text: "Which pink makes your skin glow?",
@@ -111,11 +96,26 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Cool pink", hex: "#F06CA0", t: -1.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "black", text: "When you wear black right next to your face:",
+  { id: "lip", kind: "drape", text: "Which red lifts your whole face?",
+    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "I look sharp and defined", k: 1.5, v: -1 },
-      { label: "I look tired or washed out", k: -1.5, v: 1 },
-      { label: "Neither — it's just neutral" },
+      { label: "Tomato red", hex: "#E8442E", t: 1.5 },
+      { label: "Berry red", hex: "#C2185B", t: -1.5 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "depth", kind: "drape", text: "Which depth lets your face stay the focus?",
+    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
+    options: [
+      { label: "Soft powder pink", hex: "#F6CFD8", v: 2 },
+      { label: "Deep burgundy", hex: "#6E2136", v: -2 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "vividness", kind: "drape", text: "Which one harmonizes with you — instead of wearing you?",
+    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
+    options: [
+      { label: "Vivid fuchsia", hex: "#E9339B", c: 2, k: 0.5 },
+      { label: "Dusty mauve", hex: "#B08699", c: -2, k: -0.5 },
+      { label: "Honestly can't tell" },
     ]},
   { id: "group", text: "If you could only keep one color family in your closet:",
     options: [

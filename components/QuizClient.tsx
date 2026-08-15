@@ -11,8 +11,8 @@ const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);
- useEffect(()=>{setSide(0)},[step]);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);
+ useEffect(()=>{setSide(0);setFull(false)},[step]);
  useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
  const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
@@ -34,11 +34,19 @@ export default function QuizClient(){
   </div>
   {q.help&&<p className="qz-help">{q.help}</p>}
   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
+   const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onClick={()=>setSide(i)}>{o.label}</button>)}</div>;
+   const pick=<button className="dr-pick" onClick={()=>{setFull(false);choose(curIdx);setTimeout(next,90)}}>✓ This one suits me</button>;
+   const cant=<button className="qz-skip dr-skip" onClick={()=>{setFull(false);choose(neutral);setTimeout(next,60)}}>Honestly can&apos;t tell</button>;
    return <div className="dr">
-    <div className="dr-swatch" style={{background:cur.hex}}><span>{cur.label}</span></div>
-    <div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onClick={()=>setSide(i)}>{o.label}</button>)}</div>
-    <button className="qz-next dr-pick" onClick={()=>{choose(curIdx);setTimeout(next,90)}}>✓ This one brightens my face</button>
-    <button className="qz-skip dr-skip" onClick={()=>{choose(neutral);setTimeout(next,60)}}>Honestly can&apos;t tell</button>
+    <div className="dr-swatch" style={{background:cur.hex}}>
+     <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">⛶ Fill screen</button>
+     <span>{cur.label}</span>
+    </div>
+    {toggle}{pick}{cant}
+    {full && <div className="dr-full" style={{background:cur.hex}}>
+      <button className="dr-close" onClick={()=>setFull(false)}>✕</button>
+      <div className="dr-full-ui">{toggle}{pick}{cant}</div>
+    </div>}
    </div>})() :
   <div className={q.options.some(o=>o.img)?"qz-photos":"qz-opts"}>{q.options.map((o,idx)=>
    o.img
