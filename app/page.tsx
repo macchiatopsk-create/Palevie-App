@@ -11,8 +11,10 @@ export default function HomePage(){return <div className="mk-home">
         style={{left:"2.8%",top:"57.4%",width:"45%",height:"7%"}}/>
       <Link className="mk-hs" href="/diagnose" aria-label="See how it works"
         style={{left:"4.3%",top:"67%",width:"29.5%",height:"3.2%"}}/>
-      <Link className="mk-hs" href="/quiz" aria-label="Made for all of you"
-        style={{left:"1%",top:"83.4%",width:"96%",height:"15%"}}/>
+      <Link href="/quiz" className="mk-strip2" aria-label="Made for all of you">
+        <span>Made for<br/><em>all of you</em> ♡</span>
+        <img src="/img/hero3.webp" alt=""/>
+      </Link>
     </div>
 
     <div className="mk-sec">
@@ -43,13 +45,19 @@ export default function HomePage(){return <div className="mk-home">
     </div>
 
     <section className="mk-sec mk-duo">
-      <a className="mk-scanb" href="/diagnose">
-        <div><small>Optional · 2nd opinion</small><b>Selfie Scan</b><p>Snap a photo in natural light — AI checks your tone.</p></div>
-        <span>Scan ›</span>
+      <a className="mk-ban" href="/diagnose">
+        <div className="mk-ban-in">
+          <div className="tx"><b>Selfie Scan</b><p>Snap a photo — AI checks your tone.</p></div>
+          <span>Scan ›</span>
+          <img src="/img/scanui.webp" alt=""/>
+        </div>
       </a>
-      <a className="mk-shopb" href="/shop">
-        <div><b>Shop your palette</b><p>Makeup picks matched to your season.</p></div>
-        <span>Shop ›</span>
+      <a className="mk-ban" href="/shop">
+        <div className="mk-ban-in">
+          <div className="tx"><b>Shop your palette</b><p>Makeup picks matched to your season.</p></div>
+          <span>Shop ›</span>
+          <img src="/img/blush3.webp" alt=""/>
+        </div>
       </a>
     </section>
   </div>
