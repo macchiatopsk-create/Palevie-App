@@ -149,7 +149,12 @@ export default function ShopClient() {
           })}
         </div>
       ) : (
-        <div className="pvx-empty-shop"><span className="pvx-orbit-art pvx-empty-orbit" aria-hidden="true"><i/><i/><i/><b/></span><h3>No exact matches yet</h3><p>Try a broader search or switch back to All.</p><button className="pvx-secondary-button" onClick={() => { setTab("all"); setQuery(""); }}>Reset filters</button></div>
+        <div className="pvx-empty-shop">
+          <span className="pvx-empty-spectrum" aria-hidden="true"><i /><i /><i /><i /></span>
+          <h3>No exact matches yet</h3>
+          <p>Try a broader search or switch back to All.</p>
+          <button className="pvx-secondary-button" onClick={() => { setTab("all"); setQuery(""); }}>Reset filters</button>
+        </div>
       )}
 
       <p className="pvx-affiliate-disclosure"><strong>Disclosure:</strong> this build uses demo products and direct retailer links until approved affiliate feeds and tracking URLs are configured. Palevie labels affiliate links and sponsored placement clearly.</p>
