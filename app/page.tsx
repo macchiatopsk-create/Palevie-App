@@ -32,8 +32,8 @@ function BellIcon() {
 
 export default function HomePage() {
   return (
-    <div className="pv4-page pv4-home-page">
-      <section className="pv4-home-hero">
+    <div className="pv4-page pv4-home-page pv4-reference-home">
+      <section className="pv4-home-hero pv4-reference-hero">
         <div className="pv4-page-topbar">
           <Link className="pv4-wordmark" href="/">Palevie</Link>
           <Link className="pv4-round-icon pv4-bell" href="/account" aria-label="Open profile">
@@ -42,8 +42,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="pv4-hero-grid">
-          <div className="pv4-hero-copy">
+        <div className="pv4-hero-grid pv4-reference-hero-grid">
+          <div className="pv4-hero-copy pv4-reference-copy">
             <span className="pv4-pill"><b>✦</b> AI PERSONAL COLOR</span>
             <h1>Find your <em>best colors.</em></h1>
             <p>AI-powered personal color analysis for your makeup, style, and glow.</p>
@@ -53,26 +53,27 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="pv4-hero-art" aria-label="Palevie beauty model">
-            <span className="pv4-hero-sheen" />
-            <img className="pv4-hero-model" src="/palevie-v4/model-hero.webp" alt="Beauty portrait in soft pink and lavender" />
-            <img className="pv4-hero-orbit" src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
-            <img className="pv4-hero-lip" src="/palevie-v4/lip-tint.webp" alt="" aria-hidden="true" />
-            <img className="pv4-hero-palette" src="/palevie-v4/eyeshadow.webp" alt="" aria-hidden="true" />
+          <div className="pv4-hero-art pv4-reference-art" aria-label="Palevie beauty model">
+            <span className="pv4-reference-halo" aria-hidden="true" />
+            <span className="pv4-reference-spark spark-a" aria-hidden="true">✦</span>
+            <span className="pv4-reference-spark spark-b" aria-hidden="true">✦</span>
+            <img className="pv4-hero-model pv4-reference-model" src="/palevie-v4/model-hero.webp" alt="Beauty portrait in soft pink and lavender" />
+            <img className="pv4-hero-lip pv4-reference-lip" src="/palevie-v4/lip-tint.webp" alt="" aria-hidden="true" />
+            <img className="pv4-hero-palette pv4-reference-palette" src="/palevie-v4/eyeshadow.webp" alt="" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      <section className="pv4-made-for-card">
+      <section className="pv4-made-for-card pv4-reference-made-for">
         <div className="pv4-made-for-copy"><span>Made for</span><strong>all of you ♡</strong></div>
         <img src="/palevie-v4/model-group.webp" alt="Five beauty models with diverse skin tones" />
       </section>
 
-      <section className="pv4-feature-grid" aria-label="Palevie features">
+      <section className="pv4-feature-grid pv4-reference-feature-grid" aria-label="Palevie features">
         {features.map((feature) => (
           <Link className={`pv4-feature-card pv4-feature-${feature.art}`} href={feature.href} key={feature.title}>
             <div className="pv4-feature-art">
-              {feature.art === "orbit" && <img src="/palevie-v4/orbit-core.webp" alt="" />}
+              {feature.art === "orbit" && <img className="pv4-reference-feature-orbit" src="/palevie-v4/orbit-core.webp" alt="" />}
               {feature.art === "makeup" && <><img className="lip" src="/palevie-v4/lip-tint.webp" alt="" /><img className="eye" src="/palevie-v4/eyeshadow.webp" alt="" /></>}
               {feature.art === "palette" && <span className="pv4-palette-fan" aria-hidden="true"><i /><i /><i /><i /><i /><i /></span>}
             </div>
@@ -83,10 +84,9 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="pv4-home-quiz-banner">
+      <section className="pv4-home-quiz-banner pv4-reference-quiz-banner">
         <div><span>New to Palevie?</span><p>Take the quiz for the most accurate results. ✦</p></div>
         <Link href="/quiz">Take Quiz <b>›</b></Link>
-        <img src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
       </section>
     </div>
   );
