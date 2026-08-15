@@ -104,7 +104,7 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
 
   <div className="rs-foot">
    <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
-   <button className="text-button" onClick={onRestart}>Retake quiz</button>
+   <button className="rs-retake" onClick={onRestart}>↺ Retake the quiz</button>
    <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
   </div>
  </div>}

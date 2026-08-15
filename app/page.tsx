@@ -8,11 +8,11 @@ export default function HomePage(){return <div className="mk-home">
     <div className="mk-sec mk-hero">
       <img src="/img/home_s1.webp" alt="Palevie — find your best colors" fetchPriority="high"/>
       <Link className="mk-hs" href="/quiz" aria-label="Start My Analysis"
-        style={{left:"5.4%",top:"56.8%",width:"42.2%",height:"7.4%"}}/>
+        style={{left:"2.8%",top:"56.8%",width:"45%",height:"7.4%"}}/>
       <Link className="mk-hs" href="/diagnose" aria-label="See how it works"
-        style={{left:"6.8%",top:"66.4%",width:"28.4%",height:"3.4%"}}/>
+        style={{left:"4.3%",top:"66.4%",width:"29.5%",height:"3.4%"}}/>
       <Link className="mk-hs" href="/quiz" aria-label="Made for all of you"
-        style={{left:"4.2%",top:"83.2%",width:"85%",height:"15.4%"}}/>
+        style={{left:"1%",top:"83.2%",width:"96%",height:"15.4%"}}/>
     </div>
 
     <div className="mk-sec">
@@ -42,5 +42,17 @@ export default function HomePage(){return <div className="mk-home">
         style={{left:"3.5%",top:"5%",width:"92%",height:"90%"}}/>
     </div>
 
+    <section className="mk-sec mk-duo">
+      <a className="mk-scanb" href="/diagnose">
+        <img src="/img/scanui.webp" alt=""/>
+        <div><small>Optional · 2nd opinion</small><b>Selfie Scan</b><p>Snap a photo in natural light — AI checks your tone.</p></div>
+        <span>→</span>
+      </a>
+      <a className="mk-shopb" href="/shop">
+        <div className="thumbs"><img src="/img/lip3.webp" alt=""/><img src="/img/blush3.webp" alt=""/><img src="/img/shadow3.webp" alt=""/></div>
+        <div><b>Shop your palette</b><p>Makeup picks matched to your season.</p></div>
+        <span>→</span>
+      </a>
+    </section>
   </div>
 </div>;}
