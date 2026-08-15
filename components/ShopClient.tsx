@@ -29,8 +29,9 @@ export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
   const [qtext, setQtext] = useState("");
   const [sort, setSort] = useState<"match"|"lo"|"hi">("match");
-  const [cols, setCols] = useState<2|3>(2);
+  const [cols, setCols] = useState<1|2|3>(2);
   const [menu, setMenu] = useState(false);
+  const [vmenu, setVmenu] = useState(false);
   const [ready, setReady] = useState(false);
   const profile = useMemo(() => {
     if (!ready) return null;
@@ -77,7 +78,7 @@ export default function ShopClient() {
 
     <div className="sh-tools">
       <div className="sh-dd">
-        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>⇅ {sort==="match"?"Best match":sort==="lo"?"Price: Low":"Price: High"} ▾</button>
+        <button className="sh-dd-btn" onPointerDown={()=>{setMenu(m=>!m);setVmenu(false)}}>⇅ {sort==="match"?"Best match":sort==="lo"?"Price: Low":"Price: High"} ▾</button>
         {menu && <div className="sh-dd-menu">
           {(["match","lo","hi"] as const).map(k=>
             <button key={k} className={sort===k?"on":""} onPointerDown={()=>{setSort(k);setMenu(false)}}>
@@ -85,10 +86,18 @@ export default function ShopClient() {
             </button>)}
         </div>}
       </div>
-      <button className="sh-viewbtn" onPointerDown={()=>setCols(c=>c===2?3:2)} aria-label="Toggle grid density">{cols===2?"▦ 2":"▩ 3"}</button>
+      <div className="sh-dd">
+        <button className="sh-dd-btn" onPointerDown={()=>{setVmenu(v=>!v);setMenu(false)}}>{cols===1?"▭ 1 column":cols===2?"▦ 2 columns":"▩ 3 columns"} ▾</button>
+        {vmenu && <div className="sh-dd-menu right">
+          {([1,2,3] as const).map(n=>
+            <button key={n} className={cols===n?"on":""} onPointerDown={()=>{setCols(n);setVmenu(false)}}>
+              {n===1?"▭ 1 column · big cards":n===2?"▦ 2 columns":"▩ 3 columns · compact"}
+            </button>)}
+        </div>}
+      </div>
     </div>
 
-    <div className={`shop-grid ${cols===3?"c3":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
+    <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
         <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}

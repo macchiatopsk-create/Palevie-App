@@ -667,3 +667,8 @@ body:has(.sh-top) .app-title{display:none}
 .sh-dd-menu button{border:none;background:none;text-align:left;border-radius:11px;padding:11px 13px;font:inherit;font-size:13px;font-weight:600;color:#5f4f5a;cursor:pointer}
 .sh-dd-menu button.on{background:var(--rose-soft);color:#D6417F}
 .sh-viewbtn{border:none;background:rgba(255,255,255,.85);border-radius:999px;padding:10px 14px;font:inherit;font-size:12.5px;font-weight:700;color:#6d5a66;cursor:pointer;box-shadow:var(--shadow-soft)}
+.shop-grid.c1{grid-template-columns:1fr}
+.shop-grid.c1 .shop-art{aspect-ratio:1.25/1}
+.shop-grid.c1 .sh-meta h3{font-size:16.5px}
+.sh-dd-menu.right{left:auto;right:0}
+@media(min-width:860px){.shop-grid.c1{grid-template-columns:repeat(2,1fr)}}
