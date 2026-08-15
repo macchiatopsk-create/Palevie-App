@@ -6,6 +6,36 @@ import { CatalogProduct } from "@/lib/types";
  */
 export const catalogProducts: CatalogProduct[] = [
   {
+    id: "pv-tint", brand: "Palevie Edit", name: "Crystal Dew Tint", category: "makeup", subcategory: "lip",
+    description: "Glass-dew tint from the Palevie edit.", colorHex: "#C34664", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-tint", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+glossy+lip+tint", priceLabel: "$18.00", priceCents: 1800, currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "pv-palette", brand: "Palevie Edit", name: "Soft Glam Eyeshadow Palette", category: "makeup", subcategory: "eyeshadow",
+    description: "Ten soft-glam rose and bronze shades.", colorHex: "#C98F82", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-palette", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+eyeshadow+palette+rose", priceLabel: "$36.00", priceCents: 3600, currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "pv-blush", brand: "Palevie Edit", name: "Bloom Soft Blush", category: "makeup", subcategory: "blush",
+    description: "Petal-soft flush in a crystal compact.", colorHex: "#F09A93", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-blush", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+cream+blush+compact", priceLabel: "$20.00", priceCents: 2000, currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "pv-highlight", brand: "Palevie Edit", name: "Lumi Glow Highlighter", category: "makeup", subcategory: "highlighter",
+    description: "Liquid pearl for a lit-from-within glow.", colorHex: "#F3DCCE", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-highlight", retailer: "amazon", url: "https://www.amazon.com/s?k=liquid+highlighter+pearl+glow", priceLabel: "$22.00", priceCents: 2200, currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "pv-shimmer", brand: "Palevie Edit", name: "Glossy Shimmer", category: "makeup", subcategory: "gloss",
+    description: "Sparkling topper for any lip look.", colorHex: "#EFB7B0", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-shimmer", retailer: "amazon", url: "https://www.amazon.com/s?k=shimmer+lip+gloss+topper", priceLabel: "$16.00", priceCents: 1600, currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "pv-cushion", brand: "Palevie Edit", name: "Glow Fit Cushion", category: "makeup", subcategory: "cushion",
+    description: "Second-skin cushion with a dewy finish.", colorHex: "#F0D3BE", tags: ["palevie-edit"],
+    offers: [{ id: "of-pv-cushion", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+glow+cushion+foundation", priceLabel: "$28.00", priceCents: 2800, currency: "USD", affiliateReady: true }],
+  },
+  {
     id: "rmd-jlt-06", brand: "rom&nd", name: "Juicy Lasting Tint · 06 Figfig", category: "makeup", subcategory: "lip",
     description: "Glassy plum-rose tint that lasts through coffee.", colorHex: "#B04A60", tags: ["k-beauty"],
     offers: [{ id: "of-rmd-jlt-06", retailer: "amazon", url: "https://www.amazon.com/s?k=romand+juicy+lasting+tint+06+figfig", priceLabel: "$11", currency: "USD", affiliateReady: true }],
