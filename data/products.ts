@@ -171,3 +171,5 @@ export const catalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-lng-sleep", retailer: "amazon", url: "https://www.amazon.com/s?k=laneige+water+sleeping+mask", priceLabel: "$29", currency: "USD", affiliateReady: false }],
   },
 ];
+
+export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
