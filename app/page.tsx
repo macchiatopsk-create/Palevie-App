@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 const MODELS = {
-  asian: "https://images.pexels.com/photos/32182008/pexels-photo-32182008.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-  white: "https://images.pexels.com/photos/31938769/pexels-photo-31938769.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-  black: "https://images.pexels.com/photos/2661255/pexels-photo-2661255.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-  latina: "https://images.pexels.com/photos/31594655/pexels-photo-31594655.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-  middleEastern: "https://images.pexels.com/photos/27013755/pexels-photo-27013755.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
+  asian: "https://images.unsplash.com/photo-1648250195770-a109dbf10f04?auto=format&fit=crop&w=1800&h=2400&q=90",
+  white: "https://images.unsplash.com/photo-1623676527352-86d422cc8c30?auto=format&fit=crop&w=1800&h=2400&q=90",
+  black: "https://images.unsplash.com/photo-1765607476292-886bc1e648a1?auto=format&fit=crop&w=1800&h=2400&q=90",
+  latina: "https://images.unsplash.com/photo-1740809833226-dcb434556255?auto=format&fit=crop&w=1800&h=2400&q=90",
+  middleEastern: "https://images.unsplash.com/photo-1653748584831-566ec06a08ba?auto=format&fit=crop&w=1800&h=2400&q=90",
 };
 
 const seasons = [
@@ -46,14 +46,13 @@ export default function HomePage() {
             <figure className="pvx-model-card pvx-model-d"><img src={MODELS.white} alt="White beauty portrait" /></figure>
             <figure className="pvx-model-card pvx-model-e"><img src={MODELS.middleEastern} alt="Middle Eastern beauty portrait" /></figure>
             <div className="pvx-hero-badge"><span>Made for</span><strong>every tone</strong></div>
-            <div className="pvx-mini-orbit" aria-hidden="true"><i/><i/><i/><b/></div>
           </div>
         </div>
       </section>
 
       <section className="pvx-feature-strip" aria-label="Palevie features">
         <Link href="/quiz" className="pvx-feature-card">
-          <span className="pvx-feature-orbit"><i /><i /><i /></span>
+          <span className="pvx-feature-spectrum" aria-hidden="true"><i /><i /><i /><i /></span>
           <div><strong>Personal Color</strong><p>Build your palette from temperature, depth and contrast.</p></div>
           <b className="pvx-round-arrow">→</b>
         </Link>
@@ -86,7 +85,7 @@ export default function HomePage() {
       </section>
 
       <section className="pvx-scan-banner">
-        <div className="pvx-scan-orbit" aria-hidden="true"><i/><i/><i/><b/></div>
+        <div className="pvx-scan-spectrum" aria-hidden="true"><i /><i /><i /><i /><i /></div>
         <div><span className="pvx-kicker compact">Optional second opinion</span><h2>Your selfie can add another layer.</h2><p>Use a front-facing daylight photo after the quiz. Palevie keeps the experience transparent and consent-first.</p></div>
         <Link className="pvx-secondary-button" href="/diagnose">Open selfie scan <span>↗</span></Link>
       </section>
