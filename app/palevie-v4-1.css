@@ -1,0 +1,276 @@
+/* Palevie V4 — implementation rebuilt directly from the approved glossy pink mockups. */
+:root {
+  --pv4-ink: #272338;
+  --pv4-muted: #666075;
+  --pv4-pink: #f43f82;
+  --pv4-pink-2: #e864b2;
+  --pv4-violet: #b45bea;
+  --pv4-lilac: #d9c2ff;
+  --pv4-blush: #ffe8f1;
+  --pv4-card: rgba(255, 255, 255, .76);
+  --pv4-border: rgba(255, 255, 255, .88);
+  --pv4-display: var(--display, "Playfair Display", Georgia, serif);
+  --pv4-ui: var(--ui, Poppins, system-ui, sans-serif);
+  --pv4-shadow: 0 24px 64px rgba(136, 74, 115, .16), 0 5px 20px rgba(242, 109, 163, .1);
+  --pv4-soft-shadow: 0 14px 38px rgba(133, 70, 111, .13);
+}
+
+html { background: #fff3f8; }
+body {
+  background:
+    linear-gradient(rgba(255, 247, 251, .84), rgba(255, 247, 251, .86)),
+    url('/palevie-v4/silk-bg.webp') center top / 100% auto fixed,
+    #fff3f8;
+  color: var(--pv4-ink);
+  font-family: var(--pv4-ui);
+}
+
+body:has(.pv4-page) .pvx-site-header,
+body:has(.pv4-page) .pvx-footer,
+body:has(.pv4-quiz-page) .pvx-site-header,
+body:has(.pv4-quiz-page) .pvx-footer,
+body:has(.pv4-diagnose-page) .pvx-site-header,
+body:has(.pv4-diagnose-page) .pvx-footer,
+body:has(.pv4-shop-page) .pvx-site-header,
+body:has(.pv4-shop-page) .pvx-footer {
+  display: none !important;
+}
+
+.pv4-page,
+.pv4-quiz-page,
+.pv4-diagnose-page,
+.pv4-shop-page {
+  min-height: 100vh;
+  color: var(--pv4-ink);
+}
+
+.pv4-page *,
+.pv4-quiz-page *,
+.pv4-diagnose-page *,
+.pv4-shop-page * { box-sizing: border-box; }
+
+.pv4-wordmark {
+  color: #d9367d;
+  font: 500 39px/1 var(--pv4-display);
+  letter-spacing: -.045em;
+}
+
+.pv4-page-topbar,
+.pv4-quiz-topbar,
+.pv4-result-topbar,
+.pv4-analysis-topbar,
+.pv4-consent-topbar,
+.pv4-selfie-topbar,
+.pv4-shop-topbar {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pv4-round-icon,
+.pv4-header-icon {
+  width: 52px;
+  height: 52px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .78);
+  color: #3b354c;
+  box-shadow: 0 10px 28px rgba(85, 52, 78, .12), inset 0 1px 0 #fff;
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.pv4-round-icon:disabled { opacity: .34; cursor: not-allowed; }
+.pv4-round-icon svg { width: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pv4-bell { position: relative; }
+.pv4-bell i { position: absolute; right: 7px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: #f64882; box-shadow: 0 0 0 3px #fff; }
+
+.pv4-pill {
+  width: max-content;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 18px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  color: #8f47c5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  background:
+    linear-gradient(rgba(255,255,255,.68), rgba(255,255,255,.68)) padding-box,
+    linear-gradient(90deg, #a96eef, #ff6ca1) border-box;
+  box-shadow: inset 0 0 22px rgba(233, 192, 255, .15);
+}
+.pv4-pill b { color: #a85ee1; font-size: 15px; }
+
+.pv4-gradient-button,
+.pv4-outline-button {
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  padding: 0 27px;
+  border: 0;
+  border-radius: 18px;
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 16px;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.pv4-gradient-button {
+  color: #fff;
+  background: linear-gradient(105deg, #ff4b82 0%, #ec55a7 48%, #b95ce7 100%);
+  box-shadow: 0 13px 34px rgba(225, 68, 143, .28), inset 0 1px 0 rgba(255,255,255,.36);
+}
+.pv4-gradient-button:hover,
+.pv4-outline-button:hover { transform: translateY(-2px); }
+.pv4-gradient-button:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.pv4-gradient-button span { font-size: 21px; }
+.pv4-outline-button {
+  color: #9c55c7;
+  border: 1.5px solid rgba(161, 93, 210, .55);
+  background: rgba(255, 255, 255, .55);
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.pv4-play-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #8c4ec0;
+  font-size: 14px;
+  font-weight: 650;
+}
+.pv4-play-link i {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 8px;
+}
+
+/* HOME */
+.pv4-home-page {
+  width: min(1180px, calc(100% - 34px));
+  margin: 0 auto;
+  padding: 26px 0 128px;
+}
+
+.pv4-home-hero {
+  position: relative;
+  min-height: 720px;
+  overflow: hidden;
+  padding: 28px 42px 34px;
+  border: 1px solid rgba(255, 255, 255, .92);
+  border-radius: 42px;
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.82) 0 42%, rgba(255,237,247,.62) 65%, rgba(237,225,255,.54)),
+    url('/palevie-v4/silk-bg.webp') center/cover;
+  box-shadow: var(--pv4-shadow);
+}
+.pv4-home-hero::before,
+.pv4-home-hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(38px);
+  pointer-events: none;
+}
+.pv4-home-hero::before { width: 360px; height: 360px; right: 25%; top: 18%; background: rgba(255, 155, 202, .3); }
+.pv4-home-hero::after { width: 300px; height: 300px; right: 0; bottom: 0; background: rgba(192, 152, 244, .25); }
+
+.pv4-hero-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(440px, 1.18fr);
+  align-items: center;
+  min-height: 620px;
+  gap: 24px;
+}
+.pv4-hero-copy { max-width: 510px; padding: 45px 0 38px; }
+.pv4-hero-copy h1 {
+  margin: 28px 0 20px;
+  font: 500 clamp(68px, 7.2vw, 103px)/.88 var(--pv4-display);
+  letter-spacing: -.055em;
+}
+.pv4-hero-copy h1 em {
+  display: block;
+  color: #d73678;
+  font-weight: 500;
+}
+.pv4-hero-copy > p {
+  max-width: 420px;
+  color: #5f586b;
+  font-size: 17px;
+  line-height: 1.58;
+}
+.pv4-hero-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; margin-top: 30px; }
+.pv4-hero-actions .pv4-gradient-button { min-width: 290px; }
+
+.pv4-hero-art {
+  position: relative;
+  align-self: stretch;
+  min-height: 610px;
+}
+.pv4-hero-model {
+  position: absolute;
+  z-index: 4;
+  right: -5%;
+  bottom: -12%;
+  width: min(72%, 520px);
+  height: 105%;
+  object-fit: cover;
+  object-position: 52% 37%;
+  border-radius: 46% 46% 26% 26% / 28% 28% 18% 18%;
+  filter: saturate(1.05) contrast(1.02);
+  -webkit-mask-image: linear-gradient(#000 0 82%, transparent 99%);
+  mask-image: linear-gradient(#000 0 82%, transparent 99%);
+}
+.pv4-hero-sheen {
+  position: absolute;
+  z-index: 1;
+  inset: 12% 0 5% 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 55% 45%, rgba(255,255,255,.95), rgba(250,191,221,.42) 35%, transparent 70%);
+  filter: blur(7px);
+}
+.pv4-hero-orbit {
+  position: absolute;
+  z-index: 2;
+  left: -2%;
+  top: 29%;
+  width: 48%;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 20px 40px rgba(223, 102, 181, .17));
+  animation: pv4OrbitDrift 7s ease-in-out infinite;
+}
+.pv4-hero-lip {
+  position: absolute;
+  z-index: 7;
+  left: 4%;
+  bottom: -5%;
+  width: 34%;
+  transform: rotate(-7deg);
+  filter: drop-shadow(0 24px 34px rgba(112, 61, 82, .16));
+}
+.pv4-hero-palette {
+  position: absolute;
+  z-index: 7;
+  right: -10%;
+  bottom: -7%;
+  width: 43%;
+  transform: rotate(9deg);
+  filter: drop-shadow(0 24px 36px rgba(100, 51, 83, .18));
+}
