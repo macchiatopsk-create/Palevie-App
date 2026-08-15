@@ -1,351 +1,119 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect,useMemo,useState } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud } from "@/lib/cloudProfile";
-
-const STATE_KEY = "palevie-quiz-state-v1";
-type SavedState = { answers: (number | null)[]; step: number };
-
-type VisualStyle = CSSProperties & {
-  "--pv4-a"?: string;
-  "--pv4-b"?: string;
-  "--pv4-c"?: string;
-};
-
-const basePalettes = [
-  ["#ffd4df", "#ed789f", "#8f4d7d"],
-  ["#f4ddc7", "#d9a56e", "#7c4f3a"],
-  ["#e8e2f7", "#b49bd9", "#6e5b92"],
-  ["#dce8f5", "#91aed5", "#465f88"],
-  ["#eadbd2", "#b98977", "#5f4542"],
-  ["#d9e7d7", "#7fa187", "#435f4d"],
-];
-
-const questionPalettes: Record<string, string[][]> = {
-  jewelry: [
-    ["#fff5c5", "#e7ba4f", "#8c5a18"],
-    ["#ffffff", "#cbd1dd", "#697184"],
-    ["#f9e7c7", "#d8c7d9", "#9a7894"],
-  ],
-  white: [
-    ["#ffffff", "#f7f7f7", "#dadde5"],
-    ["#fff7df", "#f0dfbd", "#c7a66c"],
-    ["#fffdf5", "#ebe4dc", "#c4b5ad"],
-  ],
-  hair: [
-    ["#171318", "#30242b", "#5d3e43"],
-    ["#2e1e1b", "#5a382d", "#98654a"],
-    ["#6e4735", "#a27155", "#d3a07f"],
-    ["#9c6849", "#c9976c", "#e4c29b"],
-    ["#e7c68d", "#f0dfb3", "#fff1ce"],
-    ["#6f2c22", "#a94d31", "#dd8156"],
-  ],
-  eyes: [
-    ["#17151a", "#32272b", "#6e4d42"],
-    ["#3f2b27", "#795244", "#bd8768"],
-    ["#6e4425", "#b27435", "#e4b364"],
-    ["#526d4b", "#8c9b5a", "#c9b66c"],
-    ["#6c7e96", "#9fb7ce", "#dce7f0"],
-  ],
-  lip: [
-    ["#ffb39d", "#f17170", "#b83f50"],
-    ["#efb1c7", "#d46f9b", "#983b6c"],
-    ["#c57a55", "#9f4f39", "#682c28"],
-    ["#c06b91", "#843a69", "#4c214c"],
-    ["#ff5059", "#d81d3d", "#8b1029"],
-    ["#d8a399", "#b87573", "#784c51"],
-  ],
-  group: [
-    ["#c27545", "#8d6e41", "#5f6e42"],
-    ["#7a2e87", "#176c8d", "#12684f"],
-    ["#cebfe9", "#afd9d3", "#e9c8d9"],
-    ["#ff497f", "#2f73de", "#9bd826"],
-    ["#a79691", "#777f89", "#777161"],
-    ["#273b59", "#6e263d", "#254b38"],
-  ],
-};
-
-const sunlightPhotos = [
-  "/palevie-v4/skin-fair.webp",
-  "/palevie-v4/skin-medium.webp",
-  "/palevie-v4/skin-light.webp",
-  "/palevie-v4/skin-deep.webp",
-];
-
-function loadState(): SavedState {
-  if (typeof window !== "undefined") {
-    try {
-      const raw = sessionStorage.getItem(STATE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed.answers) && parsed.answers.length === QUIZ_QUESTIONS.length) return parsed;
-      }
-    } catch {}
-  }
-  return { answers: QUIZ_QUESTIONS.map(() => null), step: 0 };
+const STATE_KEY="palevie-quiz-state-v1";
+type SavedState={answers:(number|null)[];step:number};
+function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
+export default function QuizClient(){
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);
+ useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
+ const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
+ function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
+ function next(){if(selected===null)return;if(step<QUIZ_QUESTIONS.length-1)setStep(s=>s+1);else finish(answers as number[])}
+ function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
+ function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+ if(result)return <QuizResultView result={result} onRestart={restart}/>;
+ if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
+ return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>Question {String(step+1).padStart(2,"0")} of {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
 }
-
-function optionStyle(questionId: string, index: number): VisualStyle {
-  const colors = (questionPalettes[questionId] || basePalettes)[index % (questionPalettes[questionId] || basePalettes).length];
-  return { "--pv4-a": colors[0], "--pv4-b": colors[1], "--pv4-c": colors[2] };
+function seasonArt(toneId:string){
+  if(toneId==="summer-soft"||toneId==="summer-muted"||toneId==="autumn-soft"||toneId==="autumn-muted")return "/img/s2_ss.webp";
+  const fam=toneId.split("-")[0];
+  return {spring:"/img/s2_sp.webp",summer:"/img/s2_su.webp",autumn:"/img/s2_au.webp",winter:"/img/s2_wi.webp"}[fam] ?? "/img/s2_ss.webp";
 }
-
-function OptionArt({ questionId, index }: { questionId: string; index: number }) {
-  if (questionId === "sun") {
-    return <img src={sunlightPhotos[index % sunlightPhotos.length]} alt="Skin appearance example" />;
-  }
-  if (questionId === "group") {
-    return <span className="pv4-option-fan" aria-hidden="true"><i /><i /><i /><i /><i /></span>;
-  }
-  if (questionId === "jewelry") {
-    return <span className="pv4-jewelry-art" aria-hidden="true"><i /><b /></span>;
-  }
-  if (questionId === "lip") {
-    return <span className="pv4-lip-smear" aria-hidden="true" />;
-  }
-  return <span className="pv4-option-gradient" aria-hidden="true"><i /><i /></span>;
-}
-
-function HeaderIcon({ children }: { children: ReactNode }) {
-  return <span className="pv4-header-icon">{children}</span>;
-}
-
-export default function QuizClient() {
-  const [answers, setAnswers] = useState<(number | null)[]>(QUIZ_QUESTIONS.map(() => null));
-  const [step, setStep] = useState(0);
-  const [hydrated, setHydrated] = useState(false);
-  const [result, setResult] = useState<QuizResult | null>(null);
-  const [pending, setPending] = useState<QuizResult | null>(null);
-
-  useEffect(() => {
-    const saved = loadState();
-    setAnswers(saved.answers);
-    setStep(saved.step);
-    setHydrated(true);
-    track("quiz_started");
-  }, []);
-
-  useEffect(() => {
-    if (hydrated) sessionStorage.setItem(STATE_KEY, JSON.stringify({ answers, step }));
-  }, [answers, step, hydrated]);
-
-  const question = QUIZ_QUESTIONS[step];
-  const selected = answers[step];
-  const progress = Math.round(((step + (selected !== null ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100);
-
-  function choose(index: number) {
-    const nextAnswers = [...answers];
-    nextAnswers[step] = index;
-    setAnswers(nextAnswers);
-    track("quiz_answered", { question: question.id, step: step + 1 });
-  }
-
-  function next() {
-    if (selected === null) return;
-    if (step < QUIZ_QUESTIONS.length - 1) setStep((current) => current + 1);
-    else finish(answers as number[]);
-  }
-
-  function finish(finalAnswers: number[]) {
-    const scored = scoreQuiz(finalAnswers);
-    setPending(scored);
-    const profile = {
-      primaryType: scored.ranked[0].id,
-      secondaryType: scored.ranked[1].id,
-      ranked: scored.ranked,
-      scores: scored.axes,
-      confidence: scored.confidence,
-      source: "quiz" as const,
-      createdAt: new Date().toISOString(),
-    };
-    saveProfile(profile);
-    void syncColorProfileToCloud(profile);
-    track("quiz_completed", { profile: scored.ranked[0].id, confidence: scored.confidence });
-    sessionStorage.removeItem(STATE_KEY);
-  }
-
-  function restart() {
-    setAnswers(QUIZ_QUESTIONS.map(() => null));
-    setStep(0);
-    setResult(null);
-    sessionStorage.removeItem(STATE_KEY);
-    track("quiz_started", { restart: true });
-  }
-
-  if (result) return <QuizResultView result={result} onRestart={restart} />;
-  if (pending) return <AnalyzingView onDone={() => { setResult(pending); setPending(null); }} />;
-
-  return (
-    <section className="pv4-quiz-shell">
-      <div className="pv4-quiz-topbar">
-        <button className="pv4-round-icon" aria-label="Previous question" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>←</button>
-        <Link className="pv4-wordmark" href="/">Palevie</Link>
-        <span className="pv4-question-count"><b>{step + 1}</b> / {QUIZ_QUESTIONS.length}</span>
-      </div>
-
-      <div className="pv4-progress-track" aria-label={`${progress}% complete`}><i style={{ width: `${progress}%` }}><b>✦</b></i></div>
-
-      <div className="pv4-question-copy">
-        <span className="pv4-question-orbit" aria-hidden="true"><img src="/palevie-v4/orbit-core.webp" alt="" /></span>
-        <h1>{question.text}</h1>
-        <p>{question.help || "Choose the closest answer in natural light."}</p>
-      </div>
-
-      <div className={`pv4-options-grid ${question.options.length > 4 ? "many" : ""}`}>
-        {question.options.map((option, index) => (
-          <button
-            key={option.label}
-            className={`pv4-option-card ${selected === index ? "selected" : ""} ${question.id === "sun" ? "photo" : ""}`}
-            onClick={() => choose(index)}
-            aria-pressed={selected === index}
-            style={optionStyle(question.id, index)}
-          >
-            <span className="pv4-option-art"><OptionArt questionId={question.id} index={index} /></span>
-            <span className="pv4-option-footer"><b>{option.label}</b><i>{selected === index ? "✓" : ""}</i></span>
-          </button>
-        ))}
-      </div>
-
-      <div className="pv4-quiz-actions">
-        <button className="pv4-skip-button" onClick={() => {
-          if (step < QUIZ_QUESTIONS.length - 1) setStep((current) => current + 1);
-        }} disabled={step === QUIZ_QUESTIONS.length - 1}>Skip ✦</button>
-        <button className="pv4-gradient-button" disabled={selected === null} onClick={next}>
-          {step === QUIZ_QUESTIONS.length - 1 ? "Reveal My Season" : "Next"} <span>✦</span>
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function seasonArt(toneId: string) {
-  const family = toneId.split("-")[0];
-  if (toneId === "summer-soft" || toneId === "summer-muted") return "/palevie-v4/soft-summer-asian.webp";
+// Color-theory "avoid" palettes per season family: hues that fight the palette's
+// temperature/chroma (e.g. cool-muted summers are washed out by hot oranges).
+function avoidColors(toneId:string):string[]{
+  const fam=toneId.split("-")[0];
   return {
-    spring: "/palevie-v4/spring-latina.webp",
-    summer: "/palevie-v4/summer-white.webp",
-    autumn: "/palevie-v4/autumn-black.webp",
-    winter: "/palevie-v4/winter-middle-eastern.webp",
-  }[family] ?? "/palevie-v4/soft-summer-asian.webp";
+    spring:["#8C9BAB","#5B5F6E","#7A3B52","#3E3A45","#9AA5B5","#63444E"],
+    summer:["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"],
+    autumn:["#9FD8E8","#C7CEEA","#F19AD1","#8FA6E8","#7FD1C8","#D671B8"],
+    winter:["#C8A165","#A98253","#B5A642","#8E7748","#D2B48C","#C77B4F"],
+  }[fam] ?? ["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"];
 }
+function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
+ const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
+ const best=primary.colors[0];
+ return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
+  <img className="lp-result-flower" src="/img/peony2.webp" alt=""/>
+  <div className="eyebrow">Your palette</div>
+  <h1 className="lp-result-name">{primary.name}</h1>
+  <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
+  <p className="lp-result-desc">{primary.description}</p>
 
-function seasonTone(toneId: string) {
-  return toneId.split("-")[0] || "summer";
-}
+  <div className="lp-colors-card">
+   <small>Your 7 colors</small>
+   <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
+  </div>
 
-function titleCase(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
+  <div className="lp-season-photo">
+   <img src={seasonArt(result.ranked[0].id)} alt=""/>
+   <div className="lp-season-caption"><small>Season mood</small><b>{primary.name}</b></div>
+  </div>
 
-function QuizResultView({ result, onRestart }: { result: QuizResult; onRestart: () => void }) {
-  const primary = useMemo(() => getToneProfile(result.ranked[0].id), [result]);
-  const season = seasonTone(result.ranked[0].id);
-  const traits = [primary.temperature, primary.chroma, primary.value].map(titleCase);
+  <div className="lp-avoid-card">
+   <small>Colors to avoid</small>
+   <p>These fight your palette&apos;s balance — wear them away from your face.</p>
+   <div className="chips">{avoidColors(result.ranked[0].id).map(c=><i key={c} style={{background:c}}/>)}</div>
+  </div>
 
-  return (
-    <section className={`pv4-result-shell pv4-result-${season}`}>
-      <div className="pv4-result-topbar">
-        <button className="pv4-round-icon" aria-label="Retake quiz" onClick={onRestart}>←</button>
-        <Link className="pv4-wordmark" href="/">Palevie</Link>
-        <button className="pv4-round-icon" aria-label="Share result">↥</button>
-      </div>
+  <div className="lp-best-card">
+   <img src="/img/pearls2.webp" alt=""/>
+   <div>
+    <small>Best match for you</small>
+    <b style={{color:best}}>●</b>
+    <strong>Your signature shade</strong>
+    <p>{primary.temperature} · {primary.chroma} · your perfect harmony.</p>
+   </div>
+  </div>
 
-      <div className="pv4-result-heading">
-        <span className="pv4-pill"><b>✦</b> Your season <b>✦</b></span>
-        <h1>{primary.name}</h1>
-        <p>{traits.join(" · ")}</p>
-      </div>
+  <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
+  <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
 
-      <div className="pv4-result-card">
-        <div className="pv4-result-portrait">
-          <span className="pv4-result-orbit" aria-hidden="true"><img src="/palevie-v4/orbit-core.webp" alt="" /></span>
-          <img className="pv4-result-model" src={seasonArt(result.ranked[0].id)} alt={`${primary.name} beauty inspiration`} />
-        </div>
+  <div className="button-row">
+   <Link className="lp-btn" href="/shop">See full analysis <span className="lp-arrow">→</span></Link>
+   <Link className="button secondary" href="/analyze">Check a product</Link>
+   <button className="text-button" onClick={onRestart}>Retake quiz</button>
+  </div>
+ </div>}
 
-        <div className="pv4-result-palette-panel">
-          <div className="pv4-result-swatches">{primary.colors.slice(0, 6).map((color) => <i key={color} style={{ background: color }} />)}</div>
-          <p><strong>{primary.name}</strong> shades bring out your calm glow and natural elegance.</p>
-          <Link className="pv4-gradient-button" href="/dashboard">See My Palette <span>✦</span></Link>
-          <Link className="pv4-outline-button" href="/shop">Shop My Match <span>♧</span></Link>
-        </div>
-      </div>
-
-      <div className="pv4-result-teasers">
-        <Link href="/shop" className="pv4-result-teaser pv4-makeup-teaser">
-          <div><img src="/palevie-v4/lip-tint.webp" alt="" /><img src="/palevie-v4/eyeshadow.webp" alt="" /></div>
-          <h2>Makeup Picks</h2><p>Curated picks in your most flattering shades.</p><span>→</span>
-        </Link>
-        <Link href="/dashboard" className="pv4-result-teaser pv4-style-teaser">
-          <div className="pv4-style-hangers"><i /><i /><i /></div>
-          <h2>Style Tips</h2><p>Outfit ideas and styling tips for {primary.name}.</p><span>→</span>
-        </Link>
-      </div>
-
-      <div className="pv4-result-footer-row">
-        <span>{result.confidence}% palette confidence</span>
-        <button onClick={onRestart}>Retake quiz</button>
-      </div>
-    </section>
-  );
-}
-
-function AnalyzingView({ onDone }: { onDone: () => void }) {
-  const steps = ["Scanning your undertone", "Reading contrast", "Matching your season", "Choosing makeup picks"];
-  const [percentage, setPercentage] = useState(0);
-
-  useEffect(() => {
-    const started = Date.now();
-    const duration = 4600;
-    const timer = window.setInterval(() => {
-      const elapsed = Math.min(1, (Date.now() - started) / duration);
-      const eased = 1 - Math.pow(1 - elapsed, 2.15);
-      const next = Math.min(100, Math.round(eased * 100));
-      setPercentage(next);
-      if (next >= 100) {
-        window.clearInterval(timer);
-        window.setTimeout(onDone, 420);
-      }
-    }, 44);
-    return () => window.clearInterval(timer);
-  }, [onDone]);
-
-  const activeStep = Math.min(steps.length - 1, Math.floor(percentage / 25));
-
-  return (
-    <section className="pv4-analysis-shell">
-      <div className="pv4-analysis-topbar"><Link className="pv4-wordmark" href="/">Palevie</Link><HeaderIcon>♧</HeaderIcon></div>
-      <div className="pv4-analysis-heading">
-        <h1>Analyzing <em>your color energy</em></h1>
-        <p>We&apos;re mapping your undertone, contrast, and best palette.</p>
-      </div>
-
-      <div className="pv4-analysis-orbit">
-        <img src="/palevie-v4/orbit-core.webp" alt="Glowing color analysis visualization" />
-      </div>
-
-      <div className="pv4-analysis-steps">
-        {steps.map((label, index) => {
-          const done = index < activeStep || percentage === 100;
-          const active = index === activeStep && percentage < 100;
-          return (
-            <div key={label} className={`${done ? "done" : ""} ${active ? "active" : ""}`}>
-              <span>{done ? "✓" : active ? "✦" : ""}</span>
-              <b>{label}</b>
-              <small>{done ? "Complete" : active ? "In Progress" : "Pending"}</small>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="pv4-analysis-progress-copy"><strong>{percentage}<small>%</small></strong><span>✦ Almost there!</span></div>
-      <div className="pv4-analysis-progress"><i style={{ width: `${percentage}%` }} /></div>
-      <p className="pv4-analysis-caption">Your personalized results are loading… ♡</p>
-    </section>
-  );
+function AnalyzingView({onDone}:{onDone:()=>void}){
+ const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
+ const [pct,setPct]=useState(0);
+ useEffect(()=>{
+  const t0=Date.now();const DUR=3600;
+  const iv=setInterval(()=>{
+   const p=Math.min(100,Math.round((Date.now()-t0)/DUR*100));
+   setPct(p);
+   if(p>=100){clearInterval(iv);setTimeout(onDone,450)}
+  },40);
+  return()=>clearInterval(iv);
+ },[onDone]);
+ const done=Math.floor(pct/25);
+ return <div className="an2">
+  <h2>Analyzing<br/><em>your color energy</em></h2>
+  <p className="an2-sub">We&apos;re mapping your undertone, contrast, and best palette.</p>
+  <div className="an2-orb"><img src="/img/orb3.webp" alt=""/></div>
+  <ul className="an2-list">
+   {STEPS.map((st,i)=>{
+    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
+    return <li key={st} className={state}>
+     <b>{state==="done"?"✓":""}</b><span>{st}</span>
+     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
+    </li>;
+   })}
+  </ul>
+  <div className="an2-foot">
+   <div className="an2-pct"><strong>{pct}</strong><small>%</small><em>✦ Almost there!</em></div>
+   <div className="an2-bar"><i style={{width:`${pct}%`}}/></div>
+   <p>Your personalized results are loading… 💗</p>
+  </div>
+ </div>;
 }
