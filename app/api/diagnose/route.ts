@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     if (imageDataUrl.length > 3_000_000) return NextResponse.json({ error: "Image is too large after resize." }, { status: 413 });
 
     const key = process.env.OPENAI_API_KEY;
-    const model = process.env.OPENAI_VISION_MODEL;
-    if (!key || !model) return NextResponse.json({ error: "AI scan is not configured yet. Use the free quiz for now." }, { status: 503 });
+    const model = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
+    if (!key) return NextResponse.json({ error: "AI scan is not configured yet. Use the free quiz for now." }, { status: 503 });
 
     const visitor = (request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
     const reservation = await reserveAiUsage(visitor, "color_scan", model);
