@@ -1,0 +1,323 @@
+/* Final hero/reference pass: bright, airy, model fully visible, no orb blocking the face. */
+
+.pv4-reference-home {
+  background:
+    radial-gradient(circle at 18% 4%, rgba(255,255,255,.96), transparent 32%),
+    linear-gradient(rgba(255,247,251,.76), rgba(255,247,251,.86)),
+    url('/palevie-v4/silk-bg.webp') center top / cover fixed,
+    #fff5fa;
+}
+
+.pv4-reference-hero {
+  min-height: 610px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 31%, rgba(255,255,255,.98), rgba(255,225,239,.58) 31%, transparent 58%),
+    linear-gradient(118deg, rgba(255,255,255,.95) 0 42%, rgba(255,237,246,.84) 67%, rgba(238,226,255,.72)),
+    url('/palevie-v4/silk-bg.webp') center/cover;
+  box-shadow: 0 28px 80px rgba(141,78,118,.11), inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.pv4-reference-hero::before {
+  width: 410px;
+  height: 410px;
+  right: 10%;
+  top: 10%;
+  background: rgba(255,196,222,.3);
+  filter: blur(48px);
+}
+
+.pv4-reference-hero::after {
+  width: 280px;
+  height: 280px;
+  right: 2%;
+  bottom: 2%;
+  background: rgba(204,175,250,.22);
+  filter: blur(44px);
+}
+
+.pv4-reference-hero-grid {
+  min-height: 500px;
+  grid-template-columns: minmax(0,.92fr) minmax(420px,1.08fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.pv4-reference-copy {
+  position: relative;
+  z-index: 8;
+  max-width: 500px;
+  padding: 22px 0 26px;
+}
+
+.pv4-reference-copy h1 {
+  margin: 24px 0 18px;
+  font-size: clamp(62px,6vw,86px);
+  line-height: .91;
+}
+
+.pv4-reference-copy > p {
+  max-width: 390px;
+  color: #585066;
+  font-size: 16px;
+}
+
+.pv4-reference-art {
+  position: relative;
+  min-height: 500px;
+  max-height: 510px;
+  align-self: center;
+  overflow: visible;
+}
+
+.pv4-reference-halo {
+  position: absolute;
+  z-index: 1;
+  inset: 7% 1% 7% 6%;
+  border-radius: 42% 50% 44% 48%;
+  background:
+    radial-gradient(circle at 58% 40%, rgba(255,255,255,.98), rgba(255,225,239,.56) 34%, rgba(226,207,255,.26) 62%, transparent 78%);
+  filter: blur(2px);
+}
+
+.pv4-reference-model {
+  position: absolute;
+  z-index: 4;
+  right: 3%;
+  bottom: 0;
+  width: min(72%, 440px);
+  height: 95%;
+  object-fit: contain;
+  object-position: center bottom;
+  border-radius: 0;
+  filter: saturate(1.08) contrast(1.015) brightness(1.045);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.pv4-reference-lip {
+  position: absolute;
+  z-index: 6;
+  left: 4%;
+  bottom: 1%;
+  width: min(24%, 150px);
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 18px 28px rgba(111,54,81,.14));
+}
+
+.pv4-reference-palette {
+  position: absolute;
+  z-index: 6;
+  right: -1%;
+  bottom: 0;
+  width: min(30%, 190px);
+  transform: rotate(6deg);
+  filter: drop-shadow(0 18px 28px rgba(92,52,81,.13));
+}
+
+.pv4-reference-spark {
+  position: absolute;
+  z-index: 7;
+  color: #fff;
+  text-shadow: 0 0 10px #ff72af, 0 0 24px #dca9ff;
+  pointer-events: none;
+}
+
+.pv4-reference-spark.spark-a { left: 9%; top: 27%; font-size: 30px; }
+.pv4-reference-spark.spark-b { right: 9%; top: 18%; font-size: 22px; }
+
+.pv4-reference-made-for {
+  min-height: 170px;
+  height: 170px;
+  background: linear-gradient(108deg, rgba(255,255,255,.82), rgba(255,231,242,.7), rgba(239,225,255,.62));
+}
+
+.pv4-reference-made-for img {
+  height: 158px;
+  object-fit: cover;
+  object-position: center 28%;
+  filter: saturate(1.05) brightness(1.03);
+}
+
+.pv4-reference-feature-grid .pv4-feature-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(248,228,241,.7));
+  box-shadow: 0 18px 48px rgba(125,70,105,.10), inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+.pv4-reference-feature-grid .pv4-feature-card:nth-child(3) {
+  background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(232,221,255,.72));
+}
+
+.pv4-reference-feature-orbit {
+  max-width: 68% !important;
+  max-height: 145px !important;
+  opacity: .8;
+}
+
+.pv4-reference-quiz-banner {
+  padding-right: 28px;
+  background: linear-gradient(100deg, rgba(255,227,239,.86), rgba(242,205,232,.76), rgba(220,198,252,.74));
+}
+
+@media (min-width: 701px) and (max-width: 980px) {
+  .pv4-reference-hero {
+    min-height: 540px;
+  }
+
+  .pv4-reference-hero-grid {
+    min-height: 440px;
+    grid-template-columns: minmax(0,.92fr) minmax(340px,1.08fr);
+  }
+
+  .pv4-reference-copy h1 {
+    font-size: clamp(54px,7.7vw,70px);
+  }
+
+  .pv4-reference-art {
+    min-height: 430px;
+    max-height: 450px;
+  }
+
+  .pv4-reference-model {
+    width: min(74%, 365px);
+    height: 94%;
+  }
+
+  .pv4-reference-lip {
+    width: min(24%, 118px);
+  }
+
+  .pv4-reference-palette {
+    width: min(29%, 145px);
+  }
+}
+
+@media (max-width: 700px) {
+  .pv4-reference-home {
+    background:
+      linear-gradient(rgba(255,248,252,.82), rgba(255,248,252,.9)),
+      url('/palevie-v4/silk-bg.webp') top center / auto 840px repeat-y,
+      #fff5fa;
+  }
+
+  .pv4-reference-hero {
+    min-height: 0;
+    padding: 22px 18px 18px;
+  }
+
+  .pv4-reference-hero-grid {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .pv4-reference-copy {
+    width: 100%;
+    max-width: none;
+    padding: 30px 0 0;
+  }
+
+  .pv4-reference-copy h1 {
+    width: min(100%, 330px);
+    margin: 17px 0 12px;
+    font-size: clamp(42px,12vw,52px);
+    line-height: .94;
+  }
+
+  .pv4-reference-copy > p {
+    width: min(100%, 300px);
+    font-size: 13px;
+  }
+
+  .pv4-reference-copy .pv4-hero-actions {
+    width: min(100%, 300px);
+  }
+
+  .pv4-reference-art {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 360px;
+    min-height: 0;
+    max-height: none;
+    margin: -8px 0 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.92);
+    border-radius: 29px;
+    background:
+      radial-gradient(circle at 65% 34%, rgba(255,255,255,.99), rgba(255,218,235,.55) 38%, rgba(228,211,255,.28) 70%, transparent 88%),
+      rgba(255,239,247,.68);
+    box-shadow: 0 18px 44px rgba(120,66,103,.11), inset 0 1px 0 #fff;
+  }
+
+  .pv4-reference-halo {
+    inset: 5% -1% 4% 6%;
+  }
+
+  .pv4-reference-model {
+    right: 1%;
+    bottom: 0;
+    width: 74%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .pv4-reference-lip {
+    left: 4%;
+    bottom: 4%;
+    width: 24%;
+  }
+
+  .pv4-reference-palette {
+    right: -2%;
+    bottom: 3%;
+    width: 28%;
+  }
+
+  .pv4-reference-spark.spark-a {
+    left: 6%;
+    top: 25%;
+    font-size: 24px;
+  }
+
+  .pv4-reference-spark.spark-b {
+    right: 8%;
+    top: 15%;
+    font-size: 18px;
+  }
+
+  .pv4-reference-made-for {
+    width: calc(100% - 28px);
+    height: 132px;
+    min-height: 132px;
+  }
+
+  .pv4-reference-made-for img {
+    height: 124px;
+  }
+
+  .pv4-reference-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pv4-reference-feature-grid .pv4-feature-card {
+    min-height: 174px;
+  }
+
+  .pv4-reference-quiz-banner {
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .pv4-reference-art {
+    height: 330px;
+  }
+
+  .pv4-reference-model {
+    width: 77%;
+  }
+}
