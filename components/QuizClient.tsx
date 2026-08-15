@@ -66,50 +66,42 @@ function avoidColors(toneId:string):string[]{
 }
 function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
  const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
- const best=primary.colors[0];
- return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
-  <img className="lp-result-flower" src="/img/peony2.webp" alt=""/>
-  <div className="eyebrow">Your palette</div>
-  <h1 className="lp-result-name">{primary.name}</h1>
-  <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
-  <p className="lp-result-desc">{primary.description}</p>
+ return <div className="rs">
+  <div className="rs-top"><span className="rs-pill">✦ Your season ✦</span></div>
+  <h1 className="rs-name">{primary.name}</h1>
+  <p className="rs-tags">{primary.temperature} · {primary.chroma} · {primary.value}</p>
 
-  <div className="lp-colors-card">
-   <small>Your 7 colors</small>
-   <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
-  </div>
-
-  <div className="lp-season-photo">
-   <img src={seasonArt(result.ranked[0].id)} alt=""/>
-   <div className="lp-season-caption"><small>Season mood</small><b>{primary.name}</b></div>
-  </div>
-
-  <div className="lp-avoid-card">
-   <small>Colors to avoid</small>
-   <p>These fight your palette&apos;s balance — wear them away from your face.</p>
-   <div className="chips">{avoidColors(result.ranked[0].id).map(c=><i key={c} style={{background:c}}/>)}</div>
-  </div>
-
-  <div className="lp-best-card">
-   <img src="/img/pearls2.webp" alt=""/>
-   <div>
-    <small>Best match for you</small>
-    <b style={{color:best}}>●</b>
-    <strong>Your signature shade</strong>
-    <p>{primary.temperature} · {primary.chroma} · your perfect harmony.</p>
+  <div className="rs-card">
+   <div className="rs-photo">
+    <img className="rs-model" src={seasonArt(result.ranked[0].id)} alt=""/>
+    <img className="rs-orb a" src="/img/orb3.webp" alt=""/>
+    <img className="rs-orb b" src="/img/orb3.webp" alt=""/>
+   </div>
+   <div className="rs-sheet">
+    <div className="rs-chips">{primary.colors.slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
+    <p>{primary.description}</p>
+    <Link className="rs-cta" href="/shop">See My Palette ✦</Link>
+    <Link className="rs-cta2" href="/shop">Shop My Match 🛍</Link>
    </div>
   </div>
 
-  <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
-  <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
+  <div className="rs-duo">
+   <Link href="/shop" className="rs-mini" style={{background:"var(--grad1)"}}>
+    <img src="/img/lip3.webp" alt=""/>
+    <b>Makeup Picks</b><p>Curated picks in your most flattering shades.</p><span>→</span>
+   </Link>
+   <div className="rs-mini" style={{background:"var(--grad2)"}}>
+    <div className="rs-avoid">{avoidColors(result.ranked[0].id).slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
+    <b>Colors to Avoid</b><p>Shades that fight your palette — keep them away from your face.</p>
+   </div>
+  </div>
 
-  <div className="button-row">
-   <Link className="lp-btn" href="/shop">See full analysis <span className="lp-arrow">→</span></Link>
-   <Link className="button secondary" href="/analyze">Check a product</Link>
+  <div className="rs-foot">
+   <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
    <button className="text-button" onClick={onRestart}>Retake quiz</button>
+   <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
   </div>
  </div>}
-
 function AnalyzingView({onDone}:{onDone:()=>void}){
  const [pct,setPct]=useState(0);
  useEffect(()=>{
