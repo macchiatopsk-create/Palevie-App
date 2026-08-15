@@ -128,8 +128,8 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   },40);
   return()=>clearInterval(iv);
  },[onDone]);
- return <div className="an3">
-  <img className="an3-art" src="/img/analyzing_art.webp" alt="Analyzing your color energy"/>
+ return <div className="an6">
+  <div className="an6-art" role="img" aria-label="Analyzing your color energy"/>
   <div className="an3-foot">
    <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
    <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
