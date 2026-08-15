@@ -17,6 +17,7 @@ import "./palevie-v4-8.css";
 import "./palevie-v4-hotfix.css";
 import "./palevie-reference-hero.css";
 import "./palevie-reference-exact.css";
+import "./palevie-reference-ratio.css";
 import AttributionCapture from "@/components/AttributionCapture";
 import MobileNav from "@/components/MobileNav";
 
