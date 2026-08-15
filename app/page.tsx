@@ -4,19 +4,19 @@ const features = [
   {
     href: "/quiz",
     title: "AI Color Match",
-    copy: "Discover your best palette with a guided color quiz.",
+    copy: "Discover your best palette with AI.",
     art: "orbit",
   },
   {
     href: "/shop",
     title: "Makeup Picks",
-    copy: "Personalized lip, cheek and eye shades just for you.",
+    copy: "Personalized picks just for you.",
     art: "makeup",
   },
   {
     href: "/dashboard",
     title: "Season Results",
-    copy: "Save your season, palette and style direction.",
+    copy: "Get your season and style guide.",
     art: "palette",
   },
 ] as const;
@@ -32,9 +32,9 @@ function BellIcon() {
 
 export default function HomePage() {
   return (
-    <div className="pv4-page pv4-home-page pv4-reference-home">
-      <section className="pv4-home-hero pv4-reference-hero">
-        <div className="pv4-page-topbar">
+    <div className="pv4-page pv4-home-page pv4-reference-home pv5-reference-home">
+      <section className="pv4-home-hero pv4-reference-hero pv5-reference-hero">
+        <div className="pv4-page-topbar pv5-home-topbar">
           <Link className="pv4-wordmark" href="/">Palevie</Link>
           <Link className="pv4-round-icon pv4-bell" href="/account" aria-label="Open profile">
             <BellIcon />
@@ -42,8 +42,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="pv4-hero-grid pv4-reference-hero-grid">
-          <div className="pv4-hero-copy pv4-reference-copy">
+        <div className="pv4-hero-grid pv4-reference-hero-grid pv5-reference-hero-grid">
+          <div className="pv4-hero-copy pv4-reference-copy pv5-reference-copy">
             <span className="pv4-pill"><b>✦</b> AI PERSONAL COLOR</span>
             <h1>Find your <em>best colors.</em></h1>
             <p>AI-powered personal color analysis for your makeup, style, and glow.</p>
@@ -53,23 +53,24 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="pv4-hero-art pv4-reference-art" aria-label="Palevie beauty model">
-            <span className="pv4-reference-halo" aria-hidden="true" />
+          <div className="pv4-hero-art pv4-reference-art pv5-reference-art" aria-label="Palevie beauty model">
+            <span className="pv4-reference-halo pv5-reference-halo" aria-hidden="true" />
             <span className="pv4-reference-spark spark-a" aria-hidden="true">✦</span>
             <span className="pv4-reference-spark spark-b" aria-hidden="true">✦</span>
-            <img className="pv4-hero-model pv4-reference-model" src="/palevie-v4/model-hero.webp" alt="Beauty portrait in soft pink and lavender" />
-            <img className="pv4-hero-lip pv4-reference-lip" src="/palevie-v4/lip-tint.webp" alt="" aria-hidden="true" />
-            <img className="pv4-hero-palette pv4-reference-palette" src="/palevie-v4/eyeshadow.webp" alt="" aria-hidden="true" />
+            <img className="pv5-reference-orbit" src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
+            <img className="pv4-hero-model pv4-reference-model pv5-reference-model" src="/palevie-v4/model-hero.webp" alt="Beauty portrait in soft pink and lavender" />
+            <img className="pv4-hero-lip pv4-reference-lip pv5-reference-lip" src="/palevie-v4/lip-tint.webp" alt="" aria-hidden="true" />
+            <img className="pv4-hero-palette pv4-reference-palette pv5-reference-palette" src="/palevie-v4/eyeshadow.webp" alt="" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      <section className="pv4-made-for-card pv4-reference-made-for">
+      <section className="pv4-made-for-card pv4-reference-made-for pv5-reference-made-for">
         <div className="pv4-made-for-copy"><span>Made for</span><strong>all of you ♡</strong></div>
         <img src="/palevie-v4/model-group.webp" alt="Five beauty models with diverse skin tones" />
       </section>
 
-      <section className="pv4-feature-grid pv4-reference-feature-grid" aria-label="Palevie features">
+      <section className="pv4-feature-grid pv4-reference-feature-grid pv5-reference-feature-grid" aria-label="Palevie features">
         {features.map((feature) => (
           <Link className={`pv4-feature-card pv4-feature-${feature.art}`} href={feature.href} key={feature.title}>
             <div className="pv4-feature-art">
@@ -84,9 +85,10 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="pv4-home-quiz-banner pv4-reference-quiz-banner">
-        <div><span>New to Palevie?</span><p>Take the quiz for the most accurate results. ✦</p></div>
+      <section className="pv4-home-quiz-banner pv4-reference-quiz-banner pv5-reference-quiz-banner">
+        <div><span>✦ New to Palevie?</span><p>Take the quiz for the most accurate results! ✦</p></div>
         <Link href="/quiz">Take Quiz <b>›</b></Link>
+        <img src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
       </section>
     </div>
   );
