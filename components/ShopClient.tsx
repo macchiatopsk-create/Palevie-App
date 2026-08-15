@@ -25,7 +25,8 @@ function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
   return {src:bySub[sub] ?? (cat==="skincare"?"/img/highlight3.webp":"/img/orb3.webp")};
 }
 export default function ShopClient() {
-  const [tab, setTab] = useState<"all"|"makeup"|"skincare">("all");
+  const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
+  const [qtext, setQtext] = useState("");
   const [ready, setReady] = useState(false);
   const profile = useMemo(() => {
     if (!ready) return null;
@@ -37,7 +38,8 @@ export default function ShopClient() {
   useEffect(() => { setReady(true); track("shop_viewed"); }, []);
 
   const items = catalogProducts
-    .filter(p => tab === "all" || p.category === tab)
+    .filter(p => tab==="all" || (tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
+    .filter(p => !qtext || p.name.toLowerCase().includes(qtext.toLowerCase()) || p.brand.toLowerCase().includes(qtext.toLowerCase()))
     .map(p => {
       let match: number | undefined;
       let reason = "";
@@ -56,31 +58,28 @@ export default function ShopClient() {
     .sort((a,b)=>(b.match || 0) - (a.match || 0));
 
   return <>
-    <div className="shop-tabs" role="tablist">
-      <button className={tab==="all"?"active":""} onClick={()=>setTab("all")}>All</button>
-      <button className={tab==="makeup"?"active":""} onClick={()=>setTab("makeup")}>Makeup</button>
-      <button className={tab==="skincare"?"active":""} onClick={()=>setTab("skincare")}>Skincare</button>
+    <div className="sh-head"><h1>Shop</h1></div>
+    <div className="sh-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search for products"/><b>✦</b></div>
+    <div className="sh-pills">
+      {([["all","✦ All"],["lip","💋 Lips"],["eyeshadow","👁 Eyes"],["blush","😊 Cheeks"],["skincare","🧴 Skin"]] as const).map(([k,l])=>
+        <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>)}
     </div>
 
     {!profile && tab !== "skincare" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
-    {!skin && tab !== "makeup" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
+    {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
     <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category);return <img src={a.src} alt="" loading="lazy" style={a.hue?{filter:`hue-rotate(${a.hue}deg) saturate(1.05)`}:undefined}/>})()}
         <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
-      <div className="shop-meta">
-        <small>{p.brand} · {p.subcategory}</small>
+      <div className="sh-meta">
         <h3>{p.name}</h3>
-        <p>{p.description}</p>
-        {p.match !== undefined && <div className="match-row"><div className="match-chip">{p.match}% match</div><small>{p.reason}</small></div>}
-        <div className="retailer-list">{p.offers.map(o => {
-          const href = trackedOfferHref(o.id, getVisitorId());
-          return <a key={o.id} href={href} onClick={()=>track("affiliate_outbound_click",{retailer:o.retailer,product:p.id,offer:o.id})}>
-            <span>{retailers[o.retailer].name}{o.priceLabel ? <small>{o.priceLabel}</small> : null}</span><b>↗</b>
-          </a>;
-        })}</div>
+        <div className="sh-buy">
+          <b>{p.offers[0]?.priceLabel ?? ""}</b>
+          <a className="sh-plus" href={trackedOfferHref(p.offers[0].id, getVisitorId())} onClick={()=>track("affiliate_outbound_click",{retailer:p.offers[0].retailer,product:p.id,offer:p.offers[0].id})} aria-label={`Shop ${p.name}`}>＋</a>
+        </div>
+        {p.match !== undefined && <small className="sh-match">{p.match}% match · {p.reason}</small>}
       </div>
     </article>)}</div>
 

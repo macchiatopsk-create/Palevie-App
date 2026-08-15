@@ -451,3 +451,39 @@ body:has(.mk-home) .site-header{display:none}
 /* home seasons section inside mockup flow */
 .mk-seasons{background:rgba(255,255,255,.6);backdrop-filter:blur(8px);padding:18px 14px 6px}
 .mk-seasons .mh-sec-head h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 12px}
+
+/* analyzing v3: mockup art + live bar */
+.an3{max-width:560px;margin:0 auto;padding:10px 20px 120px;text-align:center}
+.an3-art{width:100%;display:block}
+.an3-foot{text-align:left;max-width:440px;margin:6px auto 0}
+.an3-row{display:flex;align-items:baseline;justify-content:space-between}
+.an3-row strong{font-family:var(--display);font-weight:700;font-size:46px;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.an3-row strong small{font-size:18px}
+.an3-row em{font-style:normal;font-size:12.5px;font-weight:600;color:#B04FD8}
+.an3-bar{height:14px;border-radius:99px;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,1);box-shadow:inset 0 1px 4px rgba(60,42,84,.10);overflow:hidden;margin-top:8px}
+.an3-bar i{display:block;height:100%;border-radius:99px;background:var(--grad-cta);transition:width .15s linear;box-shadow:0 0 12px rgba(255,92,138,.55)}
+.an3-foot>p{text-align:center;font-size:12.5px;color:var(--muted);margin-top:12px}
+
+/* quiz gradient tail + skip */
+.qz-head h2 em{font-style:normal;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.qz-foot{justify-content:space-between;align-items:center}
+.qz-skip{border:none;background:none;font:inherit;font-size:15px;font-weight:600;color:#9D5CE8;cursor:pointer;border-bottom:1.5px dashed #C9A6EE;padding:2px 1px}
+
+/* shop per mockup */
+.sh-head h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,9vw,52px);margin:2px 0 14px;letter-spacing:-.02em}
+.sh-search{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.95);border-radius:999px;padding:14px 18px;box-shadow:var(--shadow-soft)}
+.sh-search svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:1.8;flex:none}
+.sh-search input{flex:1;border:none;background:none;font:inherit;font-size:15px;outline:none;color:var(--ink);min-width:0}
+.sh-search b{color:#B96DF0;font-size:15px}
+.sh-pills{display:flex;gap:9px;overflow-x:auto;padding:14px 2px 6px;-webkit-overflow-scrolling:touch}
+.sh-pills::-webkit-scrollbar{display:none}
+.sh-pills button{flex:none;border:none;background:rgba(255,255,255,.75);border-radius:999px;padding:11px 17px;font:inherit;font-size:13.5px;font-weight:600;color:#7d6f78;cursor:pointer;box-shadow:var(--shadow-soft)}
+.sh-pills button.on{background:var(--grad-cta);color:#fff;box-shadow:0 6px 16px rgba(200,90,200,.30)}
+.sh-meta{padding:13px 15px 15px}
+.sh-meta h3{font-size:15px;font-weight:600;margin:0}
+.sh-buy{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.sh-buy b{font-size:17px;font-weight:700;color:var(--rose)}
+.sh-plus{width:36px;height:36px;border-radius:50%;background:var(--grad-cta);color:#fff;display:grid;place-items:center;font-size:19px;font-weight:700;box-shadow:0 6px 14px rgba(200,90,200,.32)}
+.sh-match{display:block;margin-top:8px;font-size:11px;color:var(--muted)}
+/* mobile: hide site header (mockups carry their own chrome) */
+@media(max-width:860px){.site-header{display:none}}

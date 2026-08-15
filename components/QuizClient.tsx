@@ -28,7 +28,7 @@ export default function QuizClient(){
   </div>
   <div className="qz-bar"><i style={{width:`${progress}%`}}><u>✦</u></i></div>
   <div className="qz-head">
-   <h2>{q.text}</h2>
+   <h2>{(()=>{const w=q.text.split(" ");const cut=Math.ceil(w.length/2);return <>{w.slice(0,cut).join(" ")} <em>{w.slice(cut).join(" ")}</em></>})()}</h2>
    <img className="qz-orb" src="/img/orb3.webp" alt=""/>
   </div>
   {q.help&&<p className="qz-help">{q.help}</p>}
@@ -42,6 +42,7 @@ export default function QuizClient(){
       </button>)}
   </div>
   <div className="qz-foot">
+   <button className="qz-skip" onClick={()=>{const neutral=q.options.reduce((best,o,i)=>{const w=Math.abs(o.t??0)+Math.abs(o.v??0)+Math.abs(o.c??0)+Math.abs(o.k??0);return w<best.w?{i,w}:best},{i:0,w:99}).i;choose(neutral);setTimeout(next,60)}}>Skip ✦</button>
    <button className="qz-next" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my colors ✦":"Next ✦"}</button>
   </div>
  </div>;
@@ -110,34 +111,21 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
  </div>}
 
 function AnalyzingView({onDone}:{onDone:()=>void}){
- const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
  const [pct,setPct]=useState(0);
  useEffect(()=>{
   const t0=Date.now();const DUR=3600;
   const iv=setInterval(()=>{
    const p=Math.min(100,Math.round((Date.now()-t0)/DUR*100));
    setPct(p);
-   if(p>=100){clearInterval(iv);setTimeout(onDone,450)}
+   if(p>=100){clearInterval(iv);setTimeout(onDone,420)}
   },40);
   return()=>clearInterval(iv);
  },[onDone]);
- const done=Math.floor(pct/25);
- return <div className="an2">
-  <h2>Analyzing<br/><em>your color energy</em></h2>
-  <p className="an2-sub">We&apos;re mapping your undertone, contrast, and best palette.</p>
-  <div className="an2-orb"><img src="/img/orb3.webp" alt=""/></div>
-  <ul className="an2-list">
-   {STEPS.map((st,i)=>{
-    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
-    return <li key={st} className={state}>
-     <b>{state==="done"?"✓":""}</b><span>{st}</span>
-     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
-    </li>;
-   })}
-  </ul>
-  <div className="an2-foot">
-   <div className="an2-pct"><strong>{pct}</strong><small>%</small><em>✦ Almost there!</em></div>
-   <div className="an2-bar"><i style={{width:`${pct}%`}}/></div>
+ return <div className="an3">
+  <img className="an3-art" src="/img/analyzing_art.webp" alt="Analyzing your color energy"/>
+  <div className="an3-foot">
+   <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
+   <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
    <p>Your personalized results are loading… 💗</p>
   </div>
  </div>;
