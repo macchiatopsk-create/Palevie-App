@@ -18,8 +18,9 @@ export const retailers: Record<RetailerId, { name: string; note: string }> = {
  */
 export function resolveOfferUrl(offer: ProductOffer) {
   const url = new URL(offer.url);
-  if (offer.retailer === "amazon" && process.env.AMAZON_ASSOCIATE_TAG) {
-    url.searchParams.set("tag", process.env.AMAZON_ASSOCIATE_TAG);
+  const tag = process.env.AMAZON_ASSOCIATE_TAG || "palevie-20";
+  if (offer.retailer === "amazon") {
+    url.searchParams.set("tag", tag);
   }
   return url.toString();
 }

@@ -75,6 +75,6 @@ export default function ShopClient() {
       </div>
     </article>)}</div>
 
-    <p className="affiliate-disclosure"><strong>Disclosure:</strong> this build uses demo products and direct retailer links until approved affiliate feeds/tracking URLs are configured. Palevie must label affiliate links and any sponsored placement clearly.</p>
+    <p className="affiliate-disclosure"><strong>Disclosure:</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Prices shown are approximate — the retailer page always has the final price.</p>
   </>;
 }
