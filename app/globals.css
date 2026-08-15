@@ -525,12 +525,12 @@ body:has(.rs) .app-title,body:has(.an3) .app-title,body:has(.qz) .app-title{disp
 .an4 h2 em{font-style:normal;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .an4-sub{color:var(--muted);font-size:14px;margin:12px auto 22px;max-width:21rem;line-height:1.55}
 .an4-stage{position:relative;width:min(76vw,340px);aspect-ratio:1;margin:0 auto 22px}
-.an4-orb{position:absolute;inset:7%;width:86%;height:86%;object-fit:cover;border-radius:50%;clip-path:circle(46.5% at 50% 50%);mix-blend-mode:multiply;animation:an4spin 16s linear infinite}
+.an4-orb{position:absolute;inset:7%;width:86%;height:86%;object-fit:cover;border-radius:50%;clip-path:circle(46.5% at 50% 50%);mix-blend-mode:multiply;animation:an4spin 46s linear infinite,lpOrbFloat 4.2s ease-in-out infinite}
 @keyframes an4spin{to{rotate:360deg}}
 .an4-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 .an4-ring circle{fill:none;stroke-width:2.4}
 .an4-ring .rb{stroke:rgba(255,255,255,.65)}
-.an4-ring .rf{stroke:url(#g) #F0448F;stroke:#F0448F;stroke-linecap:round;stroke-dasharray:295.3;transition:stroke-dashoffset .15s linear;filter:drop-shadow(0 0 8px rgba(255,92,138,.6))}
+.an4-ring .rf{stroke:url(#agr);stroke-linecap:round;stroke-dasharray:295.3;transition:stroke-dashoffset .15s linear;filter:drop-shadow(0 0 8px rgba(255,92,138,.6))}
 .an4-pct{position:absolute;z-index:3;top:50%;left:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 14px rgba(255,255,255,.95));font-family:var(--display);font-weight:700;font-size:clamp(46px,12vw,62px);background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 18px rgba(255,255,255,.8)}
 .an4-pct small{font-size:.45em}
 .an4-cap{font-size:12.5px;color:var(--muted);margin-top:16px}
@@ -603,3 +603,15 @@ input[type="email"]{margin-bottom:16px}
 .mk-ban-in{background:
   radial-gradient(60% 120% at 12% 0%,rgba(255,255,255,.55) 0%,transparent 55%),
   linear-gradient(92deg,#FFE3EF,#FBD3E8 55%,#F2CBEA)}
+
+/* premium loading motion + tactile press */
+.an4-halo{position:absolute;inset:-8%;border-radius:50%;background:radial-gradient(circle,rgba(255,120,180,.35) 0%,rgba(185,109,240,.18) 45%,transparent 70%);filter:blur(14px);animation:an4halo 3.4s ease-in-out infinite}
+@keyframes an4halo{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.06)}}
+.an4-sp{position:absolute;inset:0;pointer-events:none;animation:an4orbit 8.4s linear infinite}
+.an4-sp:before{content:"✦";position:absolute;top:-2%;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;text-shadow:0 0 10px rgba(255,120,190,.95),0 0 4px #fff;animation:an4tw 1.4s ease-in-out infinite}
+@keyframes an4orbit{to{transform:rotate(360deg)}}
+@keyframes an4tw{0%,100%{opacity:.25;scale:.7}50%{opacity:1;scale:1.15}}
+.dr-pick,.dr-toggle button,.qz-opt,.qz-photo,.qz-next,.mh-cta,.mk-ban{transition:transform .1s ease,box-shadow .12s ease}
+.dr-pick:active{transform:scale(.955) translateY(2px);box-shadow:0 4px 10px rgba(200,90,200,.35),inset 0 2px 6px rgba(120,20,90,.25)}
+.dr-toggle button:active,.qz-opt:active,.qz-photo:active{transform:scale(.965)}
+.qz-next:active,.mk-ban:active{transform:scale(.97) translateY(1px)}

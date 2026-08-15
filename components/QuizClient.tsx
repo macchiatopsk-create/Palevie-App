@@ -16,6 +16,7 @@ export default function QuizClient(){
  useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
  const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
+ function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);track("quiz_answered",{question:q.id,step:step+1});if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1);else finish(na as number[])}
  function next(){if(selected===null)return;if(step<QUIZ_QUESTIONS.length-1)setStep(s=>s+1);else finish(answers as number[])}
  function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
@@ -34,8 +35,8 @@ export default function QuizClient(){
   {q.help&&<p className="qz-help">{q.help}</p>}
   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
    const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
-   const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);choose(curIdx);setTimeout(next,120)}}>✓ This one suits me</button>;
-   const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);choose(neutral);setTimeout(next,100)}}>Honestly can&apos;t tell</button>;
+   const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>✓ This one suits me</button>;
+   const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);chooseAndNext(neutral)}}>Honestly can&apos;t tell</button>;
    return <div className="dr">
     <div className="dr-swatch" style={{background:cur.hex}}>
      <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">⛶ Fill screen</button>
@@ -133,7 +134,10 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   <h2>Analyzing<br/><em>your color energy</em></h2>
   <p className="an4-sub">We&apos;re mapping your undertone, contrast, and best palette.</p>
   <div className="an4-stage">
+   <i className="an4-halo"/>
+   {[0,1,2,3,4,5].map(i=><b key={i} className="an4-sp" style={{animationDelay:`${i*1.4}s`,rotate:`${i*60}deg`}}/>)}
    <svg className="an4-ring" viewBox="0 0 100 100">
+    <defs><linearGradient id="agr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#FF5C8A"/><stop offset="1" stopColor="#B96DF0"/></linearGradient></defs>
     <circle className="rb" cx="50" cy="50" r="47"/>
     <circle className="rf" cx="50" cy="50" r="47" style={{strokeDashoffset:295.3*(1-pct/100)}}/>
    </svg>
@@ -145,7 +149,6 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
     const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
     return <li key={st} className={state}>
      <b>{state==="done"?"✓":""}</b><span>{st}</span>
-     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
     </li>;
    })}
   </ul>
