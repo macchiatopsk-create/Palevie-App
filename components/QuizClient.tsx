@@ -130,7 +130,6 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
  },[onDone]);
  return <div className="an6">
   <div className="an6-art" role="img" aria-label="Analyzing your color energy"/>
-  <div className="an6-mirror"/>
   <div className="an3-foot">
    <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
    <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
