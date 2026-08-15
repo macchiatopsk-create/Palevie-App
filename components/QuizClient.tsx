@@ -20,100 +20,25 @@ export default function QuizClient(){
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
- return <div className="quiz-shell"><div className="quiz-top"><button className="icon-button" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button><div className="quiz-progress-wrap"><span>Question {String(step+1).padStart(2,"0")} of {QUIZ_QUESTIONS.length}</span><div className="quiz-progress"><i style={{width:`${progress}%`}}/></div></div></div><div className="quiz-question"><div className="eyebrow">What feels better?</div><h2>{q.text}</h2>{q.help&&<p>{q.help}</p>}</div><div className="quiz-options">{q.options.map((o,idx)=><button key={o.label} className={`quiz-option ${selected===idx?"selected":""}`} onClick={()=>choose(idx)}><span>{o.label}</span>{selected===idx&&<b>✓</b>}</button>)}</div><div className="quiz-next"><button className="button rose" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my color mood":"Next →"}</button></div></div>
-}
-function seasonArt(toneId:string){
-  if(toneId==="summer-soft"||toneId==="summer-muted"||toneId==="autumn-soft"||toneId==="autumn-muted")return "/img/s2_ss.webp";
-  const fam=toneId.split("-")[0];
-  return {spring:"/img/s2_sp.webp",summer:"/img/s2_su.webp",autumn:"/img/s2_au.webp",winter:"/img/s2_wi.webp"}[fam] ?? "/img/s2_ss.webp";
-}
-// Color-theory "avoid" palettes per season family: hues that fight the palette's
-// temperature/chroma (e.g. cool-muted summers are washed out by hot oranges).
-function avoidColors(toneId:string):string[]{
-  const fam=toneId.split("-")[0];
-  return {
-    spring:["#8C9BAB","#5B5F6E","#7A3B52","#3E3A45","#9AA5B5","#63444E"],
-    summer:["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"],
-    autumn:["#9FD8E8","#C7CEEA","#F19AD1","#8FA6E8","#7FD1C8","#D671B8"],
-    winter:["#C8A165","#A98253","#B5A642","#8E7748","#D2B48C","#C77B4F"],
-  }[fam] ?? ["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"];
-}
-function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
- const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
- const best=primary.colors[0];
- return <div className="lp-result" style={{"--profile-accent":best} as CSSProperties}>
-  <img className="lp-result-flower" src="/img/peony2.webp" alt=""/>
-  <div className="eyebrow">Your palette</div>
-  <h1 className="lp-result-name">{primary.name}</h1>
-  <p className="lp-result-tags"><span>{primary.temperature}</span><span>{primary.chroma}</span><span>{primary.value}</span></p>
-  <p className="lp-result-desc">{primary.description}</p>
-
-  <div className="lp-colors-card">
-   <small>Your 7 colors</small>
-   <div className="chips">{primary.colors.slice(0,7).map(c=><i key={c} style={{background:c}}/>)}</div>
+ return <div className="qz">
+  <div className="qz-top">
+   <button className="qz-back" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button>
+   <b className="qz-logo">Palevie</b>
+   <span className="qz-count"><em>{step+1}</em> / {QUIZ_QUESTIONS.length}</span>
   </div>
-
-  <div className="lp-season-photo">
-   <img src={seasonArt(result.ranked[0].id)} alt=""/>
-   <div className="lp-season-caption"><small>Season mood</small><b>{primary.name}</b></div>
+  <div className="qz-bar"><i style={{width:`${progress}%`}}><u>✦</u></i></div>
+  <div className="qz-head">
+   <h2>{q.text}</h2>
+   <img className="qz-orb" src="/img/orb3.webp" alt=""/>
   </div>
-
-  <div className="lp-avoid-card">
-   <small>Colors to avoid</small>
-   <p>These fight your palette&apos;s balance — wear them away from your face.</p>
-   <div className="chips">{avoidColors(result.ranked[0].id).map(c=><i key={c} style={{background:c}}/>)}</div>
+  {q.help&&<p className="qz-help">{q.help}</p>}
+  <div className="qz-opts">{q.options.map((o,idx)=>
+   <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+    <span>{o.label}</span><i/>
+   </button>)}
   </div>
-
-  <div className="lp-best-card">
-   <img src="/img/pearls2.webp" alt=""/>
-   <div>
-    <small>Best match for you</small>
-    <b style={{color:best}}>●</b>
-    <strong>Your signature shade</strong>
-    <p>{primary.temperature} · {primary.chroma} · your perfect harmony.</p>
-   </div>
-  </div>
-
-  <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
-  <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
-
-  <div className="button-row">
-   <Link className="lp-btn" href="/shop">See full analysis <span className="lp-arrow">→</span></Link>
-   <Link className="button secondary" href="/analyze">Check a product</Link>
-   <button className="text-button" onClick={onRestart}>Retake quiz</button>
-  </div>
- </div>}
-
-function AnalyzingView({onDone}:{onDone:()=>void}){
- const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
- const [pct,setPct]=useState(0);
- useEffect(()=>{
-  const t0=Date.now();const DUR=3600;
-  const iv=setInterval(()=>{
-   const p=Math.min(100,Math.round((Date.now()-t0)/DUR*100));
-   setPct(p);
-   if(p>=100){clearInterval(iv);setTimeout(onDone,450)}
-  },40);
-  return()=>clearInterval(iv);
- },[onDone]);
- const done=Math.floor(pct/25);
- return <div className="an2">
-  <h2>Analyzing<br/><em>your color energy</em></h2>
-  <p className="an2-sub">We&apos;re mapping your undertone, contrast, and best palette.</p>
-  <div className="an2-orb"><img src="/img/orb3.webp" alt=""/></div>
-  <ul className="an2-list">
-   {STEPS.map((st,i)=>{
-    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
-    return <li key={st} className={state}>
-     <b>{state==="done"?"✓":""}</b><span>{st}</span>
-     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
-    </li>;
-   })}
-  </ul>
-  <div className="an2-foot">
-   <div className="an2-pct"><strong>{pct}</strong><small>%</small><em>✦ Almost there!</em></div>
-   <div className="an2-bar"><i style={{width:`${pct}%`}}/></div>
-   <p>Your personalized results are loading… 💗</p>
+  <div className="qz-foot">
+   <button className="qz-next" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my colors ✦":"Next ✦"}</button>
   </div>
  </div>;
 }
