@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Poppins:wght@400;500;600;700&display=swap');
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#FFF7FB;--bg2:#FDF2F6;--surface:#FFFFFF;--ink:#1A1A1A;--muted:#6B6873;--line:#F1DDE6;
   --rose:#FF5C8A;--rose-deep:#FF8A80;--plum:#5A254B;--rose-soft:#FFE6F0;--rose-pale:#FDF2F6;--violet:#C8B6FF;--lav:#EDE7FF;--blue:#a8bdd2;--peach:#f2bea7;--gold:#c9a37b;
@@ -586,7 +586,7 @@ input[type="email"]{margin-bottom:16px}
 .mk-scanb p,.mk-shopb p{max-width:15rem}
 
 /* strip overlay card (bigger, pulled down) */
-.mk-hero{overflow:visible}
+.mk-hero{overflow:hidden}
 .mk-strip2{position:absolute;left:1.5%;right:1.5%;top:81%;height:21.5%;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border-radius:22px;padding:10px 16px;box-shadow:0 12px 32px rgba(60,42,84,.16);color:inherit}
 .mk-strip2 span{font-size:15px;font-weight:600;line-height:1.35;white-space:nowrap;color:#4a3d46}
 .mk-strip2 em{font-family:var(--display);font-style:normal;font-size:18px;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -598,3 +598,8 @@ input[type="email"]{margin-bottom:16px}
 .mk-ban .tx p{font-size:12px;color:#8a7186;margin:4px 0 0;line-height:1.45;max-width:15rem}
 .mk-ban span{position:absolute;right:96px;top:50%;transform:translateY(-50%);background:#fff;border-radius:999px;padding:11px 18px;font-size:13.5px;font-weight:700;color:#D6417F;box-shadow:0 4px 12px rgba(60,42,84,.14)}
 .mk-ban img{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:84px;height:84px;object-fit:cover;object-position:center 14%;border-radius:50%;box-shadow:0 6px 16px rgba(200,90,160,.3)}
+.mk-stripimg{display:block;border-radius:24px;overflow:hidden;box-shadow:0 12px 30px rgba(60,42,84,.14);margin:26px 4px 0;width:calc(100% - 8px)}
+.mk-stripimg img{width:100%;display:block}
+.mk-ban-in{background:
+  radial-gradient(60% 120% at 12% 0%,rgba(255,255,255,.55) 0%,transparent 55%),
+  linear-gradient(92deg,#FFE3EF,#FBD3E8 55%,#F2CBEA)}

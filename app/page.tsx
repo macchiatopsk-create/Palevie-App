@@ -8,14 +8,14 @@ export default function HomePage(){return <div className="mk-home">
     <div className="mk-sec mk-hero">
       <img src="/img/home_s1.webp" alt="Palevie — find your best colors" fetchPriority="high"/>
       <Link className="mk-hs" href="/quiz" aria-label="Start My Analysis"
-        style={{left:"2.8%",top:"57.4%",width:"45%",height:"7%"}}/>
+        style={{left:"2.8%",top:"68.9%",width:"45%",height:"8.3%"}}/>
       <Link className="mk-hs" href="/diagnose" aria-label="See how it works"
-        style={{left:"4.3%",top:"67%",width:"29.5%",height:"3.2%"}}/>
-      <Link href="/quiz" className="mk-strip2" aria-label="Made for all of you">
-        <span>Made for<br/><em>all of you</em> ♡</span>
-        <img src="/img/hero3.webp" alt=""/>
-      </Link>
+        style={{left:"4.3%",top:"80.5%",width:"29.5%",height:"3.8%"}}/>
     </div>
+
+    <Link href="/quiz" className="mk-sec mk-stripimg" aria-label="Made for all of you">
+      <img src="/img/home_strip.webp" alt="Made for all of you"/>
+    </Link>
 
     <div className="mk-sec">
       <img src="/img/home_s3.webp" alt="AI color match, makeup picks, season results"/>
@@ -38,13 +38,16 @@ export default function HomePage(){return <div className="mk-home">
       </div>
     </section>
 
-    <div className="mk-sec">
-      <img src="/img/home_s4.webp" alt="New to Palevie? Take the quiz"/>
-      <Link className="mk-hs" href="/quiz" aria-label="Take Quiz"
-        style={{left:"3.5%",top:"5%",width:"92%",height:"90%"}}/>
-    </div>
+
 
     <section className="mk-sec mk-duo">
+      <a className="mk-ban" href="/quiz">
+        <div className="mk-ban-in">
+          <div className="tx"><b>New to Palevie?</b><p>Take the quiz for the most accurate results! ✦</p></div>
+          <span>Take Quiz ›</span>
+          <img src="/img/orb3.webp" alt=""/>
+        </div>
+      </a>
       <a className="mk-ban" href="/diagnose">
         <div className="mk-ban-in">
           <div className="tx"><b>Selfie Scan</b><p>Snap a photo — AI checks your tone.</p></div>

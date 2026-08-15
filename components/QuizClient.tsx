@@ -33,9 +33,9 @@ export default function QuizClient(){
    </div>
   {q.help&&<p className="qz-help">{q.help}</p>}
   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
-   const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onClick={()=>setSide(i)}>{o.label}</button>)}</div>;
-   const pick=<button className="dr-pick" onClick={()=>{setFull(false);choose(curIdx);setTimeout(next,90)}}>✓ This one suits me</button>;
-   const cant=<button className="qz-skip dr-skip" onClick={()=>{setFull(false);choose(neutral);setTimeout(next,60)}}>Honestly can&apos;t tell</button>;
+   const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
+   const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);choose(curIdx);setTimeout(next,120)}}>✓ This one suits me</button>;
+   const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);choose(neutral);setTimeout(next,100)}}>Honestly can&apos;t tell</button>;
    return <div className="dr">
     <div className="dr-swatch" style={{background:cur.hex}}>
      <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">⛶ Fill screen</button>
