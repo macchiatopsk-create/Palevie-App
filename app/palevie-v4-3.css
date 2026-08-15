@@ -1,0 +1,88 @@
+.pv4-quiz-shell {
+  position: relative;
+  min-height: calc(100vh - 45px);
+  overflow: hidden;
+  padding: 28px 38px 42px;
+  border: 1px solid rgba(255,255,255,.92);
+  border-radius: 38px;
+  background:
+    linear-gradient(rgba(255,246,251,.72), rgba(255,247,251,.82)),
+    url('/palevie-v4/silk-bg.webp') center/cover;
+  box-shadow: var(--pv4-shadow);
+}
+.pv4-question-count { min-width: 75px; text-align: right; font-size: 17px; }
+.pv4-question-count b { color: #ed4182; font-size: 21px; }
+.pv4-progress-track { position: relative; height: 14px; margin: 24px 0 58px; overflow: hidden; border: 2px solid rgba(255,255,255,.9); border-radius: 999px; background: rgba(255,255,255,.46); box-shadow: inset 0 2px 8px rgba(98,66,89,.08), 0 5px 15px rgba(255,113,169,.08); }
+.pv4-progress-track > i { position: relative; display: block; height: 100%; min-width: 12px; border-radius: inherit; background: linear-gradient(90deg, #ff4d83, #d95eb7, #a65ae2); box-shadow: 0 0 18px rgba(217,71,151,.35); transition: width .35s ease; }
+.pv4-progress-track b { position: absolute; right: 7px; top: 50%; transform: translateY(-53%); color: #fff; font-size: 11px; }
+.pv4-question-copy { position: relative; max-width: 760px; }
+.pv4-question-copy h1 { position: relative; z-index: 2; max-width: 700px; margin: 0 0 18px; font: 500 clamp(48px, 7vw, 75px)/.98 var(--pv4-display); letter-spacing: -.045em; }
+.pv4-question-copy h1::first-letter { color: inherit; }
+.pv4-question-copy p { position: relative; z-index: 2; color: #5d5869; font-size: 16px; line-height: 1.5; }
+.pv4-question-orbit { position: absolute; z-index: 1; right: -10px; top: -52px; width: 125px; height: 125px; opacity: .9; }
+.pv4-question-orbit img { width: 100%; }
+
+.pv4-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 35px; }
+.pv4-options-grid.many { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pv4-option-card {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.95);
+  border-radius: 24px;
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 15px 35px rgba(113,64,95,.12), inset 0 1px 0 #fff;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.pv4-option-card:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(113,64,95,.17); }
+.pv4-option-card.selected { border-color: rgba(236,62,132,.78); box-shadow: 0 0 0 3px rgba(240,74,141,.15), 0 20px 45px rgba(113,64,95,.16); }
+.pv4-option-art { position: relative; height: 180px; display: grid; place-items: center; overflow: hidden; background: linear-gradient(145deg, var(--pv4-a), var(--pv4-b) 55%, var(--pv4-c)); }
+.pv4-option-card.photo .pv4-option-art { height: 210px; }
+.pv4-option-art > img { width: 100%; height: 100%; object-fit: cover; object-position: center 43%; }
+.pv4-option-gradient { position: relative; width: 122px; height: 122px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #fff, var(--pv4-a) 21%, var(--pv4-b) 54%, var(--pv4-c)); box-shadow: inset -15px -20px 30px rgba(56,36,60,.16), 0 18px 32px rgba(61,34,57,.15); }
+.pv4-option-gradient::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(255,255,255,.64); border-radius: 50%; }
+.pv4-option-gradient i:first-child { position: absolute; width: 54px; height: 14px; left: 34px; top: 19px; border-radius: 50%; background: rgba(255,255,255,.68); transform: rotate(-17deg); filter: blur(2px); }
+.pv4-option-gradient i:last-child { position: absolute; right: 18px; bottom: 21px; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.6); }
+.pv4-option-footer { min-height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 15px 18px; background: rgba(255,255,255,.82); text-align: left; }
+.pv4-option-footer b { font-size: 14px; line-height: 1.35; }
+.pv4-option-footer i { flex: 0 0 32px; width: 32px; height: 32px; display: grid; place-items: center; border: 2px solid #ef5b9a; border-radius: 50%; color: #fff; font-style: normal; background: transparent; }
+.pv4-option-card.selected .pv4-option-footer i { background: linear-gradient(145deg, #ff4b82, #bb5fe5); }
+.pv4-jewelry-art { position: relative; width: 160px; height: 120px; }
+.pv4-jewelry-art i,
+.pv4-jewelry-art b { position: absolute; width: 88px; height: 88px; border: 12px solid var(--pv4-b); border-radius: 50%; box-shadow: 0 15px 25px rgba(61,35,51,.15), inset 0 0 15px rgba(255,255,255,.7); }
+.pv4-jewelry-art i { left: 12px; top: 14px; }
+.pv4-jewelry-art b { right: 12px; top: 14px; transform: scale(.82); border-color: var(--pv4-a); }
+.pv4-lip-smear { width: 75%; height: 74px; border-radius: 60% 38% 58% 42% / 45% 55% 44% 56%; background: linear-gradient(90deg, var(--pv4-a), var(--pv4-b), var(--pv4-c)); box-shadow: inset 0 13px 24px rgba(255,255,255,.35), 0 18px 25px rgba(76,35,62,.13); transform: rotate(-8deg); }
+.pv4-option-fan { position: relative; width: 150px; height: 130px; }
+.pv4-option-fan i { position: absolute; left: 50%; bottom: 6px; width: 48px; height: 110px; border-radius: 9px; border: 3px solid rgba(255,255,255,.7); transform-origin: 50% 94%; background: linear-gradient(var(--pv4-a) 0 33%, var(--pv4-b) 33% 66%, var(--pv4-c) 66%); }
+.pv4-option-fan i:nth-child(1) { transform: translateX(-50%) rotate(-36deg); }
+.pv4-option-fan i:nth-child(2) { transform: translateX(-50%) rotate(-18deg); }
+.pv4-option-fan i:nth-child(3) { transform: translateX(-50%); }
+.pv4-option-fan i:nth-child(4) { transform: translateX(-50%) rotate(18deg); }
+.pv4-option-fan i:nth-child(5) { transform: translateX(-50%) rotate(36deg); }
+.pv4-quiz-actions { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 30px; }
+.pv4-skip-button { border: 0; background: transparent; color: #9851c3; font-weight: 700; text-decoration: underline dotted 2px; text-underline-offset: 8px; cursor: pointer; }
+.pv4-skip-button:disabled { opacity: 0; pointer-events: none; }
+.pv4-quiz-actions .pv4-gradient-button { min-width: 260px; }
+
+/* ANALYSIS */
+.pv4-analysis-shell {
+  min-height: calc(100vh - 45px);
+  padding: 26px 42px 115px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.92);
+  border-radius: 38px;
+  background:
+    linear-gradient(rgba(255,244,250,.76), rgba(255,246,251,.9)),
+    url('/palevie-v4/silk-bg.webp') center/cover;
+  box-shadow: var(--pv4-shadow);
+}
+.pv4-analysis-heading { text-align: center; max-width: 660px; margin: 48px auto 0; }
+.pv4-analysis-heading h1 { margin: 0; font: 500 clamp(53px, 7vw, 78px)/.94 var(--pv4-display); letter-spacing: -.05em; }
+.pv4-analysis-heading h1 em { display: block; color: #d23a85; font-weight: 500; }
+.pv4-analysis-heading p { max-width: 520px; margin: 18px auto 0; color: #585365; line-height: 1.55; }
+.pv4-analysis-orbit { width: min(560px, 82vw); margin: 15px auto -10px; }
+.pv4-analysis-orbit img { width: 100%; filter: drop-shadow(0 24px 45px rgba(210,95,168,.15)); animation: pv4OrbitBreathe 3.5s ease-in-out infinite; }
+.pv4-analysis-steps { max-width: 650px; margin: 0 auto; padding: 12px 30px; border: 1px solid rgba(255,255,255,.9); border-radius: 30px; background: rgba(255,255,255,.54); box-shadow: inset 0 1px 0 #fff, 0 18px 45px rgba(98,57,86,.1); backdrop-filter: blur(15px); }
+.pv4-analysis-steps > div { min-height: 58px; display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 12px; border-bottom: 1px solid rgba(118,80,104,.12); }
