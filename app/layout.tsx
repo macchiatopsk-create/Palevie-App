@@ -5,6 +5,7 @@ import "./globals.css";
 import "./palevie-redesign.css";
 import "./palevie-redesign-2.css";
 import "./palevie-polish.css";
+import "./palevie-polish-fixes.css";
 import AttributionCapture from "@/components/AttributionCapture";
 import MobileNav from "@/components/MobileNav";
 
