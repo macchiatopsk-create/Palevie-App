@@ -57,6 +57,7 @@ export default function ShopClient() {
     .sort((a,b)=>(b.match || 0) - (a.match || 0));
 
   return <>
+    <div className="sh-top"><b className="sh-logo">Palevie</b><span className="sh-bell"><svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.6 5.4 2 6H4c.4-.6 2-2 2-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><i/></span></div>
     <div className="sh-head"><h1>Shop</h1></div>
     <div className="sh-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search for products"/><b>✦</b></div>
     <div className="sh-pills">
