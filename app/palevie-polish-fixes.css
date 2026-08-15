@@ -1,0 +1,43 @@
+.pvx-analysis-progress-ring {
+  background: conic-gradient(from -90deg, #ff638f 0deg, #ad91e8 var(--analysis-progress), rgba(124,91,118,.11) var(--analysis-progress));
+}
+
+.pvx-analysis-glass::after {
+  width: 370px;
+  height: 170px;
+  border-radius: 999px;
+  background: linear-gradient(110deg, rgba(255,205,226,.68), rgba(205,192,255,.34), transparent 78%);
+  filter: blur(30px);
+  transform: rotate(-10deg);
+}
+
+.pvx-scan-loading-ring i {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  transform: rotate(45deg);
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(255,178,211,.75) 45%, rgba(181,151,239,.82));
+  box-shadow: inset -7px -8px 15px rgba(105,62,132,.15), 0 10px 25px rgba(232,127,177,.22);
+}
+
+@keyframes pvxCleanPulse {
+  0%, 100% { transform: rotate(45deg) scale(1); }
+  50% { transform: rotate(45deg) scale(.9); filter: brightness(1.08); }
+}
+
+@media (max-width: 820px) {
+  .pvx-scan-banner {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+    padding: 28px !important;
+  }
+
+  .pvx-scan-banner > div:nth-of-type(2) {
+    width: 100%;
+  }
+
+  .pvx-scan-banner .pvx-secondary-button {
+    justify-self: start;
+  }
+}
