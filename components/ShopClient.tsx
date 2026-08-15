@@ -13,6 +13,8 @@ function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(he
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
 function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string;filter?:string}{
   const bySub:Record<string,string>={lip:"/img/lip3.webp",blush:"/img/blush3.webp",eyeshadow:"/img/shadow3.webp",highlighter:"/img/highlight3.webp",cushion:"/img/cushion3.webp",gloss:"/img/shimmer3.webp"};
+  // Palevie Edit hero six: exact mockup renders, never recolored.
+  if(id.startsWith("pv-")) return {src: bySub[sub] ?? "/img/orb3.webp"};
   const src = bySub[sub] ?? (cat==="skincare"?"/img/pearls2.webp":"/img/orb3.webp");
   // Recolor the render toward the product's actual shade so every card reads as its own product.
   if(colorHex && BASE_HUE[src]!==undefined){
