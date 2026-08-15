@@ -32,10 +32,14 @@ export default function QuizClient(){
    <img className="qz-orb" src="/img/orb3.webp" alt=""/>
   </div>
   {q.help&&<p className="qz-help">{q.help}</p>}
-  <div className="qz-opts">{q.options.map((o,idx)=>
-   <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
-    <span>{o.label}</span><i/>
-   </button>)}
+  <div className={q.options.some(o=>o.img)?"qz-photos":"qz-opts"}>{q.options.map((o,idx)=>
+   o.img
+    ? <button key={o.label} className={`qz-photo ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+       <img src={o.img} alt=""/><span>{o.label}<i/></span>
+      </button>
+    : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+       <span>{o.label}</span><i/>
+      </button>)}
   </div>
   <div className="qz-foot">
    <button className="qz-next" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my colors ✦":"Next ✦"}</button>

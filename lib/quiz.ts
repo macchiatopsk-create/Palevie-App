@@ -11,6 +11,7 @@ export type AxisScores = {
 
 export type QuizOption = {
   label: string;
+  img?: string; // photo option (mockup skin-tone tiles)
   t?: number; // temperature delta
   v?: number; // value delta
   c?: number; // chroma delta
@@ -34,6 +35,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Gold — it warms my skin up", t: 2 },
       { label: "Silver — it makes my skin look clearer", t: -2 },
       { label: "Honestly both look fine", t: 0 },
+    ]},
+  { id: "skintone", text: "Which skin tone looks closest to yours?",
+    help: "Choose the closest match in natural light.",
+    options: [
+      { label: "Fair", img: "/img/qs_fair.webp", v: 2 },
+      { label: "Light", img: "/img/qs_light.webp", v: 1 },
+      { label: "Medium", img: "/img/qs_medium.webp", v: -1 },
+      { label: "Deep", img: "/img/qs_deep.webp", v: -2 },
     ]},
   { id: "white", text: "Pure bright white vs. soft cream — which top flatters your face more?",
     options: [

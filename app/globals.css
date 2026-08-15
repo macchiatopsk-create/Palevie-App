@@ -439,3 +439,15 @@ body:has(.mk-home) .site-header{display:none}
 .qz-foot{display:flex;justify-content:flex-end;margin-top:26px}
 .qz-next{min-height:54px;padding:0 34px;border:none;border-radius:999px;background:var(--grad-cta);color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 10px 26px rgba(200,90,200,.32)}
 .qz-next:disabled{opacity:.45;box-shadow:none}
+
+/* quiz photo options (mockup skin-tone tiles) */
+.qz-photos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+.qz-photo{position:relative;border:none;border-radius:20px;overflow:hidden;padding:0;cursor:pointer;background:#fff;box-shadow:0 6px 18px rgba(60,42,84,.10);text-align:left;font:inherit;transition:transform .12s ease,box-shadow .12s ease}
+.qz-photo img{width:100%;aspect-ratio:1.05;object-fit:cover;display:block}
+.qz-photo span{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;font-size:15px;font-weight:600;background:rgba(255,240,246,.92)}
+.qz-photo span i{width:22px;height:22px;border-radius:50%;border:2px solid #F3B8CE;background:#fff;transition:all .12s ease}
+.qz-photo.on{transform:translateY(-2px);box-shadow:0 0 0 2.5px var(--rose),0 10px 24px rgba(255,92,138,.25)}
+.qz-photo.on span i{border-color:var(--rose);background:radial-gradient(circle at center,var(--rose) 0 45%,#fff 50%)}
+/* home seasons section inside mockup flow */
+.mk-seasons{background:rgba(255,255,255,.6);backdrop-filter:blur(8px);padding:18px 14px 6px}
+.mk-seasons .mh-sec-head h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 12px}

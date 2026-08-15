@@ -29,6 +29,17 @@ export default function HomePage(){return <div className="mk-home">
         style={{left:"65.7%",top:"4%",width:"29.6%",height:"93%"}}/>
     </div>
 
+    <section className="mk-sec mk-seasons">
+      <div className="mh-sec-head"><h2>Find your harmony</h2></div>
+      <div className="mh-season-strip">
+        {([["s2_sp","Spring"],["s2_su","Summer"],["s2_ss","Soft Summer"],["s2_au","Autumn"],["s2_wi","Winter"]] as const).map(([img,name])=>
+          <a key={img} className="mh-season" href="/quiz">
+            <img src={`/img/${img}.webp`} alt={name}/>
+            <b>{name}</b>
+          </a>)}
+      </div>
+    </section>
+
     <div className="mk-sec">
       <img src="/img/home_s4.webp" alt="New to Palevie? Take the quiz"/>
       <Link className="mk-hs" href="/quiz" aria-label="Take Quiz"
