@@ -410,8 +410,7 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}b
 .mk-sec{position:relative;margin-top:26px}
 .mk-sec:first-child{margin-top:0}
 .mk-hero{overflow:hidden}
-.mk-hero>img{width:110%;max-width:110%;margin-left:-5%}
-.mk-hero .mk-hs{transform:translateX(0)}
+.mk-hero>img{width:100%;transform:scale(1.09);transform-origin:50% 28%}
 .mk-sec img{width:100%;display:block}
 .mk-sec:not(.mk-hero){border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(60,42,84,.10);margin-left:8px;margin-right:8px;width:calc(100% - 16px)}
 .mk-hs{position:absolute;display:block;border-radius:22px;-webkit-tap-highlight-color:transparent}
@@ -499,7 +498,7 @@ body:has(.mk-home) .site-header{display:none}
 .rs-tags{text-align:center;font-size:16px;color:#7d6f78;margin:0 0 18px;text-transform:capitalize}
 .rs-card{background:rgba(255,255,255,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.9);border-radius:30px;padding:12px;box-shadow:var(--shadow-float)}
 .rs-photo{position:relative;border-radius:22px;overflow:hidden}
-.rs-model{width:100%;aspect-ratio:.82;object-fit:cover;object-position:center 15%;display:block}
+.rs-model{width:100%;aspect-ratio:1.02;object-fit:cover;object-position:center 14%;display:block}
 .rs-orb{position:absolute;mix-blend-mode:screen;pointer-events:none}
 .rs-orb.a{width:44%;left:-10%;bottom:6%;animation:lpOrbFloat 3.6s ease-in-out infinite}
 .rs-orb.b{width:30%;right:-6%;top:6%;animation:lpOrbFloat 4.2s ease-in-out infinite reverse}
@@ -520,3 +519,19 @@ body:has(.mk-home) .site-header{display:none}
 .rs-mini span{position:absolute;right:12px;bottom:12px;width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow-soft)}
 .rs-foot{margin-top:20px;text-align:center}
 body:has(.rs) .app-title,body:has(.an3) .app-title,body:has(.qz) .app-title{display:none}
+
+/* ═══ analyzing v4: rotating orb fills the number ═══ */
+.an4{max-width:560px;margin:0 auto;padding:26px 20px 120px;text-align:center}
+.an4 h2{font-family:var(--display);font-weight:700;font-size:clamp(34px,8.6vw,46px);line-height:1.12;letter-spacing:-.02em;margin:0}
+.an4 h2 em{font-style:normal;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.an4-sub{color:var(--muted);font-size:14px;margin:12px auto 22px;max-width:21rem;line-height:1.55}
+.an4-stage{position:relative;width:min(76vw,340px);aspect-ratio:1;margin:0 auto 22px}
+.an4-orb{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;animation:an4spin 16s linear infinite}
+@keyframes an4spin{to{rotate:360deg}}
+.an4-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.an4-ring circle{fill:none;stroke-width:2.4}
+.an4-ring .rb{stroke:rgba(255,255,255,.65)}
+.an4-ring .rf{stroke:url(#g) #F0448F;stroke:#F0448F;stroke-linecap:round;stroke-dasharray:295.3;transition:stroke-dashoffset .15s linear;filter:drop-shadow(0 0 8px rgba(255,92,138,.6))}
+.an4-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--display);font-weight:700;font-size:clamp(46px,12vw,62px);background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 18px rgba(255,255,255,.8)}
+.an4-pct small{font-size:.45em}
+.an4-cap{font-size:12.5px;color:var(--muted);margin-top:16px}
