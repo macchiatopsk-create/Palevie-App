@@ -6,7 +6,7 @@ import { QUIZ_QUESTIONS, scoreQuiz, QuizResult } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
-import { syncColorProfileToCloud } from "@/lib/cloudProfile";
+import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
@@ -18,7 +18,7 @@ export default function QuizClient(){
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);track("quiz_answered",{question:q.id,step:step+1});if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1);else finish(na as number[])}
  function next(){if(selected===null)return;if(step<QUIZ_QUESTIONS.length-1)setStep(s=>s+1);else finish(answers as number[])}
- function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
+ function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;

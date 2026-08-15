@@ -23,3 +23,16 @@ export async function syncSkinProfileToCloud(profile:SkinProfile){
   const {error}=await supabase.from("profiles").update({skin_profile:profile,updated_at:new Date().toISOString()}).eq("id",id);
   return !error;
 }
+
+export async function saveQuizResultToCloud(r:{ranked:{id:string;name:string;pct:number}[];confidence:number}){
+  const supabase=getSupabaseBrowser(); const id=await currentUserId();
+  if(!supabase||!id) return;
+  await supabase.from("quiz_results").insert({user_id:id,primary_type:r.ranked[0].id,ranked:r.ranked,confidence:r.confidence});
+}
+
+export async function fetchQuizHistory(){
+  const supabase=getSupabaseBrowser(); const id=await currentUserId();
+  if(!supabase||!id) return [];
+  const {data}=await supabase.from("quiz_results").select("primary_type,ranked,confidence,created_at").order("created_at",{ascending:false}).limit(12);
+  return data||[];
+}

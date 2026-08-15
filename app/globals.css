@@ -681,3 +681,34 @@ body:has(.sh-top) .app-title{display:none}
 /* account email: never overflow the card */
 .account-card h2{font-size:clamp(17px,4.6vw,22px)!important;overflow-wrap:anywhere;word-break:break-all;line-height:1.3}
 .app-wrap h2,.app-wrap h3{overflow-wrap:anywhere}
+
+/* ═══ account dashboard (ac) ═══ */
+.ac{display:grid;gap:14px;max-width:560px;margin:0 auto;padding-bottom:110px}
+.ac-card{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.95);border-radius:22px;padding:20px;box-shadow:var(--shadow-soft)}
+.ac-email{font-family:var(--display);font-weight:600;font-size:clamp(17px,4.6vw,22px);overflow-wrap:anywhere;margin:6px 0 12px}
+.ac-row{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.ac-row b{color:var(--ink)}
+.ac-season h3{font-family:var(--display);font-weight:700;font-size:26px;margin:6px 0 12px;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ac-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.ac-chips i{aspect-ratio:1;border-radius:10px}
+.ac-links{display:flex;gap:10px;margin-top:14px}
+.ac-links a{flex:1;text-align:center;border-radius:999px;padding:12px;font-size:13.5px;font-weight:600}
+.ac-links a:first-child{background:var(--grad-cta);color:#fff}
+.ac-links a:last-child{border:1.5px solid #D9B9EE;color:#9D5CE8}
+.ac-hist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:0}
+.ac-hist li{display:flex;align-items:center;gap:11px;padding:11px 2px;border-bottom:1px solid rgba(241,221,230,.7);font-size:14px}
+.ac-hist li:last-child{border-bottom:none}
+.ac-hist i{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.ac-hist span{flex:1;font-weight:600}
+.ac-hist em{font-style:normal;color:var(--rose);font-weight:700;font-size:13px}
+.ac-hist small{color:var(--muted);font-size:12px}
+.ac-retake{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:#9D5CE8}
+.ac-recs{list-style:none;margin:8px 0 0;padding:0}
+.ac-recs li{display:flex;align-items:center;gap:11px;padding:10px 2px;font-size:13.5px;border-bottom:1px solid rgba(241,221,230,.7)}
+.ac-recs li:last-child{border-bottom:none}
+.ac-recs i{width:15px;height:15px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.ac-recs span{flex:1}
+.ac-recs b{color:var(--rose)}
+.ac-settings{display:grid;gap:0}
+.ac-settings a,.ac-settings button{text-align:left;padding:13px 2px;border-bottom:1px solid rgba(241,221,230,.7);font:inherit;font-size:14.5px;font-weight:500;color:var(--ink);background:none;border-left:none;border-right:none;border-top:none;cursor:pointer}
+.ac-settings button{color:#b05a72;border-bottom:none}
