@@ -1,0 +1,27 @@
+@media (max-width: 430px) {
+  .pv4-home-hero { min-height: 850px; }
+  .pv4-hero-copy { max-width: 77%; }
+  .pv4-hero-copy h1 { font-size: 49px; }
+  .pv4-hero-art { inset: 88px -60px 0 24%; min-height: 735px; }
+  .pv4-made-for-card { grid-template-columns: 96px 1fr; }
+  .pv4-made-for-copy { font-size: 15px; }
+  .pv4-feature-card { min-height: 265px; }
+  .pv4-feature-art { height: 134px; }
+  .pv4-home-quiz-banner { padding-right: 105px; }
+  .pv4-question-copy h1 { font-size: 42px; }
+  .pv4-option-art { height: 126px; }
+  .pv4-option-card.photo .pv4-option-art { height: 145px; }
+  .pv4-option-footer b { font-size: 10px; }
+  .pv4-analysis-orbit { width: 96vw; }
+  .pv4-result-portrait { height: 380px; }
+  .pv4-camera-stage { height: 590px; }
+  .pv4-product-image { height: 174px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv4-hero-orbit,
+  .pv4-analysis-orbit img,
+  .pv4-camera-loading img,
+  .pv4-camera-loading > span { animation: none !important; }
+  * { scroll-behavior: auto !important; }
+}
