@@ -118,9 +118,10 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
   </div>
  </div>}
 function AnalyzingView({onDone}:{onDone:()=>void}){
+ const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
  const [pct,setPct]=useState(0);
  useEffect(()=>{
-  const t0=Date.now();const DUR=3800;
+  const t0=Date.now();const DUR=4200;
   const iv=setInterval(()=>{
    const p=Math.min(100,Math.round((Date.now()-t0)/DUR*100));
    setPct(p);
@@ -128,8 +129,18 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   },40);
   return()=>clearInterval(iv);
  },[onDone]);
+ const done=Math.floor(pct/25);
  return <div className="an6">
-  <div className="an6-art" role="img" aria-label="Analyzing your color energy"/>
+  <img className="an6-art" src="/img/analyzing_art.webp" alt="Analyzing your color energy"/>
+  <ul className="an2-list an6-list">
+   {STEPS.map((st,i)=>{
+    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
+    return <li key={st} className={state}>
+     <b>{state==="done"?"✓":""}</b><span>{st}</span>
+     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
+    </li>;
+   })}
+  </ul>
   <div className="an3-foot">
    <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
    <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
