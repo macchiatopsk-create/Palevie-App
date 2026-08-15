@@ -9,12 +9,19 @@ import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 
-function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
-  // Per-product art so the same render never repeats side by side.
-  const byId:Record<string,{src:string;hue?:number}>={};
-  if(byId[id])return byId[id];
+function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
+const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
+function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string;filter?:string}{
   const bySub:Record<string,string>={lip:"/img/lip3.webp",blush:"/img/blush3.webp",eyeshadow:"/img/shadow3.webp",highlighter:"/img/highlight3.webp",cushion:"/img/cushion3.webp",gloss:"/img/shimmer3.webp"};
-  return {src:bySub[sub] ?? (cat==="skincare"?"/img/pearls2.webp":"/img/orb3.webp")};
+  const src = bySub[sub] ?? (cat==="skincare"?"/img/pearls2.webp":"/img/orb3.webp");
+  // Recolor the render toward the product's actual shade so every card reads as its own product.
+  if(colorHex && BASE_HUE[src]!==undefined){
+    const {h,s,l}=hueOf(colorHex);
+    let rot=h-BASE_HUE[src]; if(rot<-180)rot+=360; if(rot>180)rot-=360;
+    const sat=(0.72+s*0.55).toFixed(2); const bri=(0.86+l*0.32).toFixed(2);
+    return {src, filter:`hue-rotate(${Math.round(rot)}deg) saturate(${sat}) brightness(${bri})`};
+  }
+  return {src};
 }
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
@@ -62,7 +69,7 @@ export default function ShopClient() {
 
     <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
-        {(()=>{const a=artFor(p.id,p.subcategory,p.category);return <img src={a.src} alt="" loading="lazy" style={a.hue?{filter:`hue-rotate(${a.hue}deg) saturate(1.05)`}:undefined}/>})()}
+        {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
         <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
       <div className="sh-meta">
