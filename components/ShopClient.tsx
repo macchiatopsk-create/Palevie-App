@@ -11,18 +11,10 @@ import { trackedOfferHref } from "@/lib/attribution";
 
 function artFor(id:string, sub:string, cat:string):{src:string;hue?:number}{
   // Per-product art so the same render never repeats side by side.
-  const byId:Record<string,{src:string;hue?:number}>={
-    "demo-mauve-lip":{src:"/img/lip3.webp"},
-    "demo-coral-lip":{src:"/img/shimmer3.webp"},         // warm-shift the render toward coral
-    "demo-rose-blush":{src:"/img/blush3.webp"},
-    "demo-mauve-shadow":{src:"/img/shadow3.webp"},
-    "demo-gel-cleanser":{src:"/img/cushion3.webp"},
-    "demo-barrier-cream":{src:"/img/highlight3.webp"},
-    "demo-bright-serum":{src:"/img/peony2.webp"},
-  };
+  const byId:Record<string,{src:string;hue?:number}>={};
   if(byId[id])return byId[id];
-  const bySub:Record<string,string>={lip:"/img/lip3.webp",blush:"/img/blush3.webp",eyeshadow:"/img/shadow3.webp"};
-  return {src:bySub[sub] ?? (cat==="skincare"?"/img/highlight3.webp":"/img/orb3.webp")};
+  const bySub:Record<string,string>={lip:"/img/lip3.webp",blush:"/img/blush3.webp",eyeshadow:"/img/shadow3.webp",highlighter:"/img/highlight3.webp",cushion:"/img/cushion3.webp",gloss:"/img/shimmer3.webp"};
+  return {src:bySub[sub] ?? (cat==="skincare"?"/img/pearls2.webp":"/img/orb3.webp")};
 }
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
@@ -74,7 +66,7 @@ export default function ShopClient() {
         <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
       <div className="sh-meta">
-        <h3>{p.name}</h3>
+        <h3>{p.colorHex && <i className="sh-dot" style={{background:p.colorHex}}/>}{p.name}</h3>
         <div className="sh-buy">
           <b>{p.offers[0]?.priceLabel ?? ""}</b>
           <a className="sh-plus" href={trackedOfferHref(p.offers[0].id, getVisitorId())} onClick={()=>track("affiliate_outbound_click",{retailer:p.offers[0].retailer,product:p.id,offer:p.offers[0].id})} aria-label={`Shop ${p.name}`}>＋</a>
