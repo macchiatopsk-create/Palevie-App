@@ -8,15 +8,11 @@ export default function HomePage(){return <div className="mk-home">
     <div className="mk-sec mk-hero">
       <img src="/img/home_s1.webp" alt="Palevie — find your best colors" fetchPriority="high"/>
       <Link className="mk-hs" href="/quiz" aria-label="Start My Analysis"
-        style={{left:"5.4%",top:"68.5%",width:"42.2%",height:"9.6%"}}/>
+        style={{left:"5.4%",top:"56.8%",width:"42.2%",height:"7.4%"}}/>
       <Link className="mk-hs" href="/diagnose" aria-label="See how it works"
-        style={{left:"6.8%",top:"80.2%",width:"28.4%",height:"5.2%"}}/>
-    </div>
-
-    <div className="mk-sec">
-      <img src="/img/home_s2.webp" alt="Made for all of you"/>
+        style={{left:"6.8%",top:"66.4%",width:"28.4%",height:"3.4%"}}/>
       <Link className="mk-hs" href="/quiz" aria-label="Made for all of you"
-        style={{left:"3.5%",top:"4%",width:"85%",height:"92%"}}/>
+        style={{left:"4.2%",top:"83.2%",width:"85%",height:"15.4%"}}/>
     </div>
 
     <div className="mk-sec">
