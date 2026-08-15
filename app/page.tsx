@@ -12,7 +12,7 @@ export default function HomePage(){return <div className="mh">
       <Link className="mh2-how" href="/diagnose">▶ Try the AI photo scan</Link>
     </div>
     <div className="mh2-media">
-      <img className="mh2-model" src="/img/selfie2.webp" alt=""/>
+      <img className="mh2-model" src="/img/s2_ss.webp" alt=""/>
       <img className="mh2-orb" src="/img/orb3.webp" alt=""/>
     </div>
   </section>
