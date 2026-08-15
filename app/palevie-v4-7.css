@@ -1,0 +1,150 @@
+@media (max-width: 700px) {
+  body { background-size: auto 820px; }
+  .pv4-wordmark { font-size: 31px; }
+  .pv4-round-icon,
+  .pv4-header-icon { width: 44px; height: 44px; font-size: 20px; }
+  .pv4-home-page,
+  .pv4-quiz-page,
+  .pv4-diagnose-page,
+  .pv4-shop-page { width: 100%; padding: 0 0 110px; }
+  .pv4-home-hero,
+  .pv4-quiz-shell,
+  .pv4-analysis-shell,
+  .pv4-result-shell,
+  .pv4-consent-page,
+  .pv4-selfie-page,
+  .pv4-scan-result,
+  .pv4-shop-shell { border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; }
+
+  .pv4-home-hero { min-height: 900px; padding: 26px 22px 20px; }
+  .pv4-hero-grid { min-height: 805px; gap: 0; }
+  .pv4-hero-copy { max-width: 73%; padding: 45px 0 0; }
+  .pv4-pill { min-height: 34px; padding: 0 13px; font-size: 10px; }
+  .pv4-hero-copy h1 { margin: 18px 0 13px; font-size: clamp(48px, 14.6vw, 65px); line-height: .93; }
+  .pv4-hero-copy > p { font-size: 14px; line-height: 1.55; }
+  .pv4-hero-actions { margin-top: 22px; gap: 17px; }
+  .pv4-hero-actions .pv4-gradient-button { min-width: 0; width: 100%; min-height: 56px; padding: 0 14px; font-size: 15px; }
+  .pv4-play-link { font-size: 12px; }
+  .pv4-hero-art { position: absolute; inset: 90px -54px 0 27%; min-height: 780px; margin: 0; }
+  .pv4-hero-model { right: -3%; bottom: -1%; width: 79%; height: 79%; object-position: 50% 34%; }
+  .pv4-hero-orbit { left: 5%; top: 29%; width: 53%; }
+  .pv4-hero-lip { left: 27%; bottom: 10%; width: 29%; }
+  .pv4-hero-palette { right: -3%; bottom: 5%; width: 39%; }
+
+  .pv4-made-for-card { height: 145px; grid-template-columns: 120px 1fr; margin: 16px 14px; padding: 14px 10px 0 18px; border-radius: 22px; }
+  .pv4-made-for-copy { font-size: 17px; }
+  .pv4-made-for-card img { height: 135px; object-position: center 30%; }
+
+  .pv4-feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; padding: 0 14px; }
+  .pv4-feature-card { min-height: 285px; display: block; padding: 10px 11px 16px; border-radius: 20px; }
+  .pv4-feature-art { height: 145px; }
+  .pv4-feature-card h2 { font-size: 15px; }
+  .pv4-feature-card p { font-size: 10px; line-height: 1.45; }
+  .pv4-card-arrow { width: 37px; height: 37px; right: 10px; bottom: 10px; font-size: 20px; }
+  .pv4-palette-fan { transform: scale(.74) rotate(-6deg); }
+
+  .pv4-home-quiz-banner { min-height: 110px; margin: 14px; padding: 18px 122px 18px 20px; border-radius: 22px; }
+  .pv4-home-quiz-banner span { font-size: 12px; }
+  .pv4-home-quiz-banner p { font-size: 10px; }
+  .pv4-home-quiz-banner > a { min-width: 110px; min-height: 43px; font-size: 11px; }
+  .pv4-home-quiz-banner > img { right: -35px; bottom: -40px; width: 145px; }
+
+  .pv4-quiz-shell { min-height: 100vh; padding: 28px 20px 125px; }
+  .pv4-progress-track { margin: 20px 0 42px; height: 12px; }
+  .pv4-question-copy h1 { max-width: 93%; font-size: clamp(40px, 11.8vw, 55px); }
+  .pv4-question-copy p { font-size: 13px; }
+  .pv4-question-orbit { right: -12px; top: -42px; width: 93px; height: 93px; }
+  .pv4-options-grid,
+  .pv4-options-grid.many { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+  .pv4-option-card { border-radius: 19px; }
+  .pv4-option-art { height: 140px; }
+  .pv4-option-card.photo .pv4-option-art { height: 160px; }
+  .pv4-option-gradient { width: 92px; height: 92px; }
+  .pv4-jewelry-art { transform: scale(.75); }
+  .pv4-option-fan { transform: scale(.78); }
+  .pv4-option-footer { min-height: 69px; padding: 11px 12px; }
+  .pv4-option-footer b { font-size: 11px; }
+  .pv4-option-footer i { flex-basis: 27px; width: 27px; height: 27px; }
+  .pv4-quiz-actions { margin-top: 24px; }
+  .pv4-quiz-actions .pv4-gradient-button { min-width: 190px; min-height: 55px; }
+
+  .pv4-analysis-shell { min-height: 100vh; padding: 25px 20px 128px; }
+  .pv4-analysis-heading { margin-top: 45px; }
+  .pv4-analysis-heading h1 { font-size: clamp(43px, 12.5vw, 58px); }
+  .pv4-analysis-heading p { font-size: 13px; }
+  .pv4-analysis-orbit { width: 92vw; margin: 7px auto -12px; transform: translateX(-3%); }
+  .pv4-analysis-steps { padding: 10px 15px; border-radius: 23px; }
+  .pv4-analysis-steps > div { min-height: 53px; grid-template-columns: 31px 1fr auto; gap: 9px; }
+  .pv4-analysis-steps b { font-size: 12px; }
+  .pv4-analysis-steps small { font-size: 9px; }
+  .pv4-analysis-progress-copy strong { font-size: 52px; }
+
+  .pv4-result-shell { min-height: 100vh; padding: 25px 18px 126px; }
+  .pv4-result-heading { margin-top: 17px; }
+  .pv4-result-heading h1 { font-size: clamp(51px, 14vw, 67px); }
+  .pv4-result-heading p { font-size: 15px; }
+  .pv4-result-card { border-radius: 26px; }
+  .pv4-result-portrait { height: 415px; }
+  .pv4-result-model { width: 77%; object-position: center 28%; }
+  .pv4-result-palette-panel { width: calc(100% - 18px); margin-top: -40px; padding: 15px 14px 18px; border-radius: 24px; }
+  .pv4-result-swatches { gap: 7px; }
+  .pv4-result-swatches i { border-radius: 9px; }
+  .pv4-result-palette-panel p { margin: 15px auto; font-size: 12px; }
+  .pv4-result-palette-panel .pv4-gradient-button,
+  .pv4-result-palette-panel .pv4-outline-button { min-height: 48px; font-size: 13px; }
+  .pv4-result-teasers { gap: 10px; }
+  .pv4-result-teaser { min-height: 220px; padding: 10px 12px 15px; border-radius: 21px; }
+  .pv4-result-teaser > div:first-child { height: 110px; }
+  .pv4-result-teaser h2 { font-size: 15px; }
+  .pv4-result-teaser p { font-size: 9px; }
+  .pv4-result-teaser > span { width: 36px; height: 36px; font-size: 19px; }
+  .pv4-style-hangers { transform: scale(.82); transform-origin: bottom; }
+
+  .pv4-diagnose-page { width: 100%; padding: 0 0 110px; }
+  .pv4-consent-page { min-height: 100vh; padding: 25px 20px 125px; }
+  .pv4-consent-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 25px; }
+  .pv4-consent-visual,
+  .pv4-consent-visual > img { min-height: 500px; height: 500px; }
+  .pv4-consent-copy h1 { font-size: 47px; }
+  .pv4-selfie-page { min-height: 100vh; padding: 22px 0 115px; }
+  .pv4-selfie-topbar { padding: 0 18px; }
+  .pv4-selfie-topbar .pv4-wordmark { display: none; }
+  .pv4-selfie-topbar h1 { margin: 0; font-size: 39px; }
+  .pv4-selfie-hint { font-size: 11px; padding: 11px 16px; }
+  .pv4-camera-stage { width: 100%; height: 630px; border-radius: 0; }
+  .pv4-camera-stage > img { object-position: center 31%; }
+  .pv4-face-oval { width: 55%; height: 51%; }
+  .corner { width: 55px; height: 55px; }
+  .pv4-camera-controls { grid-template-columns: 62px 1fr 62px; gap: 17px; margin-top: -58px; }
+  .pv4-camera-side { width: 55px; height: 55px; }
+  .pv4-camera-shutter { width: 108px; height: 108px; }
+  .pv4-camera-shutter span { width: 62px; height: 62px; }
+  .pv4-selfie-action-panel { width: calc(100% - 28px); padding: 15px; }
+  .pv4-camera-loading img { width: 220px; }
+
+  .pv4-scan-result { min-height: 100vh; padding: 24px 18px 125px; }
+  .pv4-scan-result-grid { grid-template-columns: 1fr; gap: 22px; }
+  .pv4-scan-result-photo,
+  .pv4-scan-result-photo img { min-height: 500px; height: 500px; }
+  .pv4-scan-result-copy h1 { font-size: 58px; }
+
+  .pv4-shop-shell { min-height: 100vh; padding: 26px 14px 120px; }
+  .pv4-shop-topbar { padding: 0 8px; }
+  .pv4-shop-topbar > div h1 { font-size: 54px; }
+  .pv4-shop-search { min-height: 56px; margin-top: 20px; padding: 0 16px; }
+  .pv4-shop-tabs { gap: 8px; padding: 14px 0 9px; }
+  .pv4-shop-tabs button { min-height: 43px; padding: 0 16px; font-size: 11px; }
+  .pv4-product-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+  .pv4-product-card { border-radius: 19px; }
+  .pv4-product-image { height: 190px; }
+  .pv4-heart { width: 34px; height: 34px; font-size: 18px; }
+  .pv4-product-info { padding: 10px 11px 12px; }
+  .pv4-product-info h2 { min-height: 36px; font-size: 11px; }
+  .pv4-product-buy-row strong { font-size: 14px; }
+  .pv4-product-buy-row a { width: 34px; height: 34px; }
+  .pv4-match-reason { font-size: 8px; }
+
+  .pvx-mobile-nav { bottom: 10px !important; width: calc(100% - 24px) !important; min-height: 73px !important; border-radius: 26px !important; }
+  .pvx-mobile-nav a { height: 59px !important; }
+  .pvx-mobile-nav .scan-tab { width: 76px !important; height: 76px !important; }
+}
