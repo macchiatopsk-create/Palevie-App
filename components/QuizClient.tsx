@@ -43,6 +43,7 @@ export default function QuizClient(){
      <span>{cur.label}</span>
     </div>
     {toggle}{pick}{cant}
+    {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>‹ Previous question</button>}
     {full && <div className="dr-full" style={{background:cur.hex}}>
       <button className="dr-close" onClick={()=>setFull(false)}>✕</button>
       <div className="dr-full-ui">{toggle}{pick}{cant}</div>
