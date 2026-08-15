@@ -1,93 +1,92 @@
 import Link from "next/link";
 
-const MODELS = {
-  asian: "https://images.unsplash.com/photo-1648250195770-a109dbf10f04?auto=format&fit=crop&w=1800&h=2400&q=90",
-  white: "https://images.unsplash.com/photo-1623676527352-86d422cc8c30?auto=format&fit=crop&w=1800&h=2400&q=90",
-  black: "https://images.unsplash.com/photo-1765607476292-886bc1e648a1?auto=format&fit=crop&w=1800&h=2400&q=90",
-  latina: "https://images.unsplash.com/photo-1740809833226-dcb434556255?auto=format&fit=crop&w=1800&h=2400&q=90",
-  middleEastern: "https://images.unsplash.com/photo-1653748584831-566ec06a08ba?auto=format&fit=crop&w=1800&h=2400&q=90",
-};
+const features = [
+  {
+    href: "/quiz",
+    title: "AI Color Match",
+    copy: "Discover your best palette with a guided color quiz.",
+    art: "orbit",
+  },
+  {
+    href: "/shop",
+    title: "Makeup Picks",
+    copy: "Personalized lip, cheek and eye shades just for you.",
+    art: "makeup",
+  },
+  {
+    href: "/dashboard",
+    title: "Season Results",
+    copy: "Save your season, palette and style direction.",
+    art: "palette",
+  },
+] as const;
 
-const seasons = [
-  { name: "Spring", note: "Warm · Fresh", image: MODELS.latina, tone: "apricot" },
-  { name: "Summer", note: "Cool · Airy", image: MODELS.white, tone: "sky" },
-  { name: "Soft Summer", note: "Cool · Muted", image: MODELS.asian, tone: "mauve" },
-  { name: "Autumn", note: "Warm · Rich", image: MODELS.black, tone: "rust" },
-  { name: "Winter", note: "Cool · Bold", image: MODELS.middleEastern, tone: "plum" },
-];
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7.2 9.2a4.8 4.8 0 0 1 9.6 0c0 5.5 2.2 6.2 2.2 6.2H5s2.2-.7 2.2-6.2Z" />
+      <path d="M10 18.4c.5 1 1.1 1.4 2 1.4s1.5-.4 2-1.4" />
+    </svg>
+  );
+}
 
 export default function HomePage() {
   return (
-    <div className="pvx-home">
-      <section className="pvx-home-hero">
-        <div className="pvx-hero-glow pvx-glow-one" />
-        <div className="pvx-hero-glow pvx-glow-two" />
-        <div className="pvx-silk-wash" aria-hidden="true" />
-        <div className="pvx-hero-inner">
-          <div className="pvx-hero-copy">
-            <div className="pvx-kicker"><span>✦</span> K-beauty personal color</div>
-            <h1>Find the colors that make <em>you</em> glow.</h1>
-            <p>Discover your seasonal palette, makeup matches and style direction through a fast, inclusive color experience.</p>
-            <div className="pvx-hero-actions">
-              <Link className="pvx-primary-button" href="/quiz">Start my free analysis <span>✦</span></Link>
-              <Link className="pvx-text-link" href="/diagnose"><span className="pvx-play">▶</span> Try a selfie scan</Link>
-            </div>
-            <div className="pvx-hero-facts" aria-label="Quiz details">
-              <span><b>12</b> thoughtful questions</span>
-              <span><b>~90 sec</b> to your palette</span>
-              <span><b>Private</b> by design</span>
+    <div className="pv4-page pv4-home-page">
+      <section className="pv4-home-hero">
+        <div className="pv4-page-topbar">
+          <Link className="pv4-wordmark" href="/">Palevie</Link>
+          <Link className="pv4-round-icon pv4-bell" href="/account" aria-label="Open profile">
+            <BellIcon />
+            <i />
+          </Link>
+        </div>
+
+        <div className="pv4-hero-grid">
+          <div className="pv4-hero-copy">
+            <span className="pv4-pill"><b>✦</b> AI PERSONAL COLOR</span>
+            <h1>Find your <em>best colors.</em></h1>
+            <p>AI-powered personal color analysis for your makeup, style, and glow.</p>
+            <div className="pv4-hero-actions">
+              <Link className="pv4-gradient-button" href="/quiz">Start My Analysis <span>✦</span></Link>
+              <Link className="pv4-play-link" href="/diagnose"><i>▶</i> See how it works</Link>
             </div>
           </div>
 
-          <div className="pvx-hero-collage" aria-label="Palevie is designed for diverse skin tones">
-            <figure className="pvx-model-card pvx-model-a"><img src={MODELS.asian} alt="East Asian beauty portrait" /></figure>
-            <figure className="pvx-model-card pvx-model-b"><img src={MODELS.black} alt="Black beauty portrait" /></figure>
-            <figure className="pvx-model-card pvx-model-c"><img src={MODELS.latina} alt="Latina beauty portrait" /></figure>
-            <figure className="pvx-model-card pvx-model-d"><img src={MODELS.white} alt="White beauty portrait" /></figure>
-            <figure className="pvx-model-card pvx-model-e"><img src={MODELS.middleEastern} alt="Middle Eastern beauty portrait" /></figure>
-            <div className="pvx-hero-badge"><span>Made for</span><strong>every tone</strong></div>
+          <div className="pv4-hero-art" aria-label="Palevie beauty model">
+            <span className="pv4-hero-sheen" />
+            <img className="pv4-hero-model" src="/palevie-v4/model-hero.webp" alt="Beauty portrait in soft pink and lavender" />
+            <img className="pv4-hero-orbit" src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
+            <img className="pv4-hero-lip" src="/palevie-v4/lip-tint.webp" alt="" aria-hidden="true" />
+            <img className="pv4-hero-palette" src="/palevie-v4/eyeshadow.webp" alt="" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      <section className="pvx-feature-strip" aria-label="Palevie features">
-        <Link href="/quiz" className="pvx-feature-card">
-          <span className="pvx-feature-spectrum" aria-hidden="true"><i /><i /><i /><i /></span>
-          <div><strong>Personal Color</strong><p>Build your palette from temperature, depth and contrast.</p></div>
-          <b className="pvx-round-arrow">→</b>
-        </Link>
-        <Link href="/shop" className="pvx-feature-card">
-          <span className="pvx-feature-products"><i /><i /></span>
-          <div><strong>Makeup Picks</strong><p>See lip, cheek and eye shades ranked around your profile.</p></div>
-          <b className="pvx-round-arrow">→</b>
-        </Link>
-        <Link href="/dashboard" className="pvx-feature-card">
-          <span className="pvx-feature-fan"><i /><i /><i /><i /></span>
-          <div><strong>Your Color Story</strong><p>Save your season and make shopping easier over time.</p></div>
-          <b className="pvx-round-arrow">→</b>
-        </Link>
+      <section className="pv4-made-for-card">
+        <div className="pv4-made-for-copy"><span>Made for</span><strong>all of you ♡</strong></div>
+        <img src="/palevie-v4/model-group.webp" alt="Five beauty models with diverse skin tones" />
       </section>
 
-      <section className="pvx-season-section">
-        <div className="pvx-section-heading">
-          <div><span className="pvx-kicker compact">The season edit</span><h2>Five moods. One that feels like you.</h2></div>
-          <p>Personal color is about harmony, not changing your skin. Explore how different temperature, depth and chroma families create a distinct mood.</p>
-        </div>
-        <div className="pvx-season-grid">
-          {seasons.map((season) => (
-            <Link className={`pvx-season-card pvx-tone-${season.tone}`} href="/quiz" key={season.name}>
-              <img src={season.image} alt={`${season.name} personal color inspiration`} loading="lazy" />
-              <span className="pvx-season-overlay" />
-              <div><small>{season.note}</small><strong>{season.name}</strong><span>Explore →</span></div>
-            </Link>
-          ))}
-        </div>
+      <section className="pv4-feature-grid" aria-label="Palevie features">
+        {features.map((feature) => (
+          <Link className={`pv4-feature-card pv4-feature-${feature.art}`} href={feature.href} key={feature.title}>
+            <div className="pv4-feature-art">
+              {feature.art === "orbit" && <img src="/palevie-v4/orbit-core.webp" alt="" />}
+              {feature.art === "makeup" && <><img className="lip" src="/palevie-v4/lip-tint.webp" alt="" /><img className="eye" src="/palevie-v4/eyeshadow.webp" alt="" /></>}
+              {feature.art === "palette" && <span className="pv4-palette-fan" aria-hidden="true"><i /><i /><i /><i /><i /><i /></span>}
+            </div>
+            <h2>{feature.title}</h2>
+            <p>{feature.copy}</p>
+            <span className="pv4-card-arrow">→</span>
+          </Link>
+        ))}
       </section>
 
-      <section className="pvx-scan-banner">
-        <div className="pvx-scan-spectrum" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-        <div><span className="pvx-kicker compact">Optional second opinion</span><h2>Your selfie can add another layer.</h2><p>Use a front-facing daylight photo after the quiz. Palevie keeps the experience transparent and consent-first.</p></div>
-        <Link className="pvx-secondary-button" href="/diagnose">Open selfie scan <span>↗</span></Link>
+      <section className="pv4-home-quiz-banner">
+        <div><span>New to Palevie?</span><p>Take the quiz for the most accurate results. ✦</p></div>
+        <Link href="/quiz">Take Quiz <b>›</b></Link>
+        <img src="/palevie-v4/orbit-core.webp" alt="" aria-hidden="true" />
       </section>
     </div>
   );
