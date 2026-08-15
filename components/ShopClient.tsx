@@ -28,6 +28,8 @@ function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
   const [qtext, setQtext] = useState("");
+  const [sort, setSort] = useState<"match"|"lo"|"hi">("match");
+  const [cols, setCols] = useState<2|3>(2);
   const [ready, setReady] = useState(false);
   const profile = useMemo(() => {
     if (!ready) return null;
@@ -57,6 +59,8 @@ export default function ShopClient() {
       return { ...p, match, reason };
     })
     .sort((a,b)=>(b.match || 0) - (a.match || 0));
+  const cents = (p:{offers:{priceCents?:number;priceLabel?:string}[]}) => p.offers[0]?.priceCents ?? Math.round((parseFloat((p.offers[0]?.priceLabel||"").replace(/[^0-9.]/g,""))||999)*100);
+  const shown = sort==="match" ? items : [...items].sort((a,b)=> sort==="lo" ? cents(a)-cents(b) : cents(b)-cents(a));
 
   return <>
     <div className="sh-top"><b className="sh-logo">Palevie</b><span className="sh-bell"><svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.6 5.4 2 6H4c.4-.6 2-2 2-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><i/></span></div>
@@ -70,7 +74,19 @@ export default function ShopClient() {
     {!profile && tab !== "skincare" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
-    <div className="shop-grid">{items.map(p => <article className="shop-card" key={p.id}>
+    <div className="sh-tools">
+      <div className="sh-sort">
+        <button className={sort==="match"?"on":""} onPointerDown={()=>setSort("match")}>✦ Best match</button>
+        <button className={sort==="lo"?"on":""} onPointerDown={()=>setSort("lo")}>$ Low</button>
+        <button className={sort==="hi"?"on":""} onPointerDown={()=>setSort("hi")}>$$ High</button>
+      </div>
+      <div className="sh-view">
+        <button className={cols===2?"on":""} onPointerDown={()=>setCols(2)} aria-label="2 columns">▦</button>
+        <button className={cols===3?"on":""} onPointerDown={()=>setCols(3)} aria-label="3 columns">▩</button>
+      </div>
+    </div>
+
+    <div className={`shop-grid ${cols===3?"c3":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
         <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}

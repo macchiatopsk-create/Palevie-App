@@ -638,3 +638,20 @@ input[type="email"]{margin-bottom:16px}
 .sh-buy b{font-size:18px}
 
 body:has(.sh-top) .app-title{display:none}
+
+/* shop grid: always multi-column + tools */
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.shop-grid.c3{grid-template-columns:repeat(3,1fr)}
+.shop-grid.c3 .sh-meta{padding:9px 10px 11px}
+.shop-grid.c3 .sh-meta h3{font-size:12px}
+.shop-grid.c3 .sh-buy b{font-size:14px}
+.shop-grid.c3 .sh-plus{width:28px;height:28px;font-size:15px}
+.shop-grid.c3 .sh-match{display:none}
+@media(min-width:860px){.shop-grid{grid-template-columns:repeat(3,1fr)}.shop-grid.c3{grid-template-columns:repeat(4,1fr)}}
+.sh-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 2px 12px}
+.sh-sort{display:flex;gap:7px}
+.sh-sort button{border:none;background:rgba(255,255,255,.75);border-radius:999px;padding:9px 13px;font:inherit;font-size:12px;font-weight:600;color:#8a7c85;cursor:pointer;box-shadow:var(--shadow-soft)}
+.sh-sort button.on{background:var(--grad-cta);color:#fff}
+.sh-view{display:flex;gap:5px}
+.sh-view button{border:none;background:rgba(255,255,255,.75);border-radius:10px;width:36px;height:34px;font-size:15px;color:#8a7c85;cursor:pointer;box-shadow:var(--shadow-soft)}
+.sh-view button.on{background:var(--grad-cta);color:#fff}
