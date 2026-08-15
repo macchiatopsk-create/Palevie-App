@@ -27,6 +27,14 @@ const visualPalettes = [
   ["#4f506d", "#7c4e67", "#b86d82"],
 ];
 
+const SEASON_MODELS = {
+  spring: "https://images.unsplash.com/photo-1740809833226-dcb434556255?auto=format&fit=crop&w=1800&h=2400&q=90",
+  summer: "https://images.unsplash.com/photo-1623676527352-86d422cc8c30?auto=format&fit=crop&w=1800&h=2400&q=90",
+  softSummer: "https://images.unsplash.com/photo-1648250195770-a109dbf10f04?auto=format&fit=crop&w=1800&h=2400&q=90",
+  autumn: "https://images.unsplash.com/photo-1779181668325-6f918a73bb54?auto=format&fit=crop&w=1800&h=2400&q=90",
+  winter: "https://images.unsplash.com/photo-1653748584831-566ec06a08ba?auto=format&fit=crop&w=1800&h=2400&q=90",
+};
+
 function loadState(): SavedState {
   if (typeof window !== "undefined") {
     try {
@@ -170,13 +178,13 @@ export default function QuizClient() {
 
 function seasonArt(toneId: string) {
   const family = toneId.split("-")[0];
-  if (toneId === "summer-soft" || toneId === "summer-muted") return "https://images.pexels.com/photos/32182008/pexels-photo-32182008.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop";
+  if (toneId === "summer-soft" || toneId === "summer-muted") return SEASON_MODELS.softSummer;
   return {
-    spring: "https://images.pexels.com/photos/31594655/pexels-photo-31594655.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-    summer: "https://images.pexels.com/photos/31938769/pexels-photo-31938769.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-    autumn: "https://images.pexels.com/photos/20756306/pexels-photo-20756306.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-    winter: "https://images.pexels.com/photos/27013755/pexels-photo-27013755.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop",
-  }[family] ?? "https://images.pexels.com/photos/32182008/pexels-photo-32182008.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1600&fit=crop";
+    spring: SEASON_MODELS.spring,
+    summer: SEASON_MODELS.summer,
+    autumn: SEASON_MODELS.autumn,
+    winter: SEASON_MODELS.winter,
+  }[family] ?? SEASON_MODELS.softSummer;
 }
 
 function avoidColors(toneId: string): string[] {
@@ -205,7 +213,6 @@ function QuizResultView({ result, onRestart }: { result: QuizResult; onRestart: 
       <div className="pvx-result-hero">
         <div className="pvx-result-photo">
           <img src={seasonArt(result.ranked[0].id)} alt={`${primary.name} color season beauty portrait`} />
-          <span className="pvx-orbit-art pvx-result-orbit" aria-hidden="true"><i/><i/><i/><b/></span>
           <span className="pvx-confidence"><b>{result.confidence}%</b> palette confidence</span>
         </div>
 
@@ -276,15 +283,19 @@ function AnalyzingView({ onDone }: { onDone: () => void }) {
         <p>We&apos;re connecting undertone, contrast, depth and chroma into one personal palette.</p>
       </div>
 
-      <div className="pvx-orbit-engine" aria-label={`Analysis ${percentage}% complete`}>
-        <div className="pvx-orbit-halo halo-a" />
-        <div className="pvx-orbit-halo halo-b" />
-        <div className="pvx-orbit-track orbit-one"><i /><i /></div>
-        <div className="pvx-orbit-track orbit-two"><i /><i /><i /></div>
-        <div className="pvx-orbit-track orbit-three"><i /></div>
-        <span className="pvx-orbit-art pvx-analyze-orbit-art" aria-hidden="true"><i/><i/><i/><b/></span>
-        <div className="pvx-orbit-progress" style={{ "--analysis-progress": `${percentage * 3.6}deg` } as CSSProperties}>
-          <span><b>{percentage}</b>%</span>
+      <div className="pvx-analysis-lens" aria-label={`Analysis ${percentage}% complete`}>
+        <div className="pvx-analysis-glass">
+          <div
+            className="pvx-analysis-progress-ring"
+            style={{ "--analysis-progress": `${percentage * 3.6}deg` } as CSSProperties}
+          >
+            <div className="pvx-analysis-core">
+              <span><b>{percentage}</b>%</span>
+              <small>palette build</small>
+            </div>
+          </div>
+          <div className="pvx-analysis-scanline" aria-hidden="true" />
+          <div className="pvx-analysis-spectrum" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
         </div>
       </div>
 
@@ -292,7 +303,7 @@ function AnalyzingView({ onDone }: { onDone: () => void }) {
         {steps.map((label, index) => {
           const done = index < activeStep || percentage === 100;
           const active = index === activeStep && percentage < 100;
-          return <div key={label} className={`${done ? "done" : ""} ${active ? "active" : ""}`}><span>{done ? "✓" : active ? "✦" : ""}</span><b>{label}</b><small>{done ? "Complete" : active ? "In progress" : "Waiting"}</small></div>;
+          return <div key={label} className={`${done ? "done" : ""} ${active ? "active" : ""}`}><span>{done ? "✓" : active ? "—" : ""}</span><b>{label}</b><small>{done ? "Complete" : active ? "In progress" : "Waiting"}</small></div>;
         })}
       </div>
       <p className="pvx-analysis-caption">Your personalized palette is taking shape.</p>

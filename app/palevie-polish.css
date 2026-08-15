@@ -1,0 +1,458 @@
+/* Final visual polish: high-resolution model presentation and zero floating-orb UI. */
+.pvx-orbit-art,
+.pvx-mini-orbit,
+.pvx-scan-orbit,
+.pvx-shop-head-orbit,
+.pvx-empty-orbit,
+.pvx-feature-orbit,
+.pvx-orbit-engine,
+.pvx-orbit-halo,
+.pvx-orbit-track,
+.pvx-result-orbit,
+.pvx-scan-orbit-art {
+  display: none !important;
+}
+
+.pvx-model-card img,
+.pvx-season-card img,
+.pvx-result-photo > img:first-child,
+.pvx-consent-visual > img,
+.pvx-camera-view > img,
+.pvx-scan-result-visual > img {
+  filter: saturate(.96) contrast(1.035);
+  image-rendering: auto;
+}
+
+.pvx-model-a img { object-position: 50% 23%; }
+.pvx-model-b img { object-position: 50% 18%; }
+.pvx-model-c img { object-position: 50% 31%; }
+.pvx-model-d img { object-position: 50% 22%; }
+.pvx-model-e img { object-position: 50% 25%; }
+
+.pvx-feature-spectrum {
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 21px;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(250,232,244,.9));
+  box-shadow: 0 15px 30px rgba(102,57,83,.12), inset 0 1px 0 #fff;
+}
+
+.pvx-feature-spectrum i,
+.pvx-scan-spectrum i,
+.pvx-shop-spectrum i,
+.pvx-empty-spectrum i,
+.pvx-analysis-spectrum i {
+  display: block;
+  border-radius: 999px;
+}
+
+.pvx-feature-spectrum i:nth-child(1) { width: 8px; height: 30px; background: #ff8cab; }
+.pvx-feature-spectrum i:nth-child(2) { width: 8px; height: 44px; background: #e6a2c8; }
+.pvx-feature-spectrum i:nth-child(3) { width: 8px; height: 36px; background: #bea8ef; }
+.pvx-feature-spectrum i:nth-child(4) { width: 8px; height: 23px; background: #91aed8; }
+
+.pvx-scan-spectrum {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  width: 150px;
+  height: 126px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  padding: 25px 22px;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 31px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.86), rgba(255,240,248,.55)),
+    linear-gradient(120deg, #ffd9e8, #e7ddff);
+  box-shadow: 0 24px 48px rgba(99,54,84,.13), inset 0 1px 0 #fff;
+  backdrop-filter: blur(18px);
+}
+
+.pvx-scan-spectrum i:nth-child(1) { width: 9px; height: 34px; background: #f796ae; }
+.pvx-scan-spectrum i:nth-child(2) { width: 9px; height: 58px; background: #df91bb; }
+.pvx-scan-spectrum i:nth-child(3) { width: 9px; height: 76px; background: #bd9ae5; }
+.pvx-scan-spectrum i:nth-child(4) { width: 9px; height: 51px; background: #8ea9d2; }
+.pvx-scan-spectrum i:nth-child(5) { width: 9px; height: 28px; background: #e7ad8e; }
+
+.pvx-shop-spectrum {
+  position: absolute;
+  right: 68px;
+  top: 54px;
+  width: 176px;
+  height: 168px;
+  padding: 27px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 38px 38px 62px 38px;
+  background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(241,229,255,.7));
+  box-shadow: 0 24px 55px rgba(95,53,82,.13), inset 0 1px 0 #fff;
+  transform: rotate(4deg);
+}
+
+.pvx-shop-spectrum i:nth-child(1) { width: 11px; height: 42px; background: #ff8cab; }
+.pvx-shop-spectrum i:nth-child(2) { width: 11px; height: 78px; background: #ef9fc0; }
+.pvx-shop-spectrum i:nth-child(3) { width: 11px; height: 104px; background: #c5a6ee; }
+.pvx-shop-spectrum i:nth-child(4) { width: 11px; height: 70px; background: #91abd4; }
+.pvx-shop-spectrum i:nth-child(5) { width: 11px; height: 35px; background: #e8aa8f; }
+
+.pvx-empty-spectrum {
+  width: 128px;
+  height: 92px;
+  margin: 0 auto 18px;
+  padding: 17px 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 27px;
+  background: linear-gradient(145deg, #fff, #f7eaf2);
+  box-shadow: 0 17px 36px rgba(84,46,70,.1);
+}
+
+.pvx-empty-spectrum i:nth-child(1) { width: 10px; height: 26px; background: #ef9ab8; }
+.pvx-empty-spectrum i:nth-child(2) { width: 10px; height: 52px; background: #cfa7e7; }
+.pvx-empty-spectrum i:nth-child(3) { width: 10px; height: 39px; background: #9cb2d7; }
+.pvx-empty-spectrum i:nth-child(4) { width: 10px; height: 20px; background: #e6aa91; }
+
+.pvx-analyzing-shell {
+  width: min(820px, calc(100% - 34px));
+  margin: 38px auto 96px;
+  padding: 48px 54px 42px;
+  overflow: hidden;
+  border: 1px solid rgba(110,67,96,.12);
+  border-radius: 42px;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255,211,230,.72), transparent 34%),
+    radial-gradient(circle at 86% 15%, rgba(220,211,255,.78), transparent 36%),
+    rgba(255,255,255,.82);
+  box-shadow: 0 34px 95px rgba(83,45,71,.11);
+  backdrop-filter: blur(24px);
+}
+
+.pvx-analyzing-copy {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pvx-analyzing-copy h1 {
+  margin: 10px 0 12px;
+  font: 600 clamp(42px, 6vw, 66px)/.97 var(--pvx-display);
+  letter-spacing: -.045em;
+}
+
+.pvx-analyzing-copy h1 em {
+  color: #b44f83;
+  font-weight: 400;
+}
+
+.pvx-analyzing-copy p {
+  max-width: 570px;
+  margin: 0 auto;
+  color: var(--pvx-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.pvx-analysis-lens {
+  width: min(590px, 100%);
+  margin: 35px auto 30px;
+}
+
+.pvx-analysis-glass {
+  position: relative;
+  min-height: 380px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.88);
+  border-radius: 48px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.94), rgba(249,229,241,.64) 48%, rgba(233,227,255,.68)),
+    #fff;
+  box-shadow: 0 27px 70px rgba(90,50,79,.13), inset 0 1px 0 #fff;
+}
+
+.pvx-analysis-glass::before {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border: 1px solid rgba(128,81,111,.1);
+  border-radius: 34px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: .5;
+}
+
+.pvx-analysis-glass::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,215,233,.72), rgba(207,192,255,.27) 48%, transparent 72%);
+  filter: blur(15px);
+}
+
+.pvx-analysis-progress-ring {
+  --analysis-progress: 0deg;
+  position: relative;
+  z-index: 3;
+  width: 224px;
+  height: 224px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg, #ff638f 0deg, #ef8ba9 calc(var(--analysis-progress) * .46), #ad91e8 var(--analysis-progress), rgba(124,91,118,.11) var(--analysis-progress));
+  box-shadow: 0 25px 60px rgba(159,88,137,.18);
+}
+
+.pvx-analysis-progress-ring::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(249,238,246,.92));
+  box-shadow: inset 0 0 0 1px rgba(119,73,103,.08), inset 0 12px 28px rgba(255,255,255,.9);
+}
+
+.pvx-analysis-core {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.pvx-analysis-core span {
+  color: #4c3042;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.pvx-analysis-core span b {
+  font: 600 57px/.9 var(--pvx-display);
+  letter-spacing: -.05em;
+}
+
+.pvx-analysis-core small {
+  color: #9b7b8f;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.pvx-analysis-scanline {
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  right: 8%;
+  top: 12%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255,84,137,.82), rgba(176,139,235,.92), transparent);
+  box-shadow: 0 0 18px rgba(214,100,163,.44), 0 8px 28px rgba(196,137,225,.24);
+  animation: pvxCleanScan 2.35s cubic-bezier(.42,0,.22,1) infinite;
+}
+
+.pvx-analysis-spectrum {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 28px;
+  width: 64%;
+  height: 34px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 7px;
+}
+
+.pvx-analysis-spectrum i:nth-child(1) { width: 9px; height: 12px; background: #f6a2b8; }
+.pvx-analysis-spectrum i:nth-child(2) { width: 9px; height: 21px; background: #ec9bc0; }
+.pvx-analysis-spectrum i:nth-child(3) { width: 9px; height: 31px; background: #d29fdf; }
+.pvx-analysis-spectrum i:nth-child(4) { width: 9px; height: 26px; background: #b4a6ea; }
+.pvx-analysis-spectrum i:nth-child(5) { width: 9px; height: 18px; background: #97afd8; }
+.pvx-analysis-spectrum i:nth-child(6) { width: 9px; height: 10px; background: #e5ad96; }
+
+.pvx-analysis-status {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.pvx-analysis-status > div > span {
+  border-radius: 10px !important;
+}
+
+.pvx-analysis-caption {
+  text-align: center;
+}
+
+.pvx-scan-loading-clean {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  overflow: hidden;
+  color: #fff;
+  background: rgba(30,22,29,.56);
+  backdrop-filter: blur(14px);
+}
+
+.pvx-scan-loading-clean > b {
+  position: relative;
+  z-index: 3;
+  font-size: 11px;
+  letter-spacing: .03em;
+}
+
+.pvx-scan-loading-ring {
+  position: relative;
+  z-index: 3;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  box-shadow: 0 0 0 10px rgba(255,255,255,.04), 0 20px 45px rgba(0,0,0,.22);
+}
+
+.pvx-scan-loading-ring::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, transparent 0 62%, #ff91b2 73%, #d5b2ff 90%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: pvxCleanSpin 1.15s linear infinite;
+}
+
+.pvx-scan-loading-ring i {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(255,178,211,.72) 45%, rgba(181,151,239,.78));
+  box-shadow: inset -8px -10px 18px rgba(105,62,132,.18), 0 10px 25px rgba(232,127,177,.25);
+  animation: pvxCleanPulse 1.6s ease-in-out infinite;
+}
+
+.pvx-scan-loading-line {
+  position: absolute;
+  z-index: 2;
+  left: 7%;
+  right: 7%;
+  top: 14%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #ff9abb, #c5a7f1, transparent);
+  box-shadow: 0 0 18px rgba(255,149,188,.62);
+  animation: pvxCleanScan 2.15s ease-in-out infinite;
+}
+
+@keyframes pvxCleanScan {
+  0% { top: 13%; opacity: 0; }
+  12% { opacity: 1; }
+  50% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 86%; opacity: 0; }
+}
+
+@keyframes pvxCleanSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pvxCleanPulse {
+  50% { transform: scale(.92); filter: brightness(1.08); }
+}
+
+@media (max-width: 820px) {
+  .pvx-model-a img { object-position: 50% 20%; }
+  .pvx-model-b img { object-position: 50% 17%; }
+  .pvx-model-c img { object-position: 50% 27%; }
+  .pvx-model-d img { object-position: 50% 18%; }
+  .pvx-model-e img { object-position: 50% 20%; }
+
+  .pvx-scan-banner {
+    padding-left: 28px !important;
+  }
+
+  .pvx-scan-spectrum {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: 94px;
+    transform: none;
+    flex: 0 0 100%;
+    padding: 16px 24px;
+  }
+
+  .pvx-shop-page-head {
+    padding-right: 34px !important;
+  }
+
+  .pvx-shop-spectrum {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: 100%;
+    height: 92px;
+    margin-top: 22px;
+    padding: 14px 24px;
+    transform: none;
+  }
+
+  .pvx-analyzing-shell {
+    padding: 34px 20px 32px;
+    border-radius: 30px;
+  }
+
+  .pvx-analysis-glass {
+    min-height: 350px;
+    border-radius: 34px;
+  }
+
+  .pvx-analysis-progress-ring {
+    width: 190px;
+    height: 190px;
+  }
+
+  .pvx-analysis-core span b {
+    font-size: 49px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pvx-analysis-scanline,
+  .pvx-scan-loading-line,
+  .pvx-scan-loading-ring::before,
+  .pvx-scan-loading-ring i {
+    animation: none !important;
+  }
+}
