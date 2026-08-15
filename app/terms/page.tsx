@@ -11,5 +11,5 @@ export default function TermsPage(){return <article className="privacy app-wrap 
   <p><strong>Age.</strong> Palevie is intended for users 16 and older.</p>
   <p><strong>Service &quot;as is&quot;.</strong> This is an early product. We may change or discontinue features, and we provide the service without warranties to the fullest extent permitted by law. Our total liability is limited to the amount you paid us (currently $0 for free features).</p>
   <p><strong>Photos.</strong> The optional selfie scan runs only with your explicit consent, sends a resized copy to our AI provider for one-time processing, and is not intentionally stored by Palevie. Details in our <a href="/privacy">Privacy &amp; photo policy</a>.</p>
-  <p>Questions: hello@palevie.app</p>
+  <p>Questions: palevie0@gmail.com</p>
 </article>;}
