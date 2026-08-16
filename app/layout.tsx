@@ -4,7 +4,13 @@ import "./globals.css";
 import AttributionCapture from "@/components/AttributionCapture";
 import MobileNav from "@/components/MobileNav";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
+  "https://palevie.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Palevie — Personal Color, Beauty & Shopping",
   description: "Korean-inspired personal color, skincare preference matching and multi-retailer shopping guidance.",
   manifest: "/manifest.webmanifest",

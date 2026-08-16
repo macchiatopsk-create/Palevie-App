@@ -7,6 +7,8 @@ import { getToneProfile } from "@/lib/palettes";
 import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
+import ShareResult from "@/components/ShareResult";
+import WardrobeGuide from "@/components/WardrobeGuide";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
@@ -99,6 +101,10 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
     <Link className="rs-cta2" href="/shop">Shop My Match 🛍</Link>
    </div>
   </div>
+
+  <ShareResult toneId={result.ranked[0].id} toneName={primary.name}/>
+
+  <WardrobeGuide toneId={result.ranked[0].id}/>
 
   <div className="rs-duo">
    <Link href="/shop" className="rs-mini" style={{background:"var(--grad1)"}}>
