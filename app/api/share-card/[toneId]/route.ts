@@ -6,13 +6,20 @@ import { toneProfiles, getToneProfile } from "@/lib/palettes";
 export const runtime = "nodejs";
 
 /**
- * Season share cards. Art direction lives in five designed story images
- * (public/share); each of the 16 tones maps to its season family, with
- * Soft Summer keeping its own dedicated card.
+ * Season share cards. Twelve tones have dedicated designed cards named by
+ * tone id; the four without exact-name art (spring-bright, spring-vivid,
+ * winter-cool, winter-vivid) fall back to their season-family card so the
+ * title on the image never contradicts the app's result.
  */
+const DEDICATED = new Set([
+  "spring-light","spring-warm",
+  "summer-light","summer-cool","summer-soft","summer-muted",
+  "autumn-soft","autumn-warm","autumn-deep","autumn-muted",
+  "winter-deep","winter-bright",
+]);
+
 function cardFor(toneId: string): string {
-  if (toneId === "summer-soft") return "soft-summer";
-  if (toneId === "summer-cool") return "cool-summer";
+  if (DEDICATED.has(toneId)) return toneId;
   const season = getToneProfile(toneId).season;
   return { Spring: "spring", Summer: "summer", Autumn: "autumn", Winter: "winter" }[season]!;
 }
