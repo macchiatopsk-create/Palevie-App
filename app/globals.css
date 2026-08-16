@@ -865,3 +865,78 @@ body:has(.sh-top) .app-title{display:none}
 .auth-divider:before,.auth-divider:after{content:"";flex:1;height:1px;background:var(--line)}
 .auth-links{display:flex;justify-content:space-between;gap:10px;margin-top:11px;flex-wrap:wrap}
 .auth-links button{border:0;background:transparent;font:inherit;font-size:12px;font-weight:600;color:#9D5CE8;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:4px 0}
+
+/* ═══════════════════════════════════════════════════════════
+   BEACH THEME — tokens sampled from the illustration itself
+   (sky #88EAFD · sea #78D8D9 · foam #A3E8E2 · sand #FDE9BE)
+   Opt-in via <html data-theme="beach">, so the default stays put.
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="beach"]{
+  --bg:#EAF9FD;--bg2:#F2FBFD;--surface:#FFFFFF;--ink:#0F3D48;--muted:#587F88;--line:#CDE9EF;
+  --rose:#FF7A59;--rose-deep:#FF9A7B;--plum:#0E4C5C;--rose-soft:#FFE7DE;--rose-pale:#F0FAFC;
+  --violet:#9BE0E8;--lav:#DFF5F9;--blue:#78D8D9;--peach:#FDE9BE;--gold:#E8C98A;
+  --grad1:linear-gradient(135deg,#DFF6FB,#C9EDF4);
+  --grad2:linear-gradient(135deg,#FDF1D8,#FBE6BC);
+  --grad-cta:linear-gradient(95deg,#17B6C7,#4FD0A2);
+  --grad-text:linear-gradient(95deg,#0E9AAE,#2FBF8F);
+  --shadow-soft:0 8px 24px rgba(14,76,92,.10);
+  --shadow-float:0 16px 40px rgba(14,76,92,.14);
+  --shadow-cta:0 8px 20px rgba(23,182,199,.30);
+}
+
+/* The art sits on a fixed layer so time-of-day filters can hit it alone. */
+html[data-theme="beach"] body{background:var(--bg)}
+html[data-theme="beach"] body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url('/bg/beach-day.jpg') center bottom/cover no-repeat;
+  transition:filter .8s ease;
+}
+/* Readability veil: strongest at the top where the UI lives. */
+html[data-theme="beach"] body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  transition:background .8s ease;
+  background:linear-gradient(180deg,rgba(234,249,253,.86) 0%,rgba(234,249,253,.55) 28%,rgba(234,249,253,.12) 52%,rgba(234,249,253,0) 70%);
+}
+html[data-theme="beach"] .site-header{background:rgba(240,251,253,.72);border-bottom-color:rgba(14,76,92,.07)}
+html[data-theme="beach"] .mobile-nav{background:rgba(244,252,254,.94)}
+html[data-theme="beach"] .brand small{color:#17B6C7}
+
+/* ── time of day: morning · day · sunset · night ── */
+html[data-theme="beach"][data-tod="morning"] body::before{filter:brightness(1.04) saturate(.95) hue-rotate(-4deg)}
+html[data-theme="beach"][data-tod="morning"] body::after{
+  background:linear-gradient(180deg,rgba(255,246,235,.88) 0%,rgba(250,244,238,.5) 30%,rgba(255,240,225,.14) 55%,rgba(255,240,225,0) 72%)}
+
+html[data-theme="beach"][data-tod="sunset"] body::before{filter:saturate(1.12) contrast(1.04) hue-rotate(-18deg) brightness(.97)}
+html[data-theme="beach"][data-tod="sunset"] body::after{
+  background:linear-gradient(180deg,rgba(255,214,180,.9) 0%,rgba(255,178,150,.62) 26%,rgba(255,140,130,.3) 48%,rgba(255,120,120,.1) 66%,rgba(255,120,120,0) 78%)}
+html[data-theme="beach"][data-tod="sunset"]{--bg:#FFF1E6;--bg2:#FFF6EE;--rose:#FF6B4A;--grad-cta:linear-gradient(95deg,#FF8A5B,#FF5C7A);--shadow-cta:0 8px 20px rgba(255,110,80,.3)}
+
+html[data-theme="beach"][data-tod="night"] body::before{filter:brightness(.42) saturate(.75) hue-rotate(200deg) contrast(1.05)}
+html[data-theme="beach"][data-tod="night"] body::after{
+  background:linear-gradient(180deg,rgba(14,28,58,.92) 0%,rgba(18,34,68,.72) 30%,rgba(20,38,72,.42) 55%,rgba(20,38,72,.1) 75%,rgba(20,38,72,0) 88%)}
+html[data-theme="beach"][data-tod="night"]{
+  --bg:#0E1C3A;--bg2:#132449;--surface:#1B2E56;--ink:#EAF2FF;--muted:#9DB2D4;--line:#2B4272;
+  --rose-pale:#16294F;--rose-soft:#22345E;--plum:#DCE8FF;
+  --grad1:linear-gradient(135deg,#1C3161,#223A6F);
+  --grad2:linear-gradient(135deg,#20325C,#26406E);
+  --grad-cta:linear-gradient(95deg,#3FA9D9,#6E7BE8);
+  --grad-text:linear-gradient(95deg,#7FD4F0,#A99BF5);
+  --shadow-soft:0 8px 24px rgba(0,0,0,.34);--shadow-float:0 16px 40px rgba(0,0,0,.42);
+}
+html[data-theme="beach"][data-tod="night"] .site-header{background:rgba(14,28,58,.8)}
+html[data-theme="beach"][data-tod="night"] .mobile-nav{background:rgba(16,30,60,.95)}
+html[data-theme="beach"][data-tod="night"] .beauty-card,
+html[data-theme="beach"][data-tod="night"] .shop-card,
+html[data-theme="beach"][data-tod="night"] .wl-item,
+html[data-theme="beach"][data-tod="night"] .sp-tile,
+html[data-theme="beach"][data-tod="night"] .st-card{background:rgba(27,46,86,.82);border-color:#2B4272;color:var(--ink)}
+html[data-theme="beach"][data-tod="night"] .chip{background:rgba(27,46,86,.8);border-color:#2B4272;color:#C7D7F2}
+html[data-theme="beach"][data-tod="night"] .qz-opt{background:rgba(27,46,86,.84);border-color:#2B4272}
+
+/* The home page is sliced mockup art, so it keeps its own colors —
+   dim it slightly under the beach theme so it doesn't fight the sky. */
+html[data-theme="beach"] .mk-canvas{border-radius:22px;overflow:hidden;box-shadow:var(--shadow-float)}
+html[data-theme="beach"] .brand-word{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-theme="beach"][data-tod="night"] .app-title h1,
+html[data-theme="beach"][data-tod="night"] h2,
+html[data-theme="beach"][data-tod="night"] .lede-small{color:var(--ink)}
