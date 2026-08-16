@@ -2,8 +2,10 @@ import { getToneProfile } from "./palettes";
 
 /**
  * Style preferences: the user picks the aesthetics they like, Palevie
- * combines them with the saved color season to compose retailer searches.
- * Deterministic — no product data is invented.
+ * combines them with the saved color season to compose concrete pieces.
+ * Deterministic — no product data is invented, and until PA-API access is
+ * approved the visuals are color-true garment cards rather than scraped
+ * retailer photos.
  */
 
 export type StyleId = "minimal" | "romantic" | "casual" | "street" | "office";
@@ -16,33 +18,89 @@ export const STYLES: { id: StyleId; name: string; blurb: string; emoji: string }
   { id: "office", name: "Office", blurb: "Polished and tailored, meeting-ready.", emoji: "💼" },
 ];
 
-const GARMENTS: Record<StyleId, string[]> = {
-  minimal: ["button down shirt", "wide leg trousers", "fine knit sweater", "structured tote bag"],
-  romantic: ["ruffle blouse", "midi dress", "soft cardigan", "pleated skirt"],
-  casual: ["crewneck sweatshirt", "straight leg jeans", "relaxed t-shirt", "denim jacket"],
-  street: ["oversized hoodie", "cargo pants", "graphic tee", "bomber jacket"],
-  office: ["tailored blazer", "silk blouse", "slim trousers", "knit vest"],
+type Garment = { name: string; icon: string; why: string };
+
+const GARMENTS: Record<StyleId, Garment[]> = {
+  minimal: [
+    { name: "button down shirt", icon: "👔", why: "The quiet anchor every minimal wardrobe leans on." },
+    { name: "wide leg trousers", icon: "👖", why: "Clean drape, zero fuss." },
+    { name: "fine knit sweater", icon: "🧶", why: "One good knit replaces five loud tops." },
+    { name: "structured tote bag", icon: "👜", why: "Sharp lines finish the look." },
+  ],
+  romantic: [
+    { name: "ruffle blouse", icon: "🌸", why: "Softness right where it flatters — near your face." },
+    { name: "midi dress", icon: "👗", why: "Movement and color in one piece." },
+    { name: "soft cardigan", icon: "🧸", why: "The gentle layer that ties it together." },
+    { name: "pleated skirt", icon: "🩰", why: "Romantic without trying too hard." },
+  ],
+  casual: [
+    { name: "crewneck sweatshirt", icon: "☁️", why: "Your season's color makes even a sweatshirt look intentional." },
+    { name: "straight leg jeans", icon: "👖", why: "The wash matters more than the brand." },
+    { name: "relaxed t-shirt", icon: "👕", why: "Basics in the right shade never look basic." },
+    { name: "denim jacket", icon: "🧥", why: "The layer that works over everything." },
+  ],
+  street: [
+    { name: "oversized hoodie", icon: "🛹", why: "Volume plus your color reads styled, not sloppy." },
+    { name: "cargo pants", icon: "🪖", why: "Utility lines, softened by your palette." },
+    { name: "graphic tee", icon: "🎨", why: "Let the base shade carry the print." },
+    { name: "bomber jacket", icon: "🧥", why: "Structure up top balances the slouch." },
+  ],
+  office: [
+    { name: "tailored blazer", icon: "💼", why: "In your season's neutral it looks custom." },
+    { name: "silk blouse", icon: "✨", why: "The sheen lifts your skin in meetings and photos." },
+    { name: "slim trousers", icon: "👖", why: "Polished from desk to dinner." },
+    { name: "knit vest", icon: "🧶", why: "The layer that says put-together." },
+  ],
 };
 
-/** Season color words that read well inside a retail search query. */
-const SEASON_WORDS: Record<string, string[]> = {
-  Spring: ["ivory", "camel", "coral", "soft yellow"],
-  Summer: ["dusty rose", "soft white", "lavender", "navy"],
-  Autumn: ["cream", "olive", "rust", "chocolate brown"],
-  Winter: ["white", "black", "true red", "emerald"],
+/** Season color words with true hexes so cards can render the actual shade. */
+const SEASON_COLORS: Record<string, { word: string; hex: string }[]> = {
+  Spring: [
+    { word: "ivory", hex: "#F5EDDE" },
+    { word: "camel", hex: "#C79A63" },
+    { word: "coral", hex: "#F28C6F" },
+    { word: "soft yellow", hex: "#F3DC8F" },
+  ],
+  Summer: [
+    { word: "dusty rose", hex: "#C9A0AC" },
+    { word: "soft white", hex: "#F2F1ED" },
+    { word: "lavender", hex: "#B9A8D6" },
+    { word: "navy", hex: "#38445E" },
+  ],
+  Autumn: [
+    { word: "cream", hex: "#EFE3CE" },
+    { word: "olive", hex: "#6B6B45" },
+    { word: "rust", hex: "#9C4E2C" },
+    { word: "chocolate brown", hex: "#5A3E2B" },
+  ],
+  Winter: [
+    { word: "white", hex: "#FFFFFF" },
+    { word: "black", hex: "#17171A" },
+    { word: "true red", hex: "#C8102E" },
+    { word: "emerald", hex: "#046A38" },
+  ],
 };
 
-export type StyleSearch = { label: string; query: string };
+export type StylePiece = {
+  label: string;
+  query: string;
+  hex: string;
+  icon: string;
+  why: string;
+};
 
-/** Compose up to 4 searches per style, rotating season colors across garments. */
-export function styleSearches(toneId: string, style: StyleId): StyleSearch[] {
+/** Compose concrete pieces per style, rotating the season's colors across garments. */
+export function stylePieces(toneId: string, style: StyleId): StylePiece[] {
   const season = getToneProfile(toneId).season;
-  const words = SEASON_WORDS[season];
-  return GARMENTS[style].map((garment, i) => {
-    const color = words[i % words.length];
+  const colors = SEASON_COLORS[season];
+  return GARMENTS[style].map((g, i) => {
+    const c = colors[i % colors.length];
     return {
-      label: `${cap(color)} ${garment}`,
-      query: `${color} ${garment} women`,
+      label: `${cap(c.word)} ${g.name}`,
+      query: `${c.word} ${g.name} women`,
+      hex: c.hex,
+      icon: g.icon,
+      why: g.why,
     };
   });
 }

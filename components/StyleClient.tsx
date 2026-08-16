@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { STYLES, StyleId, styleSearches, saveStylePrefs, loadStylePrefs } from "@/lib/style";
+import { STYLES, StyleId, stylePieces, saveStylePrefs, loadStylePrefs } from "@/lib/style";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { track, getVisitorId } from "@/lib/analytics";
@@ -39,15 +39,12 @@ export default function StyleClient() {
   return (
     <div className="style-tab">
       <div className="beauty-card">
-        <div className="eyebrow">Your aesthetic</div>
-        <h2>Pick up to two styles you love.</h2>
+        <div className="eyebrow">Step 1 · Your aesthetic</div>
+        <h2>Which styles are you shopping for?</h2>
+        <p className="lede-small">Pick up to two — your picks are saved for next time.</p>
         <div className="st-grid">
           {STYLES.map(s => (
-            <button
-              key={s.id}
-              className={`st-card${picked.includes(s.id) ? " on" : ""}`}
-              onClick={() => toggle(s.id)}
-            >
+            <button key={s.id} className={`st-card${picked.includes(s.id) ? " on" : ""}`} onClick={() => toggle(s.id)}>
               <span className="st-emoji">{s.emoji}</span>
               <b>{s.name}</b>
               <p>{s.blurb}</p>
@@ -56,36 +53,45 @@ export default function StyleClient() {
         </div>
       </div>
 
-      {picked.map(id => {
+      <WardrobeGuide toneId={profile!.primaryType} />
+
+      {picked.length === 0 ? (
+        <div className="beauty-card" style={{ textAlign: "center" }}>
+          <p className="lede-small" style={{ margin: 0 }}>Pick a style above and your recommendations appear here. ✦</p>
+        </div>
+      ) : picked.map(id => {
         const style = STYLES.find(s => s.id === id)!;
-        const searches = styleSearches(profile!.primaryType, id);
+        const pieces = stylePieces(profile!.primaryType, id);
         return (
           <div className="beauty-card" key={id}>
-            <div className="eyebrow">{style.name} · in your {tone.name} colors</div>
-            <h2>{style.name} pieces that suit you.</h2>
-            <div className="wg-chips">
-              {searches.map(s => {
-                const p = new URLSearchParams({ q: s.query, tone: profile!.primaryType, label: s.label, v: getVisitorId() });
+            <div className="eyebrow">Recommended · {style.name} in your {tone.name} colors</div>
+            <h2>{style.name} pieces to look for.</h2>
+            <div className="sp-list">
+              {pieces.map(p => {
+                const qs = new URLSearchParams({ q: p.query, tone: profile!.primaryType, label: p.label, v: getVisitorId() });
                 return (
                   <a
-                    key={s.query}
-                    className="wg-chip"
-                    href={`/go/search?${p.toString()}`}
+                    key={p.query}
+                    className="sp-card"
+                    href={`/go/search?${qs.toString()}`}
                     target="_blank"
                     rel="nofollow sponsored noopener noreferrer"
-                    onClick={() => track("affiliate_outbound_click", { tone: profile!.primaryType, surface: "style", style: id, label: s.label })}
+                    onClick={() => track("affiliate_outbound_click", { tone: profile!.primaryType, surface: "style", style: id, label: p.label })}
                   >
-                    {s.label} →
+                    <span className="sp-swatch" style={{ background: p.hex }}><i>{p.icon}</i></span>
+                    <span className="sp-body">
+                      <b>{p.label}</b>
+                      <small>{p.why}</small>
+                    </span>
+                    <span className="sp-go">Shop →</span>
                   </a>
                 );
               })}
             </div>
-            <p className="wg-disc">These open live retailer searches in your season&apos;s colors. As an Amazon Associate we earn from qualifying purchases.</p>
+            <p className="wg-disc">Each card opens a live retailer search in this exact shade. As an Amazon Associate we earn from qualifying purchases.</p>
           </div>
         );
       })}
-
-      <WardrobeGuide toneId={profile!.primaryType} />
     </div>
   );
 }

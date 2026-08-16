@@ -8,6 +8,16 @@ import { syncSkinProfileToCloud } from "@/lib/cloudProfile";
 
 const initial: SkinProfile = { afterCleansing:"comfortable", texture:"any", fragrance:"avoid", goal:"hydration", concern:"none", budget:"mid", createdAt:"" };
 
+/** Stored values stay unchanged; only the visible label is friendlier. */
+const LABELS: Record<string, string> = {
+  tight:"Tight & dry", comfortable:"Comfortable", oily:"Oily by midday",
+  gel:"Gel", lotion:"Lotion", cream:"Cream", any:"Any texture",
+  avoid:"Fragrance-free", okay:"Fragrance is fine",
+  hydration:"Hydration", "barrier-support":"Barrier support", "smoother-looking":"Smoother look", "brighter-looking":"Brighter look",
+  none:"Nothing specific", dryness:"Dryness", shine:"Shine", redness:"Redness", dullness:"Dullness",
+  value:"Under $20", mid:"Under $45", flexible:"Flexible",
+};
+
 export default function SkinProfileClient() {
   const [profile, setProfile] = useState<SkinProfile>(initial);
   const [saved, setSaved] = useState(false);
@@ -27,12 +37,12 @@ export default function SkinProfileClient() {
       <h2>Build a shopping profile, not a diagnosis.</h2>
       <p className="lede-small">Palevie matches cosmetic product tags to what you like. It does not diagnose acne, eczema, rosacea, allergies, or any other health condition.</p>
       <div className="skin-form">
-        <Field label="After cleansing, my skin usually feels"><Select value={profile.afterCleansing} onChange={v=>update("afterCleansing",v as SkinProfile["afterCleansing"])} options={["tight","comfortable","oily"]}/></Field>
-        <Field label="Texture I enjoy"><Select value={profile.texture} onChange={v=>update("texture",v as SkinProfile["texture"])} options={["gel","lotion","cream","any"]}/></Field>
-        <Field label="Fragrance"><Select value={profile.fragrance} onChange={v=>update("fragrance",v as SkinProfile["fragrance"])} options={["avoid","okay"]}/></Field>
-        <Field label="My main skin concern right now"><Select value={profile.concern ?? "none"} onChange={v=>update("concern",v as SkinProfile["concern"])} options={["none","dryness","shine","redness","dullness"]}/></Field>
-        <Field label="What I am shopping for"><Select value={profile.goal} onChange={v=>update("goal",v as SkinProfile["goal"])} options={["hydration","barrier-support","smoother-looking","brighter-looking"]}/></Field>
-        <Field label="Budget"><Select value={profile.budget} onChange={v=>update("budget",v as SkinProfile["budget"])} options={["value","mid","flexible"]}/></Field>
+        <Chips label="After cleansing, my skin usually feels" value={profile.afterCleansing} onChange={v=>update("afterCleansing",v as SkinProfile["afterCleansing"])} options={["tight","comfortable","oily"]}/>
+        <Chips label="Texture I enjoy" value={profile.texture} onChange={v=>update("texture",v as SkinProfile["texture"])} options={["gel","lotion","cream","any"]}/>
+        <Chips label="Fragrance" value={profile.fragrance} onChange={v=>update("fragrance",v as SkinProfile["fragrance"])} options={["avoid","okay"]}/>
+        <Chips label="My main skin concern right now" value={profile.concern ?? "none"} onChange={v=>update("concern",v as SkinProfile["concern"])} options={["none","dryness","shine","redness","dullness"]}/>
+        <Chips label="What I am shopping for" value={profile.goal} onChange={v=>update("goal",v as SkinProfile["goal"])} options={["hydration","barrier-support","smoother-looking","brighter-looking"]}/>
+        <Chips label="Budget" value={profile.budget} onChange={v=>update("budget",v as SkinProfile["budget"])} options={["value","mid","flexible"]}/>
       </div>
       <button className="button rose" onClick={save}>Save my skin profile</button>
     </section>
@@ -51,5 +61,11 @@ export default function SkinProfileClient() {
   </div>;
 }
 
-function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="skin-field"><span>{label}</span>{children}</label>}
-function Select({value,onChange,options}:{value:string;onChange:(v:string)=>void;options:string[]}){return <select value={value} onChange={e=>onChange(e.target.value)}>{options.map(o=><option key={o} value={o}>{o.replace(/-/g," ")}</option>)}</select>}
+function Chips({label,value,onChange,options}:{label:string;value:string;onChange:(v:string)=>void;options:string[]}){
+  return <div className="skin-field">
+    <span>{label}</span>
+    <div className="chip-row">
+      {options.map(o=><button key={o} type="button" className={`chip${value===o?" on":""}`} onClick={()=>onChange(o)}>{LABELS[o] ?? o.replace(/-/g," ")}</button>)}
+    </div>
+  </div>;
+}
