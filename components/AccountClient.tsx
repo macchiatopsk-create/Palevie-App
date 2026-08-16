@@ -68,6 +68,12 @@ export default function AccountClient() {
       });
       if (error) return setStatus(error.message);
       if (data.session) { await refresh(); return; }
+      // Existing confirmed accounts come back with no identities and no email is sent.
+      if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        setMode("signin");
+        setStatus("This email already has an account. Sign in instead — or tap 'Forgot password?' to set a password.");
+        return;
+      }
       setStatus("Almost there — we sent a confirmation link to your email. Tap it and you're in.");
       return;
     }
