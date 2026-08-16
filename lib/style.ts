@@ -138,3 +138,14 @@ export function loadStylePrefs(): StyleId[] {
     return Array.isArray(raw) ? raw.filter((x): x is StyleId => STYLES.some(s => s.id === x)).slice(0, 2) : [];
   } catch { return []; }
 }
+
+export type FitPref = "fitted" | "balanced" | "oversized";
+const FIT_KEY = "palevie-fit-pref-v1";
+export function saveFitPref(fit: FitPref) {
+  if (typeof window !== "undefined") localStorage.setItem(FIT_KEY, fit);
+}
+export function loadFitPref(): FitPref | null {
+  if (typeof window === "undefined") return null;
+  const v = localStorage.getItem(FIT_KEY);
+  return v === "fitted" || v === "balanced" || v === "oversized" ? v : null;
+}

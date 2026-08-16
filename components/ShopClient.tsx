@@ -6,6 +6,9 @@ import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
+import { loadMakeupPrefs } from "@/lib/beautyPrefs";
+import { loadStylePrefs, stylePieces, STYLES } from "@/lib/style";
+import { toggleSaved, pieceId } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
 import { loadWishlist, toggleProduct, productKey, SavedItem } from "@/lib/wishlist";
 import { trackedOfferHref } from "@/lib/attribution";
@@ -27,7 +30,7 @@ function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string
   return {src};
 }
 export default function ShopClient() {
-  const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare">("all");
+  const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare"|"clothes">("all");
   const [qtext, setQtext] = useState("");
   const [sort, setSort] = useState<"match"|"lo"|"hi">("match");
   const [cols, setCols] = useState<1|2|3>(2);
@@ -40,8 +43,15 @@ export default function ShopClient() {
     return p ? getToneProfile(p.primaryType) : null;
   }, [ready]);
   const skin = useMemo(() => ready ? loadSkinProfile() : null, [ready]);
+  const makeupPrefs = useMemo(() => ready ? loadMakeupPrefs() : null, [ready]);
+  const styleIds = useMemo(() => ready ? loadStylePrefs() : [], [ready]);
+  const rawProfile = useMemo(() => ready ? loadProfile() : null, [ready]);
 
-  useEffect(() => { setReady(true); setWl(loadWishlist()); track("shop_viewed"); }, []);
+  useEffect(() => {
+    setReady(true); setWl(loadWishlist()); track("shop_viewed");
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t==="clothes"||t==="skincare"||t==="lip"||t==="eyeshadow"|| t==="blush") setTab(t);
+  }, []);
   function heart(productId: string, name: string) {
     const { items, saved } = toggleProduct(productId);
     setWl(items);
@@ -58,6 +68,10 @@ export default function ShopClient() {
         const scored = scoreColor(hexToRgb(p.colorHex), profile);
         match = scored.colorFit;
         reason = `${profile.name} color match`;
+        if (makeupPrefs?.brands?.includes(p.brand)) {
+          match = Math.min(99, match + 8);
+          reason = `Your brand pick · ${reason}`;
+        }
       }
       if (p.category === "skincare" && skin) {
         const scored = scoreSkinProduct(skin, p.tags, p.offers.map(o=>o.priceCents).filter((n): n is number=>typeof n === "number"));
@@ -75,11 +89,11 @@ export default function ShopClient() {
     <div className="sh-head"><h1>Shop</h1></div>
     <div className="sh-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search for products"/><b>✦</b></div>
     <div className="sh-pills">
-      {([["all","✦ All"],["lip","💋 Lips"],["eyeshadow","👁 Eyes"],["blush","😊 Cheeks"],["skincare","🧴 Skin"]] as const).map(([k,l])=>
+      {([["all","✦ All"],["lip","💋 Lips"],["eyeshadow","👁 Eyes"],["blush","😊 Cheeks"],["skincare","🧴 Skin"],["clothes","👗 Clothes"]] as const).map(([k,l])=>
         <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>)}
     </div>
 
-    {!profile && tab !== "skincare" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
+    {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
     <div className="sh-tools">
@@ -104,6 +118,51 @@ export default function ShopClient() {
       </div>
     </div>
 
+    {tab === "clothes" ? (
+      !profile || !rawProfile ? (
+        <div className="beauty-card" style={{textAlign:"center",marginTop:14}}>
+          <div className="eyebrow">Clothes</div>
+          <h2>Your season decides the shades.</h2>
+          <p className="lede-small">Take the color quiz first — then your clothing picks appear here in your exact palette.</p>
+          <a className="button rose" href="/quiz">Take the color quiz</a>
+        </div>
+      ) : styleIds.length === 0 ? (
+        <div className="beauty-card" style={{textAlign:"center",marginTop:14}}>
+          <div className="eyebrow">Clothes</div>
+          <h2>Tell us your style first.</h2>
+          <p className="lede-small">Pick the aesthetics you love in the Quiz → Style tab and your picks appear here.</p>
+          <a className="button rose" href="/quiz?tab=style">Pick my styles</a>
+        </div>
+      ) : (
+        <div className="clothes-wrap">
+          {styleIds.map(sid => {
+            const styleName = STYLES.find(x=>x.id===sid)?.name;
+            return (
+              <section key={sid} className="clothes-sec">
+                <div className="eyebrow">{styleName} · in your {profile.name} colors</div>
+                <div className="sp-grid">
+                  {stylePieces(rawProfile.primaryType, sid).map(piece => {
+                    const saved = wl.some(w => w.id === pieceId(sid, piece.query));
+                    return (
+                      <button key={piece.query} className={`sp-tile${saved?" on":""}`} onClick={()=>{
+                        const r = toggleSaved(piece, sid, rawProfile.primaryType);
+                        setWl(r.items);
+                        track(r.saved?"wishlist_added":"wishlist_removed",{label:piece.label,style:sid,surface:"shop_clothes"});
+                      }}>
+                        <span className="sp-swatch" style={{background:piece.hex}}><i>{piece.icon}</i></span>
+                        <b>{piece.label}</b>
+                        <span className="sp-heart">{saved?"♥":"♡"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+          <p className="wg-disc">Heart pieces into your list, then shop them from <a href="/wishlist" style={{textDecoration:"underline"}}>My list</a> whenever you&apos;re ready.</p>
+        </div>
+      )
+    ) : (
     <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
@@ -118,6 +177,7 @@ export default function ShopClient() {
         {p.match !== undefined && <small className="sh-match">{p.match}% match · {p.reason}</small>}
       </div>
     </article>)}</div>
+    )}
 
     <p className="affiliate-disclosure"><strong>Disclosure:</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Prices shown are approximate — the retailer page always has the final price.</p>
   </>;

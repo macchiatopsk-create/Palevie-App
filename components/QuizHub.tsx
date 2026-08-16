@@ -2,7 +2,7 @@
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import QuizClient from "@/components/QuizClient";
-import MakeupPicks from "@/components/MakeupPicks";
+import MakeupPrefsClient from "@/components/MakeupPrefsClient";
 import StyleClient from "@/components/StyleClient";
 import SkinProfileClient from "@/components/SkinProfileClient";
 
@@ -17,8 +17,8 @@ type TabId = (typeof TABS)[number]["id"];
 
 const HEADINGS: Record<TabId, { eyebrow: string; title: string; sub: string }> = {
   color: { eyebrow: "Free · 13 questions · no selfie", title: "Find your color mood.", sub: "Choose what actually looks better on you. Palevie saves your strongest Korean 16-tone starting point for shopping." },
-  makeup: { eyebrow: "Matched to your season", title: "Makeup in your shades.", sub: "Every pick is scored against your color season, so the swatch guessing stops here." },
-  style: { eyebrow: "Your season, your aesthetic", title: "Dress in your colors.", sub: "Pick the styles you love and get outfit searches composed in your season's palette." },
+  makeup: { eyebrow: "Your makeup taste", title: "Tell us your makeup mood.", sub: "Your mood and favorite brands shape how the Shop ranks every shade for you." },
+  style: { eyebrow: "Your season, your aesthetic", title: "Tell us your style.", sub: "Your aesthetic and fit shape the clothing picks waiting in the Shop." },
   skin: { eyebrow: "Shopping preferences, not a diagnosis", title: "Your skin shopping profile.", sub: "Tell Palevie how your skin behaves and what you're shopping for — recommendations follow." },
 };
 
@@ -53,7 +53,7 @@ export default function QuizHub() {
       </div>
 
       {tab === "color" && <QuizClient />}
-      {tab === "makeup" && <MakeupPicks />}
+      {tab === "makeup" && <MakeupPrefsClient />}
       {tab === "style" && <StyleClient />}
       {tab === "skin" && <SkinProfileClient />}
     </>

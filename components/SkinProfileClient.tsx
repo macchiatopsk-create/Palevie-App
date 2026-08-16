@@ -1,11 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getSkinRecommendations, loadSkinProfile, saveSkinProfile, SkinProfile } from "@/lib/skincare";
-import { retailers } from "@/lib/retailers";
-import { getVisitorId, track } from "@/lib/analytics";
-import { trackedOfferHref } from "@/lib/attribution";
+import Link from "next/link";
+import { loadSkinProfile, saveSkinProfile, SkinProfile } from "@/lib/skincare";
+import { track } from "@/lib/analytics";
 import { syncSkinProfileToCloud } from "@/lib/cloudProfile";
-import { loadWishlist, toggleProduct, productKey, SavedItem } from "@/lib/wishlist";
 
 const initial: SkinProfile = { afterCleansing:"comfortable", texture:"any", fragrance:"avoid", goal:"hydration", concern:"none", budget:"mid", createdAt:"" };
 
@@ -22,15 +20,8 @@ const LABELS: Record<string, string> = {
 export default function SkinProfileClient() {
   const [profile, setProfile] = useState<SkinProfile>(initial);
   const [saved, setSaved] = useState(false);
-  const [wl, setWl] = useState<SavedItem[]>([]);
-  useEffect(() => { const p = loadSkinProfile(); if (p) { setProfile(p); setSaved(true); } setWl(loadWishlist()); }, []);
-  function heart(productId: string, name: string) {
-    const { items, saved: nowSaved } = toggleProduct(productId);
-    setWl(items);
-    track(nowSaved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "skin_tab" });
-  }
-  const recs = saved ? getSkinRecommendations(profile) : [];
-
+  useEffect(() => { const p = loadSkinProfile(); if (p) { setProfile(p); setSaved(true); } }, []);
+  
   function update<K extends keyof SkinProfile>(key: K, value: SkinProfile[K]) { setProfile(p=>({...p,[key]:value})); setSaved(false); }
   function save() {
     const p = { ...profile, createdAt: new Date().toISOString() };
@@ -54,18 +45,13 @@ export default function SkinProfileClient() {
       <button className="button rose" onClick={save}>Save my skin profile</button>
     </section>
 
-    <section className="beauty-card">
-      <div className="eyebrow">For your preferences</div><h2>Skincare matches</h2>
-      {!saved ? <div className="empty compact"><p>Save your profile to see recommendations.</p></div> : <div className="product-stack">{recs.map(p=><article className="mini-product" key={p.id}>
-        <button className={`mini-heart${wl.some(w => w.id === productKey(p.id)) ? " on" : ""}`} aria-label={`Save ${p.name}`} onClick={()=>heart(p.id, p.name)}>{wl.some(w => w.id === productKey(p.id)) ? "♥" : "♡"}</button>
-        <div className="product-placeholder">SKIN</div>
-        <div><strong>{p.name}</strong><small>{p.subcategory} · {p.match.score}% preference match</small><p>{p.match.reasons.join(" · ") || "General preference match"}</p>
-          {p.ingredients?.length ? <div className="ingredient-row">{p.ingredients.slice(0,4).map(i=><span key={i}>{i}</span>)}</div> : null}
-          <div className="offer-row">{p.offers.map(o=><a key={o.id} href={trackedOfferHref(o.id,getVisitorId())} onClick={()=>track("affiliate_outbound_click",{retailer:o.retailer,product:p.id,offer:o.id})}>{retailers[o.retailer].name}{o.priceLabel?` · ${o.priceLabel}`:""}</a>)}</div>
-        </div>
-      </article>)}</div>}
-      <div className="affiliate-disclosure">Recommendations are cosmetic shopping guidance, not medical advice. Affiliate/sponsored relationships must be disclosed.</div>
-    </section>
+    <Link href="/shop?tab=skincare" className="beauty-card wl-linkcard">
+      <div>
+        <div className="eyebrow">{saved ? "Profile saved" : "Save your profile first"}</div>
+        <h2 style={{margin:0}}>See my skincare picks in the Shop →</h2>
+      </div>
+      <span className="wl-count">✦</span>
+    </Link>
   </div>;
 }
 

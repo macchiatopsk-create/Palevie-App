@@ -836,3 +836,9 @@ body:has(.sh-top) .app-title{display:none}
 .wl-round{border-radius:50%}
 .wl-skin{display:grid;place-items:center;background:var(--grad2)}
 .wl-skin i{font-style:normal;font-size:20px}
+
+/* shop clothes tab */
+.clothes-wrap{margin-top:14px}
+.clothes-sec{margin-bottom:20px}
+.clothes-sec .eyebrow{margin-bottom:10px}
+.opt-tag{font-size:11px;font-weight:500;color:var(--muted)}
