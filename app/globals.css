@@ -823,3 +823,16 @@ body:has(.sh-top) .app-title{display:none}
 .wl-linkcard{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .wl-linkcard h2{font-size:19px}
 .wl-count{flex:none;width:44px;height:44px;border-radius:50%;background:var(--grad-cta);color:#fff;font-size:16px;font-weight:800;display:grid;place-items:center;box-shadow:0 6px 16px rgba(255,92,138,.3)}
+
+/* wishlist hearts on product surfaces */
+.shop-heart{border:0;cursor:pointer}
+.shop-heart.on{background:var(--grad-cta)}
+.shop-heart.on svg{stroke:#fff;fill:#fff}
+.mini-heart{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.9);color:#D6417F;font-size:15px;line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(60,42,84,.14);display:grid;place-items:center;z-index:2}
+.mini-heart.on{background:var(--grad-cta);color:#fff}
+.mu-item,.mini-product{position:relative}
+.mu-item .mini-heart{top:50%;transform:translateY(-50%);right:10px}
+.mu-item{padding-right:48px}
+.wl-round{border-radius:50%}
+.wl-skin{display:grid;place-items:center;background:var(--grad2)}
+.wl-skin i{font-style:normal;font-size:20px}

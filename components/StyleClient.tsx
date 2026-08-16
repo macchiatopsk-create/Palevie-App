@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { STYLES, StyleId, stylePieces, saveStylePrefs, loadStylePrefs, StylePiece } from "@/lib/style";
-import { loadWishlist, toggleSaved, pieceId, SavedPiece } from "@/lib/wishlist";
+import { loadWishlist, toggleSaved, pieceId, SavedItem } from "@/lib/wishlist";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { track, getVisitorId } from "@/lib/analytics";
@@ -11,7 +11,7 @@ import WardrobeGuide from "@/components/WardrobeGuide";
 export default function StyleClient() {
   const [ready, setReady] = useState(false);
   const [picked, setPicked] = useState<StyleId[]>([]);
-  const [wishlist, setWishlist] = useState<SavedPiece[]>([]);
+  const [wishlist, setWishlist] = useState<SavedItem[]>([]);
   useEffect(() => { setPicked(loadStylePrefs()); setWishlist(loadWishlist()); setReady(true); }, []);
 
   const profile = ready ? loadProfile() : null;

@@ -7,6 +7,7 @@ import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { getVisitorId, track } from "@/lib/analytics";
+import { loadWishlist, toggleProduct, productKey, SavedItem } from "@/lib/wishlist";
 import { trackedOfferHref } from "@/lib/attribution";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
@@ -32,6 +33,7 @@ export default function ShopClient() {
   const [cols, setCols] = useState<1|2|3>(2);
   const [menu, setMenu] = useState(false);
     const [ready, setReady] = useState(false);
+  const [wl, setWl] = useState<SavedItem[]>([]);
   const profile = useMemo(() => {
     if (!ready) return null;
     const p = loadProfile();
@@ -39,7 +41,12 @@ export default function ShopClient() {
   }, [ready]);
   const skin = useMemo(() => ready ? loadSkinProfile() : null, [ready]);
 
-  useEffect(() => { setReady(true); track("shop_viewed"); }, []);
+  useEffect(() => { setReady(true); setWl(loadWishlist()); track("shop_viewed"); }, []);
+  function heart(productId: string, name: string) {
+    const { items, saved } = toggleProduct(productId);
+    setWl(items);
+    track(saved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "shop" });
+  }
 
   const items = catalogProducts
     .filter(p => tab==="all" || (tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
@@ -100,7 +107,7 @@ export default function ShopClient() {
     <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
-        <span className="shop-heart"><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></span>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
+        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} onClick={(e)=>{e.preventDefault();heart(p.id,p.name)}}><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></button>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
       </div>
       <div className="sh-meta">
         <h3>{p.colorHex && <i className="sh-dot" style={{background:p.colorHex}}/>}{p.name}</h3>

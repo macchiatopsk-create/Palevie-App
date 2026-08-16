@@ -16,7 +16,7 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
       const res = await fetch(cardUrl);
       if (!res.ok) throw new Error("card unavailable");
       const blob = await res.blob();
-      const file = new File([blob], `palevie-${toneId}.png`, { type: "image/png" });
+      const file = new File([blob], `palevie-${toneId}.jpg`, { type: "image/jpeg" });
 
       // Native share sheet — this is the path that reaches Instagram Stories.
       if (navigator.canShare?.({ files: [file] })) {
@@ -34,7 +34,7 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
       const href = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = href;
-      a.download = `palevie-${toneId}.png`;
+      a.download = `palevie-${toneId}.jpg`;
       a.click();
       URL.revokeObjectURL(href);
       try {

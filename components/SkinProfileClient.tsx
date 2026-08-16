@@ -5,6 +5,7 @@ import { retailers } from "@/lib/retailers";
 import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 import { syncSkinProfileToCloud } from "@/lib/cloudProfile";
+import { loadWishlist, toggleProduct, productKey, SavedItem } from "@/lib/wishlist";
 
 const initial: SkinProfile = { afterCleansing:"comfortable", texture:"any", fragrance:"avoid", goal:"hydration", concern:"none", budget:"mid", createdAt:"" };
 
@@ -21,7 +22,13 @@ const LABELS: Record<string, string> = {
 export default function SkinProfileClient() {
   const [profile, setProfile] = useState<SkinProfile>(initial);
   const [saved, setSaved] = useState(false);
-  useEffect(() => { const p = loadSkinProfile(); if (p) { setProfile(p); setSaved(true); } }, []);
+  const [wl, setWl] = useState<SavedItem[]>([]);
+  useEffect(() => { const p = loadSkinProfile(); if (p) { setProfile(p); setSaved(true); } setWl(loadWishlist()); }, []);
+  function heart(productId: string, name: string) {
+    const { items, saved: nowSaved } = toggleProduct(productId);
+    setWl(items);
+    track(nowSaved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "skin_tab" });
+  }
   const recs = saved ? getSkinRecommendations(profile) : [];
 
   function update<K extends keyof SkinProfile>(key: K, value: SkinProfile[K]) { setProfile(p=>({...p,[key]:value})); setSaved(false); }
@@ -50,6 +57,7 @@ export default function SkinProfileClient() {
     <section className="beauty-card">
       <div className="eyebrow">For your preferences</div><h2>Skincare matches</h2>
       {!saved ? <div className="empty compact"><p>Save your profile to see recommendations.</p></div> : <div className="product-stack">{recs.map(p=><article className="mini-product" key={p.id}>
+        <button className={`mini-heart${wl.some(w => w.id === productKey(p.id)) ? " on" : ""}`} aria-label={`Save ${p.name}`} onClick={()=>heart(p.id, p.name)}>{wl.some(w => w.id === productKey(p.id)) ? "♥" : "♡"}</button>
         <div className="product-placeholder">SKIN</div>
         <div><strong>{p.name}</strong><small>{p.subcategory} · {p.match.score}% preference match</small><p>{p.match.reasons.join(" · ") || "General preference match"}</p>
           {p.ingredients?.length ? <div className="ingredient-row">{p.ingredients.slice(0,4).map(i=><span key={i}>{i}</span>)}</div> : null}
