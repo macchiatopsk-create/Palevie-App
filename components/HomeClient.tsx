@@ -11,12 +11,21 @@ import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
 
-const GREETING: Record<TimeOfDay, string> = {
-  morning: "Good morning",
-  day: "Hi there",
-  sunset: "Golden hour",
-  night: "Good evening",
+const SUB: Record<TimeOfDay, string> = {
+  morning: "Good morning — your colors are up early too.",
+  day: "Your beauty, your colors. Palevie is here for you.",
+  sunset: "Golden hour looks good on you.",
+  night: "Winding down, in your colors.",
 };
+
+type Season = "spring" | "summer" | "autumn" | "winter";
+function calendarSeason(d = new Date()): Season {
+  const m = d.getMonth() + 1;
+  if (m >= 3 && m <= 5) return "spring";
+  if (m >= 6 && m <= 8) return "summer";
+  if (m >= 9 && m <= 11) return "autumn";
+  return "winter";
+}
 
 export default function HomeClient() {
   const [ready, setReady] = useState(false);
@@ -56,6 +65,7 @@ export default function HomeClient() {
 
   const profile = ready ? loadProfile() : null;
   const tone = profile ? getToneProfile(profile.primaryType) : null;
+  const heroSeason: Season = (profile?.primaryType?.split("-")[0] as Season) || calendarSeason();
   const makeupPrefs = ready ? loadMakeupPrefs() : null;
 
   const picks = useMemo(() => {
@@ -91,12 +101,12 @@ export default function HomeClient() {
       </div>
 
       {/* hero */}
-      <section className="h2-hero" data-hero-season="summer">
-        <div className="h2-hero-art" aria-hidden />
+      <section className="h2-hero" data-hero-season={heroSeason}>
+        <div className="h2-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${heroSeason}.webp')` }} />
         <div className="h2-hero-veil" aria-hidden />
         <div className="h2-hero-body">
-          <h1>{name ? <>{GREETING[tod]},<br/>{name} <span className="h2-wave">🌸</span></> : <>{GREETING[tod]} <span className="h2-wave">🌸</span></>}</h1>
-          <p>Your beauty, your colors.<br />Palevie is here for you.</p>
+          <h1>Hi{name ? `, ${name}` : " there"} <span className="h2-wave">🌸</span></h1>
+          <p>{SUB[tod]}</p>
           {tone ? (
             <Link className="h2-season" href="/quiz">✿ {tone.name} <b>›</b></Link>
           ) : (
