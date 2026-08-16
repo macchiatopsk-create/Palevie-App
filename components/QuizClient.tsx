@@ -8,7 +8,6 @@ import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 import ShareResult from "@/components/ShareResult";
-import WardrobeGuide from "@/components/WardrobeGuide";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
@@ -104,7 +103,11 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
 
   <ShareResult toneId={result.ranked[0].id} toneName={primary.name}/>
 
-  <WardrobeGuide toneId={result.ranked[0].id}/>
+  <div className="rs-more">
+   <Link href="/quiz?tab=makeup" className="rs-more-chip">💄 Makeup in my shades</Link>
+   <Link href="/quiz?tab=style" className="rs-more-chip">👗 Dress in my colors</Link>
+   <Link href="/quiz?tab=skin" className="rs-more-chip">🧴 Skin profile</Link>
+  </div>
 
   <div className="rs-duo">
    <Link href="/shop" className="rs-mini" style={{background:"var(--grad1)"}}>
