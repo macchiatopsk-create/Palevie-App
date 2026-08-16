@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { STYLES, StyleId, stylePieces, saveStylePrefs, loadStylePrefs, StylePiece } from "@/lib/style";
-import { loadWishlist, toggleSaved, removeSaved, pieceId, SavedPiece } from "@/lib/wishlist";
+import { loadWishlist, toggleSaved, pieceId, SavedPiece } from "@/lib/wishlist";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { track, getVisitorId } from "@/lib/analytics";
@@ -90,38 +90,13 @@ export default function StyleClient() {
         );
       })}
 
-      <div className="beauty-card" id="my-list">
-        <div className="eyebrow">My list · {wishlist.length} saved</div>
-        <h2>Everything you&apos;ve kept.</h2>
-        {wishlist.length === 0 ? (
-          <p className="lede-small" style={{ margin: 0 }}>Heart a piece above and it lands here — shop them all in one place whenever you&apos;re ready. ✦</p>
-        ) : (
-          <>
-            <div className="wl-list">
-              {wishlist.map(item => (
-                <div className="wl-item" key={item.id}>
-                  <span className="sp-swatch wl-swatch" style={{ background: item.hex }}><i>{item.icon}</i></span>
-                  <div className="wl-body">
-                    <b>{item.label}</b>
-                    <small>{STYLES.find(s => s.id === item.style)?.name} · {item.why}</small>
-                  </div>
-                  <div className="wl-actions">
-                    <a
-                      className="wl-shop"
-                      href={shopHref(item)}
-                      target="_blank"
-                      rel="nofollow sponsored noopener noreferrer"
-                      onClick={() => track("affiliate_outbound_click", { tone: profile!.primaryType, surface: "wishlist", label: item.label })}
-                    >Shop →</a>
-                    <button className="wl-remove" aria-label={`Remove ${item.label}`} onClick={() => { setWishlist(removeSaved(item.id)); track("wishlist_removed", { label: item.label, style: item.style }); }}>×</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="wg-disc">Shop opens a live retailer search in that exact shade. As an Amazon Associate we earn from qualifying purchases.</p>
-          </>
-        )}
-      </div>
+      <Link href="/wishlist" className="beauty-card wl-linkcard">
+        <div>
+          <div className="eyebrow">My list · {wishlist.length} saved</div>
+          <h2 style={{margin:0}}>See everything you&apos;ve kept →</h2>
+        </div>
+        <span className="wl-count">{wishlist.length}</span>
+      </Link>
 
       <WardrobeGuide toneId={profile!.primaryType} />
     </div>

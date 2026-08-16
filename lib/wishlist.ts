@@ -28,8 +28,11 @@ export function loadWishlist(): SavedPiece[] {
   } catch { return []; }
 }
 
+export const WISHLIST_EVENT = "palevie-wishlist-changed";
+
 function persist(items: SavedPiece[]) {
   localStorage.setItem(KEY, JSON.stringify(items.slice(0, MAX)));
+  window.dispatchEvent(new Event(WISHLIST_EVENT));
 }
 
 export function isSaved(id: string, items?: SavedPiece[]) {

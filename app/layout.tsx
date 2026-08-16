@@ -43,7 +43,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
     <AttributionCapture/>
     <header className="site-header">
       <Link className="brand" href="/"><span className="brand-word">palévie</span><small>personal beauty</small></Link>
-      <nav className="desktop-nav"><Link href="/quiz">Color</Link><Link href="/diagnose">AI scan</Link><Link href="/analyze">Check</Link><Link href="/skin">Skin</Link><Link href="/shop">Shop</Link></nav>
+      <nav className="desktop-nav"><Link href="/quiz">Color</Link><Link href="/diagnose">AI scan</Link><Link href="/analyze">Check</Link><Link href="/skin">Skin</Link><Link href="/shop">Shop</Link><Link href="/wishlist">My list</Link></nav>
       <Link className="header-account" href="/account">My account</Link>
     </header>
     <main>{children}</main>
