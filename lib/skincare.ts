@@ -7,13 +7,26 @@ export type SkinProfile = {
   goal: "hydration" | "barrier-support" | "smoother-looking" | "brighter-looking";
   /** Main visible concern, in shopping-preference terms (optional for older saved profiles). */
   concern?: "dryness" | "shine" | "redness" | "dullness" | "none";
+  /** How skin reacts to new products (optional for older saved profiles). */
+  reactivity?: "easily" | "sometimes" | "rarely";
+  /** Whether SPF should be built into daily picks. */
+  spf?: "daily" | "sometimes" | "skip";
+  /** Routine length preference. */
+  routine?: "minimal" | "standard" | "full";
   budget: "value" | "mid" | "flexible";
   createdAt: string;
 };
 
 const KEY = "palevie-skin-profile-v1";
 export function saveSkinProfile(profile: SkinProfile) { if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(profile)); }
-export function loadSkinProfile(): SkinProfile | null { if (typeof window === "undefined") return null; try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; } }
+export function loadSkinProfile(): SkinProfile | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const p = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (!p) return null;
+    return { concern: "none", reactivity: "sometimes", spf: "sometimes", routine: "standard", ...p } as SkinProfile;
+  } catch { return null; }
+}
 
 function budgetFits(profile: SkinProfile, prices: number[]) {
   if (!prices.length || profile.budget === "flexible") return true;
@@ -44,6 +57,12 @@ export function scoreSkinProduct(profile: SkinProfile, tags: string[], priceCent
     const hits = c.tags.filter(t => tags.includes(t)).length;
     if (hits > 0) { score += 10 + hits * 6; reasons.unshift(c.reason); }
   }
+  if (profile.reactivity === "easily") {
+    const hits = ["gentle","fragrance-free","calming"].filter(t => tags.includes(t)).length;
+    if (hits > 0) { score += 6 + hits * 4; reasons.push("gentle pick for reactive skin"); }
+  }
+  if (profile.spf === "daily" && tags.includes("spf")) { score += 10; reasons.push("daily SPF built in"); }
+  if (profile.routine === "minimal" && tags.includes("lightweight")) { score += 4; reasons.push("fits a minimal routine"); }
   if (budgetFits(profile, priceCents)) { score += 6; reasons.push("fits your budget preference"); }
   return { score: Math.max(20, Math.min(96, score)), reasons: reasons.slice(0, 3) };
 }
