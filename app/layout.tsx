@@ -8,6 +8,27 @@ export const metadata: Metadata = {
   title: "Palevie — Personal Color, Beauty & Shopping",
   description: "Korean-inspired personal color, skincare preference matching and multi-retailer shopping guidance.",
   manifest: "/manifest.webmanifest",
+  applicationName: "Palevie",
+  appleWebApp: {
+    capable: true,
+    title: "Palevie",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-16.png", type: "image/png", sizes: "16x16" },
+      { url: "/icons/icon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/icons/icon-120.png", sizes: "120x120" },
+      { url: "/icons/icon-152.png", sizes: "152x152" },
+      { url: "/icons/icon-167.png", sizes: "167x167" },
+      { url: "/icons/icon-180.png", sizes: "180x180" },
+    ],
+  },
 };
 export const viewport: Viewport = { themeColor: "#FBF7F2", width: "device-width", initialScale: 1 };
 
