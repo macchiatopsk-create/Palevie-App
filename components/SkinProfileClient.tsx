@@ -6,7 +6,7 @@ import { getVisitorId, track } from "@/lib/analytics";
 import { trackedOfferHref } from "@/lib/attribution";
 import { syncSkinProfileToCloud } from "@/lib/cloudProfile";
 
-const initial: SkinProfile = { afterCleansing:"comfortable", texture:"any", fragrance:"avoid", goal:"hydration", budget:"mid", createdAt:"" };
+const initial: SkinProfile = { afterCleansing:"comfortable", texture:"any", fragrance:"avoid", goal:"hydration", concern:"none", budget:"mid", createdAt:"" };
 
 export default function SkinProfileClient() {
   const [profile, setProfile] = useState<SkinProfile>(initial);
@@ -18,7 +18,7 @@ export default function SkinProfileClient() {
   function save() {
     const p = { ...profile, createdAt: new Date().toISOString() };
     setProfile(p); saveSkinProfile(p); void syncSkinProfileToCloud(p); setSaved(true);
-    track("skincare_profile_completed", { goal:p.goal, texture:p.texture, fragrance:p.fragrance, budget:p.budget });
+    track("skincare_profile_completed", { goal:p.goal, texture:p.texture, fragrance:p.fragrance, budget:p.budget, concern:p.concern ?? "none" });
   }
 
   return <div className="skin-grid">
@@ -30,6 +30,7 @@ export default function SkinProfileClient() {
         <Field label="After cleansing, my skin usually feels"><Select value={profile.afterCleansing} onChange={v=>update("afterCleansing",v as SkinProfile["afterCleansing"])} options={["tight","comfortable","oily"]}/></Field>
         <Field label="Texture I enjoy"><Select value={profile.texture} onChange={v=>update("texture",v as SkinProfile["texture"])} options={["gel","lotion","cream","any"]}/></Field>
         <Field label="Fragrance"><Select value={profile.fragrance} onChange={v=>update("fragrance",v as SkinProfile["fragrance"])} options={["avoid","okay"]}/></Field>
+        <Field label="My main skin concern right now"><Select value={profile.concern ?? "none"} onChange={v=>update("concern",v as SkinProfile["concern"])} options={["none","dryness","shine","redness","dullness"]}/></Field>
         <Field label="What I am shopping for"><Select value={profile.goal} onChange={v=>update("goal",v as SkinProfile["goal"])} options={["hydration","barrier-support","smoother-looking","brighter-looking"]}/></Field>
         <Field label="Budget"><Select value={profile.budget} onChange={v=>update("budget",v as SkinProfile["budget"])} options={["value","mid","flexible"]}/></Field>
       </div>
