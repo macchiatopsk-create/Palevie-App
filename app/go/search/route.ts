@@ -18,10 +18,17 @@ const MAX_QUERY = 120;
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const raw = (url.searchParams.get("q") || "").slice(0, MAX_QUERY).trim();
-
-  // Only plain search phrases — no URLs, no injected parameters.
-  if (!raw || !/^[\p{L}\p{N}\s'&+-]+$/u.test(raw)) {
+  // Sanitize to a plain search phrase: keep letters, numbers and common
+  // product-name punctuation; strip separators like the catalog's "·",
+  // URLs, and anything that could smuggle parameters. Reject only if
+  // nothing usable remains.
+  const raw = (url.searchParams.get("q") || "")
+    .slice(0, MAX_QUERY)
+    .replace(/[·|]/g, " ")
+    .replace(/[^\p{L}\p{N}\s'&+\-.,#()!]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!raw) {
     return NextResponse.redirect(new URL("/shop", request.url));
   }
 
