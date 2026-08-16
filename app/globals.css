@@ -850,3 +850,6 @@ body:has(.sh-top) .app-title{display:none}
 .wl-compare a:active{transform:scale(.96)}
 .sh-plus{border:0;cursor:pointer}
 .sh-plus.on{background:#3FB27F;box-shadow:0 6px 14px rgba(63,178,127,.35)}
+
+/* wizard multi-select check */
+.qz-check{flex:none;width:24px;height:24px;border-radius:50%;background:var(--grad-cta);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}

@@ -1,46 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import PrefsWizard, { WizardValues } from "@/components/PrefsWizard";
 import { STYLES, StyleId, saveStylePrefs, loadStylePrefs, FitPref, saveFitPref, loadFitPref, GARMENT_CATS, GarmentCat, saveGarmentCats, loadGarmentCats, StyleDetail, saveStyleDetail, loadStyleDetail } from "@/lib/style";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
-
-const FITS: { id: FitPref; name: string; blurb: string }[] = [
-  { id: "fitted", name: "Fitted", blurb: "Tailored close to the body." },
-  { id: "balanced", name: "Balanced", blurb: "Relaxed but shaped." },
-  { id: "oversized", name: "Oversized", blurb: "Roomy, drapey, easy." },
-];
+import { track } from "@/lib/analytics";
 
 export default function StyleClient() {
   const [ready, setReady] = useState(false);
-  const [picked, setPicked] = useState<StyleId[]>([]);
-  const [fit, setFit] = useState<FitPref | null>(null);
-  const [cats, setCats] = useState<GarmentCat[]>([]);
-  const [detail, setDetail] = useState<StyleDetail>({ energy: "pop", pattern: "subtle", budget: "flexible" });
-  useEffect(() => { setPicked(loadStylePrefs()); setFit(loadFitPref()); setCats(loadGarmentCats()); setDetail(loadStyleDetail()); setReady(true); }, []);
-  function setD<K extends keyof StyleDetail>(k: K, v: StyleDetail[K]) {
-    setDetail(prev => { const next = { ...prev, [k]: v }; saveStyleDetail(next); return next; });
-  }
-  function toggleCat(c: GarmentCat) {
-    setCats(prev => {
-      const next = prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c];
-      saveGarmentCats(next);
-      return next;
-    });
-  }
-
-  const profile = ready ? loadProfile() : null;
-  const tone = profile ? getToneProfile(profile.primaryType) : null;
-
-  function toggleStyle(id: StyleId) {
-    setPicked(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id].slice(-2);
-      saveStylePrefs(next);
-      return next;
-    });
-  }
-
+  const [done, setDone] = useState(false);
+  const [editing, setEditing] = useState(false);
+  useEffect(() => { setDone(loadStylePrefs().length > 0); setReady(true); }, []);
   if (!ready) return null;
+
+  const profile = loadProfile();
+  const tone = profile ? getToneProfile(profile.primaryType) : null;
 
   if (!tone) {
     return (
@@ -53,82 +28,64 @@ export default function StyleClient() {
     );
   }
 
-  return (
-    <div className="style-tab">
-      <div className="beauty-card">
-        <div className="eyebrow">Step 1 · Your aesthetic</div>
-        <h2>Which styles do you love?</h2>
-        <p className="lede-small">Pick up to two — the Shop uses this to build your clothing picks.</p>
-        <div className="st-grid">
-          {STYLES.map(s => (
-            <button key={s.id} className={`st-card${picked.includes(s.id) ? " on" : ""}`} onClick={() => toggleStyle(s.id)}>
-              <span className="st-emoji">{s.emoji}</span>
-              <b>{s.name}</b>
-              <p>{s.blurb}</p>
-            </button>
-          ))}
+  if (done && !editing) {
+    const picked = loadStylePrefs();
+    const cats = loadGarmentCats();
+    const fit = loadFitPref();
+    const d = loadStyleDetail();
+    return (
+      <div className="style-tab">
+        <div className="beauty-card" style={{ textAlign: "center" }}>
+          <div className="eyebrow">Your style profile · {tone.name}</div>
+          <h2>{picked.map(id => STYLES.find(s => s.id === id)?.name).join(" + ")}</h2>
+          <p className="lede-small">
+            {cats.length ? `Hunting ${cats.map(c => GARMENT_CATS.find(g => g.id === c)?.name?.toLowerCase()).join(", ")}. ` : ""}
+            {fit ?? "balanced"} fit · {d.energy === "neutrals" ? "mostly neutrals" : d.energy === "colorful" ? "full color" : "neutrals + a pop"} · {d.pattern === "solids" ? "solids only" : d.pattern === "prints" ? "loves prints" : "subtle patterns"}{d.budget !== "flexible" ? ` · ${d.budget === "under30" ? "under $30" : "under $60"}` : ""}.
+          </p>
+          <button className="button secondary" onClick={() => setEditing(true)}>Edit my answers</button>
         </div>
+        <Link href="/shop?tab=clothes" className="beauty-card wl-linkcard">
+          <div>
+            <div className="eyebrow">In your {tone.name} colors</div>
+            <h2 style={{ margin: 0 }}>See my clothing picks in the Shop →</h2>
+          </div>
+          <span className="wl-count">✦</span>
+        </Link>
       </div>
+    );
+  }
 
-      <div className="beauty-card">
-        <div className="eyebrow">Step 2 · What you&apos;re shopping for</div>
-        <h2>Which pieces are you after?</h2>
-        <p className="lede-small">Hoodies? Dresses? Pick everything you&apos;re hunting — the Shop only shows those.</p>
-        <div className="chip-row">
-          {GARMENT_CATS.map(c => (
-            <button key={c.id} type="button" className={`chip${cats.includes(c.id) ? " on" : ""}`} onClick={() => toggleCat(c.id)}>{c.emoji} {c.name}</button>
-          ))}
-        </div>
-      </div>
+  const steps = [
+    { id: "styles", title: "Which styles do you love?", help: "Pick up to two.", kind: "multi" as const, min: 1, max: 2,
+      options: STYLES.map(s => ({ id: s.id, label: `${s.emoji} ${s.name} — ${s.blurb}` })) },
+    { id: "cats", title: "Which pieces are you after?", help: "Hoodies? Dresses? Pick everything you're hunting — the Shop shows only those.", kind: "multi" as const,
+      options: GARMENT_CATS.map(c => ({ id: c.id, label: `${c.emoji} ${c.name}` })) },
+    { id: "fit", title: "How do you like clothes to sit?", kind: "single" as const,
+      options: [["fitted","Fitted — tailored close"],["balanced","Balanced — relaxed but shaped"],["oversized","Oversized — roomy and drapey"]].map(([id,label]) => ({ id, label })) },
+    { id: "energy", title: "How colorful do you dress?", kind: "single" as const,
+      options: [["neutrals","🤍 Mostly neutrals"],["pop","🎯 Neutrals + a color pop"],["colorful","🌈 Full color"]].map(([id,label]) => ({ id, label })) },
+    { id: "pattern", title: "Solids or prints?", kind: "single" as const,
+      options: [["solids","⬜ Solids only"],["subtle","〰️ Subtle patterns ok"],["prints","🌺 Love prints"]].map(([id,label]) => ({ id, label })) },
+    { id: "budget", title: "What feels right to spend?", help: "Per piece.", kind: "single" as const,
+      options: [["under30","Under $30"],["under60","Under $60"],["flexible","Flexible"]].map(([id,label]) => ({ id, label })) },
+  ];
 
-      <div className="beauty-card">
-        <div className="eyebrow">Step 3 · Your fit</div>
-        <h2>How do you like clothes to sit?</h2>
-        <div className="chip-row">
-          {FITS.map(f => (
-            <button key={f.id} type="button" className={`chip${fit === f.id ? " on" : ""}`} onClick={() => { setFit(f.id); saveFitPref(f.id); }}>{f.name}</button>
-          ))}
-        </div>
-        {fit && <p className="lede-small" style={{ marginTop: 10, marginBottom: 0 }}>{FITS.find(f => f.id === fit)?.blurb}</p>}
-      </div>
+  const d0 = loadStyleDetail();
+  const initial: WizardValues = {
+    styles: loadStylePrefs(), cats: loadGarmentCats(),
+    fit: loadFitPref() ?? "", energy: d0.energy, pattern: d0.pattern, budget: d0.budget,
+  };
+  if (!initial.fit) delete (initial as Record<string, unknown>).fit;
 
-      <div className="beauty-card">
-        <div className="eyebrow">Step 4 · Color energy</div>
-        <h2>How colorful do you dress?</h2>
-        <div className="chip-row">
-          {([["neutrals","🤍 Mostly neutrals"],["pop","🎯 Neutrals + a color pop"],["colorful","🌈 Full color"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${detail.energy === id ? " on" : ""}`} onClick={() => setD("energy", id)}>{label}</button>
-          ))}
-        </div>
-      </div>
+  function finish(v: WizardValues) {
+    saveStylePrefs((v.styles as StyleId[]) ?? []);
+    saveGarmentCats((v.cats as GarmentCat[]) ?? []);
+    saveFitPref(v.fit as FitPref);
+    saveStyleDetail({ energy: v.energy as StyleDetail["energy"], pattern: v.pattern as StyleDetail["pattern"], budget: v.budget as StyleDetail["budget"] });
+    setDone(true);
+    setEditing(false);
+    track("skincare_profile_completed", { surface: "style_prefs", styles: (v.styles as string[]).join(","), cats: ((v.cats as string[]) ?? []).join(","), fit: v.fit, energy: v.energy, pattern: v.pattern, budget: v.budget });
+  }
 
-      <div className="beauty-card">
-        <div className="eyebrow">Step 5 · Patterns</div>
-        <h2>Solids or prints?</h2>
-        <div className="chip-row">
-          {([["solids","⬜ Solids only"],["subtle","〰️ Subtle patterns ok"],["prints","🌺 Love prints"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${detail.pattern === id ? " on" : ""}`} onClick={() => setD("pattern", id)}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 6 · Budget per piece</div>
-        <h2>What feels right to spend?</h2>
-        <div className="chip-row">
-          {([["under30","Under $30"],["under60","Under $60"],["flexible","Flexible"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${detail.budget === id ? " on" : ""}`} onClick={() => setD("budget", id)}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <Link href="/shop?tab=clothes" className="beauty-card wl-linkcard">
-        <div>
-          <div className="eyebrow">{picked.length > 0 ? `${picked.map(id => STYLES.find(s => s.id === id)?.name).join(" + ")} · ${tone.name}` : "Pick a style first"}</div>
-          <h2 style={{ margin: 0 }}>See my clothing picks in the Shop →</h2>
-        </div>
-        <span className="wl-count">✦</span>
-      </Link>
-    </div>
-  );
+  return <PrefsWizard steps={steps} initial={initial} finishLabel="Save my style ✦" onFinish={finish} />;
 }

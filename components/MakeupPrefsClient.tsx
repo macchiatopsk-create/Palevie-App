@@ -1,124 +1,79 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MAKEUP_STYLES, MAKEUP_CATS, MakeupStyle, MakeupCat, MakeupBudget, LipFinish, EyeTexture, BaseFinish, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
+import PrefsWizard, { WizardValues } from "@/components/PrefsWizard";
+import { MAKEUP_STYLES, MAKEUP_CATS, MakeupPrefs, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
 import { track } from "@/lib/analytics";
 
 export default function MakeupPrefsClient() {
-  const [style, setStyle] = useState<MakeupStyle>("natural");
-  const [brands, setBrands] = useState<string[]>([]);
-  const [cats, setCats] = useState<MakeupCat[]>([]);
-  const [budget, setBudget] = useState<MakeupBudget>("flexible");
-  const [lipFinish, setLipFinish] = useState<LipFinish>("glossy");
-  const [eyeTexture, setEyeTexture] = useState<EyeTexture>("mix");
-  const [baseFinish, setBaseFinish] = useState<BaseFinish>("natural");
-  const [saved, setSaved] = useState(false);
-  const allBrands = availableBrands();
+  const [ready, setReady] = useState(false);
+  const [prefs, setPrefs] = useState<MakeupPrefs | null>(null);
+  const [editing, setEditing] = useState(false);
+  useEffect(() => { setPrefs(loadMakeupPrefs()); setReady(true); }, []);
+  if (!ready) return null;
 
-  useEffect(() => {
-    const p = loadMakeupPrefs();
-    if (p) { setStyle(p.style); setBrands(p.brands); setCats(p.categories); setBudget(p.budget); setLipFinish(p.lipFinish); setEyeTexture(p.eyeTexture); setBaseFinish(p.baseFinish); setSaved(true); }
-  }, []);
-
-  function toggleBrand(b: string) {
-    setSaved(false);
-    setBrands(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b].slice(-5));
+  if (prefs && !editing) {
+    return (
+      <div className="style-tab">
+        <div className="beauty-card" style={{ textAlign: "center" }}>
+          <div className="eyebrow">Your makeup profile</div>
+          <h2>{MAKEUP_STYLES.find(s => s.id === prefs.style)?.emoji} {MAKEUP_STYLES.find(s => s.id === prefs.style)?.name}</h2>
+          <p className="lede-small">
+            {prefs.categories.length ? `Shopping for ${prefs.categories.join(", ")}. ` : ""}
+            {prefs.lipFinish} lips · {prefs.eyeTexture} eyes · {prefs.baseFinish} base
+            {prefs.brands.length ? ` · loves ${prefs.brands.join(", ")}` : ""}.
+          </p>
+          <button className="button secondary" onClick={() => setEditing(true)}>Edit my answers</button>
+        </div>
+        <Link href="/shop" className="beauty-card wl-linkcard">
+          <div>
+            <div className="eyebrow">Ranked by your answers</div>
+            <h2 style={{ margin: 0 }}>See my picks in the Shop →</h2>
+          </div>
+          <span className="wl-count">✦</span>
+        </Link>
+      </div>
+    );
   }
-  function toggleCat(c: MakeupCat) {
-    setSaved(false);
-    setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+
+  const steps = [
+    { id: "style", title: "How do you like to wear makeup?", kind: "single" as const,
+      options: MAKEUP_STYLES.map(s => ({ id: s.id, label: `${s.emoji} ${s.name} — ${s.blurb}` })) },
+    { id: "categories", title: "What are you shopping for?", help: "Pick everything that applies — the Shop ranks these first.", kind: "multi" as const,
+      options: MAKEUP_CATS.map(c => ({ id: c.id, label: `${c.emoji} ${c.name}` })) },
+    { id: "lipFinish", title: "How do you like your lips?", kind: "single" as const,
+      options: [["glossy","💦 Glossy & juicy"],["matte","🌫 Matte & velvety"],["satin","🎀 Satin"],["balm","🪞 Tinted balm"]].map(([id,label]) => ({ id, label })) },
+    { id: "eyeTexture", title: "Shimmer or matte on your eyes?", kind: "single" as const,
+      options: [["shimmer","✨ Shimmer & glitter"],["matte","🤎 Soft matte"],["mix","🎨 Mix of both"]].map(([id,label]) => ({ id, label })) },
+    { id: "baseFinish", title: "How should your skin look?", kind: "single" as const,
+      options: [["dewy","💧 Dewy glass skin"],["natural","🌤 Natural, skin-like"],["soft-matte","🧸 Soft matte"]].map(([id,label]) => ({ id, label })) },
+    { id: "budget", title: "What feels right to spend?", help: "Per item.", kind: "single" as const,
+      options: [["value","Under $15"],["mid","Under $30"],["flexible","Flexible"]].map(([id,label]) => ({ id, label })) },
+    { id: "brands", title: "Any brands you already love?", help: "Up to five — totally optional.", kind: "multi" as const, max: 5,
+      options: availableBrands().map(b => ({ id: b, label: b })) },
+  ];
+
+  const initial: WizardValues = prefs ? {
+    style: prefs.style, categories: prefs.categories, lipFinish: prefs.lipFinish,
+    eyeTexture: prefs.eyeTexture, baseFinish: prefs.baseFinish, budget: prefs.budget, brands: prefs.brands,
+  } : { categories: [], brands: [] };
+
+  function finish(v: WizardValues) {
+    const next: MakeupPrefs = {
+      style: v.style as MakeupPrefs["style"],
+      categories: (v.categories as MakeupPrefs["categories"]) ?? [],
+      lipFinish: v.lipFinish as MakeupPrefs["lipFinish"],
+      eyeTexture: v.eyeTexture as MakeupPrefs["eyeTexture"],
+      baseFinish: v.baseFinish as MakeupPrefs["baseFinish"],
+      budget: v.budget as MakeupPrefs["budget"],
+      brands: (v.brands as string[]) ?? [],
+      createdAt: new Date().toISOString(),
+    };
+    saveMakeupPrefs(next);
+    setPrefs(next);
+    setEditing(false);
+    track("skincare_profile_completed", { surface: "makeup_prefs", style: next.style, brands: next.brands.length, cats: next.categories.join(","), budget: next.budget, lipFinish: next.lipFinish, eyeTexture: next.eyeTexture, baseFinish: next.baseFinish });
   }
-  function save() {
-    saveMakeupPrefs({ style, brands, categories: cats, budget, lipFinish, eyeTexture, baseFinish, createdAt: new Date().toISOString() });
-    setSaved(true);
-    track("skincare_profile_completed", { surface: "makeup_prefs", style, brands: brands.length, cats: cats.join(","), budget, lipFinish, eyeTexture, baseFinish });
-  }
 
-  return (
-    <div className="style-tab">
-      <div className="beauty-card">
-        <div className="eyebrow">Step 1 · Your makeup mood</div>
-        <h2>How do you like to wear makeup?</h2>
-        <div className="st-grid">
-          {MAKEUP_STYLES.map(s => (
-            <button key={s.id} className={`st-card${style === s.id ? " on" : ""}`} onClick={() => { setStyle(s.id); setSaved(false); }}>
-              <span className="st-emoji">{s.emoji}</span>
-              <b>{s.name}</b>
-              <p>{s.blurb}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 2 · What you&apos;re shopping for</div>
-        <h2>Which products are you after?</h2>
-        <p className="lede-small">Pick everything that applies — the Shop ranks these first.</p>
-        <div className="chip-row">
-          {MAKEUP_CATS.map(c => (
-            <button key={c.id} type="button" className={`chip${cats.includes(c.id) ? " on" : ""}`} onClick={() => toggleCat(c.id)}>{c.emoji} {c.name}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 3 · Lip finish</div>
-        <h2>How do you like your lips?</h2>
-        <div className="chip-row">
-          {([["glossy","💦 Glossy & juicy"],["matte","🌫 Matte & velvety"],["satin","🎀 Satin"],["balm","🪞 Tinted balm"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${lipFinish === id ? " on" : ""}`} onClick={() => { setLipFinish(id); setSaved(false); }}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 4 · Eye texture</div>
-        <h2>Shimmer or matte on your eyes?</h2>
-        <div className="chip-row">
-          {([["shimmer","✨ Shimmer & glitter"],["matte","🤎 Soft matte"],["mix","🎨 Mix of both"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${eyeTexture === id ? " on" : ""}`} onClick={() => { setEyeTexture(id); setSaved(false); }}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 5 · Base finish</div>
-        <h2>How should your skin look?</h2>
-        <div className="chip-row">
-          {([["dewy","💧 Dewy glass"],["natural","🌤 Natural skin"],["soft-matte","🧸 Soft matte"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${baseFinish === id ? " on" : ""}`} onClick={() => { setBaseFinish(id); setSaved(false); }}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 6 · Budget per item</div>
-        <h2>What feels right to spend?</h2>
-        <div className="chip-row">
-          {([["value","Under $15"],["mid","Under $30"],["flexible","Flexible"]] as const).map(([id,label]) => (
-            <button key={id} type="button" className={`chip${budget === id ? " on" : ""}`} onClick={() => { setBudget(id); setSaved(false); }}>{label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="beauty-card">
-        <div className="eyebrow">Step 7 · Brands you love</div>
-        <h2>Any favorite brands? <span className="opt-tag">optional · up to 5</span></h2>
-        <div className="chip-row">
-          {allBrands.map(b => (
-            <button key={b} type="button" className={`chip${brands.includes(b) ? " on" : ""}`} onClick={() => toggleBrand(b)}>{b}</button>
-          ))}
-        </div>
-        <button className="button rose" style={{ marginTop: 16 }} onClick={save}>{saved ? "Saved ✓" : "Save my makeup profile"}</button>
-      </div>
-
-      <Link href="/shop" className="beauty-card wl-linkcard">
-        <div>
-          <div className="eyebrow">Ready when you are</div>
-          <h2 style={{ margin: 0 }}>See my picks in the Shop →</h2>
-        </div>
-        <span className="wl-count">✦</span>
-      </Link>
-    </div>
-  );
+  return <PrefsWizard steps={steps} initial={initial} finishLabel="Save my profile ✦" onFinish={finish} />;
 }
