@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MAKEUP_STYLES, MAKEUP_CATS, MakeupStyle, MakeupCat, MakeupBudget, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
+import { MAKEUP_STYLES, MAKEUP_CATS, MakeupStyle, MakeupCat, MakeupBudget, LipFinish, EyeTexture, BaseFinish, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
 import { track } from "@/lib/analytics";
 
 export default function MakeupPrefsClient() {
@@ -9,12 +9,15 @@ export default function MakeupPrefsClient() {
   const [brands, setBrands] = useState<string[]>([]);
   const [cats, setCats] = useState<MakeupCat[]>([]);
   const [budget, setBudget] = useState<MakeupBudget>("flexible");
+  const [lipFinish, setLipFinish] = useState<LipFinish>("glossy");
+  const [eyeTexture, setEyeTexture] = useState<EyeTexture>("mix");
+  const [baseFinish, setBaseFinish] = useState<BaseFinish>("natural");
   const [saved, setSaved] = useState(false);
   const allBrands = availableBrands();
 
   useEffect(() => {
     const p = loadMakeupPrefs();
-    if (p) { setStyle(p.style); setBrands(p.brands); setCats(p.categories); setBudget(p.budget); setSaved(true); }
+    if (p) { setStyle(p.style); setBrands(p.brands); setCats(p.categories); setBudget(p.budget); setLipFinish(p.lipFinish); setEyeTexture(p.eyeTexture); setBaseFinish(p.baseFinish); setSaved(true); }
   }, []);
 
   function toggleBrand(b: string) {
@@ -26,9 +29,9 @@ export default function MakeupPrefsClient() {
     setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   }
   function save() {
-    saveMakeupPrefs({ style, brands, categories: cats, budget, createdAt: new Date().toISOString() });
+    saveMakeupPrefs({ style, brands, categories: cats, budget, lipFinish, eyeTexture, baseFinish, createdAt: new Date().toISOString() });
     setSaved(true);
-    track("skincare_profile_completed", { surface: "makeup_prefs", style, brands: brands.length, cats: cats.join(","), budget });
+    track("skincare_profile_completed", { surface: "makeup_prefs", style, brands: brands.length, cats: cats.join(","), budget, lipFinish, eyeTexture, baseFinish });
   }
 
   return (
@@ -59,7 +62,37 @@ export default function MakeupPrefsClient() {
       </div>
 
       <div className="beauty-card">
-        <div className="eyebrow">Step 3 · Budget per item</div>
+        <div className="eyebrow">Step 3 · Lip finish</div>
+        <h2>How do you like your lips?</h2>
+        <div className="chip-row">
+          {([["glossy","💦 Glossy & juicy"],["matte","🌫 Matte & velvety"],["satin","🎀 Satin"],["balm","🪞 Tinted balm"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${lipFinish === id ? " on" : ""}`} onClick={() => { setLipFinish(id); setSaved(false); }}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 4 · Eye texture</div>
+        <h2>Shimmer or matte on your eyes?</h2>
+        <div className="chip-row">
+          {([["shimmer","✨ Shimmer & glitter"],["matte","🤎 Soft matte"],["mix","🎨 Mix of both"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${eyeTexture === id ? " on" : ""}`} onClick={() => { setEyeTexture(id); setSaved(false); }}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 5 · Base finish</div>
+        <h2>How should your skin look?</h2>
+        <div className="chip-row">
+          {([["dewy","💧 Dewy glass"],["natural","🌤 Natural skin"],["soft-matte","🧸 Soft matte"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${baseFinish === id ? " on" : ""}`} onClick={() => { setBaseFinish(id); setSaved(false); }}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 6 · Budget per item</div>
         <h2>What feels right to spend?</h2>
         <div className="chip-row">
           {([["value","Under $15"],["mid","Under $30"],["flexible","Flexible"]] as const).map(([id,label]) => (
@@ -69,7 +102,7 @@ export default function MakeupPrefsClient() {
       </div>
 
       <div className="beauty-card">
-        <div className="eyebrow">Step 4 · Brands you love</div>
+        <div className="eyebrow">Step 7 · Brands you love</div>
         <h2>Any favorite brands? <span className="opt-tag">optional · up to 5</span></h2>
         <div className="chip-row">
           {allBrands.map(b => (

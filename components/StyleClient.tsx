@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { STYLES, StyleId, saveStylePrefs, loadStylePrefs, FitPref, saveFitPref, loadFitPref, GARMENT_CATS, GarmentCat, saveGarmentCats, loadGarmentCats } from "@/lib/style";
+import { STYLES, StyleId, saveStylePrefs, loadStylePrefs, FitPref, saveFitPref, loadFitPref, GARMENT_CATS, GarmentCat, saveGarmentCats, loadGarmentCats, StyleDetail, saveStyleDetail, loadStyleDetail } from "@/lib/style";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 
@@ -16,7 +16,11 @@ export default function StyleClient() {
   const [picked, setPicked] = useState<StyleId[]>([]);
   const [fit, setFit] = useState<FitPref | null>(null);
   const [cats, setCats] = useState<GarmentCat[]>([]);
-  useEffect(() => { setPicked(loadStylePrefs()); setFit(loadFitPref()); setCats(loadGarmentCats()); setReady(true); }, []);
+  const [detail, setDetail] = useState<StyleDetail>({ energy: "pop", pattern: "subtle", budget: "flexible" });
+  useEffect(() => { setPicked(loadStylePrefs()); setFit(loadFitPref()); setCats(loadGarmentCats()); setDetail(loadStyleDetail()); setReady(true); }, []);
+  function setD<K extends keyof StyleDetail>(k: K, v: StyleDetail[K]) {
+    setDetail(prev => { const next = { ...prev, [k]: v }; saveStyleDetail(next); return next; });
+  }
   function toggleCat(c: GarmentCat) {
     setCats(prev => {
       const next = prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c];
@@ -86,6 +90,36 @@ export default function StyleClient() {
           ))}
         </div>
         {fit && <p className="lede-small" style={{ marginTop: 10, marginBottom: 0 }}>{FITS.find(f => f.id === fit)?.blurb}</p>}
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 4 · Color energy</div>
+        <h2>How colorful do you dress?</h2>
+        <div className="chip-row">
+          {([["neutrals","🤍 Mostly neutrals"],["pop","🎯 Neutrals + a color pop"],["colorful","🌈 Full color"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${detail.energy === id ? " on" : ""}`} onClick={() => setD("energy", id)}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 5 · Patterns</div>
+        <h2>Solids or prints?</h2>
+        <div className="chip-row">
+          {([["solids","⬜ Solids only"],["subtle","〰️ Subtle patterns ok"],["prints","🌺 Love prints"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${detail.pattern === id ? " on" : ""}`} onClick={() => setD("pattern", id)}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 6 · Budget per piece</div>
+        <h2>What feels right to spend?</h2>
+        <div className="chip-row">
+          {([["under30","Under $30"],["under60","Under $60"],["flexible","Flexible"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${detail.budget === id ? " on" : ""}`} onClick={() => setD("budget", id)}>{label}</button>
+          ))}
+        </div>
       </div>
 
       <Link href="/shop?tab=clothes" className="beauty-card wl-linkcard">

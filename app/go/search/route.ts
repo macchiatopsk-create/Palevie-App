@@ -48,7 +48,11 @@ export async function GET(request: Request) {
   }
 
   const target = new URL(retailerSearchUrl(retailer, raw));
-  if (retailer === "amazon") target.searchParams.set("tag", process.env.AMAZON_ASSOCIATE_TAG || "palevie-20");
+  if (retailer === "amazon") {
+    target.searchParams.set("tag", process.env.AMAZON_ASSOCIATE_TAG || "palevie-20");
+    const hp = parseInt(url.searchParams.get("hp") || "", 10);
+    if (Number.isFinite(hp) && hp > 0 && hp <= 500) target.searchParams.set("high-price", String(hp));
+  }
 
   return NextResponse.redirect(target.toString(), 302);
 }

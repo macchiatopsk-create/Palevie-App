@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadWishlist, removeSaved, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
-import { STYLES } from "@/lib/style";
+import { STYLES, loadStyleDetail } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
 import { retailers, compareRetailersFor, CLOTHING_RETAILERS } from "@/lib/retailers";
 import { track, getVisitorId } from "@/lib/analytics";
@@ -54,7 +54,9 @@ export default function WishlistClient() {
                 </div>
                 <div className="wl-compare">
                   {CLOTHING_RETAILERS.map(r => {
+                    const budget = loadStyleDetail().budget;
                     const rq = new URLSearchParams({ q: item.query, tone: item.toneId, label: item.label, r, surface: "wishlist_page", v: getVisitorId() });
+                    if (budget !== "flexible") rq.set("hp", budget === "under30" ? "30" : "60");
                     return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
                       onClick={() => track("affiliate_outbound_click", { retailer: r, surface: "wishlist_page", label: item.label })}>{retailers[r].name}</a>;
                   })}

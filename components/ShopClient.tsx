@@ -7,7 +7,7 @@ import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
-import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats } from "@/lib/style";
+import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats, loadStyleDetail, loadFitPref } from "@/lib/style";
 import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
 
@@ -44,6 +44,8 @@ export default function ShopClient() {
   const makeupPrefs = useMemo(() => ready ? loadMakeupPrefs() : null, [ready]);
   const styleIds = useMemo(() => ready ? loadStylePrefs() : [], [ready]);
   const garmentCats = useMemo(() => ready ? loadGarmentCats() : [], [ready]);
+  const styleDetail = useMemo(() => ready ? loadStyleDetail() : undefined, [ready]);
+  const fitPref = useMemo(() => ready ? loadFitPref() : null, [ready]);
   const rawProfile = useMemo(() => ready ? loadProfile() : null, [ready]);
 
   useEffect(() => {
@@ -80,6 +82,11 @@ export default function ShopClient() {
           match = Math.min(99, match + 5);
           reason = `Dewy pick · ${reason}`;
         }
+        if (makeupPrefs?.lipFinish === "glossy" && p.subcategory === "gloss") { match = Math.min(99, match + 6); reason = `Your lip finish · ${reason}`; }
+        if (makeupPrefs?.lipFinish && makeupPrefs.lipFinish !== "glossy" && p.subcategory === "lip") { match = Math.min(99, match + 4); }
+        if (makeupPrefs?.eyeTexture && p.subcategory === "eyeshadow") { match = Math.min(99, match + 3); }
+        if (makeupPrefs?.baseFinish === "dewy" && ["cushion","highlighter"].includes(p.subcategory)) { match = Math.min(99, match + 5); reason = `Glass-skin pick · ${reason}`; }
+        if (makeupPrefs?.baseFinish === "soft-matte" && p.subcategory === "cushion") { match = Math.min(99, match + 4); }
         if (makeupPrefs?.budget && makeupPrefs.budget !== "flexible") {
           const cap = makeupPrefs.budget === "value" ? 1500 : 3000;
           const price = p.offers[0]?.priceCents;
@@ -154,7 +161,7 @@ export default function ShopClient() {
               <section key={sid} className="clothes-sec">
                 <div className="eyebrow">{styleName} · in your {profile.name} colors</div>
                 <div className="sp-grid">
-                  {stylePieces(rawProfile.primaryType, sid, garmentCats.length ? garmentCats : undefined).map(piece => {
+                  {stylePieces(rawProfile.primaryType, sid, garmentCats.length ? garmentCats : undefined, styleDetail, fitPref).map(piece => {
                     const saved = wl.some(w => w.id === pieceId(sid, piece.query));
                     return (
                       <button key={piece.query} className={`sp-tile${saved?" on":""}`} onClick={()=>{

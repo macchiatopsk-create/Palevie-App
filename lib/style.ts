@@ -83,33 +83,50 @@ const GARMENTS: Record<StyleId, Garment[]> = {
   ],
 };
 
-/** Season color words with true hexes so cards can render the actual shade. */
-const SEASON_COLORS: Record<string, { word: string; hex: string }[]> = {
+/** Season color words with true hexes; neutral-flagged so color energy can reorder them. */
+const SEASON_COLORS: Record<string, { word: string; hex: string; neutral: boolean }[]> = {
   Spring: [
-    { word: "ivory", hex: "#F5EDDE" },
-    { word: "camel", hex: "#C79A63" },
-    { word: "coral", hex: "#F28C6F" },
-    { word: "soft yellow", hex: "#F3DC8F" },
+    { word: "ivory", hex: "#F5EDDE", neutral: true },
+    { word: "camel", hex: "#C79A63", neutral: true },
+    { word: "coral", hex: "#F28C6F", neutral: false },
+    { word: "soft yellow", hex: "#F3DC8F", neutral: false },
   ],
   Summer: [
-    { word: "dusty rose", hex: "#C9A0AC" },
-    { word: "soft white", hex: "#F2F1ED" },
-    { word: "lavender", hex: "#B9A8D6" },
-    { word: "navy", hex: "#38445E" },
+    { word: "soft white", hex: "#F2F1ED", neutral: true },
+    { word: "navy", hex: "#38445E", neutral: true },
+    { word: "dusty rose", hex: "#C9A0AC", neutral: false },
+    { word: "lavender", hex: "#B9A8D6", neutral: false },
   ],
   Autumn: [
-    { word: "cream", hex: "#EFE3CE" },
-    { word: "olive", hex: "#6B6B45" },
-    { word: "rust", hex: "#9C4E2C" },
-    { word: "chocolate brown", hex: "#5A3E2B" },
+    { word: "cream", hex: "#EFE3CE", neutral: true },
+    { word: "chocolate brown", hex: "#5A3E2B", neutral: true },
+    { word: "olive", hex: "#6B6B45", neutral: false },
+    { word: "rust", hex: "#9C4E2C", neutral: false },
   ],
   Winter: [
-    { word: "white", hex: "#FFFFFF" },
-    { word: "black", hex: "#17171A" },
-    { word: "true red", hex: "#C8102E" },
-    { word: "emerald", hex: "#046A38" },
+    { word: "white", hex: "#FFFFFF", neutral: true },
+    { word: "black", hex: "#17171A", neutral: true },
+    { word: "true red", hex: "#C8102E", neutral: false },
+    { word: "emerald", hex: "#046A38", neutral: false },
   ],
 };
+
+export type ColorEnergy = "neutrals" | "pop" | "colorful";
+export type PatternPref = "solids" | "subtle" | "prints";
+export type ClothingBudget = "under30" | "under60" | "flexible";
+export type StyleDetail = { energy: ColorEnergy; pattern: PatternPref; budget: ClothingBudget };
+
+const DETAIL_KEY = "palevie-style-detail-v1";
+export function saveStyleDetail(d: StyleDetail) {
+  if (typeof window !== "undefined") localStorage.setItem(DETAIL_KEY, JSON.stringify(d));
+}
+export function loadStyleDetail(): StyleDetail {
+  if (typeof window === "undefined") return { energy: "pop", pattern: "subtle", budget: "flexible" };
+  try {
+    const d = JSON.parse(localStorage.getItem(DETAIL_KEY) || "null");
+    return { energy: "pop", pattern: "subtle", budget: "flexible", ...(d || {}) };
+  } catch { return { energy: "pop", pattern: "subtle", budget: "flexible" }; }
+}
 
 export type StylePiece = {
   label: string;
@@ -121,15 +138,27 @@ export type StylePiece = {
 };
 
 /** Compose concrete pieces per style, rotating the season's colors across garments. */
-export function stylePieces(toneId: string, style: StyleId, cats?: GarmentCat[]): StylePiece[] {
+export function stylePieces(toneId: string, style: StyleId, cats?: GarmentCat[], detail?: StyleDetail, fit?: FitPref | null): StylePiece[] {
   const season = getToneProfile(toneId).season;
-  const colors = SEASON_COLORS[season];
+  let colors = SEASON_COLORS[season];
+  const d = detail ?? { energy: "pop" as ColorEnergy, pattern: "subtle" as PatternPref, budget: "flexible" as ClothingBudget };
+  // Color energy reorders the rotation: neutrals-first, balanced, or accents-first.
+  if (d.energy === "neutrals") colors = [...colors.filter(c => c.neutral), ...colors.filter(c => !c.neutral)];
+  if (d.energy === "colorful") colors = [...colors.filter(c => !c.neutral), ...colors.filter(c => c.neutral)];
   const pool = cats && cats.length ? GARMENTS[style].filter(g => cats.includes(g.cat)) : GARMENTS[style];
+  const fitWord = fit === "oversized" ? "oversized" : fit === "fitted" ? "fitted" : "";
   return pool.map((g, i) => {
     const c = colors[i % colors.length];
+    const parts = [
+      d.pattern === "solids" ? "solid" : "",
+      c.word,
+      fitWord && (g.cat === "tops" || g.cat === "outerwear") ? fitWord : "",
+      g.name,
+      "women",
+    ].filter(Boolean);
     return {
       label: `${cap(c.word)} ${g.name}`,
-      query: `${c.word} ${g.name} women`,
+      query: parts.join(" "),
       hex: c.hex,
       icon: g.icon,
       why: g.why,

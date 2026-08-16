@@ -8,11 +8,17 @@ import { catalogProducts } from "@/data/products";
 export type MakeupStyle = "natural" | "dewy" | "glam" | "bold";
 export type MakeupCat = "lip" | "eyeshadow" | "blush" | "base";
 export type MakeupBudget = "value" | "mid" | "flexible";
+export type LipFinish = "glossy" | "matte" | "satin" | "balm";
+export type EyeTexture = "shimmer" | "matte" | "mix";
+export type BaseFinish = "dewy" | "natural" | "soft-matte";
 export type MakeupPrefs = {
   style: MakeupStyle;
   brands: string[];
   categories: MakeupCat[];
   budget: MakeupBudget;
+  lipFinish: LipFinish;
+  eyeTexture: EyeTexture;
+  baseFinish: BaseFinish;
   createdAt: string;
 };
 
@@ -47,6 +53,6 @@ export function loadMakeupPrefs(): MakeupPrefs | null {
     const p = JSON.parse(localStorage.getItem(KEY) || "null");
     if (!p) return null;
     // Older saves predate categories/budget.
-    return { categories: [], budget: "flexible", ...p } as MakeupPrefs;
+    return { categories: [], budget: "flexible", lipFinish: "glossy", eyeTexture: "mix", baseFinish: "natural", ...p } as MakeupPrefs;
   } catch { return null; }
 }
