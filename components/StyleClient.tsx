@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { STYLES, StyleId, saveStylePrefs, loadStylePrefs, FitPref, saveFitPref, loadFitPref } from "@/lib/style";
+import { STYLES, StyleId, saveStylePrefs, loadStylePrefs, FitPref, saveFitPref, loadFitPref, GARMENT_CATS, GarmentCat, saveGarmentCats, loadGarmentCats } from "@/lib/style";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 
@@ -15,7 +15,15 @@ export default function StyleClient() {
   const [ready, setReady] = useState(false);
   const [picked, setPicked] = useState<StyleId[]>([]);
   const [fit, setFit] = useState<FitPref | null>(null);
-  useEffect(() => { setPicked(loadStylePrefs()); setFit(loadFitPref()); setReady(true); }, []);
+  const [cats, setCats] = useState<GarmentCat[]>([]);
+  useEffect(() => { setPicked(loadStylePrefs()); setFit(loadFitPref()); setCats(loadGarmentCats()); setReady(true); }, []);
+  function toggleCat(c: GarmentCat) {
+    setCats(prev => {
+      const next = prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c];
+      saveGarmentCats(next);
+      return next;
+    });
+  }
 
   const profile = ready ? loadProfile() : null;
   const tone = profile ? getToneProfile(profile.primaryType) : null;
@@ -59,7 +67,18 @@ export default function StyleClient() {
       </div>
 
       <div className="beauty-card">
-        <div className="eyebrow">Step 2 · Your fit</div>
+        <div className="eyebrow">Step 2 · What you&apos;re shopping for</div>
+        <h2>Which pieces are you after?</h2>
+        <p className="lede-small">Hoodies? Dresses? Pick everything you&apos;re hunting — the Shop only shows those.</p>
+        <div className="chip-row">
+          {GARMENT_CATS.map(c => (
+            <button key={c.id} type="button" className={`chip${cats.includes(c.id) ? " on" : ""}`} onClick={() => toggleCat(c.id)}>{c.emoji} {c.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 3 · Your fit</div>
         <h2>How do you like clothes to sit?</h2>
         <div className="chip-row">
           {FITS.map(f => (

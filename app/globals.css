@@ -842,3 +842,11 @@ body:has(.sh-top) .app-title{display:none}
 .clothes-sec{margin-bottom:20px}
 .clothes-sec .eyebrow{margin-bottom:10px}
 .opt-tag{font-size:11px;font-weight:500;color:var(--muted)}
+
+/* price-compare rows in the list; cart-style shop plus */
+.wl-item{flex-wrap:wrap}
+.wl-compare{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 100%;order:5;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+.wl-compare a{font-size:11px;font-weight:700;color:var(--plum);background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:999px;padding:7px 12px}
+.wl-compare a:active{transform:scale(.96)}
+.sh-plus{border:0;cursor:pointer}
+.sh-plus.on{background:#3FB27F;box-shadow:0 6px 14px rgba(63,178,127,.35)}

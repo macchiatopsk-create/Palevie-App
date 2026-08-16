@@ -24,3 +24,32 @@ export function resolveOfferUrl(offer: ProductOffer) {
   }
   return url.toString();
 }
+
+/** Public search URL per retailer. Amazon's Associate tag is appended in /go/search. */
+export function retailerSearchUrl(retailer: RetailerId, query: string): string {
+  const q = encodeURIComponent(query);
+  switch (retailer) {
+    case "amazon": return `https://www.amazon.com/s?k=${q}`;
+    case "sephora": return `https://www.sephora.com/search?keyword=${q}`;
+    case "oliveyoung": return `https://global.oliveyoung.com/search?query=${q}`;
+    case "yesstyle": return `https://www.yesstyle.com/en/searchresult.html?searchkeyword=${q}`;
+    case "target": return `https://www.target.com/s?searchTerm=${q}`;
+    case "walmart": return `https://www.walmart.com/search?q=${q}`;
+    case "iherb": return `https://www.iherb.com/search?kw=${q}`;
+  }
+}
+
+const KBEAUTY = new Set(["rom&nd","Peripera","CLIO","Etude","TIRTIR","Laneige","COSRX","Beauty of Joseon","Anua","Palevie Edit"]);
+const DRUGSTORE = new Set(["e.l.f.","Maybelline","NYX","Milani","Physicians Formula"]);
+const PRESTIGE = new Set(["Rare Beauty","NARS"]);
+
+/** Which retailers actually carry a brand — drives the price-compare row. */
+export function compareRetailersFor(brand: string): RetailerId[] {
+  if (KBEAUTY.has(brand)) return ["amazon","oliveyoung","yesstyle"];
+  if (DRUGSTORE.has(brand)) return ["amazon","target","walmart"];
+  if (PRESTIGE.has(brand)) return ["amazon","sephora"];
+  return ["amazon"];
+}
+
+/** Clothing searches: general-merch retailers. */
+export const CLOTHING_RETAILERS: RetailerId[] = ["amazon","target","walmart"];

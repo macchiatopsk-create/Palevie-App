@@ -1,28 +1,34 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MAKEUP_STYLES, MakeupStyle, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
+import { MAKEUP_STYLES, MAKEUP_CATS, MakeupStyle, MakeupCat, MakeupBudget, availableBrands, loadMakeupPrefs, saveMakeupPrefs } from "@/lib/beautyPrefs";
 import { track } from "@/lib/analytics";
 
 export default function MakeupPrefsClient() {
   const [style, setStyle] = useState<MakeupStyle>("natural");
   const [brands, setBrands] = useState<string[]>([]);
+  const [cats, setCats] = useState<MakeupCat[]>([]);
+  const [budget, setBudget] = useState<MakeupBudget>("flexible");
   const [saved, setSaved] = useState(false);
   const allBrands = availableBrands();
 
   useEffect(() => {
     const p = loadMakeupPrefs();
-    if (p) { setStyle(p.style); setBrands(p.brands); setSaved(true); }
+    if (p) { setStyle(p.style); setBrands(p.brands); setCats(p.categories); setBudget(p.budget); setSaved(true); }
   }, []);
 
   function toggleBrand(b: string) {
     setSaved(false);
     setBrands(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b].slice(-5));
   }
+  function toggleCat(c: MakeupCat) {
+    setSaved(false);
+    setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  }
   function save() {
-    saveMakeupPrefs({ style, brands, createdAt: new Date().toISOString() });
+    saveMakeupPrefs({ style, brands, categories: cats, budget, createdAt: new Date().toISOString() });
     setSaved(true);
-    track("skincare_profile_completed", { surface: "makeup_prefs", style, brands: brands.length });
+    track("skincare_profile_completed", { surface: "makeup_prefs", style, brands: brands.length, cats: cats.join(","), budget });
   }
 
   return (
@@ -42,7 +48,28 @@ export default function MakeupPrefsClient() {
       </div>
 
       <div className="beauty-card">
-        <div className="eyebrow">Step 2 · Brands you love</div>
+        <div className="eyebrow">Step 2 · What you&apos;re shopping for</div>
+        <h2>Which products are you after?</h2>
+        <p className="lede-small">Pick everything that applies — the Shop ranks these first.</p>
+        <div className="chip-row">
+          {MAKEUP_CATS.map(c => (
+            <button key={c.id} type="button" className={`chip${cats.includes(c.id) ? " on" : ""}`} onClick={() => toggleCat(c.id)}>{c.emoji} {c.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 3 · Budget per item</div>
+        <h2>What feels right to spend?</h2>
+        <div className="chip-row">
+          {([["value","Under $15"],["mid","Under $30"],["flexible","Flexible"]] as const).map(([id,label]) => (
+            <button key={id} type="button" className={`chip${budget === id ? " on" : ""}`} onClick={() => { setBudget(id); setSaved(false); }}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-card">
+        <div className="eyebrow">Step 4 · Brands you love</div>
         <h2>Any favorite brands? <span className="opt-tag">optional · up to 5</span></h2>
         <div className="chip-row">
           {allBrands.map(b => (

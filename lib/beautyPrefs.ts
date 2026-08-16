@@ -6,11 +6,22 @@ import { catalogProducts } from "@/data/products";
  */
 
 export type MakeupStyle = "natural" | "dewy" | "glam" | "bold";
+export type MakeupCat = "lip" | "eyeshadow" | "blush" | "base";
+export type MakeupBudget = "value" | "mid" | "flexible";
 export type MakeupPrefs = {
   style: MakeupStyle;
   brands: string[];
+  categories: MakeupCat[];
+  budget: MakeupBudget;
   createdAt: string;
 };
+
+export const MAKEUP_CATS: { id: MakeupCat; name: string; emoji: string }[] = [
+  { id: "lip", name: "Lips", emoji: "💋" },
+  { id: "eyeshadow", name: "Eyes", emoji: "👁" },
+  { id: "blush", name: "Cheeks", emoji: "😊" },
+  { id: "base", name: "Base & glow", emoji: "✨" },
+];
 
 export const MAKEUP_STYLES: { id: MakeupStyle; name: string; blurb: string; emoji: string }[] = [
   { id: "natural", name: "Natural", blurb: "Barely-there, skin-first.", emoji: "🌿" },
@@ -32,5 +43,10 @@ export function saveMakeupPrefs(prefs: MakeupPrefs) {
 }
 export function loadMakeupPrefs(): MakeupPrefs | null {
   if (typeof window === "undefined") return null;
-  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
+  try {
+    const p = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (!p) return null;
+    // Older saves predate categories/budget.
+    return { categories: [], budget: "flexible", ...p } as MakeupPrefs;
+  } catch { return null; }
 }

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/server/supabaseAdmin";
+import { retailerSearchUrl } from "@/lib/retailers";
+import type { RetailerId } from "@/lib/types";
 
 /**
  * Outbound redirect for wardrobe / styling search links.
@@ -24,6 +26,9 @@ export async function GET(request: Request) {
   }
 
   const tone = (url.searchParams.get("tone") || "").slice(0, 40);
+  const rRaw = url.searchParams.get("r") || "amazon";
+  const RETAILERS: RetailerId[] = ["amazon","sephora","oliveyoung","yesstyle","target","walmart","iherb"];
+  const retailer: RetailerId = (RETAILERS as string[]).includes(rRaw) ? rRaw as RetailerId : "amazon";
   const label = (url.searchParams.get("label") || "").slice(0, 60);
   const visitor = (url.searchParams.get("v") || request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
 
@@ -34,17 +39,16 @@ export async function GET(request: Request) {
         visitor_id: visitor,
         offer_id: `wardrobe:${label || raw}`,
         product_id: `wardrobe-search`,
-        retailer: "amazon",
-        attribution: { surface: "wardrobe", tone, query: raw, label },
+        retailer,
+        attribution: { surface: url.searchParams.get("surface")?.slice(0,30) || "search", tone, query: raw, label },
       });
     } catch {
       // Never block the redirect on analytics.
     }
   }
 
-  const target = new URL("https://www.amazon.com/s");
-  target.searchParams.set("k", raw);
-  target.searchParams.set("tag", process.env.AMAZON_ASSOCIATE_TAG || "palevie-20");
+  const target = new URL(retailerSearchUrl(retailer, raw));
+  if (retailer === "amazon") target.searchParams.set("tag", process.env.AMAZON_ASSOCIATE_TAG || "palevie-20");
 
   return NextResponse.redirect(target.toString(), 302);
 }

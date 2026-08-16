@@ -18,58 +18,68 @@ export const STYLES: { id: StyleId; name: string; blurb: string; emoji: string }
   { id: "office", name: "Office", blurb: "Polished and tailored, meeting-ready.", emoji: "💼" },
 ];
 
-type Garment = { name: string; icon: string; why: string };
+export type GarmentCat = "tops" | "bottoms" | "dresses" | "outerwear" | "shoes" | "accessories";
+export const GARMENT_CATS: { id: GarmentCat; name: string; emoji: string }[] = [
+  { id: "tops", name: "Tops", emoji: "👕" },
+  { id: "bottoms", name: "Bottoms", emoji: "👖" },
+  { id: "dresses", name: "Dresses & skirts", emoji: "👗" },
+  { id: "outerwear", name: "Outerwear", emoji: "🧥" },
+  { id: "shoes", name: "Shoes", emoji: "👟" },
+  { id: "accessories", name: "Bags & accessories", emoji: "👜" },
+];
+
+type Garment = { name: string; icon: string; why: string; cat: GarmentCat };
 
 const GARMENTS: Record<StyleId, Garment[]> = {
   minimal: [
-    { name: "button down shirt", icon: "👔", why: "The quiet anchor every minimal wardrobe leans on." },
-    { name: "wide leg trousers", icon: "👖", why: "Clean drape, zero fuss." },
-    { name: "fine knit sweater", icon: "🧶", why: "One good knit replaces five loud tops." },
-    { name: "structured tote bag", icon: "👜", why: "Sharp lines finish the look." },
-    { name: "turtleneck top", icon: "🧣", why: "One color head to toe, instantly polished." },
-    { name: "straight midi skirt", icon: "📏", why: "Long lines, no noise." },
-    { name: "wool coat", icon: "🧥", why: "The piece people remember you in." },
-    { name: "leather loafers", icon: "🥿", why: "Grounded and clean." },
+    { name: "button down shirt", icon: "👔", why: "The quiet anchor every minimal wardrobe leans on.", cat: "tops" },
+    { name: "wide leg trousers", icon: "👖", why: "Clean drape, zero fuss.", cat: "bottoms" },
+    { name: "fine knit sweater", icon: "🧶", why: "One good knit replaces five loud tops.", cat: "tops" },
+    { name: "structured tote bag", icon: "👜", why: "Sharp lines finish the look.", cat: "accessories" },
+    { name: "turtleneck top", icon: "🧣", why: "One color head to toe, instantly polished.", cat: "tops" },
+    { name: "straight midi skirt", icon: "📏", why: "Long lines, no noise.", cat: "dresses" },
+    { name: "wool coat", icon: "🧥", why: "The piece people remember you in.", cat: "outerwear" },
+    { name: "leather loafers", icon: "🥿", why: "Grounded and clean.", cat: "shoes" },
   ],
   romantic: [
-    { name: "ruffle blouse", icon: "🌸", why: "Softness right where it flatters — near your face." },
-    { name: "midi dress", icon: "👗", why: "Movement and color in one piece." },
-    { name: "soft cardigan", icon: "🧸", why: "The gentle layer that ties it together." },
-    { name: "pleated skirt", icon: "🩰", why: "Romantic without trying too hard." },
-    { name: "puff sleeve top", icon: "🎈", why: "A little volume, a lot of charm." },
-    { name: "lace trim camisole", icon: "🕊️", why: "Delicate under anything." },
-    { name: "floral wrap dress", icon: "💐", why: "Your palette does the printing." },
-    { name: "ballet flats", icon: "🩰", why: "Soft finish for soft lines." },
+    { name: "ruffle blouse", icon: "🌸", why: "Softness right where it flatters — near your face.", cat: "tops" },
+    { name: "midi dress", icon: "👗", why: "Movement and color in one piece.", cat: "dresses" },
+    { name: "soft cardigan", icon: "🧸", why: "The gentle layer that ties it together.", cat: "outerwear" },
+    { name: "pleated skirt", icon: "🩰", why: "Romantic without trying too hard.", cat: "dresses" },
+    { name: "puff sleeve top", icon: "🎈", why: "A little volume, a lot of charm.", cat: "tops" },
+    { name: "lace trim camisole", icon: "🕊️", why: "Delicate under anything.", cat: "tops" },
+    { name: "floral wrap dress", icon: "💐", why: "Your palette does the printing.", cat: "dresses" },
+    { name: "ballet flats", icon: "🩰", why: "Soft finish for soft lines.", cat: "shoes" },
   ],
   casual: [
-    { name: "crewneck sweatshirt", icon: "☁️", why: "Your season's color makes even a sweatshirt look intentional." },
-    { name: "straight leg jeans", icon: "👖", why: "The wash matters more than the brand." },
-    { name: "relaxed t-shirt", icon: "👕", why: "Basics in the right shade never look basic." },
-    { name: "denim jacket", icon: "🧥", why: "The layer that works over everything." },
-    { name: "zip-up hoodie", icon: "🤙", why: "Errands, but make it your color." },
-    { name: "knit polo", icon: "🏌️", why: "One notch dressier than a tee." },
-    { name: "canvas sneakers", icon: "👟", why: "Everyday base, palette-friendly." },
-    { name: "baseball cap", icon: "🧢", why: "Smallest piece, biggest color win — it sits by your face." },
+    { name: "crewneck sweatshirt", icon: "☁️", why: "Your season's color makes even a sweatshirt look intentional.", cat: "tops" },
+    { name: "straight leg jeans", icon: "👖", why: "The wash matters more than the brand.", cat: "bottoms" },
+    { name: "relaxed t-shirt", icon: "👕", why: "Basics in the right shade never look basic.", cat: "tops" },
+    { name: "denim jacket", icon: "🧥", why: "The layer that works over everything.", cat: "outerwear" },
+    { name: "zip-up hoodie", icon: "🤙", why: "Errands, but make it your color.", cat: "tops" },
+    { name: "knit polo", icon: "🏌️", why: "One notch dressier than a tee.", cat: "tops" },
+    { name: "canvas sneakers", icon: "👟", why: "Everyday base, palette-friendly.", cat: "shoes" },
+    { name: "baseball cap", icon: "🧢", why: "Smallest piece, biggest color win — it sits by your face.", cat: "accessories" },
   ],
   street: [
-    { name: "oversized hoodie", icon: "🛹", why: "Volume plus your color reads styled, not sloppy." },
-    { name: "cargo pants", icon: "🪖", why: "Utility lines, softened by your palette." },
-    { name: "graphic tee", icon: "🎨", why: "Let the base shade carry the print." },
-    { name: "bomber jacket", icon: "🧥", why: "Structure up top balances the slouch." },
-    { name: "wide leg sweatpants", icon: "💨", why: "Comfort with intent." },
-    { name: "bucket hat", icon: "🪣", why: "Right by your face — the color matters most here." },
-    { name: "crossbody bag", icon: "🎒", why: "Hands free, look done." },
-    { name: "chunky sneakers", icon: "👟", why: "The anchor of the fit." },
+    { name: "oversized hoodie", icon: "🛹", why: "Volume plus your color reads styled, not sloppy.", cat: "tops" },
+    { name: "cargo pants", icon: "🪖", why: "Utility lines, softened by your palette.", cat: "bottoms" },
+    { name: "graphic tee", icon: "🎨", why: "Let the base shade carry the print.", cat: "tops" },
+    { name: "bomber jacket", icon: "🧥", why: "Structure up top balances the slouch.", cat: "outerwear" },
+    { name: "wide leg sweatpants", icon: "💨", why: "Comfort with intent.", cat: "bottoms" },
+    { name: "bucket hat", icon: "🪣", why: "Right by your face — the color matters most here.", cat: "accessories" },
+    { name: "crossbody bag", icon: "🎒", why: "Hands free, look done.", cat: "accessories" },
+    { name: "chunky sneakers", icon: "👟", why: "The anchor of the fit.", cat: "shoes" },
   ],
   office: [
-    { name: "tailored blazer", icon: "💼", why: "In your season's neutral it looks custom." },
-    { name: "silk blouse", icon: "✨", why: "The sheen lifts your skin in meetings and photos." },
-    { name: "slim trousers", icon: "👖", why: "Polished from desk to dinner." },
-    { name: "knit vest", icon: "🧶", why: "The layer that says put-together." },
-    { name: "pencil skirt", icon: "✏️", why: "Classic line, your color." },
-    { name: "sheath dress", icon: "👗", why: "One-piece answer to 8am." },
-    { name: "trench coat", icon: "🧥", why: "The commute looks better already." },
-    { name: "pointed flats", icon: "👠", why: "Sharp without the heel." },
+    { name: "tailored blazer", icon: "💼", why: "In your season's neutral it looks custom.", cat: "outerwear" },
+    { name: "silk blouse", icon: "✨", why: "The sheen lifts your skin in meetings and photos.", cat: "tops" },
+    { name: "slim trousers", icon: "👖", why: "Polished from desk to dinner.", cat: "bottoms" },
+    { name: "knit vest", icon: "🧶", why: "The layer that says put-together.", cat: "tops" },
+    { name: "pencil skirt", icon: "✏️", why: "Classic line, your color.", cat: "dresses" },
+    { name: "sheath dress", icon: "👗", why: "One-piece answer to 8am.", cat: "dresses" },
+    { name: "trench coat", icon: "🧥", why: "The commute looks better already.", cat: "outerwear" },
+    { name: "pointed flats", icon: "👠", why: "Sharp without the heel.", cat: "shoes" },
   ],
 };
 
@@ -107,13 +117,15 @@ export type StylePiece = {
   hex: string;
   icon: string;
   why: string;
+  cat: GarmentCat;
 };
 
 /** Compose concrete pieces per style, rotating the season's colors across garments. */
-export function stylePieces(toneId: string, style: StyleId): StylePiece[] {
+export function stylePieces(toneId: string, style: StyleId, cats?: GarmentCat[]): StylePiece[] {
   const season = getToneProfile(toneId).season;
   const colors = SEASON_COLORS[season];
-  return GARMENTS[style].map((g, i) => {
+  const pool = cats && cats.length ? GARMENTS[style].filter(g => cats.includes(g.cat)) : GARMENTS[style];
+  return pool.map((g, i) => {
     const c = colors[i % colors.length];
     return {
       label: `${cap(c.word)} ${g.name}`,
@@ -121,6 +133,7 @@ export function stylePieces(toneId: string, style: StyleId): StylePiece[] {
       hex: c.hex,
       icon: g.icon,
       why: g.why,
+      cat: g.cat,
     };
   });
 }
@@ -148,4 +161,17 @@ export function loadFitPref(): FitPref | null {
   if (typeof window === "undefined") return null;
   const v = localStorage.getItem(FIT_KEY);
   return v === "fitted" || v === "balanced" || v === "oversized" ? v : null;
+}
+
+const CATS_KEY = "palevie-garment-cats-v1";
+export function saveGarmentCats(cats: GarmentCat[]) {
+  if (typeof window !== "undefined") localStorage.setItem(CATS_KEY, JSON.stringify(cats));
+}
+export function loadGarmentCats(): GarmentCat[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = JSON.parse(localStorage.getItem(CATS_KEY) || "[]");
+    const ok = GARMENT_CATS.map(c => c.id);
+    return Array.isArray(raw) ? raw.filter((x): x is GarmentCat => (ok as string[]).includes(x)) : [];
+  } catch { return []; }
 }

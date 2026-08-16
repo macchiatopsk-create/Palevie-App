@@ -7,11 +7,9 @@ import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
-import { loadStylePrefs, stylePieces, STYLES } from "@/lib/style";
-import { toggleSaved, pieceId } from "@/lib/wishlist";
+import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats } from "@/lib/style";
+import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
-import { loadWishlist, toggleProduct, productKey, SavedItem } from "@/lib/wishlist";
-import { trackedOfferHref } from "@/lib/attribution";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
@@ -45,6 +43,7 @@ export default function ShopClient() {
   const skin = useMemo(() => ready ? loadSkinProfile() : null, [ready]);
   const makeupPrefs = useMemo(() => ready ? loadMakeupPrefs() : null, [ready]);
   const styleIds = useMemo(() => ready ? loadStylePrefs() : [], [ready]);
+  const garmentCats = useMemo(() => ready ? loadGarmentCats() : [], [ready]);
   const rawProfile = useMemo(() => ready ? loadProfile() : null, [ready]);
 
   useEffect(() => {
@@ -71,6 +70,20 @@ export default function ShopClient() {
         if (makeupPrefs?.brands?.includes(p.brand)) {
           match = Math.min(99, match + 8);
           reason = `Your brand pick · ${reason}`;
+        }
+        if (makeupPrefs?.categories?.length) {
+          const catHit = makeupPrefs.categories.includes(p.subcategory as never)
+            || (makeupPrefs.categories.includes("base" as never) && ["cushion","highlighter","gloss"].includes(p.subcategory));
+          if (catHit) match = Math.min(99, match + 6);
+        }
+        if (makeupPrefs?.style === "dewy" && ["gloss","highlighter","cushion"].includes(p.subcategory)) {
+          match = Math.min(99, match + 5);
+          reason = `Dewy pick · ${reason}`;
+        }
+        if (makeupPrefs?.budget && makeupPrefs.budget !== "flexible") {
+          const cap = makeupPrefs.budget === "value" ? 1500 : 3000;
+          const price = p.offers[0]?.priceCents;
+          if (typeof price === "number" && price <= cap) match = Math.min(99, (match ?? 0) + 4);
         }
       }
       if (p.category === "skincare" && skin) {
@@ -141,7 +154,7 @@ export default function ShopClient() {
               <section key={sid} className="clothes-sec">
                 <div className="eyebrow">{styleName} · in your {profile.name} colors</div>
                 <div className="sp-grid">
-                  {stylePieces(rawProfile.primaryType, sid).map(piece => {
+                  {stylePieces(rawProfile.primaryType, sid, garmentCats.length ? garmentCats : undefined).map(piece => {
                     const saved = wl.some(w => w.id === pieceId(sid, piece.query));
                     return (
                       <button key={piece.query} className={`sp-tile${saved?" on":""}`} onClick={()=>{
@@ -172,7 +185,7 @@ export default function ShopClient() {
         <h3>{p.colorHex && <i className="sh-dot" style={{background:p.colorHex}}/>}{p.name}</h3>
         <div className="sh-buy">
           <b>{p.offers[0]?.priceLabel ?? ""}</b>
-          <a className="sh-plus" href={trackedOfferHref(p.offers[0].id, getVisitorId())} onClick={()=>track("affiliate_outbound_click",{retailer:p.offers[0].retailer,product:p.id,offer:p.offers[0].id})} aria-label={`Shop ${p.name}`}>＋</a>
+          <button className={`sh-plus${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)} aria-label={`Save ${p.name} to my list`}>{wl.some(w=>w.id===productKey(p.id))?"✓":"＋"}</button>
         </div>
         {p.match !== undefined && <small className="sh-match">{p.match}% match · {p.reason}</small>}
       </div>
