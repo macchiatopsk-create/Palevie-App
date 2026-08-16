@@ -796,3 +796,23 @@ body:has(.sh-top) .app-title{display:none}
 .sp-body b{display:block;font-size:14px}
 .sp-body small{display:block;font-size:11px;color:var(--muted);line-height:1.45;margin-top:2px}
 .sp-go{flex:none;font-size:12px;font-weight:750;color:#D6417F;background:#fff;border-radius:999px;padding:8px 13px;box-shadow:0 3px 10px rgba(60,42,84,.12)}
+
+/* style piece tiles (select, don't navigate) + wishlist */
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.sp-tile{position:relative;text-align:left;border:1.5px solid var(--line);border-radius:18px;background:rgba(255,255,255,.78);padding:12px;cursor:pointer;transition:transform .08s ease,border-color .15s ease,box-shadow .15s ease}
+.sp-tile:active{transform:scale(.96)}
+.sp-tile.on{border-color:#E86FAE;box-shadow:0 8px 20px rgba(232,111,174,.22)}
+.sp-tile .sp-swatch{width:100%;height:64px;border-radius:12px;margin-bottom:9px}
+.sp-tile b{display:block;font-size:12.5px;line-height:1.35;padding-right:26px}
+.sp-heart{position:absolute;right:10px;bottom:10px;width:28px;height:28px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:15px;color:#D6417F;box-shadow:0 3px 10px rgba(60,42,84,.14)}
+.sp-tile.on .sp-heart{background:var(--grad-cta);color:#fff}
+
+.wl-list{display:grid;gap:10px;margin-top:8px}
+.wl-item{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:16px;padding:10px 11px}
+.wl-swatch{width:46px;height:46px;border-radius:12px}
+.wl-body{flex:1;min-width:0}
+.wl-body b{display:block;font-size:13px}
+.wl-body small{display:block;font-size:10.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.wl-actions{display:flex;align-items:center;gap:7px;flex:none}
+.wl-shop{font-size:11.5px;font-weight:750;color:#fff;background:var(--grad-cta);border-radius:999px;padding:8px 13px;box-shadow:0 4px 12px rgba(255,92,138,.26)}
+.wl-remove{width:28px;height:28px;border:0;border-radius:50%;background:rgba(60,42,84,.08);color:#6b5a68;font-size:16px;line-height:1;cursor:pointer}

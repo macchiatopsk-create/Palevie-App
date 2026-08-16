@@ -8,7 +8,7 @@ export type AnalyticsEventName =
   | "bio_consent_given"
   | "product_check_started" | "product_check_completed"
   | "skincare_profile_completed" | "shop_viewed"
-  | "affiliate_outbound_click" | "result_shared" | "checkout_started" | "signup_started" | "signup_completed";
+  | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed";
 
 type StoredEvent = { id: string; name: AnalyticsEventName; ts: string; props: Record<string, unknown> };
 const EVENTS_KEY = "palevie-events-v1";

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { STYLES, StyleId, stylePieces, saveStylePrefs, loadStylePrefs } from "@/lib/style";
+import { STYLES, StyleId, stylePieces, saveStylePrefs, loadStylePrefs, StylePiece } from "@/lib/style";
+import { loadWishlist, toggleSaved, removeSaved, pieceId, SavedPiece } from "@/lib/wishlist";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { track, getVisitorId } from "@/lib/analytics";
@@ -10,17 +11,29 @@ import WardrobeGuide from "@/components/WardrobeGuide";
 export default function StyleClient() {
   const [ready, setReady] = useState(false);
   const [picked, setPicked] = useState<StyleId[]>([]);
-  useEffect(() => { setPicked(loadStylePrefs()); setReady(true); }, []);
+  const [wishlist, setWishlist] = useState<SavedPiece[]>([]);
+  useEffect(() => { setPicked(loadStylePrefs()); setWishlist(loadWishlist()); setReady(true); }, []);
 
   const profile = ready ? loadProfile() : null;
   const tone = profile ? getToneProfile(profile.primaryType) : null;
 
-  function toggle(id: StyleId) {
+  function toggleStyle(id: StyleId) {
     setPicked(prev => {
       const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id].slice(-2);
       saveStylePrefs(next);
       return next;
     });
+  }
+
+  function togglePiece(piece: StylePiece, style: StyleId) {
+    const { items, saved } = toggleSaved(piece, style, profile!.primaryType);
+    setWishlist(items);
+    track(saved ? "wishlist_added" : "wishlist_removed", { label: piece.label, style, tone: profile!.primaryType });
+  }
+
+  function shopHref(item: { query: string; label: string }) {
+    const qs = new URLSearchParams({ q: item.query, tone: profile?.primaryType ?? "", label: item.label, v: getVisitorId() });
+    return `/go/search?${qs.toString()}`;
   }
 
   if (!ready) return null;
@@ -44,7 +57,7 @@ export default function StyleClient() {
         <p className="lede-small">Pick up to two — your picks are saved for next time.</p>
         <div className="st-grid">
           {STYLES.map(s => (
-            <button key={s.id} className={`st-card${picked.includes(s.id) ? " on" : ""}`} onClick={() => toggle(s.id)}>
+            <button key={s.id} className={`st-card${picked.includes(s.id) ? " on" : ""}`} onClick={() => toggleStyle(s.id)}>
               <span className="st-emoji">{s.emoji}</span>
               <b>{s.name}</b>
               <p>{s.blurb}</p>
@@ -53,45 +66,64 @@ export default function StyleClient() {
         </div>
       </div>
 
-      <WardrobeGuide toneId={profile!.primaryType} />
-
-      {picked.length === 0 ? (
-        <div className="beauty-card" style={{ textAlign: "center" }}>
-          <p className="lede-small" style={{ margin: 0 }}>Pick a style above and your recommendations appear here. ✦</p>
-        </div>
-      ) : picked.map(id => {
+      {picked.map(id => {
         const style = STYLES.find(s => s.id === id)!;
         const pieces = stylePieces(profile!.primaryType, id);
         return (
           <div className="beauty-card" key={id}>
-            <div className="eyebrow">Recommended · {style.name} in your {tone.name} colors</div>
-            <h2>{style.name} pieces to look for.</h2>
-            <div className="sp-list">
+            <div className="eyebrow">Step 2 · {style.name} in your {tone.name} colors</div>
+            <h2>Tap the pieces you want to keep.</h2>
+            <p className="lede-small">Hearted pieces go to your list below — nothing opens until you&apos;re ready to shop.</p>
+            <div className="sp-grid">
               {pieces.map(p => {
-                const qs = new URLSearchParams({ q: p.query, tone: profile!.primaryType, label: p.label, v: getVisitorId() });
+                const saved = wishlist.some(w => w.id === pieceId(id, p.query));
                 return (
-                  <a
-                    key={p.query}
-                    className="sp-card"
-                    href={`/go/search?${qs.toString()}`}
-                    target="_blank"
-                    rel="nofollow sponsored noopener noreferrer"
-                    onClick={() => track("affiliate_outbound_click", { tone: profile!.primaryType, surface: "style", style: id, label: p.label })}
-                  >
+                  <button key={p.query} className={`sp-tile${saved ? " on" : ""}`} onClick={() => togglePiece(p, id)}>
                     <span className="sp-swatch" style={{ background: p.hex }}><i>{p.icon}</i></span>
-                    <span className="sp-body">
-                      <b>{p.label}</b>
-                      <small>{p.why}</small>
-                    </span>
-                    <span className="sp-go">Shop →</span>
-                  </a>
+                    <b>{p.label}</b>
+                    <span className="sp-heart">{saved ? "♥" : "♡"}</span>
+                  </button>
                 );
               })}
             </div>
-            <p className="wg-disc">Each card opens a live retailer search in this exact shade. As an Amazon Associate we earn from qualifying purchases.</p>
           </div>
         );
       })}
+
+      <div className="beauty-card" id="my-list">
+        <div className="eyebrow">My list · {wishlist.length} saved</div>
+        <h2>Everything you&apos;ve kept.</h2>
+        {wishlist.length === 0 ? (
+          <p className="lede-small" style={{ margin: 0 }}>Heart a piece above and it lands here — shop them all in one place whenever you&apos;re ready. ✦</p>
+        ) : (
+          <>
+            <div className="wl-list">
+              {wishlist.map(item => (
+                <div className="wl-item" key={item.id}>
+                  <span className="sp-swatch wl-swatch" style={{ background: item.hex }}><i>{item.icon}</i></span>
+                  <div className="wl-body">
+                    <b>{item.label}</b>
+                    <small>{STYLES.find(s => s.id === item.style)?.name} · {item.why}</small>
+                  </div>
+                  <div className="wl-actions">
+                    <a
+                      className="wl-shop"
+                      href={shopHref(item)}
+                      target="_blank"
+                      rel="nofollow sponsored noopener noreferrer"
+                      onClick={() => track("affiliate_outbound_click", { tone: profile!.primaryType, surface: "wishlist", label: item.label })}
+                    >Shop →</a>
+                    <button className="wl-remove" aria-label={`Remove ${item.label}`} onClick={() => { setWishlist(removeSaved(item.id)); track("wishlist_removed", { label: item.label, style: item.style }); }}>×</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="wg-disc">Shop opens a live retailer search in that exact shade. As an Amazon Associate we earn from qualifying purchases.</p>
+          </>
+        )}
+      </div>
+
+      <WardrobeGuide toneId={profile!.primaryType} />
     </div>
   );
 }
