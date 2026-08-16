@@ -7,6 +7,7 @@ import { scoreColor, hexToRgb } from "@/lib/color";
 import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { track } from "@/lib/analytics";
+import { claimLocalData, releaseLocalData } from "@/lib/localOwner";
 import { loadProfile, saveProfile, type ColorProfile } from "@/lib/profile";
 import { loadSkinProfile, saveSkinProfile, type SkinProfile } from "@/lib/skincare";
 
@@ -34,6 +35,11 @@ export default function AccountClient() {
     const { data } = await supabase.auth.getSession();
     const user = data.session?.user;
     if (!user) { setAccount(null); setLoading(false); return; }
+
+    // Must run before the local profiles are read below: if this device was
+    // last used by a different account, its data is cleared here rather than
+    // being merged into — or uploaded to — this one.
+    claimLocalData(user.id);
 
     const { data: remote } = await supabase.from("profiles").select("plan,subscription_status,color_profile,skin_profile").eq("id", user.id).maybeSingle();
     const localColor=loadProfile(); const remoteColor=(remote?.color_profile||null) as ColorProfile|null;
@@ -115,6 +121,7 @@ export default function AccountClient() {
   async function signOut() {
     const supabase = getSupabaseBrowser();
     await supabase?.auth.signOut();
+    releaseLocalData();
     setAccount(null); setStatus("Signed out.");
   }
 
