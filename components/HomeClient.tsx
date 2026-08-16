@@ -25,6 +25,7 @@ export default function HomeClient() {
   const [tod, setTod] = useState<TimeOfDay>("day");
 
   useEffect(() => {
+    document.body.classList.add("h2-clean");
     setWl(loadWishlist());
     setTod(timeOfDay());
     setReady(true);
@@ -45,12 +46,12 @@ export default function HomeClient() {
     supabase?.auth.getSession().then(({ data }) => {
       const email = data.session?.user?.email;
       if (email) {
-        const local = email.split("@")[0].replace(/[._-]+/g, " ").trim();
-        setName(local.charAt(0).toUpperCase() + local.slice(1));
+        const first = email.split("@")[0].split(/[._\-+0-9]+/)[0];
+        if (/^[a-zA-Z]{3,12}$/.test(first)) setName(first.charAt(0).toUpperCase() + first.slice(1).toLowerCase());
       }
     });
 
-    return () => { window.removeEventListener(WISHLIST_EVENT, syncWl); clearInterval(tick); };
+    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, syncWl); clearInterval(tick); };
   }, []);
 
   const profile = ready ? loadProfile() : null;
@@ -94,7 +95,7 @@ export default function HomeClient() {
         <div className="h2-hero-art" aria-hidden />
         <div className="h2-hero-veil" aria-hidden />
         <div className="h2-hero-body">
-          <h1>{GREETING[tod]}{name ? `, ${name}` : ""} <span className="h2-wave">🌸</span></h1>
+          <h1>{name ? <>{GREETING[tod]},<br/>{name} <span className="h2-wave">🌸</span></> : <>{GREETING[tod]} <span className="h2-wave">🌸</span></>}</h1>
           <p>Your beauty, your colors.<br />Palevie is here for you.</p>
           {tone ? (
             <Link className="h2-season" href="/quiz">✿ {tone.name} <b>›</b></Link>
