@@ -12,6 +12,7 @@ export const runtime = "nodejs";
  */
 function cardFor(toneId: string): string {
   if (toneId === "summer-soft") return "soft-summer";
+  if (toneId === "summer-cool") return "cool-summer";
   const season = getToneProfile(toneId).season;
   return { Spring: "spring", Summer: "summer", Autumn: "autumn", Winter: "winter" }[season]!;
 }
