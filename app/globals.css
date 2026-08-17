@@ -975,8 +975,8 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 [data-tod="sunset"] .h2-hero-art{filter:saturate(1.1) brightness(.97)}
 [data-tod="sunset"] .h2-hero-veil{background:linear-gradient(180deg,rgba(255,150,95,.30),rgba(255,110,110,.14) 55%,rgba(255,110,110,.05))}
 
-[data-tod="night"] .h2-hero-art{filter:brightness(.62) saturate(.85) contrast(1.03)}
-[data-tod="night"] .h2-hero-veil{background:linear-gradient(180deg,rgba(28,26,72,.44),rgba(28,26,72,.3) 60%,rgba(28,26,72,.22))}
+[data-tod="night"] .h2-hero-art{filter:brightness(.66) saturate(.9) contrast(1.02)}
+[data-tod="night"] .h2-hero-veil{background:radial-gradient(120% 85% at 78% 72%,rgba(255,196,120,.20),rgba(255,170,110,.07) 42%,transparent 66%),linear-gradient(180deg,rgba(26,24,66,.5),rgba(26,24,66,.34) 58%,rgba(26,24,66,.26))}
 
 
 /* ── scan row ── */
@@ -1035,24 +1035,37 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .wl-total span{font-size:12px;color:#9B8490;font-weight:600}
 .wl-total b{font-size:20px;font-weight:800;color:#3B2B36}
 
-/* Narrow phones — most Android handsets report ~360css px, so the
-   412-based spacing squeezed copy into extra lines. */
-@media(max-width:400px){
-  .app-wrap{padding-left:14px;padding-right:14px}
-  .h2-hero{margin:0 -14px}
-  .h2-hero-body{padding-left:18px;max-width:53%}
-  .h2-hero-body h1{font-size:21px}
-  .h2-hero-body p{font-size:11px;max-width:158px}
-  .h2-card{padding:12px}
-  .h2-cardhead b{font-size:13px}
-  .h2-scan-tx b{font-size:13.5px}
-  .h2-scan-tx small{font-size:10.5px}
-  .h2-scan-ic{width:44px;height:44px}
-  .h2-pill{padding:9px 12px;font-size:11px}
-  .h2-duo{gap:10px}
-  .h2-prod{width:100px}
-  .wl-item{column-gap:9px;padding:11px}
-}
 /* Weights: the mockup sets titles semibold, not bold. */
 .h2-cardhead b,.h2-scan-tx b,.h2-listcard b{font-weight:650}
 .h2-hero-body h1{font-weight:680}
+
+/* The mockup is drawn on a 412px canvas. Most handsets report ~360css px,
+   so fixed px made every line proportionally larger and the cards read as
+   cramped. These scale with the viewport up to the design size. */
+.h2-brand{font-size:min(25px,6.07vw)}
+.h2-hero-body h1{font-size:min(24px,5.83vw)}
+.h2-hero-body p{font-size:min(12.5px,3.03vw);max-width:min(172px,42vw)}
+.h2-season{font-size:min(12.5px,3.03vw);padding:min(8px,1.94vw) min(13px,3.16vw)}
+.h2-card{padding:min(13px,3.16vw);border-radius:min(18px,4.37vw)}
+.h2-cardhead b{font-size:min(13.5px,3.28vw)}
+.h2-viewall{font-size:min(11px,2.67vw)}
+.h2-scan-ic{width:min(48px,11.65vw);height:min(48px,11.65vw)}
+.h2-scan-tx b{font-size:min(14px,3.40vw)}
+.h2-scan-tx small{font-size:min(11px,2.67vw)}
+.h2-pill{font-size:min(11.5px,2.79vw);padding:min(10px,2.43vw) min(14px,3.40vw)}
+.h2-tonechip{font-size:min(11px,2.67vw)}
+.h2-listcard b{font-size:min(13.5px,3.28vw)}
+.h2-listdesc{font-size:min(10.5px,2.55vw)}
+.h2-link{font-size:min(11px,2.67vw)}
+.h2-prod{width:min(106px,25.7vw)}
+.h2-prodart{height:min(70px,17vw)}
+.h2-dot{width:min(44px,10.7vw);height:min(44px,10.7vw)}
+.h2-prod b{font-size:min(9.5px,2.31vw)}
+.h2-prod small{font-size:min(10px,2.43vw)}
+.h2-prod em{font-size:min(9.5px,2.31vw)}
+.h2-cat span{max-width:min(50px,12.14vw)}
+.h2-cat small{font-size:min(9px,2.18vw)}
+.wl-body b{font-size:min(13px,3.16vw)}
+.wl-body small{font-size:min(10.5px,2.55vw)}
+.wl-price{font-size:min(13px,3.16vw)}
+.wl-compare a{font-size:min(10.5px,2.55vw)}
