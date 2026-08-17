@@ -4,6 +4,9 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
+import { getToneDetail } from "@/lib/toneDetail";
+import { heroArt, activeTod } from "@/lib/heroArt";
+import type { TimeOfDay } from "@/lib/theme";
 import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
@@ -80,60 +83,63 @@ export default function QuizClient(){
  </div>;
 }
 
-function seasonArt(toneId:string){
-  if(toneId==="summer-soft"||toneId==="summer-muted"||toneId==="autumn-soft"||toneId==="autumn-muted")return "/img/s2_ss.webp";
-  const fam=toneId.split("-")[0];
-  return {spring:"/img/s2_sp.webp",summer:"/img/s2_su.webp",autumn:"/img/s2_au.webp",winter:"/img/s2_wi.webp"}[fam] ?? "/img/s2_ss.webp";
-}
-// Color-theory "avoid" palettes per season family: hues that fight the palette's
-// temperature/chroma (e.g. cool-muted summers are washed out by hot oranges).
-function avoidColors(toneId:string):string[]{
-  const fam=toneId.split("-")[0];
-  return {
-    spring:["#8C9BAB","#5B5F6E","#7A3B52","#3E3A45","#9AA5B5","#63444E"],
-    summer:["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"],
-    autumn:["#9FD8E8","#C7CEEA","#F19AD1","#8FA6E8","#7FD1C8","#D671B8"],
-    winter:["#C8A165","#A98253","#B5A642","#8E7748","#D2B48C","#C77B4F"],
-  }[fam] ?? ["#E07B39","#C98A2E","#A9743F","#D96C3F","#B5651D","#8B5A2B"];
-}
 function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
- const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
- return <div className="rs">
-  <div className="rs-top"><span className="rs-eyebrow">{MARK.flower} Your season</span></div>
-
+ const id=result.ranked[0].id;
+ const primary=useMemo(()=>getToneProfile(id),[id]);
+ const detail=useMemo(()=>getToneDetail(id),[id]);
+ const season=(primary.season||"Summer").toLowerCase() as "spring"|"summer"|"autumn"|"winter";
+ const [tod,setTod]=useState<TimeOfDay>("day");
+ useEffect(()=>{setTod(activeTod())},[]);
+ return <div className="rs" data-season={season}>
   <section className="rs-hero">
-   <img className="rs-model" src={seasonArt(result.ranked[0].id)} alt=""/>
+   <div className="rs-hero-art" aria-hidden style={{backgroundImage:`url('${heroArt(season,tod)}')`}}/>
    <div className="rs-hero-tx">
+    <span className="rs-eyebrow">{MARK.flower} Quiz Result</span>
+    <p className="rs-lead">You&apos;re a</p>
     <h1>{primary.name}</h1>
-    <p>{primary.temperature} · {primary.chroma} · {primary.value}</p>
    </div>
   </section>
 
-  <div className="h2-card rs-sheet">
-   <div className="rs-chips">{primary.colors.slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
-   <p>{primary.description}</p>
-   <Link className="rs-cta" href="/shop">See my palette</Link>
-   <Link className="rs-cta2" href="/shop">Shop my match</Link>
-  </div>
+  <div className="rs-traits">{detail.traits.map(t=><span key={t}>{t}</span>)}</div>
 
-  <ShareResult toneId={result.ranked[0].id} toneName={primary.name}/>
+  <p className="rs-blurb">{detail.blurb}</p>
 
-  <div className="h2-card rs-more">
-   <div className="h2-cardhead"><b>Go deeper</b></div>
-   <Link href="/quiz?tab=makeup" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.lip}</span><em>Makeup in my shades</em>{MARK.chevron}</Link>
-   <Link href="/quiz?tab=style" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.clothes}</span><em>Dress in my colors</em>{MARK.chevron}</Link>
-   <Link href="/quiz?tab=skin" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.skin}</span><em>Skin profile</em>{MARK.chevron}</Link>
+  <div className="h2-card rs-palette">
+   <div className="h2-cardhead"><b>Your {primary.name} palette</b></div>
+   <div className="rs-chips">{primary.colors.slice(0,8).map(c=><i key={c} style={{background:c}}/>)}</div>
   </div>
 
   <div className="rs-duo">
-   <Link href="/shop" className="h2-card rs-mini">
-    <img src="/img/lip3.webp" alt=""/>
-    <b>Makeup picks</b><p>Curated in your most flattering shades.</p>
-   </Link>
-   <div className="h2-card rs-mini">
-    <div className="rs-avoid">{avoidColors(result.ranked[0].id).slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
-    <b>Colors to avoid</b><p>Shades that fight your palette — keep them off your face.</p>
+   <div className="h2-card rs-names">
+    <div className="h2-cardhead"><b>Best colors</b></div>
+    <div className="rs-names-row">{detail.best.map(c=>
+      <span key={c.hex+c.name}><i style={{background:c.hex}}/><small>{c.name}</small></span>)}
+    </div>
    </div>
+   <div className="h2-card rs-names">
+    <div className="h2-cardhead"><b>Avoid</b></div>
+    <div className="rs-names-row">{detail.avoid.map(c=>
+      <span key={c.hex+c.name}><i style={{background:c.hex}}/><small>{c.name}</small></span>)}
+    </div>
+   </div>
+  </div>
+
+  <div className="h2-card rs-makeup">
+   <img src="/img/flatlay.webp" alt="" loading="lazy"/>
+   <div>
+    <b>Makeup direction</b>
+    <p>{detail.makeup}</p>
+   </div>
+  </div>
+
+  <ShareResult toneId={id} toneName={primary.name}/>
+
+  <div className="h2-card rs-more">
+   <div className="h2-cardhead"><b>Go deeper</b></div>
+   <Link href="/shop" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.lip}</span><em>Shop my match</em>{MARK.chevron}</Link>
+   <Link href="/quiz?tab=makeup" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.cheek}</span><em>Makeup in my shades</em>{MARK.chevron}</Link>
+   <Link href="/quiz?tab=style" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.clothes}</span><em>Dress in my colors</em>{MARK.chevron}</Link>
+   <Link href="/quiz?tab=skin" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.skin}</span><em>Skin profile</em>{MARK.chevron}</Link>
   </div>
 
   <div className="h2-card rs-rank">
@@ -146,6 +152,7 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
    <p className="rs-note">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</p>
   </div>
  </div>}
+
 function AnalyzingView({onDone,colors}:{onDone:()=>void;colors:string[]}){
  const STEPS=["Reading undertone","Comparing contrast","Matching your season"];
  const [pct,setPct]=useState(0);
