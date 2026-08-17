@@ -1132,8 +1132,10 @@ body.quiz-focus .qh{gap:0}
 
 
 /* ── member setup sheet ── */
+body.ms-open .mobile-nav{display:none}
+body.ms-open{overflow:hidden}
 .ms{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;justify-content:center;background:rgba(59,43,54,.34);backdrop-filter:blur(2px)}
-.ms-sheet{width:100%;max-width:520px;background:#FDF9F8;border-radius:22px 22px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 20px);animation:msUp .22s ease-out}
+.ms-sheet{width:100%;max-width:520px;max-height:92dvh;overflow-y:auto;background:#FDF9F8;border-radius:22px 22px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 22px);animation:msUp .22s ease-out}
 @keyframes msUp{from{transform:translateY(16px);opacity:.6}to{transform:translateY(0);opacity:1}}
 .ms-eyebrow{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#F18DA1}
 .ms-sheet h2{font-family:var(--display);font-weight:600;font-size:23px;letter-spacing:-.02em;color:#3B2B36;margin:9px 0 0}

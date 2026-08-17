@@ -28,6 +28,11 @@ export default function MemberSetup({ onDone, force, required, saveRemote }: { o
     if (force || required) { setOpen(true); return; }
   }, [force, required]);
 
+  useEffect(() => {
+    document.body.classList.toggle("ms-open", open);
+    return () => { document.body.classList.remove("ms-open"); };
+  }, [open]);
+
   if (!open) return null;
 
 
