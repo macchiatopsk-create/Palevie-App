@@ -15,6 +15,11 @@ function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=se
 export default function QuizClient(){
  const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);
  useEffect(()=>{setSide(0);setFull(false)},[step]);
+ // Every question starts at the same scroll position, so the buttons never
+ // move under the thumb between taps.
+ useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;
+  const y=el.getBoundingClientRect().top+window.scrollY-8;
+  window.scrollTo({top:Math.max(0,y),behavior:"auto"})},[step]);
  useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
  const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
@@ -25,7 +30,7 @@ export default function QuizClient(){
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
-  <div className="h2-card qz-card">
+  <div className="h2-card qz-card" id="qz-card">
    <div className="qz-prog">
     <span className="qz-count"><b>{step+1}</b> / {QUIZ_QUESTIONS.length}</span>
     <div className="qz-bar"><i style={{width:`${progress}%`}}/></div>
@@ -43,8 +48,10 @@ export default function QuizClient(){
       <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">{MARK.expand} Fill screen</button>
       <span>{cur.label}</span>
      </div>
-     {toggle}{pick}{cant}
-     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
+     {toggle}
+     <div className="qz-actions">{pick}{cant}
+      {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
+     </div>
      {full && <div className="dr-full" style={{background:cur.hex}}>
        <button className="dr-close" onClick={()=>setFull(false)} aria-label="Close">{MARK.close}</button>
        <div className="dr-full-ui">{toggle}{pick}{cant}</div>
@@ -60,11 +67,13 @@ export default function QuizClient(){
          <span>{o.label}</span><i/>
         </button>)}
     </div>
+    <div className="qz-actions">
     <button className="qz-next" disabled={selected===null} onClick={next}>
      {step===QUIZ_QUESTIONS.length-1?"See my colors":"Next"} {MARK.chevron}
     </button>
     <button className="qz-skip" onClick={()=>{const neutral=q.options.reduce((best,o,i)=>{const w=Math.abs(o.t??0)+Math.abs(o.v??0)+Math.abs(o.c??0)+Math.abs(o.k??0);return w<best.w?{i,w}:best},{i:0,w:99}).i;choose(neutral);setTimeout(next,60)}}>Skip</button>
     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
+    </div>
    </>}
   </div>
  </div>;
