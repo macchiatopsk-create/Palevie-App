@@ -8,6 +8,7 @@ import { saveProfile } from "@/lib/profile";
 import { track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 import ShareResult from "@/components/ShareResult";
+import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
@@ -85,45 +86,51 @@ function avoidColors(toneId:string):string[]{
 function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
  const primary=useMemo(()=>getToneProfile(result.ranked[0].id),[result]);
  return <div className="rs">
-  <div className="rs-top"><span className="rs-pill">✦ Your season ✦</span></div>
-  <h1 className="rs-name">{primary.name}</h1>
-  <p className="rs-tags">{primary.temperature} · {primary.chroma} · {primary.value}</p>
+  <div className="rs-top"><span className="rs-eyebrow">{MARK.flower} Your season</span></div>
 
-  <div className="rs-card">
-   <div className="rs-photo">
-    <img className="rs-model" src={seasonArt(result.ranked[0].id)} alt=""/>
+  <section className="rs-hero">
+   <img className="rs-model" src={seasonArt(result.ranked[0].id)} alt=""/>
+   <div className="rs-hero-tx">
+    <h1>{primary.name}</h1>
+    <p>{primary.temperature} · {primary.chroma} · {primary.value}</p>
    </div>
-   <div className="rs-sheet">
-    <div className="rs-chips">{primary.colors.slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
-    <p>{primary.description}</p>
-    <Link className="rs-cta" href="/shop">See My Palette ✦</Link>
-    <Link className="rs-cta2" href="/shop">Shop My Match 🛍</Link>
-   </div>
+  </section>
+
+  <div className="h2-card rs-sheet">
+   <div className="rs-chips">{primary.colors.slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
+   <p>{primary.description}</p>
+   <Link className="rs-cta" href="/shop">See my palette</Link>
+   <Link className="rs-cta2" href="/shop">Shop my match</Link>
   </div>
 
   <ShareResult toneId={result.ranked[0].id} toneName={primary.name}/>
 
-  <div className="rs-more">
-   <Link href="/quiz?tab=makeup" className="rs-more-chip">💄 Makeup in my shades</Link>
-   <Link href="/quiz?tab=style" className="rs-more-chip">👗 Dress in my colors</Link>
-   <Link href="/quiz?tab=skin" className="rs-more-chip">🧴 Skin profile</Link>
+  <div className="h2-card rs-more">
+   <div className="h2-cardhead"><b>Go deeper</b></div>
+   <Link href="/quiz?tab=makeup" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.lip}</span><em>Makeup in my shades</em>{MARK.chevron}</Link>
+   <Link href="/quiz?tab=style" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.clothes}</span><em>Dress in my colors</em>{MARK.chevron}</Link>
+   <Link href="/quiz?tab=skin" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.skin}</span><em>Skin profile</em>{MARK.chevron}</Link>
   </div>
 
   <div className="rs-duo">
-   <Link href="/shop" className="rs-mini" style={{background:"var(--grad1)"}}>
+   <Link href="/shop" className="h2-card rs-mini">
     <img src="/img/lip3.webp" alt=""/>
-    <b>Makeup Picks</b><p>Curated picks in your most flattering shades.</p><span>→</span>
+    <b>Makeup picks</b><p>Curated in your most flattering shades.</p>
    </Link>
-   <div className="rs-mini" style={{background:"var(--grad2)"}}>
+   <div className="h2-card rs-mini">
     <div className="rs-avoid">{avoidColors(result.ranked[0].id).slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
-    <b>Colors to Avoid</b><p>Shades that fight your palette — keep them away from your face.</p>
+    <b>Colors to avoid</b><p>Shades that fight your palette — keep them off your face.</p>
    </div>
   </div>
 
+  <div className="h2-card rs-rank">
+   <div className="h2-cardhead"><b>Closest matches</b></div>
+   {result.ranked.slice(0,3).map((r,i)=><div key={r.id} className="rs-rank-row"><span><u>{i+1}</u>{r.name}</span><b>{r.pct}%</b></div>)}
+  </div>
+
   <div className="rs-foot">
-   <div className="rank-mini">{result.ranked.slice(0,3).map((r,i)=><div key={r.id}><span>{i+1}. {r.name}</span><b>{r.pct}%</b></div>)}</div>
-   <button className="rs-retake" onClick={onRestart}>↺ Retake the quiz</button>
-   <div className="notice">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</div>
+   <button className="rs-retake" onClick={onRestart}>{MARK.retake} Retake the quiz</button>
+   <p className="rs-note">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</p>
   </div>
  </div>}
 function AnalyzingView({onDone}:{onDone:()=>void}){

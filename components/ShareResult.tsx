@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { track } from "@/lib/analytics";
+import { MARK } from "@/components/icons";
 
 type State = "idle" | "working" | "copied" | "saved" | "error";
 
@@ -23,7 +24,7 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
         await navigator.share({
           files: [file],
           title: `I'm a ${toneName}`,
-          text: `I'm a ${toneName} ✨ Find your color season:`,
+          text: `I'm a ${toneName} — find your color season:`,
         });
         track("result_shared", { tone: toneId, method: "native_file" });
         setState("idle");
@@ -67,13 +68,13 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
     state === "working" ? "Preparing…"
     : state === "saved" ? "Saved to your device ✓"
     : state === "error" ? "Couldn't share — try again"
-    : "Share my season ✦";
+    : "Share my season";
 
   return (
-    <div className="share-block">
+    <div className="h2-card share-block">
       <img className="share-preview" src={cardUrl} alt={`${toneName} season card`} loading="lazy" />
       <button className="rs-cta share-btn" onClick={share} disabled={state === "working"}>
-        {label}
+        {state === "idle" && MARK.share}{label}
       </button>
       <button className="share-link" onClick={copyLink}>
         {state === "copied" ? "Link copied ✓" : "Copy link instead"}

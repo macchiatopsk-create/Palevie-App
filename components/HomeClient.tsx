@@ -10,6 +10,7 @@ import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
+import { CAT_ICON } from "@/components/icons";
 
 const SUB: Record<TimeOfDay, string> = {
   morning: "Good morning — your colors are up early too.",
@@ -44,14 +45,6 @@ const ICON = {
 };
 
 
-const CAT_ICON = {
-  lip: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9.4 3.2h5.2v3.1H9.4z"/><path d="M8.6 6.3h6.8v4.1a1 1 0 0 1-1 1h-4.8a1 1 0 0 1-1-1z"/><rect x="9.2" y="11.4" width="5.6" height="9.4" rx="1.1"/></svg>,
-  cheek: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.1"/></svg>,
-  eye: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3.4" y="6.6" width="17.2" height="10.8" rx="1.6"/><path d="M12 6.6v10.8M3.4 12h17.2"/></svg>,
-  skin: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M10.4 2.9h3.2v2.6h-3.2z"/><path d="M8.9 8.1c0-1.4 1.1-2.6 2.5-2.6h1.2c1.4 0 2.5 1.2 2.5 2.6v11a2 2 0 0 1-2 2h-2.2a2 2 0 0 1-2-2z"/><path d="M8.9 11.6h6.2"/></svg>,
-  clothes: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"><path d="M9 3.4 12 5.6l3-2.2 5 2.6-1.8 3.6-2 -.8V20.6H7.8V8.8l-2 .8L4 6z"/></svg>,
-  list: <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20s-6.4-4.1-8.6-8C1.9 9.3 3.3 5.9 6.4 5.3c1.9-.4 3.9.4 5 2 .3.5.6.9.6.9s.3-.4.6-.9c1.1-1.6 3.1-2.4 5-2 3.1.6 4.5 4 3 6.7-2.2 3.9-8.6 8-8.6 8z"/></svg>,
-};
 
 export default function HomeClient() {
   const [ready, setReady] = useState(false);
