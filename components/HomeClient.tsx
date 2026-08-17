@@ -11,6 +11,8 @@ import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
 import { CAT_ICON } from "@/components/icons";
+import MemberSetup from "@/components/MemberSetup";
+import { loadMember, MEMBER_EVENT } from "@/lib/member";
 import { calendarSeason, heroLight, activeTod } from "@/lib/heroArt";
 
 const SUB: Record<TimeOfDay, string> = {
@@ -41,6 +43,9 @@ export default function HomeClient() {
     setWl(loadWishlist());
     setTod(activeTod());
     setReady(true);
+    setName(loadMember()?.name ?? null);
+    const syncMember = () => setName(loadMember()?.name ?? null);
+    window.addEventListener(MEMBER_EVENT, syncMember);
 
     const syncWl = () => setWl(loadWishlist());
     window.addEventListener(WISHLIST_EVENT, syncWl);
@@ -57,13 +62,13 @@ export default function HomeClient() {
     const supabase = getSupabaseBrowser();
     supabase?.auth.getSession().then(({ data }) => {
       const email = data.session?.user?.email;
-      if (email) {
+      if (email && !loadMember()?.name) {
         const first = email.split("@")[0].split(/[._\-+0-9]+/)[0];
         if (/^[a-zA-Z]{3,12}$/.test(first)) setName(first.charAt(0).toUpperCase() + first.slice(1).toLowerCase());
       }
     });
 
-    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, syncWl); clearInterval(tick); };
+    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, syncWl); window.removeEventListener(MEMBER_EVENT, syncMember); clearInterval(tick); };
   }, []);
 
   const profile = ready ? loadProfile() : null;
@@ -94,6 +99,7 @@ export default function HomeClient() {
 
   return (
     <div className="h2">
+      <MemberSetup />
       {/* top bar */}
       <div className="h2-top">
         <span className="h2-brand">Palevie</span>

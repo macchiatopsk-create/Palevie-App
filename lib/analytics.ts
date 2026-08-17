@@ -6,6 +6,7 @@ export type AnalyticsEventName =
   | "quiz_started" | "quiz_answered" | "quiz_completed"
   | "ai_scan_started" | "ai_scan_completed" | "ai_scan_failed"
   | "bio_consent_given"
+  | "member_setup_shown" | "member_setup_done" | "member_profile_updated"
   | "product_check_started" | "product_check_completed"
   | "skincare_profile_completed" | "shop_viewed"
   | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed";

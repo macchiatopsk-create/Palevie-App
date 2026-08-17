@@ -5,6 +5,9 @@ import { loadWishlist } from "@/lib/wishlist";
 import { loadMakeupPrefs, MAKEUP_STYLES } from "@/lib/beautyPrefs";
 import { NAV_ICON, CAT_ICON, MARK } from "@/components/icons";
 import { heroArt, calendarSeason } from "@/lib/heroArt";
+import { loadMember, memberSince, MEMBER_STEPS, MEMBER_EVENT } from "@/lib/member";
+import MemberSetup from "@/components/MemberSetup";
+import { loadStylePrefs } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
 import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
@@ -180,6 +183,9 @@ export default function AccountClient() {
 }
 
 function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSignOut:()=>void}){
+  const [editing,setEditing]=useState(false);
+  const [bump,setBump]=useState(0);
+  useEffect(()=>{const s=()=>setBump(b=>b+1);window.addEventListener(MEMBER_EVENT,s);return()=>window.removeEventListener(MEMBER_EVENT,s)},[]);
  const [history,setHistory]=useState<{primary_type:string;ranked:{name:string;pct:number}[];confidence:number|null;created_at:string}[]>([]);
  useEffect(()=>{fetchQuizHistory().then(h=>setHistory(h as never[]))},[]);
  const local=typeof window!=="undefined"?loadProfile():null;
@@ -192,8 +198,15 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
   const strong=tone?catalogProducts.filter(p=>p.category==="makeup"&&p.colorHex&&scoreColor(hexToRgb(p.colorHex!),tone).colorFit>=88).length:0;
   const mk=typeof window!=="undefined"?loadMakeupPrefs():null;
   const skin=typeof window!=="undefined"?loadSkinProfile():null;
+  void bump;
+  const member=typeof window!=="undefined"?loadMember():null;
   const first=email.split("@")[0].split(/[._\-+0-9]+/)[0];
-  const name=/^[a-zA-Z]{3,12}$/.test(first)?first.charAt(0).toUpperCase()+first.slice(1).toLowerCase():"there";
+  const fallback=/^[a-zA-Z]{3,12}$/.test(first)?first.charAt(0).toUpperCase()+first.slice(1).toLowerCase():"there";
+  const name=member?.name||fallback;
+  const since=memberSince(member);
+  const done:Record<string,boolean>={color:Boolean(tone),makeup:Boolean(mk),style:loadStylePrefs().length>0,skin:Boolean(skin)};
+  const doneCount=MEMBER_STEPS.filter(st=>done[st.id]).length;
+  const nextStep=MEMBER_STEPS.find(st=>!done[st.id]);
   const prefs=[
     mk&&{label:"Makeup",value:MAKEUP_STYLES.find(x=>x.id===mk.style)?.name??mk.style,icon:CAT_ICON.lip},
     mk&&{label:"Base",value:mk.baseFinish.replace("-"," "),icon:CAT_ICON.skin},
@@ -203,6 +216,7 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
   ].filter(Boolean) as {label:string;value:string;icon:React.ReactNode}[];
 
   return <div className="ac">
+  {editing&&<MemberSetup force onDone={()=>{setEditing(false);setBump(b=>b+1)}}/>}
   <div className="h2-top">
    <span className="h2-brand">Palevie</span>
    <div className="h2-topbtns">
@@ -216,9 +230,10 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
   </div>
 
   <div className="h2-card ac-hero">
-   <span className="ac-avatar" style={{backgroundImage:`url('${heroArt(calendarSeason(),"day")}')`}} aria-hidden/>
+   <span className="ac-avatar" style={{backgroundImage:`url('${heroArt(member?.avatar??calendarSeason(),"day")}')`}} aria-hidden/>
    <div className="ac-hero-tx">
     <b>{name}</b>
+    {since&&<small className="ac-since">Member since {since}</small>}
     {tone
       ? <><span className="ac-season">{MARK.flower} {tone.name}</span>
           <p>{tone.description}</p>
@@ -232,6 +247,17 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
    <Link href="/quiz" className="h2-card ac-stat"><span className="ac-stat-ic">{MARK.retake}</span><b>{history.length}</b><small>Quiz results</small></Link>
    <Link href="/wishlist" className="h2-card ac-stat"><span className="ac-stat-ic">{NAV_ICON.heart}</span><b>{wl.length}</b><small>Saved items</small></Link>
    <Link href="/shop" className="h2-card ac-stat"><span className="ac-stat-ic">{MARK.flower}</span><b>{strong}</b><small>Strong matches</small></Link>
+  </div>
+
+  <div className="h2-card ac-prog">
+   <div className="h2-cardhead"><b>Your profile</b><span className="ac-prog-count">{doneCount}/{MEMBER_STEPS.length}</span></div>
+   <div className="ac-prog-bar"><i style={{width:`${(doneCount/MEMBER_STEPS.length)*100}%`}}/></div>
+   <div className="ac-prog-steps">{MEMBER_STEPS.map(st=>
+     <Link key={st.id} href={st.href} className={`ac-step${done[st.id]?" on":""}`}>
+       <b>{done[st.id]?MARK.check:null}</b><span>{st.label}</span>
+     </Link>)}
+   </div>
+   {nextStep&&<Link className="rs-cta2 ac-prog-cta" href={nextStep.href}>Finish {nextStep.label.toLowerCase()} {MARK.chevron}</Link>}
   </div>
 
   <div className="h2-card">
@@ -264,6 +290,7 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
 
   <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Account settings</b></div>
+   <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Name &amp; profile art</span>{MARK.chevron}</button>
    <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
    <Link className="ac-set-row" href="/diagnose"><span>Selfie scan</span>{MARK.chevron}</Link>
    <Link className="ac-set-row" href="/skin"><span>Skin preferences</span>{MARK.chevron}</Link>
