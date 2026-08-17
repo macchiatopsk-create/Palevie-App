@@ -34,7 +34,7 @@ export default function QuizClient(){
  function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
- if(pending)return <AnalyzingView colors={getToneProfile(pending.ranked[0].id).colors.slice(0,6)} onDone={()=>{setResult(pending);setPending(null)}}/>;
+ if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
   <div className="h2-card qz-card" id="qz-card">
    <div className="qz-prog">
@@ -156,7 +156,7 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
   </div>
  </div>}
 
-function AnalyzingView({onDone,colors}:{onDone:()=>void;colors:string[]}){
+function AnalyzingView({onDone}:{onDone:()=>void}){
  const STEPS=["Reading undertone","Comparing contrast","Matching your season"];
  const [pct,setPct]=useState(0);
  useEffect(()=>{
@@ -193,8 +193,9 @@ function AnalyzingView({onDone,colors}:{onDone:()=>void;colors:string[]}){
    </div>
 
    <div className="h2-card an-palette">
-    <div className="an-palette-tx"><b>Preparing your palette…</b><small>Almost ready</small></div>
-    <div className="an-chips">{(colors.length?colors:["#EADCF3","#F2CBDD","#F3B8C4","#FADCE4","#D8E3F2","#EFE3D8"]).slice(0,6).map((c,i)=><i key={c+i} style={{background:c}}/>)}</div>
+    <div className="an-palette-tx"><b>Mixing your palette…</b><small>No peeking — it lands on the next screen.</small></div>
+    <div className="an-chips an-paint">{["#EADCF3","#F2CBDD","#F3B8C4","#FADCE4","#D8E3F2","#EFE3D8"].map((c,i)=>
+      <i key={c} style={{background:c,animationDelay:`${i*0.22}s`}}/>)}</div>
    </div>
 
    <p className="an-note">This usually takes a few seconds. Thanks for your patience.</p>

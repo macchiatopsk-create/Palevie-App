@@ -71,7 +71,7 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
     : "Share my season";
 
   return (
-    <div className="h2-card share-block">
+    <div className="share-block">
       <button className="rs-cta share-btn" onClick={share} disabled={state === "working"}>
         {state === "idle" && MARK.share}{label}
       </button>
