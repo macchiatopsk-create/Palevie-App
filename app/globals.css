@@ -1203,7 +1203,7 @@ body.ms-open{overflow:hidden}
 /* ── launch splash ── */
 body.sp-open{overflow:hidden}
 .sp{position:fixed;inset:0;z-index:900;background:#FDF9F8;display:flex;align-items:center;justify-content:center;
-  animation:spIn .28s ease-out;transition:opacity .5s ease}
+  animation:spIn .18s ease-out;transition:opacity .42s ease}
 .sp img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .sp.out{opacity:0;pointer-events:none}
 @keyframes spIn{from{opacity:.4}to{opacity:1}}

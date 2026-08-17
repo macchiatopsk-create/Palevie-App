@@ -19,11 +19,11 @@ export default function Splash() {
     document.body.classList.add("sp-open");
 
     // Hold long enough to read the wordmark, then get out of the way.
-    const hold = setTimeout(() => setLeaving(true), 1250);
+    const hold = setTimeout(() => setLeaving(true), 900);
     const done = setTimeout(() => {
       setSrc(null);
       document.body.classList.remove("sp-open");
-    }, 1750);
+    }, 1350);
 
     return () => { clearTimeout(hold); clearTimeout(done); document.body.classList.remove("sp-open"); };
   }, []);
