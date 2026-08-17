@@ -173,7 +173,7 @@ function AnalyzingView({onDone,colors}:{onDone:()=>void;colors:string[]}){
    <p className="an-sub">We&apos;re reading your answers and matching your best palette.</p>
 
    <div className="h2-card an-card">
-    <img className="an-art" src="/img/analyzing_art.webp" alt=""/>
+    <img className="an-art" src="/img/analyzing_art_v2.webp" alt=""/>
     <div className="an-prog">
      <div className="an-bar"><i style={{width:`${pct}%`}}/></div>
      <b>{pct}%</b>
