@@ -27,6 +27,15 @@ function calendarSeason(d = new Date()): Season {
   return "winter";
 }
 
+
+const ICON = {
+  heart: <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20s-6.4-4.1-8.6-8C1.9 9.3 3.3 5.9 6.4 5.3c1.9-.4 3.9.4 5 2 .3.5.6.9.6.9s.3-.4.6-.9c1.1-1.6 3.1-2.4 5-2 3.1.6 4.5 4 3 6.7-2.2 3.9-8.6 8-8.6 8z"/></svg>,
+  user: <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="12" cy="8.6" r="3.6"/><path d="M5 20c.8-3.4 3.6-5.2 7-5.2s6.2 1.8 7 5.2"/></svg>,
+  scanFace: <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="11" r="3.4"/><path d="M7.5 17.4c1-1.7 2.6-2.6 4.5-2.6s3.5.9 4.5 2.6"/></svg>,
+  flower: <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="6.4" r="2.6" opacity=".75"/><circle cx="17.2" cy="9.4" r="2.6" opacity=".75"/><circle cx="15.4" cy="15.8" r="2.6" opacity=".75"/><circle cx="8.6" cy="15.8" r="2.6" opacity=".75"/><circle cx="6.8" cy="9.4" r="2.6" opacity=".75"/></svg>,
+  doodle: <svg viewBox="0 0 24 24" width="17" height="17" fill="#F58EB0"><path d="M12 19s-5.2-3.3-7-6.4c-1.2-2.2-.1-5 2.4-5.4 1.6-.3 3.2.3 4.1 1.6l.5.8.5-.8c.9-1.3 2.5-1.9 4.1-1.6 2.5.4 3.6 3.2 2.4 5.4-1.8 3.1-7 6.4-7 6.4z"/></svg>,
+};
+
 export default function HomeClient() {
   const [ready, setReady] = useState(false);
   const [name, setName] = useState<string | null>(null);
@@ -93,10 +102,10 @@ export default function HomeClient() {
       <div className="h2-top">
         <span className="h2-brand">Palevie</span>
         <div className="h2-topbtns">
-          <Link href="/wishlist" className="h2-iconbtn" aria-label="My list">
-            ♡{wl.length > 0 && <em>{wl.length > 9 ? "9+" : wl.length}</em>}
+          <Link href="/wishlist" className="h2-ic" aria-label="My list">
+            {ICON.heart}{wl.length > 0 && <em>{wl.length > 9 ? "9+" : wl.length}</em>}
           </Link>
-          <Link href="/account" className="h2-iconbtn" aria-label="Account">👤</Link>
+          <Link href="/account" className="h2-ic" aria-label="Account">{ICON.user}</Link>
         </div>
       </div>
 
@@ -105,10 +114,10 @@ export default function HomeClient() {
         <div className="h2-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${heroSeason}.webp')` }} />
         <div className="h2-hero-veil" aria-hidden />
         <div className="h2-hero-body">
-          <h1>Hi{name ? `, ${name}` : " there"} <span className="h2-wave">🌸</span></h1>
+          <h1>Hi{name ? `, ${name}` : " there"} <span className="h2-wave">{ICON.doodle}</span></h1>
           <p>{SUB[tod]}</p>
           {tone ? (
-            <Link className="h2-season" href="/quiz">✿ {tone.name} <b>›</b></Link>
+            <Link className="h2-season" href="/quiz">{ICON.flower} {tone.name} <b>›</b></Link>
           ) : (
             <Link className="h2-season h2-season-cta" href="/quiz">✦ Find my season <b>›</b></Link>
           )}
@@ -117,7 +126,7 @@ export default function HomeClient() {
 
       {/* AI scan */}
       <Link href="/diagnose" className="h2-card h2-scan">
-        <span className="h2-scan-ic">📷</span>
+        <span className="h2-scan-ic">{ICON.scanFace}</span>
         <span className="h2-scan-tx">
           <b>AI Color Scan</b>
           <small>Discover your best colors with AI technology.</small>
@@ -140,8 +149,8 @@ export default function HomeClient() {
         </Link>
         <Link href="/wishlist" className="h2-card h2-listcard">
           <b>My List</b>
-          <span className="h2-count">{wl.length}</span>
-          <small>{wl.length === 0 ? "Nothing saved yet" : "saved · compare prices ›"}</small>
+          <small className="h2-listdesc">{wl.length === 0 ? "Save shades and pieces you love." : `${wl.length} saved item${wl.length === 1 ? "" : "s"} in your shades.`}</small>
+          <span className="h2-link">{wl.length === 0 ? "Start saving" : "Compare prices"} ›</span>
         </Link>
       </div>
 
@@ -159,7 +168,7 @@ export default function HomeClient() {
                 <div className="h2-prod" key={p.id}>
                   {i === 0 && <span className="h2-best">Best</span>}
                   <button className={`h2-heart${saved ? " on" : ""}`} aria-label={`Save ${p.name}`} onClick={() => heart(p.id, p.name)}>{saved ? "♥" : "♡"}</button>
-                  <span className="h2-dot" style={{ background: p.colorHex }} />
+                  <span className="h2-prodart"><span className="h2-dot" style={{ background: p.colorHex }} /></span>
                   <b>{p.brand}</b>
                   <small>{p.name}</small>
                   <em>{match}% match</em>
