@@ -50,7 +50,7 @@ export default function WishlistClient() {
                 <span className="sp-swatch wl-swatch" style={{ background: item.hex }}><i>{item.icon}</i></span>
                 <div className="wl-body">
                   <b>{item.label}</b>
-                  <small>{STYLES.find(s => s.id === item.style)?.name} · {item.why}</small>
+                  <small>{STYLES.find(s => s.id === item.style)?.name}</small>
                 </div>
                 <div className="wl-compare">
                   {CLOTHING_RETAILERS.map(r => {
@@ -74,8 +74,9 @@ export default function WishlistClient() {
                 : <span className="sp-swatch wl-swatch wl-skin"><i>🧴</i></span>}
               <div className="wl-body">
                 <b>{p.name}</b>
-                <small>{p.brand} · {p.subcategory}{p.offers[0]?.priceLabel ? ` · ${p.offers[0].priceLabel} ref` : ""}</small>
+                <small>{p.brand} · {p.subcategory}</small>
               </div>
+              {p.offers[0]?.priceLabel && <span className="wl-price">{p.offers[0].priceLabel}</span>}
               <div className="wl-compare">
                 {compareRetailersFor(p.brand).map(r => {
                   const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", v: getVisitorId() });
@@ -88,6 +89,16 @@ export default function WishlistClient() {
           );
         })}
       </div>
+      {(() => {
+        const cents = items.reduce((sum, it) => {
+          if (it.kind !== "product") return sum;
+          const p = catalogProducts.find(c => c.id === it.productId);
+          const c = p?.offers?.[0]?.priceCents;
+          return typeof c === "number" ? sum + c : sum;
+        }, 0);
+        if (!cents) return null;
+        return <div className="wl-total"><span>Estimated total</span><b>${(cents / 100).toFixed(2)}</b></div>;
+      })()}
       <p className="wg-disc">Compare opens a live search at each retailer so you can check today&apos;s price before buying. As an Amazon Associate we earn from qualifying purchases.</p>
       <div className="button-row" style={{ marginTop: 14 }}>
         <Link className="button secondary" href="/quiz?tab=style">More styles</Link>
