@@ -957,26 +957,17 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 
 /* ── hero: full-bleed illustration, text on the page itself ── */
 .h2-hero{position:relative;margin:0 -18px;min-height:150px;display:flex;background:transparent;border:0}
-.h2-hero-art{position:absolute;top:0;right:0;bottom:0;width:66%;background:url('/img/hero-summer.webp') right center/cover no-repeat;
+.h2-hero-art{position:absolute;top:0;right:0;bottom:0;width:66%;background:url('/img/hero-summer-day.webp') right center/cover no-repeat;
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
   mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
-  transition:filter .6s ease}
-.h2-hero-veil{position:absolute;top:0;right:0;bottom:0;width:66%;pointer-events:none;background:transparent;transition:background .8s ease;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
-  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%)}
+  transition:opacity .4s ease}
 .h2-hero-body{position:relative;padding:4px 0 0 22px;max-width:50%}
 .h2-hero-body h1{font-family:var(--ui);font-weight:700;font-size:22px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;color:#3B2B36;white-space:nowrap;display:flex;align-items:center;gap:7px}
 .h2-hero-body p{font-size:11.5px;line-height:1.55;color:#9B8490;margin:0 0 11px;max-width:172px}
 .h2-season{display:inline-flex;align-items:center;gap:6px;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:8px 13px;font-size:11.5px;font-weight:700;white-space:nowrap}
 .h2-season b{font-weight:800;margin-left:2px}
 .h2-season-cta{background:#F18DA1;color:#fff;box-shadow:var(--shadow-cta)}
-[data-tod="morning"] .h2-hero-art{filter:brightness(1.04) saturate(.97)}
-[data-tod="morning"] .h2-hero-veil{background:linear-gradient(180deg,rgba(255,238,214,.22),rgba(255,238,214,0) 62%)}
-[data-tod="sunset"] .h2-hero-art{filter:saturate(1.1) brightness(.97)}
-[data-tod="sunset"] .h2-hero-veil{background:linear-gradient(180deg,rgba(255,150,95,.30),rgba(255,110,110,.14) 55%,rgba(255,110,110,.05))}
 
-[data-tod="night"] .h2-hero-art{filter:brightness(.66) saturate(.9) contrast(1.02)}
-[data-tod="night"] .h2-hero-veil{background:radial-gradient(120% 85% at 78% 72%,rgba(255,196,120,.20),rgba(255,170,110,.07) 42%,transparent 66%),linear-gradient(180deg,rgba(26,24,66,.5),rgba(26,24,66,.34) 58%,rgba(26,24,66,.26))}
 
 
 /* ── scan row ── */

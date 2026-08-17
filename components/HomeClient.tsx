@@ -8,7 +8,7 @@ import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadWishlist, toggleProduct, productKey, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
-import { timeOfDay, TimeOfDay } from "@/lib/theme";
+import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
 
 const SUB: Record<TimeOfDay, string> = {
@@ -19,6 +19,13 @@ const SUB: Record<TimeOfDay, string> = {
 };
 
 type Season = "spring" | "summer" | "autumn" | "winter";
+
+/** The illustrations ship in three lights; morning rides on the day art. */
+type HeroLight = "day" | "sunset" | "night";
+function heroLight(t: TimeOfDay): HeroLight {
+  return t === "sunset" ? "sunset" : t === "night" ? "night" : "day";
+}
+
 function calendarSeason(d = new Date()): Season {
   const m = d.getMonth() + 1;
   if (m >= 3 && m <= 5) return "spring";
@@ -55,7 +62,7 @@ export default function HomeClient() {
   useEffect(() => {
     document.body.classList.add("h2-clean");
     setWl(loadWishlist());
-    setTod(timeOfDay());
+    setTod(loadTod() === "auto" ? timeOfDay() : (loadTod() as TimeOfDay));
     setReady(true);
 
     const syncWl = () => setWl(loadWishlist());
@@ -64,10 +71,10 @@ export default function HomeClient() {
     // Keep the sky honest while the app stays open; respect a pinned
     // preview from /theme.
     const tick = setInterval(() => {
-      const pinned = localStorage.getItem("palevie-tod-v1");
+      const pinned = loadTod();
       const slot = timeOfDay();
-      setTod(slot);
-      if (!pinned || pinned === "auto") document.documentElement.setAttribute("data-tod", slot);
+      setTod(pinned === "auto" ? slot : pinned);
+      if (pinned === "auto") document.documentElement.setAttribute("data-tod", slot);
     }, 60_000);
 
     const supabase = getSupabaseBrowser();
@@ -123,8 +130,7 @@ export default function HomeClient() {
 
       {/* hero */}
       <section className="h2-hero" data-hero-season={heroSeason}>
-        <div className="h2-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${heroSeason}.webp')` }} />
-        <div className="h2-hero-veil" aria-hidden />
+        <div className="h2-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${heroSeason}-${heroLight(tod)}.webp')` }} />
         <div className="h2-hero-body">
           <h1>Hi{name ? `, ${name}` : " there"} <span className="h2-wave">{ICON.doodle}</span></h1>
           <p>{SUB[tod]}</p>
