@@ -1209,6 +1209,18 @@ body.sp-open{overflow:hidden}
 @keyframes spIn{from{opacity:.4}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.sp{animation:none}}
 
+
+/* ── finish signing up ── */
+.ps{display:flex;flex-direction:column;gap:12px}
+.ps-head{padding:6px 2px 0}
+.ps-head h1{font-family:var(--display);font-weight:600;font-size:27px;letter-spacing:-.02em;color:#3B2B36;margin:9px 0 0}
+.ps-head p{font-size:12px;line-height:1.6;color:#9B8490;margin:8px 0 0}
+.ps-card{display:grid;gap:11px}
+.ps-email{font-size:11px;color:#B0A0AA;margin:0;padding-left:2px}
+.ps-go{width:100%}
+.ps-go:disabled{opacity:.45;box-shadow:none}
+.ps-note{font-size:10.5px;line-height:1.55;color:#B0A0AA;text-align:center;margin:2px 0 0}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}

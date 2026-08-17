@@ -140,10 +140,10 @@ export default function AccountClient() {
   }
 
   /** Nicknames live on the auth user, so they follow the account to any device. */
-  async function saveIdentity(name: string, avatar: string) {
+  async function saveIdentity(name: string) {
     const supabase = getSupabaseBrowser();
     if (!supabase) return;
-    await supabase.auth.updateUser({ data: { display_name: name, avatar_season: avatar } });
+    await supabase.auth.updateUser({ data: { display_name: name } });
   }
 
   async function signOut() {
@@ -164,7 +164,10 @@ export default function AccountClient() {
   }
 
   if (loading) return <div className="h2-card"><p className="h2-empty">Loading account…</p></div>;
-  if (account && !account.displayName) return <MemberSetup required saveRemote={saveIdentity} onDone={() => void refresh()} />;
+  if (account && !account.displayName) {
+    if (typeof window !== "undefined" && window.location.pathname !== "/account/setup") window.location.replace("/account/setup");
+    return <div className="h2-card"><p className="h2-empty">Finishing your account…</p></div>;
+  }
   if (account) return <AccountDashboard email={account.email} plan={account.plan} onSignOut={signOut} onResetPassword={forgotPassword} saveIdentity={saveIdentity}/>;
   const googleOn = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "1";
   const appleOn = process.env.NEXT_PUBLIC_ENABLE_APPLE_AUTH === "1";
@@ -220,7 +223,7 @@ export default function AccountClient() {
   </div>;
 }
 
-function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{email:string;plan:string;onSignOut:()=>void;onResetPassword:()=>void;saveIdentity:(name:string,avatar:string)=>Promise<void>}){
+function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{email:string;plan:string;onSignOut:()=>void;onResetPassword:()=>void;saveIdentity:(name:string)=>Promise<void>}){
   const [editing,setEditing]=useState(false);
   function exportData(){
     const keys=["palevie-profile-v1","palevie-wishlist-v1","palevie-makeup-prefs-v1","palevie-style-prefs-v1","palevie-style-detail-v1","palevie-skin-profile-v1","palevie-member-v1"];
@@ -249,6 +252,8 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
   const fallback=/^[a-zA-Z]{3,12}$/.test(first)?first.charAt(0).toUpperCase()+first.slice(1).toLowerCase():"there";
   const name=member?.name||fallback;
   const since=memberSince(member);
+  // The profile picture is the season's art — no separate picker to maintain.
+  const avatarSeason=(tone?.season?.toLowerCase() as "spring"|"summer"|"autumn"|"winter"|undefined)??calendarSeason();
   const done:Record<string,boolean>={color:Boolean(tone),makeup:Boolean(mk),style:loadStylePrefs().length>0,skin:Boolean(skin)};
   const doneCount=MEMBER_STEPS.filter(st=>done[st.id]).length;
   const nextStep=MEMBER_STEPS.find(st=>!done[st.id]);
@@ -275,7 +280,7 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
   </div>
 
   <div className="h2-card ac-hero">
-   <span className="ac-avatar" style={{backgroundImage:`url('${heroArt(member?.avatar??calendarSeason(),"day")}')`}} aria-hidden/>
+   <span className="ac-avatar" style={{backgroundImage:`url('${heroArt(avatarSeason,"day")}')`}} aria-hidden/>
    <div className="ac-hero-tx">
     <b>{name}</b>
     {since&&<small className="ac-since">Member since {since}</small>}
@@ -335,7 +340,7 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
 
   <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Account</b><span className="ac-plan">{plan==="free"?"Free":plan}</span></div>
-   <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Nickname &amp; profile art</span><small>{name}</small>{MARK.chevron}</button>
+   <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Nickname</span><small>{name}</small>{MARK.chevron}</button>
    <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
    <button className="ac-set-row" onClick={onResetPassword}><span>Change password</span><small>Emails a reset link</small>{MARK.chevron}</button>
    {since&&<div className="ac-set-row"><span>Member since</span><small>{since}</small></div>}
