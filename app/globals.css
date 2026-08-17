@@ -1221,6 +1221,31 @@ body.sp-open{overflow:hidden}
 .ps-go:disabled{opacity:.45;box-shadow:none}
 .ps-note{font-size:10.5px;line-height:1.55;color:#B0A0AA;text-align:center;margin:2px 0 0}
 
+
+/* ── home: lower sections ── */
+.h2-daily-row{display:flex;align-items:center;gap:11px;margin-top:9px}
+.h2-daily-sw{flex:none;width:52px;height:52px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.h2-daily-tx{flex:1;min-width:0}
+.h2-daily-tx b{display:block;font-size:12.5px;font-weight:750;color:#3B2B36}
+.h2-daily-tx small{display:block;font-size:11px;color:#8A7186;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h2-daily-tx em{display:block;font-style:normal;font-size:10.5px;font-weight:750;color:#A776C8;margin-top:3px}
+.h2-daily-save{flex:none;border:1px solid #FCDEE0;background:#fff;border-radius:999px;padding:8px 13px;font:inherit;font-size:11px;font-weight:750;color:#E8798F;cursor:pointer;touch-action:manipulation}
+.h2-daily-save.on{background:#F18DA1;border-color:#F18DA1;color:#fff}
+.h2-daily-save:active{transform:scale(.95)}
+
+.h2-finish-count{font-size:11.5px;font-weight:750;color:#E8798F}
+.h2-finish-note{font-size:11px;color:#9B8490;margin:8px 0 10px;line-height:1.5}
+.h2-finish .ac-prog-bar{margin:6px 0 0}
+.h2-finish-row{display:flex;gap:7px;flex-wrap:wrap}
+.h2-finish-chip{border:1px solid #FCDEE0;background:#fff;border-radius:999px;padding:9px 13px;font-size:11.5px;font-weight:700;color:#8A5F76}
+.h2-finish-chip:active{transform:scale(.97)}
+
+.h2-avoid{display:block}
+.h2-avoid-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:9px}
+.h2-avoid-row span{display:block;text-align:center;min-width:0}
+.h2-avoid-row i{display:block;width:100%;aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.h2-avoid-row small{display:block;font-size:8px;line-height:1.3;color:#9B8490;margin-top:5px;font-weight:600;overflow-wrap:anywhere}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}

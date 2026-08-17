@@ -7,6 +7,10 @@ import { catalogProducts } from "@/data/products";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadWishlist, toggleProduct, productKey, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
+import { loadStylePrefs } from "@/lib/style";
+import { loadSkinProfile } from "@/lib/skincare";
+import { MEMBER_STEPS } from "@/lib/member";
+import { getToneDetail } from "@/lib/toneDetail";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
@@ -89,6 +93,31 @@ export default function HomeClient() {
       .sort((a, b) => b.match - a.match)
       .slice(0, 6);
   }, [tone, makeupPrefs]);
+
+  /** One shade a day, chosen from the person's own palette — same for everyone
+   *  on the same date, no AI, and a reason to open the app tomorrow. */
+  const daily = useMemo(() => {
+    if (!tone || picks.length === 0) return null;
+    const d = new Date();
+    const seed = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
+    const hex = tone.colors[seed % tone.colors.length];
+    const match = picks[seed % picks.length];
+    return { hex, ...match };
+  }, [tone, picks]);
+
+  const steps = useMemo(() => {
+    if (!ready) return null;
+    const done = {
+      color: Boolean(profile),
+      makeup: Boolean(loadMakeupPrefs()),
+      style: loadStylePrefs().length > 0,
+      skin: Boolean(loadSkinProfile()),
+    } as Record<string, boolean>;
+    const left = MEMBER_STEPS.filter(st => !done[st.id]);
+    return { done, left, count: MEMBER_STEPS.length - left.length };
+  }, [ready, profile]);
+
+  const avoid = tone ? getToneDetail(profile!.primaryType).avoid.slice(0, 5) : [];
 
   function heart(id: string, label: string) {
     const { items, saved } = toggleProduct(id);
@@ -201,6 +230,48 @@ export default function HomeClient() {
           ))}
         </div>
       </section>
+
+      {daily && (
+        <section className="h2-card h2-daily">
+          <div className="h2-cardhead"><b>Today&apos;s shade</b><Link href="/shop" className="h2-viewall">Shop ›</Link></div>
+          <div className="h2-daily-row">
+            <span className="h2-daily-sw" style={{ background: daily.hex }} />
+            <div className="h2-daily-tx">
+              <b>{daily.p.brand}</b>
+              <small>{daily.p.name}</small>
+              <em>{daily.match}% match</em>
+            </div>
+            <button className={`h2-daily-save${wl.some(w => w.id === productKey(daily.p.id)) ? " on" : ""}`}
+              onClick={() => heart(daily.p.id, daily.p.name)}>
+              {wl.some(w => w.id === productKey(daily.p.id)) ? "Saved" : "+ Add"}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {steps && steps.left.length > 0 && (
+        <section className="h2-card h2-finish">
+          <div className="h2-cardhead"><b>Finish your profile</b><span className="h2-finish-count">{steps.count}/{MEMBER_STEPS.length}</span></div>
+          <div className="ac-prog-bar"><i style={{ width: `${(steps.count / MEMBER_STEPS.length) * 100}%` }} /></div>
+          <p className="h2-finish-note">Each one sharpens what the Shop puts in front of you.</p>
+          <div className="h2-finish-row">
+            {steps.left.slice(0, 3).map(st => (
+              <Link key={st.id} href={st.href} className="h2-finish-chip">{st.label} ›</Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {avoid.length > 0 && (
+        <Link href="/quiz" className="h2-card h2-avoid">
+          <div className="h2-cardhead"><b>Colors to skip</b><span className="h2-viewall">Why ›</span></div>
+          <div className="h2-avoid-row">
+            {avoid.map(c => (
+              <span key={c.hex}><i style={{ background: c.hex }} /><small>{c.name}</small></span>
+            ))}
+          </div>
+        </Link>
+      )}
     </div>
   );
 }
