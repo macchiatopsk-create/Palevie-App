@@ -11,6 +11,7 @@ import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
 import { CAT_ICON } from "@/components/icons";
+import { calendarSeason, heroLight, activeTod } from "@/lib/heroArt";
 
 const SUB: Record<TimeOfDay, string> = {
   morning: "Good morning — your colors are up early too.",
@@ -18,23 +19,6 @@ const SUB: Record<TimeOfDay, string> = {
   sunset: "Golden hour looks good on you.",
   night: "Winding down, in your colors.",
 };
-
-type Season = "spring" | "summer" | "autumn" | "winter";
-
-/** The illustrations ship in three lights; morning rides on the day art. */
-type HeroLight = "day" | "sunset" | "night";
-function heroLight(t: TimeOfDay): HeroLight {
-  return t === "sunset" ? "sunset" : t === "night" ? "night" : "day";
-}
-
-function calendarSeason(d = new Date()): Season {
-  const m = d.getMonth() + 1;
-  if (m >= 3 && m <= 5) return "spring";
-  if (m >= 6 && m <= 8) return "summer";
-  if (m >= 9 && m <= 11) return "autumn";
-  return "winter";
-}
-
 
 const ICON = {
   heart: <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20s-6.4-4.1-8.6-8C1.9 9.3 3.3 5.9 6.4 5.3c1.9-.4 3.9.4 5 2 .3.5.6.9.6.9s.3-.4.6-.9c1.1-1.6 3.1-2.4 5-2 3.1.6 4.5 4 3 6.7-2.2 3.9-8.6 8-8.6 8z"/></svg>,
@@ -55,7 +39,7 @@ export default function HomeClient() {
   useEffect(() => {
     document.body.classList.add("h2-clean");
     setWl(loadWishlist());
-    setTod(loadTod() === "auto" ? timeOfDay() : (loadTod() as TimeOfDay));
+    setTod(activeTod());
     setReady(true);
 
     const syncWl = () => setWl(loadWishlist());
@@ -86,7 +70,7 @@ export default function HomeClient() {
   const tone = profile ? getToneProfile(profile.primaryType) : null;
   // The art tracks the real season outside the window; the user's own
   // season is what the chip below it announces.
-  const heroSeason: Season = calendarSeason();
+  const heroSeason = calendarSeason();
   const makeupPrefs = ready ? loadMakeupPrefs() : null;
 
   const picks = useMemo(() => {

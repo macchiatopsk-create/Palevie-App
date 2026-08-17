@@ -25,45 +25,48 @@ export default function QuizClient(){
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
-  <div className="qz-top">
-   <button className="qz-back" disabled={step===0} onClick={()=>setStep(s=>Math.max(0,s-1))}>←</button>
-   <b className="qz-logo">Palevie</b>
-   <span className="qz-count"><em>{step+1}</em> / {QUIZ_QUESTIONS.length}</span>
-  </div>
-  <div className="qz-bar"><i style={{width:`${progress}%`}}><u>✦</u></i></div>
-  <div className="qz-head">
-   <h2>{(()=>{const w=q.text.split(" ");const cut=Math.ceil(w.length/2);return <>{w.slice(0,cut).join(" ")} <em>{w.slice(cut).join(" ")}</em></>})()}</h2>
+  <div className="h2-card qz-card">
+   <div className="qz-prog">
+    <span className="qz-count"><b>{step+1}</b> / {QUIZ_QUESTIONS.length}</span>
+    <div className="qz-bar"><i style={{width:`${progress}%`}}/></div>
    </div>
-  {q.help&&<p className="qz-help">{q.help}</p>}
-  {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
-   const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
-   const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>✓ This one suits me</button>;
-   const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);chooseAndNext(neutral)}}>Honestly can&apos;t tell</button>;
-   return <div className="dr">
-    <div className="dr-swatch" style={{background:cur.hex}}>
-     <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">⛶ Fill screen</button>
-     <span>{cur.label}</span>
+
+   <h2 className="qz-q">{q.text}</h2>
+   {q.help&&<p className="qz-help">{q.help}</p>}
+
+   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
+    const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
+    const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>{MARK.check} This one suits me</button>;
+    const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);chooseAndNext(neutral)}}>Honestly can&apos;t tell</button>;
+    return <div className="dr">
+     <div className="dr-swatch" style={{background:cur.hex}}>
+      <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">{MARK.expand} Fill screen</button>
+      <span>{cur.label}</span>
+     </div>
+     {toggle}{pick}{cant}
+     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
+     {full && <div className="dr-full" style={{background:cur.hex}}>
+       <button className="dr-close" onClick={()=>setFull(false)} aria-label="Close">{MARK.close}</button>
+       <div className="dr-full-ui">{toggle}{pick}{cant}</div>
+     </div>}
+    </div>})() :
+   <>
+    <div className={q.options.some(o=>o.img)?"qz-photos":"qz-opts"}>{q.options.map((o,idx)=>
+     o.img
+      ? <button key={o.label} className={`qz-photo ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+         <img src={o.img} alt=""/><span>{o.label}<i/></span>
+        </button>
+      : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+         <span>{o.label}</span><i/>
+        </button>)}
     </div>
-    {toggle}{pick}{cant}
-    {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>‹ Previous question</button>}
-    {full && <div className="dr-full" style={{background:cur.hex}}>
-      <button className="dr-close" onClick={()=>setFull(false)}>✕</button>
-      <div className="dr-full-ui">{toggle}{pick}{cant}</div>
-    </div>}
-   </div>})() :
-  <div className={q.options.some(o=>o.img)?"qz-photos":"qz-opts"}>{q.options.map((o,idx)=>
-   o.img
-    ? <button key={o.label} className={`qz-photo ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
-       <img src={o.img} alt=""/><span>{o.label}<i/></span>
-      </button>
-    : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
-       <span>{o.label}</span><i/>
-      </button>)}
-  </div>}
-  {q.kind!=="drape" && <div className="qz-foot">
-   <button className="qz-skip" onClick={()=>{const neutral=q.options.reduce((best,o,i)=>{const w=Math.abs(o.t??0)+Math.abs(o.v??0)+Math.abs(o.c??0)+Math.abs(o.k??0);return w<best.w?{i,w}:best},{i:0,w:99}).i;choose(neutral);setTimeout(next,60)}}>Skip ✦</button>
-   <button className="qz-next" disabled={selected===null} onClick={next}>{step===QUIZ_QUESTIONS.length-1?"See my colors ✦":"Next ✦"}</button>
-  </div>}
+    <button className="qz-next" disabled={selected===null} onClick={next}>
+     {step===QUIZ_QUESTIONS.length-1?"See my colors":"Next"} {MARK.chevron}
+    </button>
+    <button className="qz-skip" onClick={()=>{const neutral=q.options.reduce((best,o,i)=>{const w=Math.abs(o.t??0)+Math.abs(o.v??0)+Math.abs(o.c??0)+Math.abs(o.k??0);return w<best.w?{i,w}:best},{i:0,w:99}).i;choose(neutral);setTimeout(next,60)}}>Skip</button>
+    {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
+   </>}
+  </div>
  </div>;
 }
 
