@@ -72,14 +72,13 @@ export default function ShareResult({ toneId, toneName }: { toneId: string; tone
 
   return (
     <div className="h2-card share-block">
-      <img className="share-preview" src={cardUrl} alt={`${toneName} season card`} loading="lazy" />
       <button className="rs-cta share-btn" onClick={share} disabled={state === "working"}>
         {state === "idle" && MARK.share}{label}
       </button>
       <button className="share-link" onClick={copyLink}>
         {state === "copied" ? "Link copied ✓" : "Copy link instead"}
       </button>
-      <p className="share-hint">Post it to your story and tag the friends you want to test.</p>
+      <p className="share-hint">Shares the card version of this result — post it to your story and tag the friends you want to test.</p>
     </div>
   );
 }

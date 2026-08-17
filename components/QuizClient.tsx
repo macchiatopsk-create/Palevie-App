@@ -18,6 +18,9 @@ function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=se
 export default function QuizClient(){
  const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);
  useEffect(()=>{setSide(0);setFull(false)},[step]);
+ // The result screen is its own page — the quiz hero and tabs step aside.
+ useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
+  return()=>{document.body.classList.remove("quiz-focus")}},[result,pending]);
  // Every question starts at the same scroll position, so the buttons never
  // move under the thumb between taps.
  useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;

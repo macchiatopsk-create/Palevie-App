@@ -788,7 +788,6 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .rs-cta2{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:999px;border:1px solid #FCDEE0;background:#fff;color:#A776C8;font-size:12.5px;font-weight:700;margin-top:8px}
 
 .share-block{text-align:center}
-.share-preview{width:100%;max-width:196px;aspect-ratio:9/16;object-fit:cover;border-radius:14px;display:block;margin:0 auto 11px;background:#F8EAF6}
 .share-btn{width:100%}
 .share-btn:disabled{opacity:.6}
 .share-btn svg{stroke:currentColor}
@@ -894,7 +893,7 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 
 /* ── analyzing: full-screen, same card language ── */
 .an{position:fixed;inset:0;z-index:120;overflow-y:auto;background:#FDF9F8}
-.an-inner{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 18px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:12px}
+.an-inner{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 18px calc(env(safe-area-inset-bottom,0px) + 92px);display:flex;flex-direction:column;gap:12px}
 .an-brand{font-family:var(--display);font-size:25px;letter-spacing:-.03em;color:#3B2B36}
 .an h2{font-family:var(--ui);font-weight:750;font-size:clamp(21px,5.8vw,25px);line-height:1.2;letter-spacing:-.02em;color:#3B2B36;margin:14px 0 0;text-align:center}
 .an-sub{font-size:12px;line-height:1.55;color:#9B8490;margin:8px auto 4px;max-width:20rem;text-align:center}
@@ -1053,6 +1052,9 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .ac-email{font-size:17px;font-weight:700;margin:4px 0 8px;color:#3B2B36;overflow-wrap:anywhere}
 .ac-row{display:flex;justify-content:space-between;font-size:12.5px;color:#8A7186}
 
+
+body.quiz-focus .qh-hero,body.quiz-focus .qh-tabs{display:none}
+body.quiz-focus .qh{gap:0}
 
 /* ── quiz result ── */
 .rs{display:flex;flex-direction:column;gap:12px;padding-bottom:2px}
