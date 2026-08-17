@@ -1199,6 +1199,16 @@ body.ms-open{overflow:hidden}
 .ac-signout{width:100%;min-height:44px;border:1px solid #FCDEE0;background:#fff;border-radius:999px;font:inherit;font-size:13px;font-weight:700;color:#C7788C;cursor:pointer;margin-top:2px}
 .ac-signout:active{transform:scale(.99)}
 
+
+/* ── launch splash ── */
+body.sp-open{overflow:hidden}
+.sp{position:fixed;inset:0;z-index:900;background:#FDF9F8;display:flex;align-items:center;justify-content:center;
+  animation:spIn .28s ease-out;transition:opacity .5s ease}
+.sp img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.sp.out{opacity:0;pointer-events:none}
+@keyframes spIn{from{opacity:.4}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.sp{animation:none}}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}
