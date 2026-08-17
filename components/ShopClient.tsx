@@ -10,6 +10,7 @@ import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats, loadStyleDetail, loadFitPref } from "@/lib/style";
 import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
+import { NAV_ICON } from "@/components/icons";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
@@ -35,6 +36,7 @@ export default function ShopClient() {
   const [menu, setMenu] = useState(false);
     const [ready, setReady] = useState(false);
   const [wl, setWl] = useState<SavedItem[]>([]);
+  useEffect(()=>{document.body.classList.add("h2-clean");return()=>{document.body.classList.remove("h2-clean")}},[]);
   const profile = useMemo(() => {
     if (!ready) return null;
     const p = loadProfile();
@@ -105,11 +107,19 @@ export default function ShopClient() {
   const shown = sort==="match" ? items : [...items].sort((a,b)=> sort==="lo" ? cents(a)-cents(b) : cents(b)-cents(a));
 
   return <>
-    <div className="sh-top"><b className="sh-logo">Palevie</b><span className="sh-bell"><svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.6 5.4 2 6H4c.4-.6 2-2 2-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><i/></span></div>
-    <div className="sh-head"><h1>Shop</h1></div>
-    <div className="sh-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search for products"/><b>✦</b></div>
+    <div className="h2-top">
+      <span className="h2-brand">Palevie</span>
+      <div className="h2-topbtns">
+        <a href="/wishlist" className="h2-ic" aria-label="My list">{NAV_ICON.heart}</a>
+        <a href="/account" className="h2-ic" aria-label="Account">{NAV_ICON.user}</a>
+      </div>
+    </div>
+    <div className="sh-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+      <input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search products, brands, or shades"/>
+    </div>
     <div className="sh-pills">
-      {([["all","✦ All"],["lip","💋 Lips"],["eyeshadow","👁 Eyes"],["blush","😊 Cheeks"],["skincare","🧴 Skin"],["clothes","👗 Clothes"]] as const).map(([k,l])=>
+      {([["all","All"],["lip","Lips"],["blush","Cheek"],["eyeshadow","Eye"],["skincare","Skincare"],["clothes","Clothes"]] as const).map(([k,l])=>
         <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>)}
     </div>
 
@@ -117,12 +127,13 @@ export default function ShopClient() {
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
     <div className="sh-tools">
+      <span className="sh-count">{shown.length} item{shown.length===1?"":"s"}</span>
       <div className="sh-dd">
-        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>⇅ {sort==="match"?"Best match":sort==="lo"?"Price: Low":"Price: High"} ▾</button>
+        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>Sort: {sort==="match"?"Best Match":sort==="lo"?"Price Low":"Price High"} <em>▾</em></button>
         {menu && <div className="sh-dd-menu">
           {(["match","lo","hi"] as const).map(k=>
             <button key={k} className={sort===k?"on":""} onPointerDown={()=>{setSort(k);setMenu(false)}}>
-              {k==="match"?"✦ Best match":k==="lo"?"$ Price: Low to High":"$$ Price: High to Low"}
+              {k==="match"?"Best match":k==="lo"?"Price: Low to High":"Price: High to Low"}
             </button>)}
         </div>}
       </div>
@@ -186,15 +197,15 @@ export default function ShopClient() {
     <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
-        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} onClick={(e)=>{e.preventDefault();heart(p.id,p.name)}}><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></button>{p.sponsored && <b className="sponsored-badge">Sponsored</b>}
+        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} onClick={(e)=>{e.preventDefault();heart(p.id,p.name)}}><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></button>{p.sponsored ? <b className="sponsored-badge">Sponsored</b> : p.match !== undefined && p.match >= 85 ? <b className="sh-badge">Best</b> : null}
       </div>
       <div className="sh-meta">
-        <h3>{p.colorHex && <i className="sh-dot" style={{background:p.colorHex}}/>}{p.name}</h3>
-        <div className="sh-buy">
-          <b>{p.offers[0]?.priceLabel ?? ""}</b>
-          <button className={`sh-plus${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)} aria-label={`Save ${p.name} to my list`}>{wl.some(w=>w.id===productKey(p.id))?"✓":"＋"}</button>
+        <b className="sh-brand">{p.brand}</b>
+        <h3>{p.name}</h3>
+        <div className="sh-line">
+          {p.offers[0]?.priceLabel && <span className="sh-price">{p.offers[0].priceLabel}</span>}
+          {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
-        {p.match !== undefined && <small className="sh-match">{p.match}% match · {p.reason}</small>}
       </div>
     </article>)}</div>
     )}

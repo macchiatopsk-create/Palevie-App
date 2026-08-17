@@ -246,7 +246,6 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}b
 .lp-best-card b{font-size:20px;line-height:1;vertical-align:middle;margin-right:6px}
 .lp-best-card strong{display:inline-block;font-size:15px;margin:6px 0 4px}
 .lp-best-card p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.5}
-.shop-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* ghost CTA (selfie scan) */
 .lp-btn-ghost{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.78);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--ink);font-weight:600;font-size:15px;padding:15px 26px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease}
@@ -369,8 +368,6 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}b
 /* ═══ analyzing v2 (orbital) ═══ */
 
 /* ═══ shop glossy ═══ */
-.shop-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);display:grid;place-items:center;box-shadow:var(--shadow-soft)}
-.shop-heart svg{width:16px;height:16px;stroke:#C86DD7;fill:none;stroke-width:1.7}
 
 /* ═══ mockup-image home ═══ */
 .mk-home{display:flex;justify-content:center;padding:0 0 104px}
@@ -397,21 +394,6 @@ body:has(.mk-home) .site-header{display:none}
 /* quiz gradient tail + skip */
 
 /* shop per mockup */
-.sh-head h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,9vw,52px);margin:2px 0 14px;letter-spacing:-.02em}
-.sh-search{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.95);border-radius:999px;padding:14px 18px;box-shadow:var(--shadow-soft)}
-.sh-search svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:1.8;flex:none}
-.sh-search input{flex:1;border:none;background:none;font:inherit;font-size:15px;outline:none;color:var(--ink);min-width:0}
-.sh-search b{color:#B96DF0;font-size:15px}
-.sh-pills{display:flex;gap:9px;overflow-x:auto;padding:14px 2px 6px;-webkit-overflow-scrolling:touch}
-.sh-pills::-webkit-scrollbar{display:none}
-.sh-pills button{flex:none;border:none;background:rgba(255,255,255,.75);border-radius:999px;padding:11px 17px;font:inherit;font-size:13.5px;font-weight:600;color:#7d6f78;cursor:pointer;box-shadow:var(--shadow-soft)}
-.sh-pills button.on{background:var(--grad-cta);color:#fff;box-shadow:0 6px 16px rgba(200,90,200,.30)}
-.sh-meta{padding:13px 15px 15px;background:#fff}
-.sh-meta h3{font-size:15px;font-weight:600;margin:0}
-.sh-buy{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.sh-buy b{font-size:17px;font-weight:700;color:var(--rose)}
-.sh-plus{width:36px;height:36px;border-radius:50%;background:var(--grad-cta);color:#fff;display:grid;place-items:center;font-size:19px;font-weight:700;box-shadow:0 6px 14px rgba(200,90,200,.32)}
-.sh-match{display:block;margin-top:8px;font-size:11px;color:var(--muted)}
 /* mobile: hide site header (mockups carry their own chrome) */
 @media(max-width:860px){.site-header{display:none}}
 
@@ -479,28 +461,11 @@ input[type="email"]{margin-bottom:16px}
 /* deep press everywhere */
 
 /* fullscreen analyzing takeover */
-.sh-dot{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7),0 1px 4px rgba(60,42,84,.25)}
-.sh-top{display:flex;justify-content:space-between;align-items:center;padding:4px 0 10px}
-.sh-logo{font-family:var(--display);font-weight:600;font-size:26px;color:#E8558E}
-.sh-bell{position:relative;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.85);display:grid;place-items:center;box-shadow:var(--shadow-soft)}
-.sh-bell svg{width:20px;height:20px;stroke:#4a3d46;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.sh-bell i{position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:50%;background:#F0448F}
-.shop-card{border-radius:18px;overflow:hidden;box-shadow:none;border:1px solid #FCDEE0}
-.sh-meta h3{font-size:15px;font-weight:500;color:#2e2632}
-.sh-buy b{font-size:18px}
 
 body:has(.sh-top) .app-title{display:none}
 
 /* shop grid: always multi-column + tools */
-.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
-.shop-grid.c3{grid-template-columns:repeat(3,1fr)}
-.shop-grid.c3 .sh-meta{padding:9px 10px 11px}
-.shop-grid.c3 .sh-meta h3{font-size:12px}
-.shop-grid.c3 .sh-buy b{font-size:14px}
-.shop-grid.c3 .sh-plus{width:28px;height:28px;font-size:15px}
-.shop-grid.c3 .sh-match{display:none}
 @media(min-width:860px){.shop-grid{grid-template-columns:repeat(3,1fr)}.shop-grid.c3{grid-template-columns:repeat(4,1fr)}}
-.sh-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 2px 12px}
 .sh-sort{display:flex;gap:7px}
 .sh-sort button{border:none;background:rgba(255,255,255,.75);border-radius:999px;padding:9px 13px;font:inherit;font-size:12px;font-weight:600;color:#8a7c85;cursor:pointer;box-shadow:var(--shadow-soft)}
 .sh-sort button.on{background:var(--grad-cta);color:#fff}
@@ -509,26 +474,9 @@ body:has(.sh-top) .app-title{display:none}
 .sh-view button.on{background:var(--grad-cta);color:#fff}
 
 /* compact square tiles + tidy sort tab */
-.shop-art{height:auto;aspect-ratio:1/1}
-.shop-grid.c3 .shop-art{aspect-ratio:1/1}
-.shop-grid.c3 .shop-card{border-radius:16px}
-.sh-tools{position:relative;z-index:20}
-.sh-dd{position:relative}
 .sh-dd-btn{border:none;background:rgba(255,255,255,.85);border-radius:999px;padding:10px 15px;font:inherit;font-size:12.5px;font-weight:700;color:#6d5a66;cursor:pointer;box-shadow:var(--shadow-soft)}
-.sh-dd-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:210px;background:#fff;border-radius:16px;box-shadow:0 14px 34px rgba(60,42,84,.18);padding:6px;display:grid;gap:2px}
-.sh-dd-menu button{border:none;background:none;text-align:left;border-radius:11px;padding:11px 13px;font:inherit;font-size:13px;font-weight:600;color:#5f4f5a;cursor:pointer}
-.sh-dd-menu button.on{background:var(--rose-soft);color:#D6417F}
 .sh-viewbtn{border:none;background:rgba(255,255,255,.85);border-radius:999px;padding:10px 14px;font:inherit;font-size:12.5px;font-weight:700;color:#6d5a66;cursor:pointer;box-shadow:var(--shadow-soft)}
-.shop-grid.c1{grid-template-columns:1fr}
-.shop-grid.c1 .shop-art{aspect-ratio:1.25/1}
-.shop-grid.c1 .sh-meta h3{font-size:16.5px}
-.sh-dd-menu.right{left:auto;right:0}
 @media(min-width:860px){.shop-grid.c1{grid-template-columns:repeat(2,1fr)}}
-.sh-cols{display:flex;gap:4px;background:rgba(255,255,255,.75);border-radius:999px;padding:4px;box-shadow:var(--shadow-soft)}
-.sh-cols button{border:none;background:none;border-radius:999px;width:38px;height:32px;display:grid;place-items:center;cursor:pointer}
-.sh-cols svg{width:16px;height:16px;fill:#b09aa8}
-.sh-cols button.on{background:var(--grad-cta)}
-.sh-cols button.on svg{fill:#fff}
 
 /* account email: never overflow the card */
 .account-card h2{font-size:clamp(17px,4.6vw,22px)!important;overflow-wrap:anywhere;word-break:break-all;line-height:1.3}
@@ -655,9 +603,6 @@ body:has(.sh-top) .app-title{display:none}
 .nav-badge{position:absolute;top:-6px;right:-10px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--grad-cta);color:#fff;font-style:normal;font-size:9px;font-weight:800;display:grid;place-items:center;box-shadow:0 2px 6px rgba(255,92,138,.4)}
 
 /* wishlist hearts on product surfaces */
-.shop-heart{border:0;cursor:pointer}
-.shop-heart.on{background:var(--grad-cta)}
-.shop-heart.on svg{stroke:#fff;fill:#fff}
 .mini-heart{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.9);color:#D6417F;font-size:15px;line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(60,42,84,.14);display:grid;place-items:center;z-index:2}
 .mini-heart.on{background:var(--grad-cta);color:#fff}
 .mu-item,.mini-product{position:relative}
@@ -671,8 +616,6 @@ body:has(.sh-top) .app-title{display:none}
 .opt-tag{font-size:11px;font-weight:500;color:var(--muted)}
 
 /* price-compare rows in the list; cart-style shop plus */
-.sh-plus{border:0;cursor:pointer}
-.sh-plus.on{background:#3FB27F;box-shadow:0 6px 14px rgba(63,178,127,.35)}
 
 /* wizard multi-select check */
 
@@ -1067,6 +1010,56 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .wl-empty{text-align:center}
 .wl-empty p{font-size:12.5px;line-height:1.6;color:#8A7186;margin:2px 0 12px}
 .wl-disc{font-size:10.5px;color:#B0A0AA;line-height:1.55;text-align:center;margin:2px 0 0}
+
+
+/* ── shop ── */
+.sh{--pad:0}
+.sh-search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #FCDEE0;border-radius:999px;padding:12px 16px}
+.sh-search svg{width:17px;height:17px;stroke:#C9B3BE;fill:none;stroke-width:1.9;flex:none}
+.sh-search input{flex:1;border:none;background:none;font:inherit;font-size:13px;outline:none;color:#3B2B36;min-width:0}
+.sh-search input::placeholder{color:#B8A6B0}
+.sh-pills{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 2px;scrollbar-width:none}
+.sh-pills::-webkit-scrollbar{display:none}
+.sh-pills button{flex:none;border:1px solid #FCDEE0;background:#fff;border-radius:999px;padding:9px 15px;font:inherit;font-size:12px;font-weight:650;color:#8A7186;cursor:pointer;transition:background .14s ease,color .14s ease}
+.sh-pills button.on{background:#F18DA1;border-color:#F18DA1;color:#fff;font-weight:700}
+.sh-pills button:active{transform:scale(.97)}
+.sh-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px 10px;position:relative;z-index:20}
+.sh-count{font-size:11.5px;font-weight:650;color:#9B8490}
+.sh-dd{position:relative}
+.sh-dd-btn{display:flex;align-items:center;gap:7px;border:1px solid #FCDEE0;background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-size:11.5px;font-weight:650;color:#6E5C68;cursor:pointer}
+.sh-dd-btn em{font-style:normal;color:#C9B3BE}
+.sh-dd-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:196px;background:#fff;border:1px solid #FCDEE0;border-radius:14px;padding:6px;display:grid;gap:2px;box-shadow:0 10px 26px rgba(60,42,84,.10);z-index:30}
+.sh-dd-menu button{border:none;background:none;text-align:left;border-radius:10px;padding:10px 12px;font:inherit;font-size:12px;font-weight:600;color:#6E5C68;cursor:pointer}
+.sh-dd-menu button.on{background:#FBECEF;color:#E8798F;font-weight:700}
+.sh-cols{display:flex;gap:3px;background:#fff;border:1px solid #FCDEE0;border-radius:999px;padding:3px}
+.sh-cols button{border:none;background:none;border-radius:999px;width:32px;height:28px;display:grid;place-items:center;cursor:pointer}
+.sh-cols svg{width:15px;height:15px;fill:#C9B3BE}
+.sh-cols button.on{background:#FBECEF}
+.sh-cols button.on svg{fill:#E8798F}
+
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.shop-grid.c3{grid-template-columns:repeat(3,1fr)}
+.shop-grid.c1{grid-template-columns:1fr}
+.shop-card{background:#fff;border:1px solid #FCDEE0;border-radius:16px;overflow:hidden}
+.shop-art{position:relative;aspect-ratio:1/1;background:#FDF6F7}
+.shop-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shop-grid.c1 .shop-art{aspect-ratio:1.4/1}
+.sh-badge,.sponsored-badge{position:absolute;top:9px;left:9px;background:#F18DA1;color:#fff;border-radius:999px;padding:4px 10px;font-size:10px;font-weight:800;letter-spacing:.01em}
+.shop-heart{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;cursor:pointer}
+.shop-heart svg{width:16px;height:16px;stroke:#E8798F;fill:none;stroke-width:1.8}
+.shop-heart.on{background:#F18DA1}
+.shop-heart.on svg{stroke:#fff;fill:#fff}
+.sh-meta{padding:11px 12px 12px}
+.sh-brand{display:block;font-size:12.5px;font-weight:750;color:#3B2B36;letter-spacing:-.01em}
+.sh-meta h3{font-size:11.5px;font-weight:550;color:#6E5C68;margin:3px 0 0;line-height:1.4}
+.sh-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sh-price{font-size:12px;font-weight:750;color:#3B2B36}
+.sh-match{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:650;color:#A776C8}
+.sh-match i{display:block;width:8px;height:8px;border-radius:50%;flex:none}
+.shop-grid.c3 .sh-meta{padding:9px 9px 10px}
+.shop-grid.c3 .sh-brand{font-size:11px}
+.shop-grid.c3 .sh-meta h3{font-size:10px}
+.shop-grid.c3 .sh-match{display:none}
 
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
