@@ -8,6 +8,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
+    // Coming back from an OAuth tab should reuse the open window rather than
+    // spawning a second one that then fails to load.
+    launch_handler: { client_mode: "navigate-existing" },
     background_color: "#FDF9F8",
     theme_color: "#FDF9F8",
     categories: ["beauty", "lifestyle", "shopping"],

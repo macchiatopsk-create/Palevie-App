@@ -131,7 +131,7 @@ export default function AccountClient() {
     setStatus(`Opening ${provider === "google" ? "Google" : "Apple"}…`);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/account`, queryParams: { prompt: "select_account" } },
+      options: { redirectTo: `${window.location.origin}/auth/callback`, queryParams: { prompt: "select_account" } },
     });
     // A disabled provider fails here rather than at the callback, so say so plainly.
     if (error) setStatus(error.message.toLowerCase().includes("not enabled")
