@@ -201,13 +201,16 @@ export default function ShopClient() {
     <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
-        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={wl.some(w=>w.id===productKey(p.id))} type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();heart(p.id,p.name)}}><svg viewBox="0 0 24 24"><path d="M12 20s-6.7-4.2-9-8.4C1.3 8.4 3.2 5 6.6 5c2 0 3.4 1 4.4 2.6C12 6 13.4 5 15.4 5c3.4 0 5.3 3.4 3.6 6.6-2.3 4.2-9 8.4-9 8.4z"/></svg></button>{p.sponsored ? <b className="sponsored-badge">Sponsored</b> : p.match !== undefined && p.match >= 85 ? <b className="sh-badge">Best</b> : null}
+        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={wl.some(w=>w.id===productKey(p.id))} type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();heart(p.id,p.name)}}><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden><path d="M12 20.4S3.6 15.2 3.6 9.9A4.3 4.3 0 0 1 12 8.1a4.3 4.3 0 0 1 8.4 1.8c0 5.3-8.4 10.5-8.4 10.5z"/></svg></button>{p.sponsored ? <b className="sponsored-badge">Sponsored</b> : p.match !== undefined && p.match >= 85 ? <b className="sh-badge">Best</b> : null}
       </div>
       <div className="sh-meta">
         <b className="sh-brand">{p.brand}</b>
         <h3>{p.name}</h3>
         <div className="sh-line">
           {p.offers[0]?.priceLabel && <span className="sh-price">{p.offers[0].priceLabel}</span>}
+          <button type="button" className={`sh-add${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)}>
+            {wl.some(w=>w.id===productKey(p.id))?"Saved":"+ Add"}
+          </button>
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
       </div>
