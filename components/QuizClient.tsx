@@ -58,10 +58,11 @@ export default function QuizClient(){
      </div>}
     </div>})() :
    <>
-    <div className={q.options.some(o=>o.img)?"qz-photos":"qz-opts"}>{q.options.map((o,idx)=>
-     o.img
-      ? <button key={o.label} className={`qz-photo ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
-         <img src={o.img} alt=""/><span>{o.label}<i/></span>
+    <div className={q.options.some(o=>o.tone||o.img)?"qz-tones":"qz-opts"}>{q.options.map((o,idx)=>
+     o.tone||o.img
+      ? <button key={o.label} className={`qz-tone ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+         <span className="qz-tone-tile" style={{background:o.tone}} aria-hidden/>
+         <span className="qz-tone-tx">{o.label}<i/></span>
         </button>
       : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
          <span>{o.label}</span><i/>

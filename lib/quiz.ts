@@ -12,6 +12,7 @@ export type AxisScores = {
 export type QuizOption = {
   label: string;
   img?: string;
+  tone?: string; // skin-tone swatch (shown as a color tile, not a photo)
   hex?: string; // drape swatch color // photo option (mockup skin-tone tiles)
   t?: number; // temperature delta
   v?: number; // value delta
@@ -33,10 +34,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   { id: "skintone", text: "Which skin tone looks closest to yours?",
     help: "Choose the closest match in natural light.",
     options: [
-      { label: "Fair", img: "/img/qs_fair.webp", v: 2 },
-      { label: "Light", img: "/img/qs_light.webp", v: 1 },
-      { label: "Medium", img: "/img/qs_medium.webp", v: -1 },
-      { label: "Deep", img: "/img/qs_deep.webp", v: -2 },
+      { label: "Fair", tone: "#F7DACB", v: 2 },
+      { label: "Light", tone: "#EFC3A6", v: 1 },
+      { label: "Medium", tone: "#D79C74", v: -1 },
+      { label: "Deep", tone: "#9E6244", v: -2 },
     ]},
   { id: "hair", text: "Your natural hair color (before any dye):",
     options: [
