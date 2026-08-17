@@ -6,89 +6,110 @@ import { STYLES, loadStyleDetail } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
 import { retailers, compareRetailersFor, CLOTHING_RETAILERS } from "@/lib/retailers";
 import { track, getVisitorId } from "@/lib/analytics";
+import { NAV_ICON, MARK } from "@/components/icons";
 
 export default function WishlistClient() {
   const [items, setItems] = useState<SavedItem[] | null>(null);
   useEffect(() => {
+    document.body.classList.add("h2-clean");
     const sync = () => setItems(loadWishlist());
     sync();
     window.addEventListener(WISHLIST_EVENT, sync);
     window.addEventListener("storage", sync);
-    return () => { window.removeEventListener(WISHLIST_EVENT, sync); window.removeEventListener("storage", sync); };
+    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, sync); window.removeEventListener("storage", sync); };
   }, []);
 
   if (items === null) return null;
-
-  if (items.length === 0) {
-    return (
-      <div className="beauty-card" style={{ textAlign: "center" }}>
-        <div className="eyebrow">Nothing saved yet</div>
-        <h2>Heart anything and it lands here.</h2>
-        <p className="lede-small">Style pieces, makeup and skincare — keep what you love, then shop it all from one place.</p>
-        <div className="button-row" style={{ justifyContent: "center" }}>
-          <Link className="button rose" href="/quiz?tab=style">Browse styles</Link>
-          <Link className="button secondary" href="/quiz?tab=makeup">Makeup picks</Link>
-        </div>
-      </div>
-    );
-  }
 
   function remove(id: string, label: string) {
     setItems(removeSaved(id));
     track("wishlist_removed", { label });
   }
 
+  const head = (
+    <div className="h2-top">
+      <span className="h2-brand">Palevie</span>
+      <div className="h2-topbtns">
+        <Link href="/account" className="h2-ic" aria-label="Account">{NAV_ICON.user}</Link>
+      </div>
+    </div>
+  );
+
+  const banner = (
+    <div className="h2-card wl-head">
+      <span className="wl-head-ic">{NAV_ICON.heart}</span>
+      <div className="wl-head-tx">
+        <b>My List</b>
+        <small>Your saved beauty favorites.</small>
+      </div>
+      <span className="wl-head-count">{items.length} item{items.length === 1 ? "" : "s"}</span>
+    </div>
+  );
+
+  if (items.length === 0) {
+    return (
+      <div className="wl">
+        {head}
+        {banner}
+        <div className="h2-card wl-empty">
+          <p>Heart anything and it lands here — makeup, skincare, and pieces in your season&apos;s shades.</p>
+          <Link className="rs-cta" href="/shop">Browse the shop</Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="beauty-card">
-      <div className="eyebrow">{items.length} saved</div>
-      <h2>Everything you&apos;ve kept.</h2>
+    <div className="wl">
+      {head}
+      {banner}
+
       <div className="wl-list">
         {items.map(item => {
           if (item.kind === "style") {
+            const budget = loadStyleDetail().budget;
             return (
-              <div className="wl-item" key={item.id}>
-                <span className="sp-swatch wl-swatch" style={{ background: item.hex }}><i>{item.icon}</i></span>
+              <div className="h2-card wl-item" key={item.id}>
+                <span className="wl-thumb" style={{ background: item.hex }} />
                 <div className="wl-body">
-                  <b>{item.label}</b>
-                  <small>{STYLES.find(s => s.id === item.style)?.name}</small>
+                  <b>{STYLES.find(s => s.id === item.style)?.name}</b>
+                  <span>{item.label}</span>
+                  <div className="wl-compare">
+                    {CLOTHING_RETAILERS.map(r => {
+                      const rq = new URLSearchParams({ q: item.query, tone: item.toneId, label: item.label, r, surface: "wishlist_page", v: getVisitorId() });
+                      if (budget !== "flexible") rq.set("hp", budget === "under30" ? "30" : "60");
+                      return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
+                        onClick={() => track("affiliate_outbound_click", { retailer: r, surface: "wishlist_page", label: item.label })}>{retailers[r].name}</a>;
+                    })}
+                  </div>
                 </div>
-                <div className="wl-compare">
-                  {CLOTHING_RETAILERS.map(r => {
-                    const budget = loadStyleDetail().budget;
-                    const rq = new URLSearchParams({ q: item.query, tone: item.toneId, label: item.label, r, surface: "wishlist_page", v: getVisitorId() });
-                    if (budget !== "flexible") rq.set("hp", budget === "under30" ? "30" : "60");
-                    return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
-                      onClick={() => track("affiliate_outbound_click", { retailer: r, surface: "wishlist_page", label: item.label })}>{retailers[r].name}</a>;
-                  })}
-                </div>
-                <button className="wl-remove" aria-label={`Remove ${item.label}`} onClick={() => remove(item.id, item.label)}>×</button>
+                <button className="wl-heart" aria-label={`Remove ${item.label}`} onClick={() => remove(item.id, item.label)}>{NAV_ICON.heart}</button>
               </div>
             );
           }
           const p = catalogProducts.find(c => c.id === item.productId);
           if (!p) return null;
           return (
-            <div className="wl-item" key={item.id}>
-              {p.colorHex
-                ? <span className="sp-swatch wl-swatch wl-round" style={{ background: p.colorHex }} />
-                : <span className="sp-swatch wl-swatch wl-skin"><i>🧴</i></span>}
+            <div className="h2-card wl-item" key={item.id}>
+              <span className="wl-thumb">{p.colorHex ? <i style={{ background: p.colorHex }} /> : null}</span>
               <div className="wl-body">
-                <b>{p.name}</b>
-                <small>{p.brand} · {p.subcategory}</small>
+                <b>{p.brand}</b>
+                <span>{p.name}</span>
+                <small>{p.subcategory}{p.offers[0]?.priceLabel ? ` · ${p.offers[0].priceLabel}` : ""}</small>
+                <div className="wl-compare">
+                  {compareRetailersFor(p.brand).map(r => {
+                    const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", v: getVisitorId() });
+                    return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
+                      onClick={() => track("affiliate_outbound_click", { retailer: r, product: p.id, surface: "wishlist_page" })}>{retailers[r].name}</a>;
+                  })}
+                </div>
               </div>
-              {p.offers[0]?.priceLabel && <span className="wl-price">{p.offers[0].priceLabel}</span>}
-              <div className="wl-compare">
-                {compareRetailersFor(p.brand).map(r => {
-                  const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", v: getVisitorId() });
-                  return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
-                    onClick={() => track("affiliate_outbound_click", { retailer: r, product: p.id, surface: "wishlist_page" })}>{retailers[r].name}</a>;
-                })}
-              </div>
-              <button className="wl-remove" aria-label={`Remove ${p.name}`} onClick={() => remove(item.id, p.name)}>×</button>
+              <button className="wl-heart" aria-label={`Remove ${p.name}`} onClick={() => remove(item.id, p.name)}>{NAV_ICON.heart}</button>
             </div>
           );
         })}
       </div>
+
       {(() => {
         const cents = items.reduce((sum, it) => {
           if (it.kind !== "product") return sum;
@@ -97,13 +118,12 @@ export default function WishlistClient() {
           return typeof c === "number" ? sum + c : sum;
         }, 0);
         if (!cents) return null;
-        return <div className="wl-total"><span>Estimated total</span><b>${(cents / 100).toFixed(2)}</b></div>;
+        return <div className="h2-card wl-total"><span>Estimated total</span><b>${(cents / 100).toFixed(2)}</b></div>;
       })()}
-      <p className="wg-disc">Compare opens a live search at each retailer so you can check today&apos;s price before buying. As an Amazon Associate we earn from qualifying purchases.</p>
-      <div className="button-row" style={{ marginTop: 14 }}>
-        <Link className="button secondary" href="/quiz?tab=style">More styles</Link>
-        <Link className="button secondary" href="/quiz?tab=makeup">More makeup</Link>
-      </div>
+
+      <Link className="wl-add" href="/shop"><span>+</span> Add more to your list {MARK.chevron}</Link>
+
+      <p className="wl-disc">Compare opens a live search at each retailer so you can check today&apos;s price before buying. As an Amazon Associate we earn from qualifying purchases.</p>
     </div>
   );
 }

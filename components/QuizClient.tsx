@@ -28,7 +28,7 @@ export default function QuizClient(){
  function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
  function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(result)return <QuizResultView result={result} onRestart={restart}/>;
- if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
+ if(pending)return <AnalyzingView colors={getToneProfile(pending.ranked[0].id).colors.slice(0,6)} onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
   <div className="h2-card qz-card" id="qz-card">
    <div className="qz-prog">
@@ -146,8 +146,8 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
    <p className="rs-note">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</p>
   </div>
  </div>}
-function AnalyzingView({onDone}:{onDone:()=>void}){
- const STEPS=["Scanning skin tone","Reading contrast","Matching your season","Choosing makeup picks"];
+function AnalyzingView({onDone,colors}:{onDone:()=>void;colors:string[]}){
+ const STEPS=["Reading undertone","Comparing contrast","Matching your season"];
  const [pct,setPct]=useState(0);
  useEffect(()=>{
   const t0=Date.now();const DUR=4200;
@@ -158,22 +158,36 @@ function AnalyzingView({onDone}:{onDone:()=>void}){
   },40);
   return()=>clearInterval(iv);
  },[onDone]);
- const done=Math.floor(pct/25);
- return <div className="an6">
-  <img className="an6-art" src="/img/analyzing_art.webp" alt="Analyzing your color energy"/>
-  <ul className="an2-list an6-list">
-   {STEPS.map((st,i)=>{
-    const state=i<done?"done":i===done&&pct<100?"now":pct>=100?"done":"todo";
-    return <li key={st} className={state}>
-     <b>{state==="done"?"✓":""}</b><span>{st}</span>
-     <i>{state==="done"?"Complete":state==="now"?"In Progress":"Pending"}</i>
-    </li>;
-   })}
-  </ul>
-  <div className="an3-foot">
-   <div className="an3-row"><strong>{pct}<small>%</small></strong><em>✦ Almost there!</em></div>
-   <div className="an3-bar"><i style={{width:`${pct}%`}}/></div>
-   <p>Your personalized results are loading… 💗</p>
+ const done=Math.floor(pct/(100/STEPS.length));
+ return <div className="an">
+  <div className="an-inner">
+   <span className="an-brand">Palevie</span>
+   <h2>Finding your color season</h2>
+   <p className="an-sub">We&apos;re reading your answers and matching your best palette.</p>
+
+   <div className="h2-card an-card">
+    <img className="an-art" src="/img/analyzing_art.webp" alt=""/>
+    <div className="an-prog">
+     <div className="an-bar"><i style={{width:`${pct}%`}}/></div>
+     <b>{pct}%</b>
+    </div>
+    <ul className="an-list">
+     {STEPS.map((st,i)=>{
+      const state=pct>=100?"done":i<done?"done":i===done?"now":"todo";
+      return <li key={st} className={state}>
+       <b>{state==="done"?MARK.check:null}</b><span>{st}</span>
+       {state==="now"&&<i>Analyzing…</i>}
+      </li>;
+     })}
+    </ul>
+   </div>
+
+   <div className="h2-card an-palette">
+    <div className="an-palette-tx"><b>Preparing your palette…</b><small>Almost ready</small></div>
+    <div className="an-chips">{(colors.length?colors:["#EADCF3","#F2CBDD","#F3B8C4","#FADCE4","#D8E3F2","#EFE3D8"]).slice(0,6).map((c,i)=><i key={c+i} style={{background:c}}/>)}</div>
+   </div>
+
+   <p className="an-note">This usually takes a few seconds. Thanks for your patience.</p>
   </div>
  </div>;
 }
