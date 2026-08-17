@@ -36,6 +36,8 @@ export default function AccountClient() {
     const supabase = getSupabaseBrowser();
     if (!supabase) { setLoading(false); setStatus("Supabase is not configured in this demo."); return; }
     const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("error_description") || params.get("error");
+    if (oauthError) { setStatus(decodeURIComponent(oauthError).replace(/\+/g, " ")); history.replaceState({}, "", "/account"); }
     const code = params.get("code");
     if (code) {
       await supabase.auth.exchangeCodeForSession(code).catch(() => {});
@@ -124,9 +126,17 @@ export default function AccountClient() {
 
   async function oauth(provider: "google" | "apple") {
     const supabase = getSupabaseBrowser();
-    if (!supabase) return;
+    if (!supabase) return setStatus("Add Supabase keys first.");
     track("signup_started", { method: provider });
-    await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/account` } });
+    setStatus(`Opening ${provider === "google" ? "Google" : "Apple"}…`);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/account`, queryParams: { prompt: "select_account" } },
+    });
+    // A disabled provider fails here rather than at the callback, so say so plainly.
+    if (error) setStatus(error.message.toLowerCase().includes("not enabled")
+      ? `${provider === "google" ? "Google" : "Apple"} sign-in isn't switched on for this project yet.`
+      : error.message);
   }
 
   /** Nicknames live on the auth user, so they follow the account to any device. */
