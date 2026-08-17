@@ -944,28 +944,28 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .h2-wrap{padding-top:0}
 .h2{display:flex;flex-direction:column;gap:12px;padding-bottom:10px}
 .h2-top{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 4px}
-.h2-brand{font-family:var(--display);font-size:27px;letter-spacing:-.03em;color:#3B2B36}
+.h2-brand{font-family:var(--display);font-size:25px;letter-spacing:-.03em;color:#3B2B36}
 .h2-topbtns{display:flex;gap:16px;align-items:center}
 .h2-ic{position:relative;color:#5C4757;display:grid;place-items:center}
 .h2-ic em{position:absolute;top:-5px;right:-7px;min-width:15px;height:15px;padding:0 4px;border-radius:999px;background:#F18DA1;color:#fff;font-style:normal;font-size:9px;font-weight:800;display:grid;place-items:center}
 
-.h2-card{display:block;background:#fff;border:1px solid #F9E3E7;border-radius:20px;padding:14px;box-shadow:0 4px 16px rgba(220,150,175,.08)}
+.h2-card{display:block;background:#fff;border:1px solid #F9E3E7;border-radius:18px;padding:13px;box-shadow:0 4px 16px rgba(220,150,175,.08)}
 .h2-cardhead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px}
-.h2-cardhead b{font-size:15px;font-weight:700;letter-spacing:-.01em;color:#3B2B36}
-.h2-viewall{font-size:12px;font-weight:600;color:#B9A3B1}
+.h2-cardhead b{font-size:13.5px;font-weight:700;letter-spacing:-.01em;color:#3B2B36}
+.h2-viewall{font-size:11px;font-weight:600;color:#B9A3B1}
 .h2-empty{font-size:12.5px;color:var(--muted);line-height:1.55;margin:2px 0}
 
 /* ── hero: full-bleed illustration, text on the page itself ── */
-.h2-hero{position:relative;margin:0 -18px;min-height:188px;display:flex}
+.h2-hero{position:relative;margin:0 -18px;min-height:150px;display:flex}
 .h2-hero-art{position:absolute;top:0;right:0;bottom:0;width:76%;background:url('/img/hero-summer.webp') right center/cover no-repeat;
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.55) 22%,#000 46%);
   mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.55) 22%,#000 46%);
   border-radius:0 0 0 26px;transition:filter .8s ease}
 .h2-hero-veil{position:absolute;inset:0;pointer-events:none;transition:background .8s ease;background:transparent}
-.h2-hero-body{position:relative;padding:16px 0 0 18px;max-width:47%}
-.h2-hero-body h1{font-family:var(--ui);font-weight:700;font-size:24px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;color:#3B2B36;white-space:nowrap;display:flex;align-items:center;gap:7px}
-.h2-hero-body p{font-size:12.5px;line-height:1.6;color:#9B8490;margin:0 0 13px;max-width:180px}
-.h2-season{display:inline-flex;align-items:center;gap:7px;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:10px 15px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.h2-hero-body{position:relative;padding:6px 0 0 18px;max-width:47%}
+.h2-hero-body h1{font-family:var(--ui);font-weight:700;font-size:22px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;color:#3B2B36;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.h2-hero-body p{font-size:11.5px;line-height:1.55;color:#9B8490;margin:0 0 11px;max-width:172px}
+.h2-season{display:inline-flex;align-items:center;gap:6px;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:8px 13px;font-size:11.5px;font-weight:700;white-space:nowrap}
 .h2-season b{font-weight:800;margin-left:2px}
 .h2-season-cta{background:#F18DA1;color:#fff;box-shadow:var(--shadow-cta)}
 [data-tod="morning"] .h2-hero-art{filter:brightness(1.03)}
@@ -978,19 +978,19 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .h2-scan{display:flex;align-items:center;gap:14px}
 .h2-scan-ic{flex:none;width:48px;height:48px;border-radius:50%;background:#F8CFD3;color:#E8798F;display:grid;place-items:center}
 .h2-scan-tx{flex:1;min-width:0}
-.h2-scan-tx b{display:block;font-size:15.5px;font-weight:700;letter-spacing:-.01em;color:#3B2B36;white-space:nowrap}
-.h2-scan-tx small{display:block;font-size:12px;color:#8A7186;line-height:1.5;margin-top:3px}
-.h2-pill{flex:none;background:#F18DA1;color:#fff;border-radius:999px;padding:11px 15px;font-size:12.5px;font-weight:700;box-shadow:var(--shadow-cta);white-space:nowrap}
+.h2-scan-tx b{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em;color:#3B2B36;white-space:nowrap}
+.h2-scan-tx small{display:block;font-size:11px;color:#8A7186;line-height:1.5;margin-top:3px}
+.h2-pill{flex:none;background:#F18DA1;color:#fff;border-radius:999px;padding:10px 14px;font-size:11.5px;font-weight:700;box-shadow:var(--shadow-cta);white-space:nowrap}
 
 /* ── palette + list duo ── */
 .h2-duo{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;align-items:stretch}
-.h2-tonechip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:650;color:#9C7BB8;margin-bottom:10px}
+.h2-tonechip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:650;color:#9C7BB8;margin-bottom:10px}
 .h2-sw{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
-.h2-sw i{display:block;aspect-ratio:1;border-radius:10px}
+.h2-sw i{display:block;aspect-ratio:.84;border-radius:9px}
 .h2-listcard{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
-.h2-listcard b{font-size:15px;font-weight:700;color:#3B2B36}
-.h2-listdesc{font-size:11.5px;color:#8A7186;line-height:1.5}
-.h2-link{font-size:12.5px;font-weight:700;color:#F18DA1;margin-top:auto}
+.h2-listcard b{font-size:13.5px;font-weight:700;color:#3B2B36}
+.h2-listdesc{font-size:10.5px;color:#8A7186;line-height:1.5}
+.h2-link{font-size:11px;font-weight:700;color:#F18DA1;margin-top:auto}
 
 /* ── recommended ── */
 .h2-reco-row{display:flex;gap:11px;overflow-x:auto;padding:2px 2px 4px;margin:0 -4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -998,9 +998,9 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .h2-prod{position:relative;flex:none;width:106px;background:#fff;border:1px solid #F9E3E7;border-radius:18px;padding:10px;box-shadow:0 3px 12px rgba(220,150,175,.07)}
 .h2-prodart{display:grid;place-items:center;background:#F9EEEC;border-radius:12px;height:70px;margin-bottom:8px}
 .h2-dot{display:block;width:44px;height:44px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.85),0 4px 10px rgba(60,42,84,.12)}
-.h2-prod b{display:block;font-size:10.5px;font-weight:700;color:#C888A0}
-.h2-prod small{display:block;font-size:10.5px;font-weight:600;line-height:1.35;margin-top:2px;min-height:28px;color:#3B2B36}
-.h2-prod em{display:block;font-style:normal;font-size:10.5px;font-weight:700;color:#A87BC9;margin-top:4px}
+.h2-prod b{display:block;font-size:9.5px;font-weight:700;color:#C888A0}
+.h2-prod small{display:block;font-size:10px;font-weight:600;line-height:1.35;margin-top:2px;min-height:28px;color:#3B2B36}
+.h2-prod em{display:block;font-style:normal;font-size:9.5px;font-weight:700;color:#A87BC9;margin-top:4px}
 .h2-best{position:absolute;top:8px;left:8px;background:#F18DA1;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:4px 8px;z-index:1}
 .h2-heart{position:absolute;top:6px;right:6px;width:24px;height:24px;border:1px solid #F9E3E7;border-radius:50%;background:#fff;color:#E8709A;font-size:13px;cursor:pointer;display:grid;place-items:center;z-index:1}
 .h2-heart.on{background:#F18DA1;border-color:transparent;color:#fff}
@@ -1008,7 +1008,7 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 /* ── category tiles ── */
 .h2-cats{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
 .h2-cat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
-.h2-cat span{width:100%;max-width:46px;aspect-ratio:1;border-radius:15px;background:#FBEFF2;display:grid;place-items:center;font-size:19px}
-.h2-cat:nth-child(even) span{background:#F5ECF8}
-.h2-cat small{font-size:10px;font-weight:600;color:#8A7186;white-space:nowrap}
+.h2-cat span{width:100%;max-width:50px;aspect-ratio:1;border-radius:15px;background:#FBEFF1;color:#D98CA0;display:grid;place-items:center}
+.h2-cat:nth-child(even) span{background:#F5ECF8;color:#B287CC}
+.h2-cat small{font-size:9px;font-weight:600;color:#8A7186;white-space:nowrap}
 @media(max-width:360px){.h2-cats{grid-template-columns:repeat(3,1fr)}}
