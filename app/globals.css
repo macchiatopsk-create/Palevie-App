@@ -1069,3 +1069,8 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .wl-body small{font-size:min(10.5px,2.55vw)}
 .wl-price{font-size:min(13px,3.16vw)}
 .wl-compare a{font-size:min(10.5px,2.55vw)}
+
+/* Fill the whole window, including the safe-area insets a foldable or
+   notched screen reports, so the app never letterboxes. */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
