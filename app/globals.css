@@ -961,17 +961,22 @@ body.h2-clean::before,body.h2-clean::after{display:none}
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
   mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
   transition:filter .6s ease}
-.h2-hero-veil{display:none}
+.h2-hero-veil{position:absolute;top:0;right:0;bottom:0;width:66%;pointer-events:none;background:transparent;transition:background .8s ease;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%)}
 .h2-hero-body{position:relative;padding:4px 0 0 22px;max-width:50%}
 .h2-hero-body h1{font-family:var(--ui);font-weight:700;font-size:22px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;color:#3B2B36;white-space:nowrap;display:flex;align-items:center;gap:7px}
 .h2-hero-body p{font-size:11.5px;line-height:1.55;color:#9B8490;margin:0 0 11px;max-width:172px}
 .h2-season{display:inline-flex;align-items:center;gap:6px;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:8px 13px;font-size:11.5px;font-weight:700;white-space:nowrap}
 .h2-season b{font-weight:800;margin-left:2px}
 .h2-season-cta{background:#F18DA1;color:#fff;box-shadow:var(--shadow-cta)}
-[data-tod="morning"] .h2-hero-art{filter:brightness(1.03)}
-[data-tod="sunset"] .h2-hero-art{filter:saturate(1.05)}
+[data-tod="morning"] .h2-hero-art{filter:brightness(1.04) saturate(.97)}
+[data-tod="morning"] .h2-hero-veil{background:linear-gradient(180deg,rgba(255,238,214,.22),rgba(255,238,214,0) 62%)}
+[data-tod="sunset"] .h2-hero-art{filter:saturate(1.1) brightness(.97)}
+[data-tod="sunset"] .h2-hero-veil{background:linear-gradient(180deg,rgba(255,150,95,.30),rgba(255,110,110,.14) 55%,rgba(255,110,110,.05))}
 
-[data-tod="night"] .h2-hero-art{filter:brightness(.9) saturate(.97)}
+[data-tod="night"] .h2-hero-art{filter:brightness(.62) saturate(.85) contrast(1.03)}
+[data-tod="night"] .h2-hero-veil{background:linear-gradient(180deg,rgba(28,26,72,.44),rgba(28,26,72,.3) 60%,rgba(28,26,72,.22))}
 
 
 /* ── scan row ── */
@@ -1029,3 +1034,25 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .wl-total{display:flex;align-items:baseline;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid #F3E4E9}
 .wl-total span{font-size:12px;color:#9B8490;font-weight:600}
 .wl-total b{font-size:20px;font-weight:800;color:#3B2B36}
+
+/* Narrow phones — most Android handsets report ~360css px, so the
+   412-based spacing squeezed copy into extra lines. */
+@media(max-width:400px){
+  .app-wrap{padding-left:14px;padding-right:14px}
+  .h2-hero{margin:0 -14px}
+  .h2-hero-body{padding-left:18px;max-width:53%}
+  .h2-hero-body h1{font-size:21px}
+  .h2-hero-body p{font-size:11px;max-width:158px}
+  .h2-card{padding:12px}
+  .h2-cardhead b{font-size:13px}
+  .h2-scan-tx b{font-size:13.5px}
+  .h2-scan-tx small{font-size:10.5px}
+  .h2-scan-ic{width:44px;height:44px}
+  .h2-pill{padding:9px 12px;font-size:11px}
+  .h2-duo{gap:10px}
+  .h2-prod{width:100px}
+  .wl-item{column-gap:9px;padding:11px}
+}
+/* Weights: the mockup sets titles semibold, not bold. */
+.h2-cardhead b,.h2-scan-tx b,.h2-listcard b{font-weight:650}
+.h2-hero-body h1{font-weight:680}

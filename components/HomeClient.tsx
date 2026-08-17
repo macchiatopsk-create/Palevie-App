@@ -84,7 +84,9 @@ export default function HomeClient() {
 
   const profile = ready ? loadProfile() : null;
   const tone = profile ? getToneProfile(profile.primaryType) : null;
-  const heroSeason: Season = (profile?.primaryType?.split("-")[0] as Season) || calendarSeason();
+  // The art tracks the real season outside the window; the user's own
+  // season is what the chip below it announces.
+  const heroSeason: Season = calendarSeason();
   const makeupPrefs = ready ? loadMakeupPrefs() : null;
 
   const picks = useMemo(() => {
