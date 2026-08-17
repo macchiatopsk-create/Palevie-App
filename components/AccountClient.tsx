@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { fetchQuizHistory } from "@/lib/cloudProfile";
+import { loadWishlist } from "@/lib/wishlist";
+import { loadMakeupPrefs, MAKEUP_STYLES } from "@/lib/beautyPrefs";
+import { NAV_ICON, CAT_ICON, MARK } from "@/components/icons";
+import { heroArt, calendarSeason } from "@/lib/heroArt";
 import { catalogProducts } from "@/data/products";
 import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
@@ -22,6 +26,8 @@ export default function AccountClient() {
   const [account, setAccount] = useState<AccountState | null>(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{document.body.classList.add("h2-clean");return()=>{document.body.classList.remove("h2-clean")}},[]);
 
   async function refresh() {
     const supabase = getSupabaseBrowser();
@@ -135,11 +141,11 @@ export default function AccountClient() {
     if(body.url) window.location.href=body.url; else setStatus(body.error||"Billing portal unavailable.");
   }
 
-  if (loading) return <div className="beauty-card"><p>Loading account…</p></div>;
+  if (loading) return <div className="h2-card"><p className="h2-empty">Loading account…</p></div>;
   if (account) return <AccountDashboard email={account.email} plan={account.plan} onSignOut={signOut}/>;
   const googleOn = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "1";
   const appleOn = process.env.NEXT_PUBLIC_ENABLE_APPLE_AUTH === "1";
-  return <div className="beauty-card account-card">
+  return <div className="h2-card account-card">
     <div className="eyebrow">Account</div>
     <h2>{mode === "signup" ? "Create your Palevie account." : "Welcome back."}</h2>
     <p className="lede-small">Your season, skin profile and list, saved across devices.</p>
@@ -182,49 +188,86 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
    .filter(p=>p.category==="makeup"&&p.colorHex)
    .map(p=>({p,m:scoreColor(hexToRgb(p.colorHex!),tone).colorFit}))
    .sort((a,b)=>b.m-a.m).slice(0,3):[];
- return <div className="ac">
-  <div className="ac-card">
-   <div className="eyebrow">My account</div>
-   <h2 className="ac-email">{email}</h2>
-   <div className="ac-row"><span>Plan</span><b>{plan==="plus"?"Palevie Plus":"Free"}</b></div>
+  const wl=typeof window!=="undefined"?loadWishlist():[];
+  const strong=tone?catalogProducts.filter(p=>p.category==="makeup"&&p.colorHex&&scoreColor(hexToRgb(p.colorHex!),tone).colorFit>=88).length:0;
+  const mk=typeof window!=="undefined"?loadMakeupPrefs():null;
+  const skin=typeof window!=="undefined"?loadSkinProfile():null;
+  const first=email.split("@")[0].split(/[._\-+0-9]+/)[0];
+  const name=/^[a-zA-Z]{3,12}$/.test(first)?first.charAt(0).toUpperCase()+first.slice(1).toLowerCase():"there";
+  const prefs=[
+    mk&&{label:"Makeup",value:MAKEUP_STYLES.find(x=>x.id===mk.style)?.name??mk.style,icon:CAT_ICON.lip},
+    mk&&{label:"Base",value:mk.baseFinish.replace("-"," "),icon:CAT_ICON.skin},
+    mk&&{label:"Lips",value:mk.lipFinish,icon:CAT_ICON.cheek},
+    mk&&{label:"Eyes",value:mk.eyeTexture,icon:CAT_ICON.eye},
+    skin&&{label:"Skin",value:skin.goal.replace("-"," "),icon:CAT_ICON.skin},
+  ].filter(Boolean) as {label:string;value:string;icon:React.ReactNode}[];
+
+  return <div className="ac">
+  <div className="h2-top">
+   <span className="h2-brand">Palevie</span>
+   <div className="h2-topbtns">
+    <Link href="/wishlist" className="h2-ic" aria-label="My list">{NAV_ICON.heart}{wl.length>0&&<em>{wl.length>9?"9+":wl.length}</em>}</Link>
+   </div>
   </div>
 
-  {tone && <div className="ac-card ac-season">
-   <div className="eyebrow">Your season</div>
-   <h3>{tone.name}</h3>
-   <div className="ac-chips">{tone.colors.slice(0,6).map(c=><i key={c} style={{background:c}}/>)}</div>
-   <div className="ac-links"><Link href="/results">See my palette</Link><Link href="/shop">Shop my match</Link></div>
-  </div>}
+  <div className="ac-head">
+   <h1>My Dashboard</h1>
+   <p>Hello {name}, glow your way.</p>
+  </div>
 
-  <div className="ac-card">
-   <div className="eyebrow">Quiz history</div>
+  <div className="h2-card ac-hero">
+   <span className="ac-avatar" style={{backgroundImage:`url('${heroArt(calendarSeason(),"day")}')`}} aria-hidden/>
+   <div className="ac-hero-tx">
+    <b>{name}</b>
+    {tone
+      ? <><span className="ac-season">{MARK.flower} {tone.name}</span>
+          <p>{tone.description}</p>
+          <Link className="rs-cta ac-cta" href="/results">View my palette {MARK.chevron}</Link></>
+      : <><p>Take the color quiz and your season lands here.</p>
+          <Link className="rs-cta ac-cta" href="/quiz">Find my season {MARK.chevron}</Link></>}
+   </div>
+  </div>
+
+  <div className="ac-stats">
+   <Link href="/quiz" className="h2-card ac-stat"><span className="ac-stat-ic">{MARK.retake}</span><b>{history.length}</b><small>Quiz results</small></Link>
+   <Link href="/wishlist" className="h2-card ac-stat"><span className="ac-stat-ic">{NAV_ICON.heart}</span><b>{wl.length}</b><small>Saved items</small></Link>
+   <Link href="/shop" className="h2-card ac-stat"><span className="ac-stat-ic">{MARK.flower}</span><b>{strong}</b><small>Strong matches</small></Link>
+  </div>
+
+  <div className="h2-card">
+   <div className="h2-cardhead"><b>My season history</b><Link className="h2-viewall" href="/quiz">Retake</Link></div>
    {history.length===0
-     ? <p className="soft-note">No saved results yet — finish the quiz while signed in and it will appear here.</p>
-     : <ul className="ac-hist">{history.map((h,i)=>{
+    ? <p className="h2-empty">No saved results yet — finish the quiz while signed in and it lands here.</p>
+    : <div className="ac-hist">{history.map((h,i)=>{
         const t=getToneProfile(h.primary_type);
-        return <li key={i}>
-          <i style={{background:t?.colors?.[0]||"#eee"}}/>
-          <span>{t?.name||h.primary_type}</span>
-          <em>{h.confidence?`${h.confidence}%`:""}</em>
-          <small>{new Date(h.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</small>
-        </li>})}
-      </ul>}
-   <Link className="ac-retake" href="/quiz">↺ Retake the quiz</Link>
+        return <div key={i} className={`ac-hist-item${i===0?" on":""}`}>
+         <i style={{background:t?.colors?.[0]||"#F0E3EA"}}/>
+         <b>{t?.name||h.primary_type}</b>
+         <small>{new Date(h.created_at).toLocaleDateString("en-US",{month:"short",year:"numeric"})}</small>
+        </div>})}
+      </div>}
   </div>
 
-  {recs.length>0 && <div className="ac-card">
-   <div className="eyebrow">Picks for you</div>
-   <ul className="ac-recs">{recs.map(({p,m})=>
-     <li key={p.id}><i style={{background:p.colorHex}}/><span>{p.brand} · {p.name}</span><b>{m}%</b></li>)}
-   </ul>
-   <Link className="ac-retake" href="/shop">See all matches →</Link>
+  {prefs.length>0 && <div className="h2-card">
+   <div className="h2-cardhead"><b>Beauty preferences</b><Link className="h2-viewall" href="/quiz?tab=makeup">Edit</Link></div>
+   <div className="ac-prefs">{prefs.map(p=>
+     <div key={p.label} className="ac-pref"><span>{p.icon}</span><b>{p.label}</b><small>{p.value}</small></div>)}
+   </div>
   </div>}
 
-  <div className="ac-card ac-settings">
-   <div className="eyebrow">Settings</div>
-   <Link href="/diagnose">Selfie scan (2nd opinion)</Link>
-   <Link href="/skin">Skin preferences</Link>
-   <button onClick={onSignOut}>Sign out</button>
+  {recs.length>0 && <div className="h2-card">
+   <div className="h2-cardhead"><b>Picks for you</b><Link className="h2-viewall" href="/shop">View all</Link></div>
+   <div className="ac-recs">{recs.map(({p,m})=>
+     <div key={p.id} className="ac-rec"><i style={{background:p.colorHex}}/><span>{p.brand} · {p.name}</span><em>{m}%</em></div>)}
+   </div>
+  </div>}
+
+  <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Account settings</b></div>
+   <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
+   <Link className="ac-set-row" href="/diagnose"><span>Selfie scan</span>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/skin"><span>Skin preferences</span>{MARK.chevron}</Link>
+   <button className="ac-set-row" onClick={onSignOut}><span>Sign out</span>{MARK.chevron}</button>
   </div>
  </div>;
 }
