@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import AttributionCapture from "@/components/AttributionCapture";
 import MobileNav from "@/components/MobileNav";
+import FreshnessGuard from "@/components/FreshnessGuard";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -51,5 +52,6 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
     <main>{children}</main>
     <footer className="site-footer"><div><strong>palévie</strong><p>Color, beauty and shopping guidance designed for repeat use.</p></div><div className="footer-links"><Link href="/privacy">Privacy</Link><Link href="/pricing">Pricing</Link><Link href="/dashboard">History</Link></div></footer>
     <MobileNav/>
+        <FreshnessGuard build={process.env.VERCEL_GIT_COMMIT_SHA ?? "dev"} />
   </body></html>;
 }
