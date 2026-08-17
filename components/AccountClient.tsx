@@ -5,7 +5,7 @@ import { loadWishlist } from "@/lib/wishlist";
 import { loadMakeupPrefs, MAKEUP_STYLES } from "@/lib/beautyPrefs";
 import { NAV_ICON, CAT_ICON, MARK } from "@/components/icons";
 import { heroArt, calendarSeason } from "@/lib/heroArt";
-import { loadMember, memberSince, MEMBER_STEPS, MEMBER_EVENT } from "@/lib/member";
+import { loadMember, memberSince, MEMBER_STEPS, MEMBER_EVENT, updateMember } from "@/lib/member";
 import MemberSetup from "@/components/MemberSetup";
 import { loadStylePrefs } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
@@ -18,7 +18,7 @@ import { claimLocalData, releaseLocalData } from "@/lib/localOwner";
 import { loadProfile, saveProfile, type ColorProfile } from "@/lib/profile";
 import { loadSkinProfile, saveSkinProfile, type SkinProfile } from "@/lib/skincare";
 
-type AccountState = { email: string; plan: string; subscriptionStatus?: string | null };
+type AccountState = { email: string; plan: string; subscriptionStatus?: string | null; displayName?: string };
 
 function ts(value:any){const n=Date.parse(value?.createdAt||"");return Number.isFinite(n)?n:0}
 
@@ -62,7 +62,9 @@ export default function AccountClient() {
     else if(localSkin && (!remoteSkin || ts(localSkin)>=ts(remoteSkin))) patch.skin_profile=localSkin;
 
     if(Object.keys(patch).length) await supabase.from("profiles").update({...patch,updated_at:new Date().toISOString()}).eq("id",user.id);
-    setAccount({ email: user.email || "Signed in", plan: remote?.plan || "free", subscriptionStatus: remote?.subscription_status });
+    const meta = (user.user_metadata || {}) as { display_name?: string; avatar_season?: string };
+    if (meta.display_name) updateMember({ name: meta.display_name, onboarded: true, ...(meta.avatar_season ? { avatar: meta.avatar_season as never } : {}) });
+    setAccount({ email: user.email || "Signed in", plan: remote?.plan || "free", subscriptionStatus: remote?.subscription_status, displayName: meta.display_name });
     track("signup_completed",{});
     setLoading(false);
   }
@@ -127,6 +129,13 @@ export default function AccountClient() {
     await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/account` } });
   }
 
+  /** Nicknames live on the auth user, so they follow the account to any device. */
+  async function saveIdentity(name: string, avatar: string) {
+    const supabase = getSupabaseBrowser();
+    if (!supabase) return;
+    await supabase.auth.updateUser({ data: { display_name: name, avatar_season: avatar } });
+  }
+
   async function signOut() {
     const supabase = getSupabaseBrowser();
     await supabase?.auth.signOut();
@@ -145,45 +154,71 @@ export default function AccountClient() {
   }
 
   if (loading) return <div className="h2-card"><p className="h2-empty">Loading account…</p></div>;
-  if (account) return <AccountDashboard email={account.email} plan={account.plan} onSignOut={signOut}/>;
+  if (account && !account.displayName) return <MemberSetup required saveRemote={saveIdentity} onDone={() => void refresh()} />;
+  if (account) return <AccountDashboard email={account.email} plan={account.plan} onSignOut={signOut} onResetPassword={forgotPassword} saveIdentity={saveIdentity}/>;
   const googleOn = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "1";
   const appleOn = process.env.NEXT_PUBLIC_ENABLE_APPLE_AUTH === "1";
-  return <div className="h2-card account-card">
-    <div className="eyebrow">Account</div>
-    <h2>{mode === "signup" ? "Create your Palevie account." : "Welcome back."}</h2>
-    <p className="lede-small">Your season, skin profile and list, saved across devices.</p>
+  return <div className="au">
+    <div className="h2-top"><span className="h2-brand">Palevie</span></div>
 
-    <div className="auth-toggle">
+    <div className="au-head">
+      <h1>{mode === "signup" ? "Create your account" : "Welcome back"}</h1>
+      <p>{mode === "signup" ? "Two steps: sign up, pick a nickname. That's it." : "Your season, profiles and list, right where you left them."}</p>
+    </div>
+
+    <div className="au-toggle">
       <button className={mode === "signin" ? "on" : ""} onClick={() => { setMode("signin"); setStatus(""); }}>Sign in</button>
       <button className={mode === "signup" ? "on" : ""} onClick={() => { setMode("signup"); setStatus(""); }}>Sign up</button>
     </div>
 
-    {(googleOn || appleOn) && <>
-      <div className="auth-oauth">
-        {googleOn && <button className="auth-social" onClick={() => oauth("google")}>
-          <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C41 35.4 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
-          Continue with Google</button>}
-        {appleOn && <button className="auth-social" onClick={() => oauth("apple")}>
-          <svg width="15" height="17" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM255.5 73.4c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-          Continue with Apple</button>}
+    {mode === "signup" && <ul className="au-perks">
+      <li>{MARK.check} Your 16-tone result and history, saved</li>
+      <li>{MARK.check} My List synced across phone and laptop</li>
+      <li>{MARK.check} Makeup, style and skin profiles kept together</li>
+    </ul>}
+
+    <div className="h2-card au-card">
+      {(googleOn || appleOn) && <>
+        <div className="au-oauth">
+          {googleOn && <button className="au-social" onClick={() => oauth("google")}>
+            <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C41 35.4 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+            Continue with Google</button>}
+          {appleOn && <button className="au-social" onClick={() => oauth("apple")}>
+            <svg width="15" height="17" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM255.5 73.4c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+            Continue with Apple</button>}
+        </div>
+        <div className="au-divider"><span>or with email</span></div>
+      </>}
+
+      <label className="au-field"><span>Email</span>
+        <input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/>
+      </label>
+      <label className="au-field"><span>Password</span>
+        <input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}/>
+      </label>
+
+      <button className="rs-cta au-go" onClick={passwordAuth}>{mode === "signup" ? "Create account" : "Sign in"} {MARK.chevron}</button>
+
+      <div className="au-links">
+        {mode === "signin" && <button onClick={forgotPassword}>Forgot password?</button>}
+        <button onClick={magicLink}>Email me a one-tap link instead</button>
       </div>
-      <div className="auth-divider"><span>or with email</span></div>
-    </>}
-
-    <label className="skin-field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" /></label>
-    <label className="skin-field"><span>Password</span><input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} /></label>
-    <button className="button rose" onClick={passwordAuth}>{mode === "signup" ? "Create account ✦" : "Sign in ✦"}</button>
-
-    <div className="auth-links">
-      {mode === "signin" && <button onClick={forgotPassword}>Forgot password?</button>}
-      <button onClick={magicLink}>Email me a one-tap link instead</button>
+      {status && <p className="au-status">{status}</p>}
     </div>
-    {status&&<p className="soft-note">{status}</p>}
+
+    <p className="au-fine">By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. 16+.</p>
   </div>;
 }
 
-function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSignOut:()=>void}){
+function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{email:string;plan:string;onSignOut:()=>void;onResetPassword:()=>void;saveIdentity:(name:string,avatar:string)=>Promise<void>}){
   const [editing,setEditing]=useState(false);
+  function exportData(){
+    const keys=["palevie-profile-v1","palevie-wishlist-v1","palevie-makeup-prefs-v1","palevie-style-prefs-v1","palevie-style-detail-v1","palevie-skin-profile-v1","palevie-member-v1"];
+    const dump:Record<string,unknown>={exportedAt:new Date().toISOString(),email};
+    keys.forEach(k=>{try{const v=localStorage.getItem(k);if(v)dump[k]=JSON.parse(v)}catch{}});
+    const url=URL.createObjectURL(new Blob([JSON.stringify(dump,null,2)],{type:"application/json"}));
+    const a=document.createElement("a");a.href=url;a.download="palevie-data.json";a.click();URL.revokeObjectURL(url);
+  }
   const [bump,setBump]=useState(0);
   useEffect(()=>{const s=()=>setBump(b=>b+1);window.addEventListener(MEMBER_EVENT,s);return()=>window.removeEventListener(MEMBER_EVENT,s)},[]);
  const [history,setHistory]=useState<{primary_type:string;ranked:{name:string;pct:number}[];confidence:number|null;created_at:string}[]>([]);
@@ -216,7 +251,7 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
   ].filter(Boolean) as {label:string;value:string;icon:React.ReactNode}[];
 
   return <div className="ac">
-  {editing&&<MemberSetup force onDone={()=>{setEditing(false);setBump(b=>b+1)}}/>}
+  {editing&&<MemberSetup force saveRemote={saveIdentity} onDone={()=>{setEditing(false);setBump(b=>b+1)}}/>}
   <div className="h2-top">
    <span className="h2-brand">Palevie</span>
    <div className="h2-topbtns">
@@ -289,12 +324,38 @@ function AccountDashboard({email,plan,onSignOut}:{email:string;plan:string;onSig
   </div>}
 
   <div className="h2-card ac-settings">
-   <div className="h2-cardhead"><b>Account settings</b></div>
-   <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Name &amp; profile art</span>{MARK.chevron}</button>
+   <div className="h2-cardhead"><b>Account</b><span className="ac-plan">{plan==="free"?"Free":plan}</span></div>
+   <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Nickname &amp; profile art</span><small>{name}</small>{MARK.chevron}</button>
    <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
-   <Link className="ac-set-row" href="/diagnose"><span>Selfie scan</span>{MARK.chevron}</Link>
-   <Link className="ac-set-row" href="/skin"><span>Skin preferences</span>{MARK.chevron}</Link>
-   <button className="ac-set-row" onClick={onSignOut}><span>Sign out</span>{MARK.chevron}</button>
+   <button className="ac-set-row" onClick={onResetPassword}><span>Change password</span><small>Emails a reset link</small>{MARK.chevron}</button>
+   {since&&<div className="ac-set-row"><span>Member since</span><small>{since}</small></div>}
   </div>
+
+  <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Preferences</b></div>
+   <Link className="ac-set-row" href="/quiz"><span>Color season</span><small>{tone?tone.name:"Not set"}</small>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/quiz?tab=makeup"><span>Makeup mood</span><small>{mk?(MAKEUP_STYLES.find(x=>x.id===mk.style)?.name??"Saved"):"Not set"}</small>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/quiz?tab=style"><span>Style</span><small>{loadStylePrefs().length?`${loadStylePrefs().length} picked`:"Not set"}</small>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/quiz?tab=skin"><span>Skin profile</span><small>{skin?"Saved":"Not set"}</small>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/theme"><span>Screen mood</span><small>Time of day</small>{MARK.chevron}</Link>
+  </div>
+
+  <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Privacy &amp; data</b></div>
+   <button className="ac-set-row" onClick={exportData}><span>Export my data</span><small>JSON</small>{MARK.chevron}</button>
+   <button className="ac-set-row" onClick={()=>{if(confirm("Clear Palevie data saved on this device? Your account keeps its synced copy."))
+     {["palevie-profile-v1","palevie-wishlist-v1","palevie-makeup-prefs-v1","palevie-style-prefs-v1","palevie-skin-profile-v1","palevie-member-v1"].forEach(k=>localStorage.removeItem(k));location.reload()}}}>
+     <span>Clear data on this device</span>{MARK.chevron}</button>
+   <Link className="ac-set-row" href="/privacy"><span>Privacy Policy</span>{MARK.chevron}</Link>
+   <Link className="ac-set-row" href="/terms"><span>Terms of Service</span>{MARK.chevron}</Link>
+  </div>
+
+  <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Support</b></div>
+   <a className="ac-set-row" href="mailto:palevie0@gmail.com"><span>Email us</span><small>palevie0@gmail.com</small>{MARK.chevron}</a>
+   <div className="ac-set-row"><span>Amazon Associate</span><small>We earn from qualifying purchases</small></div>
+  </div>
+
+  <button className="ac-signout" onClick={onSignOut}>Sign out</button>
  </div>;
 }

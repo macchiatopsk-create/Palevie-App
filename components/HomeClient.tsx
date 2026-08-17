@@ -11,7 +11,6 @@ import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
 import { CAT_ICON } from "@/components/icons";
-import MemberSetup from "@/components/MemberSetup";
 import { loadMember, MEMBER_EVENT } from "@/lib/member";
 import { calendarSeason, heroLight, activeTod } from "@/lib/heroArt";
 
@@ -99,7 +98,6 @@ export default function HomeClient() {
 
   return (
     <div className="h2">
-      <MemberSetup />
       {/* top bar */}
       <div className="h2-top">
         <span className="h2-brand">Palevie</span>
