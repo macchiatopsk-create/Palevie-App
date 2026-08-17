@@ -956,13 +956,13 @@ body.h2-clean::before,body.h2-clean::after{display:none}
 .h2-empty{font-size:12.5px;color:var(--muted);line-height:1.55;margin:2px 0}
 
 /* ── hero: full-bleed illustration, text on the page itself ── */
-.h2-hero{position:relative;margin:0 -18px;min-height:150px;display:flex}
+.h2-hero{position:relative;margin:0 -18px;min-height:150px;display:flex;background:transparent;border:0}
 .h2-hero-art{position:absolute;top:0;right:0;bottom:0;width:66%;background:url('/img/hero-summer.webp') right center/cover no-repeat;
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
   mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.75) 13%,#000 27%);
   transition:filter .6s ease}
 .h2-hero-veil{display:none}
-.h2-hero-body{position:relative;padding:6px 0 0 18px;max-width:47%}
+.h2-hero-body{position:relative;padding:4px 0 0 22px;max-width:50%}
 .h2-hero-body h1{font-family:var(--ui);font-weight:700;font-size:22px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;color:#3B2B36;white-space:nowrap;display:flex;align-items:center;gap:7px}
 .h2-hero-body p{font-size:11.5px;line-height:1.55;color:#9B8490;margin:0 0 11px;max-width:172px}
 .h2-season{display:inline-flex;align-items:center;gap:6px;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:8px 13px;font-size:11.5px;font-weight:700;white-space:nowrap}
