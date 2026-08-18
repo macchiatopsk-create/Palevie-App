@@ -1,4 +1,16 @@
 import { getSupabaseAdmin } from "./supabaseAdmin";
+import { createHash } from "crypto";
+
+/**
+ * The visitor id arrives in a header the client controls, so on its own it caps
+ * nothing — clearing it buys another day of scans. Hashing it together with the
+ * request IP keeps the per-person cap meaningful without storing a raw address.
+ */
+export function quotaSubject(visitorId: string, request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for") || "";
+  const ip = fwd.split(",")[0].trim() || request.headers.get("x-real-ip") || "unknown";
+  return createHash("sha256").update(`${ip}|${visitorId}`).digest("hex").slice(0, 48);
+}
 
 export type AiReservation = {
   allowed: boolean;

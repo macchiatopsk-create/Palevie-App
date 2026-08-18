@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { toneProfiles } from "@/lib/palettes";
-import { finalizeAiUsage, reserveAiUsage } from "@/lib/server/aiQuota";
+import { finalizeAiUsage, quotaSubject, reserveAiUsage } from "@/lib/server/aiQuota";
 
 function extractOutputText(data: any) {
   if (typeof data?.output_text === "string") return data.output_text;
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     if (!key) return NextResponse.json({ error: "AI scan is not configured yet. Use the free quiz for now." }, { status: 503 });
 
     const visitor = (request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
-    const reservation = await reserveAiUsage(visitor, "color_scan", model);
+    const reservation = await reserveAiUsage(quotaSubject(visitor, request), "color_scan", model);
     usageId = reservation.usageId;
     if (!reservation.allowed) return NextResponse.json({ error: reservation.reason }, { status: 429 });
 

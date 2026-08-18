@@ -57,7 +57,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ slug: s
   };
 
   return <div className="app-wrap narrow h2-wrap sea">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
     <div className="h2-top"><Link href="/" className="h2-brand">Palevie</Link></div>
 
