@@ -18,9 +18,30 @@ export type QuizOption = {
   v?: number; // value delta
   c?: number; // chroma delta
   k?: number; // contrast delta
+  /**
+   * Scales another question's contribution. Used by the dye question: someone
+   * whose hair is two shades lighter than birth shouldn't be scored as if that
+   * were their natural depth.
+   */
+  damp?: { question: string; scale: number };
 };
 
-export type QuizQuestion = { id: string; text: string; help?: string; kind?: "drape"; options: QuizOption[] };
+export type ActId = 1 | 2 | 3;
+export const ACTS: Record<ActId, { label: string; intro: string }> = {
+  1: { label: "About you", intro: "First, a few things you can see in the mirror." },
+  2: { label: "Draping", intro: "Now the draping. Hold your phone beside your cheek in good light and watch your skin, not the color." },
+  3: { label: "Fine-tune", intro: "Last few — these narrow it down to one tone." },
+};
+
+export type QuizQuestion = {
+  id: string;
+  text: string;
+  help?: string;
+  kind?: "drape";
+  /** Which of the three acts this belongs to; drapes start early on purpose. */
+  act: ActId;
+  options: QuizOption[];
+};
 
 export type RankedType = { id: string; name: string; pct: number };
 
@@ -66,10 +87,12 @@ export type QuizResult = {
 };
 
 /** A reading needs at least half the questions answered. */
-export const MIN_ANSWERS = Math.ceil(0.5 * 21);
+export const MIN_ANSWERS = 11; // half of 21, rounded up
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
-  { id: "skintone", text: "Which skin tone looks closest to yours?",
+  // Act 1 opens, then hands over to draping after four questions: the colour
+  // filling the screen is the part nobody else does, so it shouldn't wait.
+  { id: "skintone", act: 1, text: "Which skin tone looks closest to yours?",
     help: "Choose the closest match in natural light.",
     options: [
       { label: "Fair", tone: "#F7DACB", v: 2 },
@@ -77,7 +100,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Medium", tone: "#D79C74", v: -1 },
       { label: "Deep", tone: "#9E6244", v: -2 },
     ]},
-  { id: "hair", text: "Your natural hair color (before any dye):",
+  { id: "hair", act: 1, text: "Your natural hair color (before any dye):",
     options: [
       { label: "Black", v: -1, k: 1.5 },
       { label: "Dark brown", v: -0.5, k: 0.5 },
@@ -86,84 +109,148 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Blonde", v: 1.5, t: 0.5, k: -0.5 },
       { label: "Red / auburn", t: 2 },
     ]},
-  { id: "eyes", text: "Your eye color, up close:",
+  { id: "dye", act: 1, text: "Is your hair colored right now?",
+    help: "Dyed hair changes the contrast you see in the mirror, so we weigh the last answer accordingly.",
     options: [
-      { label: "Black / very dark brown", k: 1.5, v: -0.5 },
-      { label: "Dark brown", k: 0.5 },
-      { label: "Warm brown / amber", t: 1 },
-      { label: "Hazel / green", t: 0.5 },
-      { label: "Blue / gray", t: -1.5, k: -0.5 },
+      { label: "No — this is my natural color" },
+      { label: "Yes, close to my natural shade", damp: { question: "hair", scale: 0.85 } },
+      { label: "Yes, noticeably lighter", damp: { question: "hair", scale: 0.5 } },
+      { label: "Yes, noticeably darker", damp: { question: "hair", scale: 0.5 } },
+      { label: "Yes, a bold or unnatural color", damp: { question: "hair", scale: 0.3 } },
     ]},
-  { id: "sun", text: "What does strong sun do to your skin?",
+  { id: "eyes", act: 1, text: "Your eye color, up close:",
     options: [
-      { label: "I burn or turn pink quickly", t: -1.5 },
-      { label: "I tan easily and evenly", t: 1.5 },
-      { label: "I burn first, then it turns to tan", t: -0.5 },
-      { label: "Barely changes" },
+      { label: "Dark brown / near black", v: -1, k: 1 },
+      { label: "Medium brown", v: -0.5 },
+      { label: "Hazel / amber", t: 1.5 },
+      { label: "Green", t: 0.5, c: 0.5 },
+      { label: "Blue / gray", t: -1.5, v: 1 },
     ]},
-  { id: "contrast", text: "Compare your skin against your hair and eyes. How strong is the difference?",
-    help: "Example: fair skin + black hair = high. Everything similar depth = low.",
-    options: [
-      { label: "High — strong difference", k: 2 },
-      { label: "Medium", k: 0 },
-      { label: "Low — everything blends softly", k: -2 },
-    ]},
-  { id: "black", text: "When you wear black right next to your face:",
-    options: [
-      { label: "I look sharp and defined", k: 1.5, v: -1 },
-      { label: "I look tired or washed out", k: -1.5, v: 1 },
-      { label: "Neither — it's just neutral" },
-    ]},
-  { id: "jewelry", kind: "drape", text: "Which metal makes your face look brighter?",
+
+  // Act 2 begins early — four drapes, then back for the rest of the intake.
+  { id: "jewelry", act: 2, kind: "drape", text: "Which metal makes your face look brighter?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Gold", hex: "#E3B966", t: 2 },
       { label: "Silver", hex: "#CBD2DB", t: -2 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "white", kind: "drape", text: "Which white keeps your face fresh — not gray, not yellow?",
+  { id: "white", act: 2, kind: "drape", text: "Which white keeps your face fresh — not gray, not yellow?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Ivory", hex: "#FAF1DC", t: 1.5 },
       { label: "Pure white", hex: "#FFFFFF", t: -1.5, k: 0.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "worst", kind: "drape", text: "Which pink makes your skin glow?",
+  { id: "worst", act: 2, kind: "drape", text: "Which pink makes your skin glow?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Warm coral", hex: "#FF8A70", t: 1.5 },
       { label: "Cool pink", hex: "#F06CA0", t: -1.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "lip", kind: "drape", text: "Which red lifts your whole face?",
+  { id: "lip", act: 2, kind: "drape", text: "Which red lifts your whole face?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Tomato red", hex: "#E8442E", t: 1.5 },
       { label: "Berry red", hex: "#C2185B", t: -1.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "depth", kind: "drape", text: "Which depth lets your face stay the focus?",
+
+  // Back to what you can see in the mirror.
+  { id: "iris", act: 1, text: "Look closely at your iris. What do you see?",
+    help: "Bright light helps. Look for a pattern in the color itself, and a ring at the outer edge.",
+    options: [
+      { label: "One flat color, soft edge", c: -1.5, k: -0.5 },
+      { label: "Flecks or spokes in the color", c: 1, k: 0.5 },
+      { label: "A clear dark ring around the outside", c: 1.5, k: 1.5 },
+      { label: "Can't really tell" },
+    ]},
+  { id: "sun", act: 1, text: "What does strong sun do to your skin?",
+    options: [
+      { label: "Burns first, tans barely", t: -1, v: 1.5 },
+      { label: "Burns, then tans", v: 0.5 },
+      { label: "Tans easily, rarely burns", t: 1, v: -1 },
+      { label: "Always tans deeply", t: 1, v: -1.5 },
+    ]},
+  { id: "black", act: 1, text: "When you wear black right next to your face:",
+    options: [
+      { label: "I look sharp and defined", k: 1.5, v: -1 },
+      { label: "I look tired or washed out", k: -1.5, v: 1 },
+      { label: "Neither — it's just neutral" },
+    ]},
+
+  // Act 2 resumes: the six that separate the families.
+  { id: "depth", act: 2, kind: "drape", text: "Which depth lets your face stay the focus?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Soft powder pink", hex: "#F6CFD8", v: 2 },
       { label: "Deep burgundy", hex: "#6E2136", v: -2 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "vividness", kind: "drape", text: "Which one harmonizes with you — instead of wearing you?",
+  { id: "vividness", act: 2, kind: "drape", text: "Which one harmonizes with you — instead of wearing you?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Vivid fuchsia", hex: "#E9339B", c: 2, k: 0.5 },
       { label: "Dusty mauve", hex: "#B08699", c: -2, k: -0.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "group", text: "If you could only keep one color family in your closet:",
+  { id: "yellow", act: 2, kind: "drape", text: "Which yellow warms your skin instead of yellowing it?",
+    help: "This one splits spring from autumn: golden warmth versus fresh warmth.",
     options: [
-      { label: "Earth tones — olive, rust, camel", t: 1.5, c: -1 },
-      { label: "Jewel tones — emerald, sapphire, magenta", t: -1, c: 1, v: -0.5 },
-      { label: "Pastels — mint, lavender, powder blue", v: 1.5, c: -1 },
-      { label: "Clean brights — cobalt, hot pink, lime", c: 2, k: 1 },
-      { label: "Grayed neutrals — taupe, slate, mushroom", c: -1.5, k: -1 },
-      { label: "Deep classics — navy, burgundy, forest", v: -1.5, k: 0.5 },
+      { label: "Mustard", hex: "#D9A62E", t: 1, v: -1, c: -0.5 },
+      { label: "Lemon yellow", hex: "#F5E05A", t: 0.5, v: 1.5, c: 1 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "olive", act: 2, kind: "drape", text: "Which one settles into your skin?",
+    help: "Olive reads well on neutral and olive undertones — very common and often missed.",
+    options: [
+      { label: "Olive green", hex: "#8A8B5C", t: 1, c: -1 },
+      { label: "Rose beige", hex: "#C9A099", t: -0.5, c: 0.5 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "neutralTemp", act: 2, kind: "drape", text: "Which neutral looks intentional on you?",
+    help: "Both are quiet colors, so watch whether your skin looks clear or muddy.",
+    options: [
+      { label: "Charcoal gray", hex: "#4A4A52", t: -1.5, v: -1, k: 1 },
+      { label: "Camel brown", hex: "#A9784E", t: 1.5, c: 0.5 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "recheck", act: 2, kind: "drape", text: "One more warm-versus-cool check:",
+    help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
+    options: [
+      { label: "Peach", hex: "#F2B79A", t: 1.5, v: 1 },
+      { label: "Lavender", hex: "#B9A5D9", t: -1.5, v: 1 },
+      { label: "Honestly can't tell" },
+    ]},
+
+  // Act 3: contrast, a targeted confirmation, and overall impression.
+  { id: "eyeContrast", act: 3, text: "Next to your skin, how much do your eyes stand out?",
+    help: "No makeup, in a mirror. You're judging the jump between skin and iris.",
+    options: [
+      { label: "They jump out immediately", k: 2 },
+      { label: "Noticeable, not dramatic", k: 0.5 },
+      { label: "They blend softly into my face", k: -2 },
+    ]},
+  { id: "hairContrast", act: 3, text: "Where your hair meets your face, is the edge sharp or soft?",
+    options: [
+      { label: "Sharp — a clear line", k: 1.5, v: -0.5 },
+      { label: "In between", k: 0 },
+      { label: "Soft — it melts into my skin", k: -1.5, v: 0.5 },
+    ]},
+  { id: "confirm", act: 3, kind: "drape", text: "Last drape — which of these two suits you better?",
+    help: "These two are picked from your answers so far to settle the closest call.",
+    options: [
+      { label: "Softer", hex: "#C3A3B5", c: -1.5 },
+      { label: "Clearer", hex: "#D2437E", c: 1.5 },
+      { label: "Honestly can't tell" },
+    ]},
+  { id: "impression", act: 3, text: "Overall, what do people notice about your coloring?",
+    options: [
+      { label: "It's soft and blended", c: -1.5, k: -1 },
+      { label: "It's clear and striking", c: 1.5, k: 1 },
+      { label: "Somewhere in between" },
+      { label: "I honestly don't know" },
     ]},
 ];
 
@@ -230,19 +317,30 @@ export function axisCoverage(answers: QuizAnswer[]): Record<AxisId, AxisCoverage
 export function computeAxes(answers: QuizAnswer[], options: ScoreOptions = {}): AxisScores {
   const sum = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
   const answeredMax = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
+
+  // Collect damping first: an answer can reduce how much another question counts.
+  const damping = new Map<string, number>();
+  QUIZ_QUESTIONS.forEach((q, i) => {
+    const pick = answers[i];
+    if (pick === null || pick === undefined) return;
+    const d = q.options[pick]?.damp;
+    if (d) damping.set(d.question, Math.min(damping.get(d.question) ?? 1, d.scale));
+  });
+
   QUIZ_QUESTIONS.forEach((q, i) => {
     const pick = answers[i];
     if (pick === null || pick === undefined) return;
     const o = q.options[pick];
     if (!o) return;
-    sum.temperature += o.t ?? 0;
-    sum.value       += o.v ?? 0;
-    sum.chroma      += o.c ?? 0;
-    sum.contrast    += o.k ?? 0;
-    answeredMax.temperature += Math.max(...q.options.map(x => Math.abs(x.t ?? 0)));
-    answeredMax.value       += Math.max(...q.options.map(x => Math.abs(x.v ?? 0)));
-    answeredMax.chroma      += Math.max(...q.options.map(x => Math.abs(x.c ?? 0)));
-    answeredMax.contrast    += Math.max(...q.options.map(x => Math.abs(x.k ?? 0)));
+    const w = damping.get(q.id) ?? 1;
+    sum.temperature += (o.t ?? 0) * w;
+    sum.value       += (o.v ?? 0) * w;
+    sum.chroma      += (o.c ?? 0) * w;
+    sum.contrast    += (o.k ?? 0) * w;
+    answeredMax.temperature += Math.max(...q.options.map(x => Math.abs(x.t ?? 0))) * w;
+    answeredMax.value       += Math.max(...q.options.map(x => Math.abs(x.v ?? 0))) * w;
+    answeredMax.chroma      += Math.max(...q.options.map(x => Math.abs(x.c ?? 0))) * w;
+    answeredMax.contrast    += Math.max(...q.options.map(x => Math.abs(x.k ?? 0))) * w;
   });
   const clamp = (n: number) => Math.max(-1, Math.min(1, n));
   const norm = (axis: AxisId) => {

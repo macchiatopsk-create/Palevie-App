@@ -2,7 +2,7 @@
 import { useEffect,useMemo,useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { QUIZ_QUESTIONS, scoreQuiz, QuizResult } from "@/lib/quiz";
+import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, type ActId } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { getToneDetail } from "@/lib/toneDetail";
 import { heroArt, activeTod } from "@/lib/heroArt";
@@ -14,9 +14,9 @@ import ShareResult from "@/components/ShareResult";
 import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
-function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
+function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([]);
  useEffect(()=>{setSide(0);setFull(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
@@ -26,8 +26,10 @@ export default function QuizClient(){
  useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;
   const y=el.getBoundingClientRect().top+window.scrollY-8;
   window.scrollTo({top:Math.max(0,y),behavior:"auto"})},[step]);
- useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
- const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
+ useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
+ const q=QUIZ_QUESTIONS[step];
+ const prevAct=step>0?QUIZ_QUESTIONS[step-1].act:null;
+ const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function advance(na:(number|null)[],ct:number[]){
   if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
@@ -44,9 +46,9 @@ export default function QuizClient(){
  /** Re-ask only the skipped questions, then re-score. */
  function fillGaps(list:number[]){if(!list.length)return;setResult(null);setGated(false);setQueue([...list]);setStep(list[0])}
  function finish(finalAnswers:(number|null)[],ct:number[]=cantTell){const r=scoreQuiz(finalAnswers,{cantTell:ct});
-  if(!r.sufficient){setGated(true);setResult(r);sessionStorage.removeItem(STATE_KEY);return}
-  setGated(false);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
- function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+  if(!r.sufficient){setGated(true);setResult(r);localStorage.removeItem(STATE_KEY);return}
+  setGated(false);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});localStorage.removeItem(STATE_KEY)}
+ function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setStep(0);setResult(null);localStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(gated&&result)return <div className="qz"><div className="h2-card qz-gate">
    <span className="rs-eyebrow">{MARK.flower} Not enough to call it</span>
    <h2>You skipped {result.skipped.length} of {result.totalCount}</h2>
@@ -57,12 +59,22 @@ export default function QuizClient(){
  if(result)return <QuizResultView result={result} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
+  {actOpens&&!actSeen.includes(q.act)&&(
+   <div className="qz-inter">
+    <div className="qz-inter-card">
+     <span className="rs-eyebrow">{MARK.flower} Step {q.act} of 3</span>
+     <h2>{ACTS[q.act].label}</h2>
+     <p>{ACTS[q.act].intro}</p>
+     <button className="rs-cta" onClick={()=>setActSeen(a=>[...a,q.act])}>Continue {MARK.chevron}</button>
+    </div>
+   </div>)}
   <div className="h2-card qz-card" id="qz-card">
    <div className="qz-prog">
     <span className="qz-count"><b>{step+1}</b> / {QUIZ_QUESTIONS.length}</span>
     <div className="qz-bar"><i style={{width:`${progress}%`}}/></div>
    </div>
 
+   <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
    <h2 className="qz-q">{q.text}</h2>
    {q.help&&<p className="qz-help">{q.help}</p>}
 
