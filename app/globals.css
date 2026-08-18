@@ -1279,6 +1279,26 @@ body.sp-open{overflow:hidden}
 .qz-inter-card p{font-size:12.5px;line-height:1.65;color:#8A7186;margin:11px 0 18px}
 .qz-inter-card .rs-cta{width:100%}
 
+
+/* ── shade drape: try a product beside your face ── */
+.sh-try{border:1px solid #E6D4EC;background:#fff;border-radius:999px;padding:6px 11px;font:inherit;font-size:10.5px;font-weight:750;color:#A776C8;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.sh-try:active{transform:scale(.95)}
+.shop-grid.c3 .sh-try{padding:5px 9px;font-size:10px}
+
+.sd{position:fixed;inset:0;z-index:420;display:flex;flex-direction:column;justify-content:space-between;transition:background .22s ease}
+.sd-caption{padding:calc(env(safe-area-inset-top,0px) + 22px) 20px 0;text-align:center}
+.sd-caption b{display:inline-block;background:rgba(255,255,255,.88);border-radius:999px;padding:9px 16px;font-size:12.5px;font-weight:750;color:#3B2B36}
+.sd-caption small{display:block;font-size:11px;font-weight:700;color:rgba(0,0,0,.45);margin-top:8px}
+.sd-caption em{display:block;font-style:normal;font-size:10.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:rgba(0,0,0,.38);margin-top:6px}
+.sd-ui{padding:16px 18px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(to top,rgba(255,255,255,.72),rgba(255,255,255,0))}
+.sd-toggle{background:rgba(255,255,255,.7);grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+.sd-actions{display:grid;gap:8px;margin-top:11px}
+.sd-save{min-height:46px;border:0;border-radius:999px;background:#fff;font:inherit;font-size:13.5px;font-weight:750;color:#E8798F;cursor:pointer;box-shadow:0 2px 10px rgba(60,42,84,.14)}
+.sd-save.on{background:#F18DA1;color:#fff}
+.sd-shop{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:999px;background:rgba(59,43,54,.86);color:#fff;font-size:13px;font-weight:700}
+.sd-save:active,.sd-shop:active{transform:scale(.985)}
+.sd-hint{font-size:10.5px;line-height:1.5;color:rgba(0,0,0,.45);text-align:center;margin:10px 0 0;font-weight:600}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}

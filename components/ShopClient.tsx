@@ -10,7 +10,8 @@ import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats, loadStyleDetail, loadFitPref } from "@/lib/style";
 import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
-import { NAV_ICON } from "@/components/icons";
+import { NAV_ICON, MARK } from "@/components/icons";
+import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
@@ -37,6 +38,7 @@ export default function ShopClient() {
     const [ready, setReady] = useState(false);
   const [wl, setWl] = useState<SavedItem[]>([]);
   useEffect(()=>{document.body.classList.add("h2-clean");return()=>{document.body.classList.remove("h2-clean")}},[]);
+  const [draping,setDraping]=useState<string|null>(null);
   const profile = useMemo(() => {
     if (!ready) return null;
     const p = loadProfile();
@@ -110,7 +112,26 @@ export default function ShopClient() {
   const cents = (p:{offers:{priceCents?:number;priceLabel?:string}[]}) => p.offers[0]?.priceCents ?? Math.round((parseFloat((p.offers[0]?.priceLabel||"").replace(/[^0-9.]/g,""))||999)*100);
   const shown = sort==="match" ? items : [...items].sort((a,b)=> sort==="lo" ? cents(a)-cents(b) : cents(b)-cents(a));
 
+  // Compare a shade against the person's own palette, not an empty screen.
+  const drapeProduct = draping ? items.find(p => p.id === draping) : null;
+  const drapeShades: DrapeShade[] = drapeProduct
+    ? [{ label: "This shade", hex: drapeProduct.colorHex as string },
+       ...(profile?.colors ?? []).slice(0, 3).map((hex, i) => ({ label: `Your ${["best","2nd","3rd"][i]}`, hex }))]
+    : [];
+
   return <>
+    {drapeProduct && drapeProduct.colorHex && (
+      <ShadeDrape
+        title={`${drapeProduct.brand} · ${drapeProduct.name}`}
+        subtitle={profile ? `${profile.name} match ${drapeProduct.match ?? ""}${drapeProduct.match ? "%" : ""}` : undefined}
+        shades={drapeShades}
+        saved={wl.some(w => w.id === productKey(drapeProduct.id))}
+        onSave={() => heart(drapeProduct.id, drapeProduct.name)}
+        shopHref={`/go/search?${new URLSearchParams({ q: `${drapeProduct.brand} ${drapeProduct.name}`, label: drapeProduct.name, r: "amazon", surface: "shade_drape", v: getVisitorId() }).toString()}`}
+        onShop={() => track("shade_drape_shop_click", { product: drapeProduct.id })}
+        onClose={() => setDraping(null)}
+      />
+    )}
     <div className="h2-top">
       <span className="h2-brand">Palevie</span>
       <div className="h2-topbtns">
@@ -211,6 +232,7 @@ export default function ShopClient() {
           <button type="button" className={`sh-add${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)}>
             {wl.some(w=>w.id===productKey(p.id))?"Saved":"+ Add"}
           </button>
+          {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
       </div>
