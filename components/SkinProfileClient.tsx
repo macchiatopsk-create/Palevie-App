@@ -76,7 +76,7 @@ export default function SkinProfileClient() {
 
   const steps = [
     // ── Act 1: safety. Pregnancy is an option someone can volunteer, never a question we ask.
-    { id: "flags", act: ACT.safety, kind: "multi" as const,
+    { id: "flags", act: ACT.safety, kind: "multi" as const, noneLabel: "None of these apply",
       title: "Anything we should avoid for you?",
       help: "Pick anything that applies. This removes products rather than ranking them lower.",
       options: opt([
@@ -196,7 +196,7 @@ export default function SkinProfileClient() {
       note: (v: WizardValues) => v.pigmentType === "melasma"
         ? "Symmetric patches are usually treated medically. Sunscreen helps either way; a dermatologist can tell you what else will."
         : null },
-    { id: "usingNow", act: ACT.goals, kind: "multi" as const,
+    { id: "usingNow", act: ACT.goals, kind: "multi" as const, noneLabel: "Nothing right now",
       title: "What are you already using?",
       help: "So we don't stack things that fight each other.",
       options: opt([
@@ -248,7 +248,8 @@ export default function SkinProfileClient() {
   } : {};
 
   function finish(v: WizardValues) {
-    const list = (key: string) => (Array.isArray(v[key]) ? (v[key] as string[]) : []);
+    // The "none" sentinel is a UI answer, not profile data.
+    const list = (key: string) => (Array.isArray(v[key]) ? (v[key] as string[]).filter(x => x !== "__none__") : []);
     const priorities = list("priorities");
     // The scorer still works off goal/concern/reactivity, so derive them from
     // the richer answers rather than asking the same thing twice.

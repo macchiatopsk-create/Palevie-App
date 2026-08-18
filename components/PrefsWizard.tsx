@@ -16,6 +16,8 @@ export type WizardStep = {
   kind: "single" | "multi";
   options: WizardOption[];
   min?: number; // multi only; default 0 (skippable)
+  /** Wording for the explicit "none" answer on optional multi steps. */
+  noneLabel?: string;
   max?: number; // multi only
   /** Grouping label, shown as "Step 2 of 4 · Skin type". */
   act?: { n: number; total: number; label: string };
@@ -52,6 +54,11 @@ export default function PrefsWizard({
   const val = values[q.id];
   const picked: string[] = q.kind === "multi" ? (Array.isArray(val) ? val : []) : typeof val === "string" ? [val] : [];
 
+  /** Optional multi steps get an explicit "none" answer rather than a hint. */
+  const NONE_ID = "__none__";
+  const offersNone = q.kind === "multi" && (q.min ?? 0) === 0;
+  const noneChosen = offersNone && picked.includes(NONE_ID);
+
   function choose(id: string) {
     if (q.kind === "single") {
       setValues(v => ({ ...v, [q.id]: id }));
@@ -59,7 +66,10 @@ export default function PrefsWizard({
     }
     setValues(v => {
       const cur = Array.isArray(v[q.id]) ? (v[q.id] as string[]) : [];
-      let next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+      // "None" and a real answer are mutually exclusive in both directions.
+      if (id === NONE_ID) return { ...v, [q.id]: cur.includes(NONE_ID) ? [] : [NONE_ID] };
+      const withoutNone = cur.filter(x => x !== NONE_ID);
+      let next = withoutNone.includes(id) ? withoutNone.filter(x => x !== id) : [...withoutNone, id];
       if (q.max && next.length > q.max) next = next.slice(-q.max);
       return { ...v, [q.id]: next };
     });
@@ -107,12 +117,14 @@ export default function PrefsWizard({
               </button>
             );
           })}
+          {offersNone && (
+            <button type="button" className={`qz-opt qz-opt-none ${noneChosen ? "on" : ""}`} onClick={() => choose(NONE_ID)}>
+              <span>{q.noneLabel ?? "None of these"}</span><i/>
+            </button>
+          )}
         </div>
 
         {q.note?.(values) && <p className="qz-referral">{q.note(values)}</p>}
-        {q.kind === "multi" && (q.min ?? 0) === 0 && picked.length === 0 && (
-          <p className="qz-help qz-help-center">Nothing that applies? Just tap Next.</p>
-        )}
 
         <div className="qz-actions">
           <button className="qz-next" disabled={!canNext} onClick={next}>

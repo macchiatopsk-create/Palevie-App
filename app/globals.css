@@ -1327,6 +1327,8 @@ body.sp-open{overflow:hidden}
 
 
 /* ── multi-select clarity + held products ── */
+.qz-opt-none{border-style:dashed;color:#8A7186}
+.qz-opt-none.on{border-style:solid}
 .sk-multi{display:inline-block;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:6px 12px;font-size:10.5px;font-weight:750;margin-top:9px}
 .sh-held ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:9px}
 .sh-held li{display:flex;align-items:flex-start;gap:10px}
