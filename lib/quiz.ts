@@ -60,6 +60,8 @@ export type AxisCoverage = {
 };
 
 export type ScoreOptions = {
+  /** Question ids to leave out — used for the provisional read behind the confirm drape. */
+  ignore?: string[];
   /**
    * Drape questions where the person said they honestly couldn't tell. Stored
    * as `null` like any skip, but tracked separately: a practitioner reads
@@ -314,6 +316,42 @@ export function axisCoverage(answers: QuizAnswer[]): Record<AxisId, AxisCoverage
  * questions actually answered, so a partial run lands in the same range as a
  * full one instead of collapsing toward neutral.
  */
+const CONFIRM_ID = "confirm";
+
+/**
+ * The last drape is decided at runtime. Once the earlier answers are in we know
+ * which two tones are actually competing, so the question becomes "this one or
+ * that one" between those two rather than a generic soft-versus-clear — the
+ * narrowing a practitioner does at the end of a session.
+ */
+export function confirmDrape(answers: QuizAnswer[]): { options: QuizOption[]; between: [string, string] } {
+  const axes = computeAxes(answers, { ignore: [CONFIRM_ID] });
+  const ranked = rankTones(axes);
+  const [a, b] = [ranked[0].id, ranked[1].id];
+  const ta = TYPE_TARGETS[a], tb = TYPE_TARGETS[b];
+  // Push along the axis gap between the two candidates, scaled to the size of
+  // the other drapes so one question can't outvote the rest.
+  const gap = {
+    t: (ta.temperature - tb.temperature),
+    v: (ta.value - tb.value),
+    c: (ta.chroma - tb.chroma),
+    k: (ta.contrast - tb.contrast),
+  };
+  const span = Math.max(0.2, Math.abs(gap.t) + Math.abs(gap.v) + Math.abs(gap.c) + Math.abs(gap.k));
+  const scale = 1.6 / span;
+  const paletteColor = (id: string, index: number) =>
+    toneProfiles.find(p => p.id === id)?.colors[index] ?? "#CBB7C6";
+  const label = (id: string) => toneProfiles.find(p => p.id === id)?.name ?? id;
+  return {
+    between: [a, b],
+    options: [
+      { label: label(a), hex: paletteColor(a, 1), t: gap.t * scale, v: gap.v * scale, c: gap.c * scale, k: gap.k * scale },
+      { label: label(b), hex: paletteColor(b, 1), t: -gap.t * scale, v: -gap.v * scale, c: -gap.c * scale, k: -gap.k * scale },
+      { label: "Honestly can't tell" },
+    ],
+  };
+}
+
 export function computeAxes(answers: QuizAnswer[], options: ScoreOptions = {}): AxisScores {
   const sum = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
   const answeredMax = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
@@ -327,10 +365,12 @@ export function computeAxes(answers: QuizAnswer[], options: ScoreOptions = {}): 
     if (d) damping.set(d.question, Math.min(damping.get(d.question) ?? 1, d.scale));
   });
 
+  const ignore = new Set(options.ignore ?? []);
   QUIZ_QUESTIONS.forEach((q, i) => {
     const pick = answers[i];
     if (pick === null || pick === undefined) return;
-    const o = q.options[pick];
+    if (ignore.has(q.id)) return;
+    const o = q.id === CONFIRM_ID ? confirmDrape(answers).options[pick] : q.options[pick];
     if (!o) return;
     const w = damping.get(q.id) ?? 1;
     sum.temperature += (o.t ?? 0) * w;
@@ -369,6 +409,23 @@ function distance(a: AxisScores, b: AxisScores): number {
   );
 }
 
+export function rankTones(axes: AxisScores): RankedType[] {
+  const scored = Object.entries(TYPE_TARGETS)
+    .map(([id, target]) => ({ id, d: distance(axes, target) }))
+    .sort((a, b) => a.d - b.d);
+  const top = scored.slice(0, 3);
+  const weights = top.map(s => 1 / (0.18 + s.d * s.d));
+  const total = weights.reduce((a, b) => a + b, 0);
+  const ranked: RankedType[] = top.map((s, i) => ({
+    id: s.id,
+    name: toneProfiles.find(p => p.id === s.id)?.name ?? s.id,
+    pct: Math.round((weights[i] / total) * 100),
+  }));
+  const drift = 100 - ranked.reduce((a, r) => a + r.pct, 0);
+  ranked[0].pct += drift;
+  return ranked;
+}
+
 export function scoreQuiz(answers: QuizAnswer[], options: ScoreOptions = {}): QuizResult {
   if (answers.length !== QUIZ_QUESTIONS.length) {
     throw new Error(`Expected ${QUIZ_QUESTIONS.length} answers, got ${answers.length}`);
@@ -378,22 +435,7 @@ export function scoreQuiz(answers: QuizAnswer[], options: ScoreOptions = {}): Qu
   const skipped = answers.map((a, i) => (a === null || a === undefined ? i : -1)).filter(i => i >= 0);
   const answeredCount = QUIZ_QUESTIONS.length - skipped.length;
   const unresolvedAxes = AXIS_IDS.filter(a => !coverage[a].resolved);
-  const scored = Object.entries(TYPE_TARGETS).map(([id, target]) => ({
-    id,
-    d: distance(axes, target),
-  })).sort((a, b) => a.d - b.d);
-
-  const top = scored.slice(0, 3);
-  const weights = top.map(s => 1 / (0.18 + s.d * s.d));
-  const total = weights.reduce((a, b) => a + b, 0);
-  const ranked: RankedType[] = top.map((s, i) => ({
-    id: s.id,
-    name: toneProfiles.find(p => p.id === s.id)?.name ?? s.id,
-    pct: Math.round((weights[i] / total) * 100),
-  }));
-  // Rounding drift: force the three to sum to 100.
-  const drift = 100 - ranked.reduce((a, r) => a + r.pct, 0);
-  ranked[0].pct += drift;
+  const ranked = rankTones(axes);
 
   // Confidence is the fit discounted by how much of the quiz was actually
   // answered — a strong fit from six answers is not a strong reading.

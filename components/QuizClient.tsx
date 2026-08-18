@@ -2,7 +2,7 @@
 import { useEffect,useMemo,useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, type ActId } from "@/lib/quiz";
+import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, confirmDrape, type ActId } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { getToneDetail } from "@/lib/toneDetail";
 import { heroArt, activeTod } from "@/lib/heroArt";
@@ -76,9 +76,11 @@ export default function QuizClient(){
 
    <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
    <h2 className="qz-q">{q.text}</h2>
-   {q.help&&<p className="qz-help">{q.help}</p>}
+   {q.help&&<p className="qz-help">{q.id==="confirm"
+     ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`
+     : q.help}</p>}
 
-   {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
+   {q.kind==="drape" ? (()=>{const opts=q.id==="confirm"?confirmDrape(answers).options:q.options;const sw=opts.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=opts.indexOf(cur);const neutral=opts.findIndex(o=>!o.hex);
     const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
     const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>{MARK.check} This one suits me</button>;
     const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);cannotTell()}}>Honestly can&apos;t tell</button>;

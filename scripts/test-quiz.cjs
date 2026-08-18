@@ -2,7 +2,7 @@
 // Verifies: determinism, all 16 types reachable as #1, percentages sum to 100,
 // answer-count validation, and axis normalization bounds.
 const path = require("path");
-const { QUIZ_QUESTIONS, TYPE_TARGETS, scoreQuiz, computeAxes, axisCoverage, AXIS_IDS } = require(path.join(__dirname, "..", ".quiztest", "quiz.js"));
+const { QUIZ_QUESTIONS, TYPE_TARGETS, scoreQuiz, computeAxes, axisCoverage, AXIS_IDS, confirmDrape } = require(path.join(__dirname, "..", ".quiztest", "quiz.js"));
 
 let failures = 0;
 function check(name, cond, extra) {
@@ -138,6 +138,28 @@ function warmAnswers() {
   const plainSkip = scoreQuiz(a);
   check("can't tell is tracked separately", neutralish.cantTellCount === drapes.length && plainSkip.cantTellCount === 0);
   check("can't tell softens temperature", Math.abs(neutralish.axes.temperature) <= Math.abs(plainSkip.axes.temperature), `${neutralish.axes.temperature} vs ${plainSkip.axes.temperature}`);
+}
+
+// 7) The confirm drape is decided at runtime from the earlier answers.
+{
+  const lean = (fn) => QUIZ_QUESTIONS.map(q => {
+    if (q.id === "confirm") return null;
+    let best = 0, bs = -Infinity;
+    q.options.forEach((o, idx) => { const v = fn(o); if (v > bs) { bs = v; best = idx; } });
+    return best;
+  });
+  const warm = confirmDrape(lean(o => o.t ?? 0));
+  const cool = confirmDrape(lean(o => -(o.t ?? 0)));
+  check("confirm drape offers two distinct tones", warm.between[0] !== warm.between[1]);
+  check("confirm drape follows the answers", warm.between.join() !== cool.between.join(), `${warm.between} vs ${cool.between}`);
+  check("confirm drape has swatch colors", Boolean(warm.options[0].hex && warm.options[1].hex));
+  check("confirm drape keeps a can't-tell escape", warm.options.some(o => !o.hex));
+  // Choosing the leading tone should not move you off it.
+  const a = lean(o => o.t ?? 0);
+  const idx = QUIZ_QUESTIONS.findIndex(q => q.id === "confirm");
+  const before = scoreQuiz(a).ranked[0].id;
+  a[idx] = 0;
+  check("picking the front-runner keeps it in front", scoreQuiz(a).ranked[0].id === before, `${before} -> ${scoreQuiz(a).ranked[0].id}`);
 }
 
 console.log(failures === 0 ? "\nALL TESTS PASSED" : `\n${failures} TEST(S) FAILED`);
