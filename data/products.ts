@@ -230,6 +230,33 @@ export const catalogProducts: CatalogProduct[] = [
     description: "Fragrance-free barrier cream for reactive days.", tags: ["barrier-support", "fragrance-free", "gentle", "calming", "cream"],
     offers: [{ id: "of-round-panthe", retailer: "amazon", url: "https://www.amazon.com/s?k=round+lab+1025+dokdo+cream", priceLabel: "$21", currency: "USD", affiliateReady: true }],
   },
+  {
+    id: "sk-round-sun", brand: "Round Lab", name: "Birch Juice Moisturizing Sun Cream", category: "skincare", subcategory: "sunscreen",
+    description: "No white cast, no fragrance — the daily one most people stick with.", tags: ["spf", "fragrance-free", "gentle", "lightweight", "hydration"],
+    offers: [{ id: "of-round-sun", retailer: "amazon", url: "https://www.amazon.com/s?k=round+lab+birch+juice+sun+cream", priceLabel: "$19", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-illiyoon-cream", brand: "Illiyoon", name: "Ceramide Ato Concentrate Cream", category: "skincare", subcategory: "moisturizer",
+    description: "Unscented ceramide cream that works on face and body.", tags: ["barrier-support", "fragrance-free", "gentle", "hydration", "cream"],
+    offers: [{ id: "of-illiyoon-cream", retailer: "amazon", url: "https://www.amazon.com/s?k=illiyoon+ceramide+ato+concentrate+cream", priceLabel: "$16", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-cosrx-patch", brand: "COSRX", name: "Acne Pimple Master Patch", category: "skincare", subcategory: "treatment",
+    description: "Hydrocolloid patches for an overnight spot.", tags: ["gentle", "fragrance-free", "smoother-looking"],
+    offers: [{ id: "of-cosrx-patch", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+acne+pimple+master+patch", priceLabel: "$6", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "mk-laneige-balm", brand: "Laneige", name: "Lip Sleeping Mask Untinted", category: "makeup", subcategory: "lip",
+    description: "Clear overnight lip balm, no color, no shine in daylight.", colorHex: "#E8C9BE",
+    tags: ["balm", "fragrance-free", "gentle"],
+    offers: [{ id: "of-laneige-balm", retailer: "amazon", url: "https://www.amazon.com/s?k=laneige+lip+sleeping+mask+untinted", priceLabel: "$24", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "mk-thesaem-stick", brand: "the SAEM", name: "Cover Perfection Concealer Stick", category: "makeup", subcategory: "base",
+    description: "Matte stick for covering a single spot, not a whole face.", colorHex: "#D9AE8E",
+    tags: ["soft-matte", "lightweight"],
+    offers: [{ id: "of-thesaem-stick", retailer: "amazon", url: "https://www.amazon.com/s?k=the+saem+cover+perfection+concealer+stick", priceLabel: "$9", currency: "USD", affiliateReady: true }],
+  },
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));

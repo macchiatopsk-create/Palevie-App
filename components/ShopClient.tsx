@@ -11,6 +11,7 @@ import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats, loadStyleDetail, 
 import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
 import { getVisitorId, track } from "@/lib/analytics";
 import { NAV_ICON, MARK } from "@/components/icons";
+import { loadInterest, INTEREST_EVENT, type Interest } from "@/lib/interest";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
@@ -39,6 +40,8 @@ export default function ShopClient() {
   const [wl, setWl] = useState<SavedItem[]>([]);
   useEffect(()=>{document.body.classList.add("h2-clean");return()=>{document.body.classList.remove("h2-clean")}},[]);
   const [draping,setDraping]=useState<string|null>(null);
+  const [interest,setInterest]=useState<Interest|null>(null);
+  useEffect(()=>{setInterest(loadInterest());const s=()=>setInterest(loadInterest());window.addEventListener(INTEREST_EVENT,s);return()=>window.removeEventListener(INTEREST_EVENT,s)},[]);
   const profile = useMemo(() => {
     if (!ready) return null;
     const p = loadProfile();
@@ -56,6 +59,7 @@ export default function ShopClient() {
     setReady(true); setWl(loadWishlist()); track("shop_viewed");
     const t = new URLSearchParams(window.location.search).get("tab");
     if (t==="clothes"||t==="skincare"||t==="lip"||t==="eyeshadow"|| t==="blush") setTab(t);
+    else if (loadInterest() === "skincare") setTab("skincare");
     const sync = () => setWl(loadWishlist());
     window.addEventListener(WISHLIST_EVENT, sync);
     window.addEventListener("storage", sync);

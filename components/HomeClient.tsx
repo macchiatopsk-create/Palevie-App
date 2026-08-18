@@ -11,6 +11,7 @@ import { loadStylePrefs } from "@/lib/style";
 import { loadSkinProfile } from "@/lib/skincare";
 import { MEMBER_STEPS } from "@/lib/member";
 import { getToneDetail } from "@/lib/toneDetail";
+import { loadInterest, saveInterest, wantsColor, wantsSkincare, INTEREST_EVENT, type Interest } from "@/lib/interest";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { timeOfDay, loadTod, TimeOfDay } from "@/lib/theme";
 import { track } from "@/lib/analytics";
@@ -38,6 +39,7 @@ const ICON = {
 export default function HomeClient() {
   const [ready, setReady] = useState(false);
   const [name, setName] = useState<string | null>(null);
+  const [interest, setInterest] = useState<Interest | null>(null);
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
 
@@ -47,6 +49,9 @@ export default function HomeClient() {
     setTod(activeTod());
     setReady(true);
     setName(loadMember()?.name ?? null);
+    setInterest(loadInterest());
+    const syncInterest = () => setInterest(loadInterest());
+    window.addEventListener(INTEREST_EVENT, syncInterest);
     const syncMember = () => setName(loadMember()?.name ?? null);
     window.addEventListener(MEMBER_EVENT, syncMember);
 
@@ -71,7 +76,7 @@ export default function HomeClient() {
       }
     });
 
-    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, syncWl); window.removeEventListener(MEMBER_EVENT, syncMember); clearInterval(tick); };
+    return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, syncWl); window.removeEventListener(MEMBER_EVENT, syncMember); window.removeEventListener(INTEREST_EVENT, syncInterest); clearInterval(tick); };
   }, []);
 
   const profile = ready ? loadProfile() : null;
@@ -127,6 +132,17 @@ export default function HomeClient() {
 
   return (
     <div className="h2">
+      {ready && !interest && (
+        <section className="h2-card h2-interest">
+          <b>What are you shopping for?</b>
+          <p>It decides what the Shop puts first. You can change it any time.</p>
+          <div className="h2-interest-row">
+            {([["skincare","Skincare"],["makeup","Color makeup"],["both","Both"]] as const).map(([id,label]) => (
+              <button key={id} onClick={() => { saveInterest(id); setInterest(id); }}>{label}</button>
+            ))}
+          </div>
+        </section>
+      )}
       {/* top bar */}
       <div className="h2-top">
         <span className="h2-brand">Palevie</span>
@@ -231,7 +247,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {daily && (
+      {daily && wantsColor(interest) && (
         <section className="h2-card h2-daily">
           <div className="h2-cardhead"><b>Today&apos;s shade</b><Link href="/shop" className="h2-viewall">Shop ›</Link></div>
           <div className="h2-daily-row">
@@ -262,7 +278,7 @@ export default function HomeClient() {
         </section>
       )}
 
-      {avoid.length > 0 && (
+      {avoid.length > 0 && wantsColor(interest) && (
         <Link href="/quiz" className="h2-card h2-avoid">
           <div className="h2-cardhead"><b>Colors to skip</b><span className="h2-viewall">Why ›</span></div>
           <div className="h2-avoid-row">

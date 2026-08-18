@@ -37,16 +37,16 @@ export default function MakeupPrefsClient() {
   }
 
   const steps = [
-    { id: "style", title: "How do you like to wear makeup?", kind: "single" as const,
+    { id: "style", title: "How do you like to wear makeup?", help: "If you don't wear makeup, skip this — the Shop will lean on your skin profile instead.", kind: "single" as const,
       options: MAKEUP_STYLES.map(s => ({ id: s.id, label: `${s.emoji} ${s.name} — ${s.blurb}` })) },
     { id: "categories", title: "What are you shopping for?", help: "Pick everything that applies — the Shop ranks these first.", kind: "multi" as const,
       options: MAKEUP_CATS.map(c => ({ id: c.id, label: `${c.emoji} ${c.name}` })) },
     { id: "lipFinish", title: "How do you like your lips?", kind: "single" as const,
-      options: [["glossy","💦 Glossy & juicy"],["matte","🌫 Matte & velvety"],["satin","🎀 Satin"],["balm","🪞 Tinted balm"]].map(([id,label]) => ({ id, label })) },
+      options: [["glossy","Glossy & juicy"],["matte","Matte & velvety"],["satin","Satin"],["balm","Tinted balm"],["none","I don't wear lip color"]].map(([id,label]) => ({ id, label })) },
     { id: "eyeTexture", title: "Shimmer or matte on your eyes?", kind: "single" as const,
-      options: [["shimmer","✨ Shimmer & glitter"],["matte","🤎 Soft matte"],["mix","🎨 Mix of both"]].map(([id,label]) => ({ id, label })) },
+      options: [["shimmer","Shimmer & glitter"],["matte","Soft matte"],["mix","Mix of both"],["none","I don't wear eye makeup"]].map(([id,label]) => ({ id, label })) },
     { id: "baseFinish", title: "How should your skin look?", kind: "single" as const,
-      options: [["dewy","💧 Dewy glass skin"],["natural","🌤 Natural, skin-like"],["soft-matte","🧸 Soft matte"]].map(([id,label]) => ({ id, label })) },
+      options: [["dewy","Dewy glass skin"],["natural","Natural, skin-like"],["soft-matte","Soft matte"],["bare","Bare — no base products"]].map(([id,label]) => ({ id, label })) },
     { id: "budget", title: "What feels right to spend?", help: "Per item.", kind: "single" as const,
       options: [["value","Under $15"],["mid","Under $30"],["flexible","Flexible"]].map(([id,label]) => ({ id, label })) },
     { id: "brands", title: "Any brands you already love?", help: "Up to five — totally optional.", kind: "multi" as const, max: 5,
