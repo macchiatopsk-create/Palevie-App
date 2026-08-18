@@ -2,7 +2,7 @@
 // Verifies: determinism, all 16 types reachable as #1, percentages sum to 100,
 // answer-count validation, and axis normalization bounds.
 const path = require("path");
-const { QUIZ_QUESTIONS, TYPE_TARGETS, scoreQuiz, computeAxes } = require(path.join(__dirname, "..", ".quiztest", "quiz.js"));
+const { QUIZ_QUESTIONS, TYPE_TARGETS, scoreQuiz, computeAxes, axisCoverage, AXIS_IDS } = require(path.join(__dirname, "..", ".quiztest", "quiz.js"));
 
 let failures = 0;
 function check(name, cond, extra) {
@@ -91,6 +91,53 @@ check("all 16 types reachable as #1", unreachable.length === 0, unreachable.join
   const r = scoreQuiz(warmAnswers);
   const warmFamilies = ["spring", "autumn"];
   check("all-warm answers land in a warm family", warmFamilies.some(f => r.ranked[0].id.startsWith(f)), r.ranked[0].id);
+}
+
+// 6) Partial answers: skipping stores null and the engine says what it can't call.
+function warmAnswers() {
+  return QUIZ_QUESTIONS.map(q => {
+    let best = 0, bestT = -Infinity;
+    q.options.forEach((o, idx) => { const t = o.t ?? 0; if (t > bestT) { bestT = t; best = idx; } });
+    return best;
+  });
+}
+
+{
+  const full = scoreQuiz(warmAnswers());
+  check("full answers report complete coverage", full.answeredCount === QUIZ_QUESTIONS.length && full.skipped.length === 0 && full.unresolvedAxes.length === 0, JSON.stringify({ answered: full.answeredCount, unresolved: full.unresolvedAxes }));
+  check("full answers are sufficient", full.sufficient === true);
+}
+
+{
+  // Skip every question that carries temperature weight.
+  const a = warmAnswers();
+  const tempIdx = [];
+  QUIZ_QUESTIONS.forEach((q, i) => { if (q.options.some(o => Math.abs(o.t ?? 0) > 0)) { a[i] = null; tempIdx.push(i); } });
+  const r = scoreQuiz(a);
+  const cov = axisCoverage(a);
+  check("temperature axis reports unresolved when skipped", r.unresolvedAxes.includes("temperature") && cov.temperature.answered === 0, JSON.stringify(r.unresolvedAxes));
+  check("skipped indices are reported back", r.skipped.length === tempIdx.length && r.skipped.every(i => tempIdx.includes(i)));
+  check("headline names the missing axis", /warm\/cool/.test(r.headline), r.headline);
+  check("skips never invent an answer", computeAxes(a).temperature === 0 || cov.temperature.answered === 0);
+}
+
+{
+  // Skip more than half: no reading at all.
+  const a = warmAnswers().map((v, i) => (i % 2 === 0 ? null : v));
+  const r = scoreQuiz(a);
+  check("over-half skipped is not sufficient", r.sufficient === false, `answered ${r.answeredCount}/${r.totalCount}`);
+  check("confidence is discounted by coverage", r.confidence < scoreQuiz(warmAnswers()).confidence, `${r.confidence}`);
+}
+
+{
+  // "Can't tell" on drapes pulls temperature toward neutral.
+  const a = warmAnswers();
+  const drapes = [];
+  QUIZ_QUESTIONS.forEach((q, i) => { if (q.kind === "drape") { a[i] = null; drapes.push(i); } });
+  const neutralish = scoreQuiz(a, { cantTell: drapes });
+  const plainSkip = scoreQuiz(a);
+  check("can't tell is tracked separately", neutralish.cantTellCount === drapes.length && plainSkip.cantTellCount === 0);
+  check("can't tell softens temperature", Math.abs(neutralish.axes.temperature) <= Math.abs(plainSkip.axes.temperature), `${neutralish.axes.temperature} vs ${plainSkip.axes.temperature}`);
 }
 
 console.log(failures === 0 ? "\nALL TESTS PASSED" : `\n${failures} TEST(S) FAILED`);

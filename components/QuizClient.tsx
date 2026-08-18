@@ -13,10 +13,10 @@ import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfi
 import ShareResult from "@/components/ShareResult";
 import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
-type SavedState={answers:(number|null)[];step:number};
-function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0}}
+type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
+function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=sessionStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);
  useEffect(()=>{setSide(0);setFull(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
@@ -26,14 +26,35 @@ export default function QuizClient(){
  useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;
   const y=el.getBoundingClientRect().top+window.scrollY-8;
   window.scrollTo({top:Math.max(0,y),behavior:"auto"})},[step]);
- useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step}))},[answers,step,hydrated]);
+ useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)sessionStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
  const q=QUIZ_QUESTIONS[step];const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
- function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);track("quiz_answered",{question:q.id,step:step+1});if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1);else finish(na as number[])}
- function next(){if(selected===null)return;if(step<QUIZ_QUESTIONS.length-1)setStep(s=>s+1);else finish(answers as number[])}
- function finish(finalAnswers:number[]){const r=scoreQuiz(finalAnswers);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
- function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
- if(result)return <QuizResultView result={result} onRestart={restart}/>;
+ function advance(na:(number|null)[],ct:number[]){
+  if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
+   if(rest.length){setStep(rest[0]);return}
+   finish(na,ct);return}
+  if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1); else finish(na,ct);
+ }
+ function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);const ct=cantTell.filter(i=>i!==step);setCantTell(ct);track("quiz_answered",{question:q.id,step:step+1});advance(na,ct)}
+ function next(){if(selected===null)return;advance(answers,cantTell)}
+ /** Skip stores nothing: the engine scores what was answered and reports the gap. */
+ function skip(){const na=[...answers];na[step]=null;setAnswers(na);advance(na,cantTell)}
+ /** "Can't tell" is also null, but recorded as a neutral-undertone signal. */
+ function cannotTell(){const na=[...answers];na[step]=null;setAnswers(na);const ct=cantTell.includes(step)?cantTell:[...cantTell,step];setCantTell(ct);advance(na,ct)}
+ /** Re-ask only the skipped questions, then re-score. */
+ function fillGaps(list:number[]){if(!list.length)return;setResult(null);setGated(false);setQueue([...list]);setStep(list[0])}
+ function finish(finalAnswers:(number|null)[],ct:number[]=cantTell){const r=scoreQuiz(finalAnswers,{cantTell:ct});
+  if(!r.sufficient){setGated(true);setResult(r);sessionStorage.removeItem(STATE_KEY);return}
+  setGated(false);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});sessionStorage.removeItem(STATE_KEY)}
+ function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setStep(0);setResult(null);sessionStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+ if(gated&&result)return <div className="qz"><div className="h2-card qz-gate">
+   <span className="rs-eyebrow">{MARK.flower} Not enough to call it</span>
+   <h2>You skipped {result.skipped.length} of {result.totalCount}</h2>
+   <p>A reading needs at least {Math.ceil(result.totalCount/2)} answers. Guessing the rest would just make up a season for you.</p>
+   <button className="rs-cta" onClick={()=>fillGaps(result.skipped)}>Answer the {result.skipped.length} I skipped {MARK.chevron}</button>
+   <button className="rs-cta2" onClick={restart}>Start over</button>
+  </div></div>;
+ if(result)return <QuizResultView result={result} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
   <div className="h2-card qz-card" id="qz-card">
@@ -48,7 +69,7 @@ export default function QuizClient(){
    {q.kind==="drape" ? (()=>{const sw=q.options.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=q.options.indexOf(cur);const neutral=q.options.findIndex(o=>!o.hex);
     const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
     const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>{MARK.check} This one suits me</button>;
-    const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);chooseAndNext(neutral)}}>Honestly can&apos;t tell</button>;
+    const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);cannotTell()}}>Honestly can&apos;t tell</button>;
     return <div className="dr">
      <div className="dr-swatch" style={{background:cur.hex}}>
       <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">{MARK.expand} Fill screen</button>
@@ -78,7 +99,7 @@ export default function QuizClient(){
     <button className="qz-next" disabled={selected===null} onClick={next}>
      {step===QUIZ_QUESTIONS.length-1?"See my colors":"Next"} {MARK.chevron}
     </button>
-    <button className="qz-skip" onClick={()=>{const neutral=q.options.reduce((best,o,i)=>{const w=Math.abs(o.t??0)+Math.abs(o.v??0)+Math.abs(o.c??0)+Math.abs(o.k??0);return w<best.w?{i,w}:best},{i:0,w:99}).i;choose(neutral);setTimeout(next,60)}}>Skip</button>
+    <button className="qz-skip" onClick={skip}>Skip</button>
     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
     </div>
    </>}
@@ -86,7 +107,7 @@ export default function QuizClient(){
  </div>;
 }
 
-function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void}){
+function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onRestart:()=>void;onFillGaps:()=>void}){
  const id=result.ranked[0].id;
  const primary=useMemo(()=>getToneProfile(id),[id]);
  const detail=useMemo(()=>getToneDetail(id),[id]);
@@ -102,6 +123,15 @@ function QuizResultView({result,onRestart}:{result:QuizResult;onRestart:()=>void
     <h1>{primary.name}</h1>
    </div>
   </section>
+
+  {(result.unresolvedAxes.length>0||result.skipped.length>0)&&(
+   <div className="h2-card rs-gaps">
+    <b>{result.unresolvedAxes.length>0?result.headline:`Based on ${result.answeredCount} of ${result.totalCount} answers`}</b>
+    <p>{result.unresolvedAxes.length>0
+      ? "You skipped enough that one axis couldn't be called. This is the closest read on what you did answer."
+      : "Filling the gaps sharpens the match."}</p>
+    {result.skipped.length>0&&<button className="rs-cta2 rs-gaps-cta" onClick={onFillGaps}>Answer the {result.skipped.length} I skipped {MARK.chevron}</button>}
+   </div>)}
 
   <div className="rs-traits">{detail.traits.map(t=><span key={t}>{t}</span>)}</div>
 

@@ -24,11 +24,49 @@ export type QuizQuestion = { id: string; text: string; help?: string; kind?: "dr
 
 export type RankedType = { id: string; name: string; pct: number };
 
+export type AxisId = keyof AxisScores;
+export const AXIS_IDS: AxisId[] = ["temperature", "value", "chroma", "contrast"];
+
+/** A skipped question is `null` — the engine never invents an answer for it. */
+export type QuizAnswer = number | null;
+
+export type AxisCoverage = {
+  answered: number;
+  total: number;
+  ratio: number;
+  /** False when too little was answered to call this axis at all. */
+  resolved: boolean;
+};
+
+export type ScoreOptions = {
+  /**
+   * Drape questions where the person said they honestly couldn't tell. Stored
+   * as `null` like any skip, but tracked separately: a practitioner reads
+   * "both look fine on me" as evidence of a neutral undertone, so it pulls the
+   * temperature axis toward zero instead of being discarded.
+   */
+  cantTell?: number[];
+};
+
 export type QuizResult = {
   axes: AxisScores;
   ranked: RankedType[]; // top 3
-  confidence: number;   // 0-100, equals top-1 pct
+  confidence: number;   // 0-100, top-1 pct discounted by how much was answered
+  coverage: Record<AxisId, AxisCoverage>;
+  answeredCount: number;
+  totalCount: number;
+  /** Indices of questions left unanswered, so the UI can offer to fill them in. */
+  skipped: number[];
+  cantTellCount: number;
+  unresolvedAxes: AxisId[];
+  /** Honest label: the family when an axis couldn't be called, else the tone name. */
+  headline: string;
+  /** False when so much was skipped that a reading would be guesswork. */
+  sufficient: boolean;
 };
+
+/** A reading needs at least half the questions answered. */
+export const MIN_ANSWERS = Math.ceil(0.5 * 21);
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   { id: "skintone", text: "Which skin tone looks closest to yours?",
@@ -149,6 +187,12 @@ export const TYPE_TARGETS: Record<string, AxisScores> = {
   "winter-vivid":  { temperature: -0.6, value: -0.5, chroma:  0.9, contrast:  0.8 },
 };
 
+/** Does this question carry any weight on the axis? */
+function touchesAxis(q: QuizQuestion, axis: AxisId): boolean {
+  const key = ({ temperature: "t", value: "v", chroma: "c", contrast: "k" } as const)[axis];
+  return q.options.some(o => Math.abs(o[key] ?? 0) > 0);
+}
+
 function axisMaxTotals(): AxisScores {
   const max = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
   for (const q of QUIZ_QUESTIONS) {
@@ -162,23 +206,59 @@ function axisMaxTotals(): AxisScores {
 
 const MAX = axisMaxTotals();
 
-export function computeAxes(answers: number[]): AxisScores {
+export function axisCoverage(answers: QuizAnswer[]): Record<AxisId, AxisCoverage> {
+  const out = {} as Record<AxisId, AxisCoverage>;
+  for (const axis of AXIS_IDS) {
+    let answered = 0, total = 0;
+    QUIZ_QUESTIONS.forEach((q, i) => {
+      if (!touchesAxis(q, axis)) return;
+      total += 1;
+      if (answers[i] !== null && answers[i] !== undefined) answered += 1;
+    });
+    const ratio = total === 0 ? 1 : answered / total;
+    // A third of an axis is enough to point a direction; below that we say so.
+    out[axis] = { answered, total, ratio, resolved: ratio >= 0.34 };
+  }
+  return out;
+}
+
+/**
+ * Axis values from the answered questions only. The divisor shrinks with the
+ * questions actually answered, so a partial run lands in the same range as a
+ * full one instead of collapsing toward neutral.
+ */
+export function computeAxes(answers: QuizAnswer[], options: ScoreOptions = {}): AxisScores {
   const sum = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
+  const answeredMax = { temperature: 0, value: 0, chroma: 0, contrast: 0 };
   QUIZ_QUESTIONS.forEach((q, i) => {
-    const o = q.options[answers[i]];
+    const pick = answers[i];
+    if (pick === null || pick === undefined) return;
+    const o = q.options[pick];
     if (!o) return;
     sum.temperature += o.t ?? 0;
     sum.value       += o.v ?? 0;
     sum.chroma      += o.c ?? 0;
     sum.contrast    += o.k ?? 0;
+    answeredMax.temperature += Math.max(...q.options.map(x => Math.abs(x.t ?? 0)));
+    answeredMax.value       += Math.max(...q.options.map(x => Math.abs(x.v ?? 0)));
+    answeredMax.chroma      += Math.max(...q.options.map(x => Math.abs(x.c ?? 0)));
+    answeredMax.contrast    += Math.max(...q.options.map(x => Math.abs(x.k ?? 0)));
   });
   const clamp = (n: number) => Math.max(-1, Math.min(1, n));
-  return {
-    temperature: clamp(sum.temperature / (MAX.temperature * 0.55)),
-    value:       clamp(sum.value       / (MAX.value       * 0.55)),
-    chroma:      clamp(sum.chroma      / (MAX.chroma      * 0.55)),
-    contrast:    clamp(sum.contrast    / (MAX.contrast    * 0.55)),
+  const norm = (axis: AxisId) => {
+    const scale = (answeredMax[axis] || MAX[axis]) * 0.55;
+    return scale > 0 ? clamp(sum[axis] / scale) : 0;
   };
+  const axes: AxisScores = {
+    temperature: norm("temperature"),
+    value: norm("value"),
+    chroma: norm("chroma"),
+    contrast: norm("contrast"),
+  };
+  // "Can't tell" on a drape is a neutral-undertone signal, not noise.
+  const cantTell = options.cantTell?.length ?? 0;
+  if (cantTell > 0) axes.temperature = axes.temperature / (1 + 0.35 * cantTell);
+  return axes;
 }
 
 function distance(a: AxisScores, b: AxisScores): number {
@@ -191,11 +271,15 @@ function distance(a: AxisScores, b: AxisScores): number {
   );
 }
 
-export function scoreQuiz(answers: number[]): QuizResult {
+export function scoreQuiz(answers: QuizAnswer[], options: ScoreOptions = {}): QuizResult {
   if (answers.length !== QUIZ_QUESTIONS.length) {
     throw new Error(`Expected ${QUIZ_QUESTIONS.length} answers, got ${answers.length}`);
   }
-  const axes = computeAxes(answers);
+  const axes = computeAxes(answers, options);
+  const coverage = axisCoverage(answers);
+  const skipped = answers.map((a, i) => (a === null || a === undefined ? i : -1)).filter(i => i >= 0);
+  const answeredCount = QUIZ_QUESTIONS.length - skipped.length;
+  const unresolvedAxes = AXIS_IDS.filter(a => !coverage[a].resolved);
   const scored = Object.entries(TYPE_TARGETS).map(([id, target]) => ({
     id,
     d: distance(axes, target),
@@ -213,5 +297,31 @@ export function scoreQuiz(answers: number[]): QuizResult {
   const drift = 100 - ranked.reduce((a, r) => a + r.pct, 0);
   ranked[0].pct += drift;
 
-  return { axes, ranked, confidence: ranked[0].pct };
+  // Confidence is the fit discounted by how much of the quiz was actually
+  // answered — a strong fit from six answers is not a strong reading.
+  const answeredRatio = answeredCount / QUIZ_QUESTIONS.length;
+  const confidence = Math.max(20, Math.round(ranked[0].pct * (0.55 + 0.45 * answeredRatio)));
+
+  const topName = ranked[0].name;
+  const headline = unresolvedAxes.length === 0
+    ? topName
+    : `${topName} — ${unresolvedAxes.map(axisWord).join(" and ")} still to confirm`;
+
+  return {
+    axes,
+    ranked,
+    confidence,
+    coverage,
+    answeredCount,
+    totalCount: QUIZ_QUESTIONS.length,
+    skipped,
+    cantTellCount: options.cantTell?.length ?? 0,
+    unresolvedAxes,
+    headline,
+    sufficient: answeredCount >= Math.min(MIN_ANSWERS, Math.ceil(QUIZ_QUESTIONS.length / 2)),
+  };
+}
+
+function axisWord(axis: AxisId): string {
+  return { temperature: "warm/cool", value: "light/deep", chroma: "soft/bright", contrast: "contrast" }[axis];
 }
