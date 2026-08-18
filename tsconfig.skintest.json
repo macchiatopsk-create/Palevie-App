@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".skintest",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
+    "incremental": false
+  },
+  "include": ["lib/skincare.ts", "data/products.ts", "lib/types.ts"]
+}

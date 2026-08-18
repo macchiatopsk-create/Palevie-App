@@ -8,7 +8,7 @@ import { useState } from "react";
  * optional min/max.
  */
 
-export type WizardOption = { id: string; label: string };
+export type WizardOption = { id: string; label: string; img?: string; swatch?: string };
 export type WizardStep = {
   id: string;
   title: string;
@@ -17,6 +17,15 @@ export type WizardStep = {
   options: WizardOption[];
   min?: number; // multi only; default 0 (skippable)
   max?: number; // multi only
+  /** Grouping label, shown as "Step 2 of 4 · Skin type". */
+  act?: { n: number; total: number; label: string };
+  /** Only asked when this returns true — keeps the real length down. */
+  when?: (values: WizardValues) => boolean;
+  /**
+   * A message shown under the options based on what was picked. Used to hand
+   * someone back to their doctor rather than pretending to diagnose them.
+   */
+  note?: (values: WizardValues) => string | null;
 };
 
 export type WizardValues = Record<string, string | string[]>;
@@ -35,8 +44,11 @@ export default function PrefsWizard({
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<WizardValues>(initial);
 
-  const q = steps[step];
-  const progress = ((step + 1) / steps.length) * 100;
+  // Conditional steps drop out entirely, so the count reflects what's actually asked.
+  const visible = steps.filter(s => !s.when || s.when(values));
+  const clamped = Math.min(step, Math.max(0, visible.length - 1));
+  const q = visible[clamped];
+  const progress = ((clamped + 1) / visible.length) * 100;
   const val = values[q.id];
   const picked: string[] = q.kind === "multi" ? (Array.isArray(val) ? val : []) : typeof val === "string" ? [val] : [];
 
@@ -56,39 +68,54 @@ export default function PrefsWizard({
   const canNext = q.kind === "single" ? typeof val === "string" : picked.length >= (q.min ?? 0);
 
   function next() {
-    if (step < steps.length - 1) setStep(s => s + 1);
+    if (clamped < visible.length - 1) setStep(clamped + 1);
     else onFinish(values);
   }
 
-  const words = q.title.split(" ");
-  const cut = Math.ceil(words.length / 2);
 
   return (
     <div className="qz">
-      <div className="qz-top">
-        <button className="qz-back" disabled={step === 0} onClick={() => setStep(s => Math.max(0, s - 1))}>←</button>
-        <b className="qz-logo">Palevie</b>
-        <span className="qz-count"><em>{step + 1}</em> / {steps.length}</span>
-      </div>
-      <div className="qz-bar"><i style={{ width: `${progress}%` }}><u>✦</u></i></div>
-      <div className="qz-head">
-        <h2>{words.slice(0, cut).join(" ")} <em>{words.slice(cut).join(" ")}</em></h2>
-      </div>
-      {q.help && <p className="qz-help">{q.help}</p>}
-      <div className="qz-opts">
-        {q.options.map(o => (
-          <button key={o.id} className={`qz-opt ${picked.includes(o.id) ? "on" : ""}`} onClick={() => choose(o.id)}>
-            <span>{o.label}</span>
-            {picked.includes(o.id) && <b className="qz-check">✓</b>}
+      <div className="h2-card qz-card">
+        <div className="qz-prog">
+          <span className="qz-count"><b>{clamped + 1}</b> / {visible.length}</span>
+          <div className="qz-bar"><i style={{ width: `${progress}%` }} /></div>
+        </div>
+
+        {q.act && <span className="qz-act">Step {q.act.n} of {q.act.total} · {q.act.label}</span>}
+        <h2 className="qz-q">{q.title}</h2>
+        {q.help && <p className="qz-help">{q.help}</p>}
+
+        <div className={q.options.some(o => o.img || o.swatch) ? "qz-tones" : "qz-opts"}>
+          {q.options.map(o => {
+            const on = picked.includes(o.id);
+            if (o.img || o.swatch) return (
+              <button key={o.id} type="button" className={`qz-tone ${on ? "on" : ""}`} onClick={() => choose(o.id)}>
+                {o.img
+                  ? <img className="qz-tone-photo" src={o.img} alt="" loading="lazy"/>
+                  : <span className="qz-tone-tile" style={{ background: o.swatch }} aria-hidden/>}
+                <span className="qz-tone-tx">{o.label}<i/></span>
+              </button>
+            );
+            return (
+              <button key={o.id} type="button" className={`qz-opt ${on ? "on" : ""}`} onClick={() => choose(o.id)}>
+                <span>{o.label}</span><i/>
+              </button>
+            );
+          })}
+        </div>
+
+        {q.note?.(values) && <p className="qz-referral">{q.note(values)}</p>}
+        {q.kind === "multi" && (q.min ?? 0) === 0 && picked.length === 0 && (
+          <p className="qz-help qz-help-center">Nothing that applies? Just tap Next.</p>
+        )}
+
+        <div className="qz-actions">
+          <button className="qz-next" disabled={!canNext} onClick={next}>
+            {clamped === visible.length - 1 ? finishLabel : "Next"}
           </button>
-        ))}
+          {clamped > 0 && <button className="dr-prev" onClick={() => setStep(s => Math.max(0, s - 1))}>Previous question</button>}
+        </div>
       </div>
-      {q.kind === "multi" && (q.min ?? 0) === 0 && picked.length === 0 && (
-        <p className="qz-help" style={{ textAlign: "center" }}>Nothing? That&apos;s fine — just tap Next.</p>
-      )}
-      <button className="qz-next" disabled={!canNext} onClick={next}>
-        {step === steps.length - 1 ? finishLabel : "Next ✦"}
-      </button>
     </div>
   );
 }

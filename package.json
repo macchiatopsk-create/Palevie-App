@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:quiz": "tsc lib/quiz.ts lib/palettes.ts lib/types.ts --outDir .quiztest --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node scripts/test-quiz.cjs"
+    "test:quiz": "tsc lib/quiz.ts lib/palettes.ts lib/types.ts --outDir .quiztest --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node scripts/test-quiz.cjs",
+    "test:skin": "tsc -p tsconfig.skintest.json && node -e \"const f='.skintest/lib/skincare.js',fs=require('fs');fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace(/@\\\\/data\\\\/products/g,'../data/products'))\" && node scripts/test-skin.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.110.2",

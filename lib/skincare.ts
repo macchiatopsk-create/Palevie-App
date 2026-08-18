@@ -1,5 +1,13 @@
 import { catalogProducts } from "@/data/products";
 
+/** Things that change what we're allowed to recommend, not just what fits. */
+export type SkinFlag =
+  | "pregnancy"           // volunteered, never asked directly
+  | "allergy"
+  | "prescription"
+  | "recent-procedure"
+  | "none";
+
 export type SkinProfile = {
   afterCleansing: "tight" | "comfortable" | "oily";
   texture: "gel" | "lotion" | "cream" | "any";
@@ -15,7 +23,77 @@ export type SkinProfile = {
   routine?: "minimal" | "standard" | "full";
   budget: "value" | "mid" | "flexible";
   createdAt: string;
+
+  // ── Act 1: safety ──────────────────────────────────────────────────────
+  /** Volunteered constraints. Pregnancy sits here as an option, never a question. */
+  flags?: SkinFlag[];
+  /** True when a doctor is already involved; we defer instead of advising. */
+  underCare?: boolean;
+
+  // ── Act 2: type ────────────────────────────────────────────────────────
+  afternoon?: "matte" | "tzone" | "allover";
+  pores?: "smooth" | "fine" | "visible-tzone" | "visible-wide";
+  flaking?: "none" | "patches" | "around-nose" | "widespread";
+
+  // ── Act 3: sensitivity ─────────────────────────────────────────────────
+  stinging?: "often" | "sometimes" | "rarely";
+  rednessDuration?: "minutes" | "hours" | "days";
+  weatherReaction?: "strong" | "mild" | "none";
+
+  // ── Act 4: concerns and routine ────────────────────────────────────────
+  /** One or two priorities. Practitioners fix a short list, not everything. */
+  priorities?: string[];
+  acneType?: "whiteheads" | "papules" | "cystic" | "mixed";
+  pigmentType?: "post-acne" | "sun" | "melasma" | "unsure";
+  usingNow?: string[];
+  cleansing?: "once" | "twice" | "more";
 };
+
+/** Actives we track for conflicts, keyed by the tags a product carries. */
+export const ACTIVE_TAGS = ["retinoid", "aha", "bha", "vitamin-c", "benzoyl-peroxide", "strong-exfoliant"] as const;
+export type ActiveTag = (typeof ACTIVE_TAGS)[number];
+
+export type ConflictVerdict = { blocked: boolean; reason?: string };
+
+/**
+ * Hard rules, applied before any scoring. These aren't preferences — a product
+ * that trips one of them is removed from the list and the person is told why.
+ * The rules mirror the standing cautions a clinician would give; anything that
+ * needs an actual diagnosis is handed back to their doctor instead.
+ */
+export function ingredientConflict(profile: SkinProfile, tags: string[]): ConflictVerdict {
+  const has = (t: ActiveTag) => tags.includes(t);
+  const flags = profile.flags ?? [];
+  const using = profile.usingNow ?? [];
+
+  if (flags.includes("pregnancy") && has("retinoid")) {
+    return { blocked: true, reason: "Retinoids are avoided during pregnancy and breastfeeding." };
+  }
+  if (flags.includes("recent-procedure") && (has("retinoid") || has("aha") || has("bha") || has("strong-exfoliant"))) {
+    return { blocked: true, reason: "Actives are usually paused right after a procedure." };
+  }
+  if (using.includes("retinol") && (has("aha") || has("bha") || has("strong-exfoliant"))) {
+    return { blocked: true, reason: "You're already using a retinol — layering acids on top is a common irritation trap." };
+  }
+  if (using.includes("acids") && has("retinoid")) {
+    return { blocked: true, reason: "You're already using an exfoliating acid — adding a retinoid at the same time tends to backfire." };
+  }
+  if (using.includes("vitamin-c") && has("benzoyl-peroxide")) {
+    return { blocked: true, reason: "Benzoyl peroxide can oxidise vitamin C, so they're better kept apart." };
+  }
+  if (profile.stinging === "often" && (has("strong-exfoliant") || has("retinoid"))) {
+    return { blocked: true, reason: "Your skin stings often — strong actives come later, once it settles." };
+  }
+  if (flags.includes("prescription") && (has("retinoid") || has("benzoyl-peroxide"))) {
+    return { blocked: true, reason: "You mentioned a prescription — overlapping actives should go through your prescriber." };
+  }
+  return { blocked: false };
+}
+
+/** True when the person told us a doctor is already handling their skin. */
+export function shouldReferToDoctor(profile: SkinProfile): boolean {
+  return Boolean(profile.underCare);
+}
 
 const KEY = "palevie-skin-profile-v1";
 export function saveSkinProfile(profile: SkinProfile) { if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(profile)); }
@@ -68,8 +146,18 @@ export function scoreSkinProduct(profile: SkinProfile, tags: string[], priceCent
 }
 
 export function getSkinRecommendations(profile: SkinProfile) {
-  return catalogProducts
+  const scored = catalogProducts
     .filter(p => p.category === "skincare")
-    .map(p => ({ ...p, match: scoreSkinProduct(profile, p.tags, p.offers.map(o=>o.priceCents).filter((n): n is number=>typeof n === "number")) }))
-    .sort((a,b)=>b.match.score-a.match.score);
+    .map(p => ({
+      ...p,
+      conflict: ingredientConflict(profile, p.tags),
+      match: scoreSkinProduct(profile, p.tags, p.offers.map(o => o.priceCents).filter((n): n is number => typeof n === "number")),
+    }));
+  // Conflicts are hard: the product leaves the list and the reason is kept so
+  // the screen can say what was held back instead of silently dropping it.
+  return {
+    picks: scored.filter(p => !p.conflict.blocked).sort((a, b) => b.match.score - a.match.score),
+    held: scored.filter(p => p.conflict.blocked).map(p => ({ id: p.id, name: `${p.brand} ${p.name}`, reason: p.conflict.reason ?? "" })),
+    referToDoctor: shouldReferToDoctor(profile),
+  };
 }

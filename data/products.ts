@@ -200,6 +200,36 @@ export const catalogProducts: CatalogProduct[] = [
     description: "Overnight bounce-back hydration.", tags: ["hydration", "gentle"],
     offers: [{ id: "of-lng-sleep", retailer: "amazon", url: "https://www.amazon.com/s?k=laneige+water+sleeping+mask", priceLabel: "$29", currency: "USD", affiliateReady: true }],
   },
+  {
+    id: "sk-cosrx-bha", brand: "COSRX", name: "BHA Blackhead Power Liquid", category: "skincare", subcategory: "toner",
+    description: "Salicylic acid liquid for congested pores.", tags: ["bha", "strong-exfoliant", "lightweight", "smoother-looking"],
+    offers: [{ id: "of-cosrx-bha", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+bha+blackhead+power+liquid", priceLabel: "$22", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-some-aha", brand: "Some By Mi", name: "AHA BHA PHA 30 Days Miracle Toner", category: "skincare", subcategory: "toner",
+    description: "Daily acid toner for texture and breakouts.", tags: ["aha", "bha", "strong-exfoliant", "smoother-looking"],
+    offers: [{ id: "of-some-aha", retailer: "amazon", url: "https://www.amazon.com/s?k=some+by+mi+aha+bha+pha+toner", priceLabel: "$17", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-cosrx-reti", brand: "COSRX", name: "The Retinol 0.1 Cream", category: "skincare", subcategory: "serum",
+    description: "Entry-strength retinol for fine lines and texture.", tags: ["retinoid", "smoother-looking", "cream"],
+    offers: [{ id: "of-cosrx-reti", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+the+retinol+0.1+cream", priceLabel: "$26", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-goodal-vitc", brand: "goodal", name: "Green Tangerine Vita C Dark Spot Serum", category: "skincare", subcategory: "serum",
+    description: "Vitamin C serum aimed at post-acne marks.", tags: ["vitamin-c", "brightening", "lightweight"],
+    offers: [{ id: "of-goodal-vitc", retailer: "amazon", url: "https://www.amazon.com/s?k=goodal+green+tangerine+vita+c+serum", priceLabel: "$25", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-mediheal-bp", brand: "Mediheal", name: "Phyto-Enzyme Blemish Spot Treatment", category: "skincare", subcategory: "serum",
+    description: "Benzoyl-peroxide spot treatment for active breakouts.", tags: ["benzoyl-peroxide", "smoother-looking", "lightweight"],
+    offers: [{ id: "of-mediheal-bp", retailer: "amazon", url: "https://www.amazon.com/s?k=benzoyl+peroxide+spot+treatment+korean", priceLabel: "$14", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "sk-round-panthe", brand: "Round Lab", name: "1025 Dokdo Cream", category: "skincare", subcategory: "moisturizer",
+    description: "Fragrance-free barrier cream for reactive days.", tags: ["barrier-support", "fragrance-free", "gentle", "calming", "cream"],
+    offers: [{ id: "of-round-panthe", retailer: "amazon", url: "https://www.amazon.com/s?k=round+lab+1025+dokdo+cream", priceLabel: "$21", currency: "USD", affiliateReady: true }],
+  },
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));

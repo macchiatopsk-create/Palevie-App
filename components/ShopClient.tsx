@@ -5,7 +5,7 @@ import { retailers } from "@/lib/retailers";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
-import { loadSkinProfile, scoreSkinProduct } from "@/lib/skincare";
+import { loadSkinProfile, scoreSkinProduct, ingredientConflict, shouldReferToDoctor } from "@/lib/skincare";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { loadStylePrefs, stylePieces, STYLES, loadGarmentCats, loadStyleDetail, loadFitPref } from "@/lib/style";
 import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
@@ -101,19 +101,26 @@ export default function ShopClient() {
           if (typeof price === "number" && price <= cap) match = Math.min(99, (match ?? 0) + 4);
         }
       }
+      let held: string | null = null;
       if (p.category === "skincare" && skin) {
+        // Hard rules run before scoring: a conflicting product leaves the list
+        // with its reason kept, rather than quietly ranking low.
+        const conflict = ingredientConflict(skin, p.tags);
+        if (conflict.blocked) held = conflict.reason ?? "Held back for safety";
         const scored = scoreSkinProduct(skin, p.tags, p.offers.map(o=>o.priceCents).filter((n): n is number=>typeof n === "number"));
         match = scored.score;
         reason = scored.reasons[0] || "Preference match";
       }
-      return { ...p, match, reason };
+      return { ...p, match, reason, held };
     })
     .sort((a,b)=>(b.match || 0) - (a.match || 0));
+  const heldBack = items.filter(p => p.held);
+  const items2 = items.filter(p => !p.held);
   const cents = (p:{offers:{priceCents?:number;priceLabel?:string}[]}) => p.offers[0]?.priceCents ?? Math.round((parseFloat((p.offers[0]?.priceLabel||"").replace(/[^0-9.]/g,""))||999)*100);
-  const shown = sort==="match" ? items : [...items].sort((a,b)=> sort==="lo" ? cents(a)-cents(b) : cents(b)-cents(a));
+  const shown = sort==="match" ? items2 : [...items2].sort((a,b)=> sort==="lo" ? cents(a)-cents(b) : cents(b)-cents(a));
 
   // Compare a shade against the person's own palette, not an empty screen.
-  const drapeProduct = draping ? items.find(p => p.id === draping) : null;
+  const drapeProduct = draping ? items2.find(p => p.id === draping) : null;
   const drapeShades: DrapeShade[] = drapeProduct
     ? [{ label: "This shade", hex: drapeProduct.colorHex as string },
        ...(profile?.colors ?? []).slice(0, 3).map((hex, i) => ({ label: `Your ${["best","2nd","3rd"][i]}`, hex }))]
@@ -151,6 +158,18 @@ export default function ShopClient() {
     {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
+    {skin && shouldReferToDoctor(skin) && (
+      <div className="h2-card sh-referral">
+        <b>You told us a doctor is treating your skin</b>
+        <p>Follow their plan first. What we show here is shopping guidance, not treatment — check anything active with them before adding it.</p>
+      </div>
+    )}
+    {heldBack.length > 0 && (
+      <div className="h2-card sh-held">
+        <b>{heldBack.length} product{heldBack.length === 1 ? "" : "s"} held back</b>
+        <ul>{heldBack.slice(0, 4).map(p => <li key={p.id}><span>{p.brand} {p.name}</span><small>{p.held}</small></li>)}</ul>
+      </div>
+    )}
     <div className="sh-tools">
       <span className="sh-count">{shown.length} item{shown.length===1?"":"s"}</span>
       <div className="sh-dd">
