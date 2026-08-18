@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { fetchQuizHistory } from "@/lib/cloudProfile";
 import { loadWishlist } from "@/lib/wishlist";
+import { syncWishlist } from "@/lib/cloudWishlist";
 import { loadMakeupPrefs, MAKEUP_STYLES } from "@/lib/beautyPrefs";
 import { NAV_ICON, CAT_ICON, MARK } from "@/components/icons";
 import { heroArt, calendarSeason } from "@/lib/heroArt";
@@ -67,6 +68,8 @@ export default function AccountClient() {
     const meta = (user.user_metadata || {}) as { display_name?: string; avatar_season?: string };
     if (meta.display_name) updateMember({ name: meta.display_name, onboarded: true, ...(meta.avatar_season ? { avatar: meta.avatar_season as never } : {}) });
     setAccount({ email: user.email || "Signed in", plan: remote?.plan || "free", subscriptionStatus: remote?.subscription_status, displayName: meta.display_name });
+    // Merge whatever was saved before signing in with what the account already has.
+    void syncWishlist();
     track("signup_completed",{});
     setLoading(false);
   }
@@ -323,6 +326,18 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
         </div>})}
       </div>}
   </div>
+
+  {wl.length>0 && <div className="h2-card">
+   <div className="h2-cardhead"><b>My list</b><Link className="h2-viewall" href="/wishlist">View all</Link></div>
+   <div className="ac-wl">{wl.slice(0,4).map(item=>{
+     const p=item.kind==="product"?catalogProducts.find(c=>c.id===item.productId):null;
+     return <Link key={item.id} href="/wishlist" className="ac-wl-row">
+      <i style={{background:p?.colorHex??"#F1DDE6"}}/>
+      <span>{p?`${p.brand} · ${p.name}`:item.kind==="style"?item.label:item.productId}</span>
+     </Link>})}
+   </div>
+   {wl.length>4&&<p className="ac-wl-more">+{wl.length-4} more</p>}
+  </div>}
 
   {prefs.length>0 && <div className="h2-card">
    <div className="h2-cardhead"><b>Beauty preferences</b><Link className="h2-viewall" href="/quiz?tab=makeup">Edit</Link></div>

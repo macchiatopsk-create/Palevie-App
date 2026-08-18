@@ -2,8 +2,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadWishlist, removeSaved, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
+import { removeWishlistItem, syncWishlist } from "@/lib/cloudWishlist";
 import { STYLES, loadStyleDetail } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
+import { loadProfile } from "@/lib/profile";
 import { retailers, compareRetailersFor, CLOTHING_RETAILERS } from "@/lib/retailers";
 import { track, getVisitorId } from "@/lib/analytics";
 import { NAV_ICON, MARK } from "@/components/icons";
@@ -14,15 +16,18 @@ export default function WishlistClient() {
     document.body.classList.add("h2-clean");
     const sync = () => setItems(loadWishlist());
     sync();
+    void syncWishlist();
     window.addEventListener(WISHLIST_EVENT, sync);
     window.addEventListener("storage", sync);
     return () => { document.body.classList.remove("h2-clean"); window.removeEventListener(WISHLIST_EVENT, sync); window.removeEventListener("storage", sync); };
   }, []);
 
+  const tone = typeof window !== "undefined" ? (() => { const pr = loadProfile(); return pr ? { id: pr.primaryType } : null; })() : null;
   if (items === null) return null;
 
   function remove(id: string, label: string) {
     setItems(removeSaved(id));
+    void removeWishlistItem(id);
     track("wishlist_removed", { label });
   }
 
@@ -98,7 +103,7 @@ export default function WishlistClient() {
                 <small>{p.subcategory}{p.offers[0]?.priceLabel ? ` · ${p.offers[0].priceLabel}` : ""}</small>
                 <div className="wl-compare">
                   {compareRetailersFor(p.brand).map(r => {
-                    const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", v: getVisitorId() });
+                    const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", tone: tone?.id ?? "", v: getVisitorId() });
                     return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
                       onClick={() => track("affiliate_outbound_click", { retailer: r, product: p.id, surface: "wishlist_page" })}>{retailers[r].name}</a>;
                   })}

@@ -1317,6 +1317,14 @@ body.sp-open{overflow:hidden}
 .h2-interest-row button{border:1px solid #FCDEE0;background:#fff;border-radius:999px;padding:11px 6px;font:inherit;font-size:11.5px;font-weight:700;color:#8A5F76;cursor:pointer}
 .h2-interest-row button:active{transform:scale(.97)}
 
+
+/* ── dashboard: saved items ── */
+.ac-wl{display:grid;gap:7px}
+.ac-wl-row{display:flex;align-items:center;gap:9px;font-size:12px;color:#3B2B36;font-weight:600}
+.ac-wl-row i{width:20px;height:20px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+.ac-wl-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-wl-more{font-size:10.5px;color:#9B8490;margin:8px 0 0;font-weight:600}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}

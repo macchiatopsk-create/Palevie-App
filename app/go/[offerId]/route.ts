@@ -26,6 +26,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ offe
       offer_id: offer.id,
       product_id: offer.productId,
       retailer: offer.retailer,
+      // Which season was looking. Turns a click count into demand evidence:
+      // "N Soft Summer shoppers clicked this shade".
+      tone_id: (url.searchParams.get("tone") || "").slice(0, 40) || null,
       attribution: attributionFrom(url),
     });
   }

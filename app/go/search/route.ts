@@ -47,6 +47,7 @@ export async function GET(request: Request) {
         offer_id: `wardrobe:${label || raw}`,
         product_id: `wardrobe-search`,
         retailer,
+        tone_id: tone || null,
         attribution: { surface: url.searchParams.get("surface")?.slice(0,30) || "search", tone, query: raw, label },
       });
     } catch {

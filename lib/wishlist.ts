@@ -49,6 +49,14 @@ function persist(items: SavedItem[]) {
   window.dispatchEvent(new Event(WISHLIST_EVENT));
 }
 
+/** Used by the cloud sync to install a merged list in one write. */
+export function replaceWishlist(items: SavedItem[]): SavedItem[] {
+  if (typeof window === "undefined") return items;
+  localStorage.setItem(KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event(WISHLIST_EVENT));
+  return items;
+}
+
 export function isSaved(id: string, items?: SavedItem[]) {
   return (items ?? loadWishlist()).some(i => i.id === id);
 }

@@ -12,6 +12,7 @@ import { loadWishlist, toggleProduct, productKey, toggleSaved, pieceId, SavedIte
 import { getVisitorId, track } from "@/lib/analytics";
 import { NAV_ICON, MARK } from "@/components/icons";
 import { loadInterest, INTEREST_EVENT, type Interest } from "@/lib/interest";
+import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
@@ -67,6 +68,9 @@ export default function ShopClient() {
   }, []);
   function heart(productId: string, name: string) {
     const { items, saved } = toggleProduct(productId);
+    const key = productKey(productId);
+    if (saved) { const item = items.find(i => i.id === key); if (item) void pushWishlistItem(item); }
+    else void removeWishlistItem(key);
     setWl(items);
     track(saved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "shop" });
   }
@@ -138,7 +142,7 @@ export default function ShopClient() {
         shades={drapeShades}
         saved={wl.some(w => w.id === productKey(drapeProduct.id))}
         onSave={() => heart(drapeProduct.id, drapeProduct.name)}
-        shopHref={`/go/search?${new URLSearchParams({ q: `${drapeProduct.brand} ${drapeProduct.name}`, label: drapeProduct.name, r: "amazon", surface: "shade_drape", v: getVisitorId() }).toString()}`}
+        shopHref={`/go/search?${new URLSearchParams({ q: `${drapeProduct.brand} ${drapeProduct.name}`, label: drapeProduct.name, r: "amazon", surface: "shade_drape", tone: profile?.id ?? "", v: getVisitorId() }).toString()}`}
         onShop={() => track("shade_drape_shop_click", { product: drapeProduct.id })}
         onClose={() => setDraping(null)}
       />

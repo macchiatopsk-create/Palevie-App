@@ -6,6 +6,7 @@ import { getToneProfile } from "@/lib/palettes";
 import { catalogProducts } from "@/data/products";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import { loadWishlist, toggleProduct, productKey, SavedItem, WISHLIST_EVENT } from "@/lib/wishlist";
+import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import { loadMakeupPrefs } from "@/lib/beautyPrefs";
 import { loadStylePrefs } from "@/lib/style";
 import { loadSkinProfile } from "@/lib/skincare";
@@ -126,6 +127,9 @@ export default function HomeClient() {
 
   function heart(id: string, label: string) {
     const { items, saved } = toggleProduct(id);
+    const key = productKey(id);
+    if (saved) { const item = items.find(i => i.id === key); if (item) void pushWishlistItem(item); }
+    else void removeWishlistItem(key);
     setWl(items);
     track(saved ? "wishlist_added" : "wishlist_removed", { label, surface: "home" });
   }
