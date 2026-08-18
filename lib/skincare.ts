@@ -29,6 +29,11 @@ export type SkinProfile = {
   flags?: SkinFlag[];
   /** True when a doctor is already involved; we defer instead of advising. */
   underCare?: boolean;
+  /**
+   * Roughly what they're being treated for. Volunteered, coarse, and used only
+   * to keep aggravating products out — never to name or treat the condition.
+   */
+  condition?: "eczema" | "rosacea" | "acne" | "pigment" | "psoriasis" | "other" | "prefer-not";
 
   // ── Act 2: type ────────────────────────────────────────────────────────
   afternoon?: "matte" | "tzone" | "allover";
@@ -83,6 +88,19 @@ export function ingredientConflict(profile: SkinProfile, tags: string[]): Confli
   }
   if (profile.stinging === "often" && (has("strong-exfoliant") || has("retinoid"))) {
     return { blocked: true, reason: "Your skin stings often — strong actives come later, once it settles." };
+  }
+  // Conditions someone told us about: avoid what typically aggravates them.
+  if (profile.condition === "eczema" && (has("aha") || has("bha") || has("strong-exfoliant") || tags.includes("fragrance"))) {
+    return { blocked: true, reason: "With eczema, acids and fragrance are the usual flare triggers." };
+  }
+  if (profile.condition === "rosacea" && (has("strong-exfoliant") || has("retinoid") || tags.includes("fragrance"))) {
+    return { blocked: true, reason: "Rosacea-prone skin usually reacts to strong actives and fragrance." };
+  }
+  if (profile.condition === "psoriasis" && (has("strong-exfoliant") || tags.includes("fragrance"))) {
+    return { blocked: true, reason: "We're keeping harsh exfoliants and fragrance out while your doctor treats this." };
+  }
+  if (profile.condition === "acne" && has("strong-exfoliant") && (profile.flags ?? []).includes("prescription")) {
+    return { blocked: true, reason: "You're on a prescription for this — extra exfoliants go through your prescriber." };
   }
   if (flags.includes("prescription") && (has("retinoid") || has("benzoyl-peroxide"))) {
     return { blocked: true, reason: "You mentioned a prescription — overlapping actives should go through your prescriber." };
@@ -157,7 +175,7 @@ export function getSkinRecommendations(profile: SkinProfile) {
   // the screen can say what was held back instead of silently dropping it.
   return {
     picks: scored.filter(p => !p.conflict.blocked).sort((a, b) => b.match.score - a.match.score),
-    held: scored.filter(p => p.conflict.blocked).map(p => ({ id: p.id, name: `${p.brand} ${p.name}`, reason: p.conflict.reason ?? "" })),
+    held: scored.filter(p => p.conflict.blocked).map(p => ({ id: p.id, name: `${p.brand} ${p.name}`, reason: p.conflict.reason ?? "", kind: p.subcategory ?? "product" })),
     referToDoctor: shouldReferToDoctor(profile),
   };
 }

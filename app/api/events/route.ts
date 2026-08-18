@@ -35,6 +35,10 @@ const allowed = new Set([
   "skincare_profile_completed","shop_viewed",
   "affiliate_outbound_click","result_shared","checkout_started",
   "signup_started","signup_completed",
+  "wishlist_added","wishlist_removed",
+  "bio_consent_given",
+  "member_setup_shown","member_setup_done","member_profile_updated",
+  "shade_drape_opened","shade_drape_shop_click",
 ]);
 
 function safeProps(value: unknown) {
@@ -55,8 +59,7 @@ export async function POST(request: Request) {
       const { error } = await db.from("events").insert({
         visitor_id: visitor,
         event_name: body.name,
-        properties: safeProps(body.props),
-        client_ts: body.ts || null,
+        props: safeProps(body.props),
       });
       if (error) return NextResponse.json({ ok: false }, { status: 503 });
     }

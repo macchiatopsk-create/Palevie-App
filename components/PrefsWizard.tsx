@@ -83,6 +83,11 @@ export default function PrefsWizard({
 
         {q.act && <span className="qz-act">Step {q.act.n} of {q.act.total} · {q.act.label}</span>}
         <h2 className="qz-q">{q.title}</h2>
+        {q.kind === "multi" && (
+          <span className="sk-multi">
+            Select all that apply{picked.length ? ` · ${picked.length} selected` : ""}
+          </span>
+        )}
         {q.help && <p className="qz-help">{q.help}</p>}
 
         <div className={q.options.some(o => o.img || o.swatch) ? "qz-tones" : "qz-opts"}>

@@ -1325,6 +1325,20 @@ body.sp-open{overflow:hidden}
 .ac-wl-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-wl-more{font-size:10.5px;color:#9B8490;margin:8px 0 0;font-weight:600}
 
+
+/* ── multi-select clarity + held products ── */
+.sk-multi{display:inline-block;background:#F8EAF6;color:#A776C8;border-radius:999px;padding:6px 12px;font-size:10.5px;font-weight:750;margin-top:9px}
+.sh-held ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:9px}
+.sh-held li{display:flex;align-items:flex-start;gap:10px}
+.sh-held li div{flex:1;min-width:0}
+.sh-held-ic{flex:none;width:34px;height:40px;border-radius:8px;background:linear-gradient(160deg,#F6E7EC,#EBD8E6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7);position:relative}
+.sh-held-ic::after{content:"";position:absolute;left:50%;transform:translateX(-50%);top:5px;width:12px;height:6px;border-radius:3px 3px 0 0;background:rgba(167,118,200,.35)}
+.sh-held-serum::after{width:9px;height:9px;border-radius:2px}
+.sh-held-toner{border-radius:6px}
+.sh-held-treatment::after{width:14px;height:4px}
+.sh-held li span{display:block;font-size:12.5px;font-weight:700;color:#3B2B36}
+.sh-held li small{display:block;font-size:11px;color:#9B8490;margin-top:3px;line-height:1.45}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}

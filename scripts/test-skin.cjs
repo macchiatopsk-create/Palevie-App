@@ -53,6 +53,19 @@ const base = {
   }));
 }
 
+// Told-us conditions keep the wrong products out without naming a diagnosis.
+{
+  const ecz = { ...base, underCare: true, condition: "eczema" };
+  check("eczema blocks acids", ingredientConflict(ecz, ["aha"]).blocked);
+  check("eczema blocks fragrance", ingredientConflict(ecz, ["fragrance"]).blocked);
+  check("eczema still allows barrier creams", !ingredientConflict(ecz, ["barrier-support", "fragrance-free"]).blocked);
+  const ros = { ...base, underCare: true, condition: "rosacea" };
+  check("rosacea blocks strong actives", ingredientConflict(ros, ["retinoid"]).blocked && ingredientConflict(ros, ["strong-exfoliant"]).blocked);
+  const pso = { ...base, underCare: true, condition: "psoriasis" };
+  check("psoriasis blocks harsh exfoliants", ingredientConflict(pso, ["strong-exfoliant"]).blocked);
+  check("declining to name a condition blocks nothing extra", !ingredientConflict({ ...base, underCare: true, condition: "prefer-not" }, ["aha"]).blocked);
+}
+
 // Care handoff: we defer, we don't diagnose.
 {
   check("under a doctor's care triggers a referral", shouldReferToDoctor({ ...base, underCare: true }) === true);

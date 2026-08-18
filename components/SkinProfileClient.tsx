@@ -42,7 +42,7 @@ export default function SkinProfileClient() {
         {rec.held.length > 0 && (
           <div className="h2-card sh-held">
             <b>{rec.held.length} product{rec.held.length === 1 ? "" : "s"} kept out of your picks</b>
-            <ul>{rec.held.slice(0, 4).map(h => <li key={h.id}><span>{h.name}</span><small>{h.reason}</small></li>)}</ul>
+            <ul>{rec.held.slice(0, 4).map(h => <li key={h.id}><i className={`sh-held-ic sh-held-${h.kind}`} aria-hidden/><div><span>{h.name}</span><small>{h.reason}</small></div></li>)}</ul>
           </div>
         )}
         <div className="beauty-card" style={{ textAlign: "center" }}>
@@ -95,11 +95,32 @@ export default function SkinProfileClient() {
       } },
     { id: "underCare", act: ACT.safety, kind: "single" as const,
       title: "Has a doctor diagnosed a skin condition you're treating?",
-      help: "We won't ask what it is. This only tells us to step back where care belongs to your doctor.",
+      help: "Your doctor's plan comes first either way. Knowing which one lets us keep the wrong products out of your list.",
       options: opt([["yes", "Yes"], ["no", "No"], ["prefer-not", "I'd rather not say"]]),
       note: (v: WizardValues) => v.underCare === "yes"
-        ? "Then follow your doctor's advice over anything here. Palevie suggests cosmetics, and can't diagnose or treat a condition."
+        ? "Follow your doctor's advice over anything here. Palevie suggests cosmetics; it can't diagnose or treat a condition."
         : null },
+    { id: "condition", act: ACT.safety, kind: "single" as const,
+      title: "Which one, roughly?",
+      help: "Only so we can avoid what typically aggravates it. Skip if you'd rather not say.",
+      when: (v: WizardValues) => v.underCare === "yes",
+      options: opt([
+        ["eczema", "Eczema or dermatitis"],
+        ["rosacea", "Rosacea"],
+        ["acne", "Acne being treated"],
+        ["pigment", "Melasma or pigmentation"],
+        ["psoriasis", "Psoriasis"],
+        ["other", "Something else"],
+        ["prefer-not", "I'd rather not say"],
+      ]),
+      note: (v: WizardValues) => ({
+        eczema: "We'll steer clear of fragrance, alcohol-heavy formulas and strong acids.",
+        rosacea: "We'll avoid known flush triggers and strong exfoliants.",
+        acne: "If you're on a prescription, we won't stack overlapping actives on top.",
+        pigment: "Daily sunscreen does more than any serum here; we'll keep that front and centre.",
+        psoriasis: "We'll favour barrier-support and fragrance-free formulas.",
+        other: "We'll stay on the gentle side and leave treatment to your doctor.",
+      } as Record<string, string>)[String(v.condition ?? "")] ?? null },
 
     // ── Act 2: type. Observable right now, no jargon.
     { id: "afterCleansing", act: ACT.type, kind: "single" as const,
@@ -111,12 +132,12 @@ export default function SkinProfileClient() {
       options: opt([["matte", "Nowhere — still matte or dry"], ["tzone", "Forehead and nose only"], ["allover", "Pretty much everywhere"]]) },
     { id: "pores", act: ACT.type, kind: "single" as const,
       title: "Which looks closest to your pores?",
-      help: "Arm's length in a mirror, no makeup.",
+      help: "These are drawings of texture, not photos of people — match the pattern, ignore the color.",
       options: [
-        { id: "smooth", label: "Barely visible", img: "/img/qs_fair.webp" },
-        { id: "fine", label: "Fine, even texture", img: "/img/qs_light.webp" },
-        { id: "visible-tzone", label: "Visible on nose and cheeks", img: "/img/qs_medium.webp" },
-        { id: "visible-wide", label: "Visible across most of my face", img: "/img/qs_deep.webp" },
+        { id: "smooth", label: "Barely visible", img: "/img/pore_smooth.webp" },
+        { id: "fine", label: "Fine, even texture", img: "/img/pore_fine.webp" },
+        { id: "visible-tzone", label: "Visible on nose and cheeks", img: "/img/pore_tzone.webp" },
+        { id: "visible-wide", label: "Visible across most of my face", img: "/img/pore_wide.webp" },
       ] },
     { id: "flaking", act: ACT.type, kind: "single" as const,
       title: "Any flaking or rough patches?",
@@ -130,9 +151,14 @@ export default function SkinProfileClient() {
       title: "If your face goes red, how long does it stay?",
       options: opt([["minutes", "A few minutes"], ["hours", "An hour or more"], ["days", "It can last days"]]) },
     { id: "weatherReaction", act: ACT.sensitivity, kind: "single" as const,
-      title: "How does your skin take weather changes?",
-      help: "Cold snaps, dry heating, humid summers.",
-      options: opt([["strong", "It reacts a lot"], ["mild", "Mildly"], ["none", "Barely notices"]]) },
+      title: "Which of these throws your skin off?",
+      help: "Think about the last time each one happened.",
+      options: opt([
+        ["strong", "Winter heating or a cold snap leaves it flaking or stinging"],
+        ["strong-humid", "Humid summers make it break out or feel congested"],
+        ["mild", "I notice a small change, nothing that needs a different routine"],
+        ["none", "It behaves the same all year"],
+      ]) },
 
     // ── Act 4: what to shop for. A short list beats "fix everything".
     { id: "priorities", act: ACT.goals, kind: "multi" as const, max: 2, min: 1,
@@ -204,6 +230,7 @@ export default function SkinProfileClient() {
   const initial: WizardValues = profile ? {
     flags: profile.flags ?? [],
     underCare: profile.underCare ? "yes" : "no",
+    condition: profile.condition ?? "",
     afterCleansing: profile.afterCleansing,
     afternoon: profile.afternoon ?? "tzone",
     pores: profile.pores ?? "fine",
@@ -244,6 +271,7 @@ export default function SkinProfileClient() {
     const next: SkinProfile = {
       flags: (list("flags").length ? list("flags") : ["none"]) as SkinProfile["flags"],
       underCare: v.underCare === "yes",
+      condition: v.underCare === "yes" ? (v.condition as SkinProfile["condition"]) : undefined,
       afterCleansing: v.afterCleansing as SkinProfile["afterCleansing"],
       afternoon: v.afternoon as SkinProfile["afternoon"],
       pores: v.pores as SkinProfile["pores"],
