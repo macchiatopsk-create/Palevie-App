@@ -14,7 +14,7 @@ import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
 import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
-import { track } from "@/lib/analytics";
+import { track, getVisitorId } from "@/lib/analytics";
 import { claimLocalData, releaseLocalData } from "@/lib/localOwner";
 import { loadProfile, saveProfile, type ColorProfile } from "@/lib/profile";
 import { loadSkinProfile, saveSkinProfile, type SkinProfile } from "@/lib/skincare";
@@ -228,6 +228,35 @@ export default function AccountClient() {
 
 function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{email:string;plan:string;onSignOut:()=>void;onResetPassword:()=>void;saveIdentity:(name:string)=>Promise<void>}){
   const [editing,setEditing]=useState(false);
+  const [confirmDelete,setConfirmDelete]=useState(false);
+  const [confirmText,setConfirmText]=useState("");
+  const [deleting,setDeleting]=useState(false);
+  const [deleteError,setDeleteError]=useState("");
+
+  async function deleteAccount(){
+    const supabase=getSupabaseBrowser();
+    if(!supabase) return setDeleteError("Account service is unavailable.");
+    setDeleting(true); setDeleteError("");
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if(!token){ setDeleting(false); return setDeleteError("Sign in again, then retry."); }
+    const res=await fetch("/api/account/delete",{
+      method:"POST",
+      headers:{ "content-type":"application/json", authorization:`Bearer ${token}` },
+      body: JSON.stringify({ visitorId: getVisitorId() }),
+    });
+    if(!res.ok){
+      const body=await res.json().catch(()=>({}));
+      setDeleting(false);
+      return setDeleteError(body?.error ?? "Could not delete the account.");
+    }
+    // Leave nothing behind on this device either.
+    ["palevie-profile-v1","palevie-wishlist-v1","palevie-makeup-prefs-v1","palevie-style-prefs-v1",
+     "palevie-style-detail-v1","palevie-skin-profile-v1","palevie-member-v1","palevie-interest-v1",
+     "palevie-quiz-state-v1"].forEach(k=>localStorage.removeItem(k));
+    await supabase.auth.signOut();
+    window.location.replace("/");
+  }
   function exportData(){
     const keys=["palevie-profile-v1","palevie-wishlist-v1","palevie-makeup-prefs-v1","palevie-style-prefs-v1","palevie-style-detail-v1","palevie-skin-profile-v1","palevie-member-v1"];
     const dump:Record<string,unknown>={exportedAt:new Date().toISOString(),email};
@@ -387,5 +416,20 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
   </div>
 
   <button className="ac-signout" onClick={onSignOut}>Sign out</button>
+  <button className="ac-delete" onClick={()=>setConfirmDelete(true)}>Delete my account</button>
+
+  {confirmDelete && <div className="ms" role="dialog" aria-label="Delete account">
+   <div className="ms-sheet ac-del-sheet">
+    <h2>Delete your account?</h2>
+    <p>This removes your profile, quiz history, saved list and preferences from our servers. It can&apos;t be undone, and we can&apos;t recover it for you afterwards.</p>
+    <p className="ac-del-hint">Type <b>DELETE</b> to confirm.</p>
+    <input className="ms-input" value={confirmText} onChange={e=>setConfirmText(e.target.value)} placeholder="DELETE" autoCapitalize="characters"/>
+    {deleteError && <p className="au-status">{deleteError}</p>}
+    <button className="ac-del-go" disabled={confirmText.trim().toUpperCase()!=="DELETE"||deleting} onClick={deleteAccount}>
+     {deleting?"Deleting…":"Delete my account"}
+    </button>
+    <button className="ms-skip" onClick={()=>{setConfirmDelete(false);setConfirmText("");setDeleteError("")}}>Keep my account</button>
+   </div>
+  </div>}
  </div>;
 }

@@ -1341,6 +1341,18 @@ body.sp-open{overflow:hidden}
 .sh-held li span{display:block;font-size:12.5px;font-weight:700;color:#3B2B36}
 .sh-held li small{display:block;font-size:11px;color:#9B8490;margin-top:3px;line-height:1.45}
 
+
+/* ── account deletion ── */
+.ac-delete{width:100%;min-height:42px;border:0;background:none;font:inherit;font-size:12px;font-weight:650;color:#B0A0AA;cursor:pointer;margin-top:2px}
+.ac-delete:active{opacity:.7}
+.ac-del-sheet h2{font-family:var(--display);font-weight:600;font-size:23px;letter-spacing:-.02em;color:#3B2B36;margin:0}
+.ac-del-sheet p{font-size:12px;line-height:1.6;color:#8A7186;margin:10px 0 0}
+.ac-del-hint{font-size:11.5px;color:#9B8490}
+.ac-del-sheet .ms-input{margin-top:10px}
+.ac-del-go{width:100%;min-height:46px;margin-top:14px;border:0;border-radius:999px;background:#C2405C;color:#fff;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.ac-del-go:disabled{opacity:.4}
+.ac-del-go:active:not(:disabled){transform:scale(.985)}
+
 /* Fill the whole window, including the safe-area insets a foldable or
    notched screen reports, so the app never letterboxes. */
 html,body{width:100%;max-width:100%;overflow-x:hidden}
