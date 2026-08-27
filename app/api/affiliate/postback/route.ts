@@ -33,6 +33,9 @@ export async function POST(request:Request){
     occurred_at:body?.occurredAt?new Date(body.occurredAt).toISOString():null,
   };
   const {data,error}=await db.from("affiliate_conversions").upsert(row,{onConflict:"network,external_order_id",ignoreDuplicates:false}).select("id").single();
-  if(error) return NextResponse.json({error:error.message},{status:500});
+  if(error){
+    console.error("conversion upsert failed", error);
+    return NextResponse.json({error:"Could not record that conversion."},{status:500});
+  }
   return NextResponse.json({ok:true,id:data.id});
 }

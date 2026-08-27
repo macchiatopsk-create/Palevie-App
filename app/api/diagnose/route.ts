@@ -81,6 +81,7 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     await finalizeAiUsage(usageId, "failed");
-    return NextResponse.json({ error: e instanceof Error ? e.message : "AI scan failed." }, { status: 500 });
+    console.error("ai scan failed", e);
+    return NextResponse.json({ error: "The scan didn't go through. Try again in a moment." }, { status: 500 });
   }
 }

@@ -44,6 +44,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ received: true });
   } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "Invalid webhook" }, { status: 400 });
+    console.error("lemonsqueezy webhook failed", e);
+    return NextResponse.json({ error: "Invalid webhook" }, { status: 400 });
   }
 }

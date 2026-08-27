@@ -35,7 +35,10 @@ export async function POST(request: Request) {
     alternatives: r.alternatives,
     created_at: r.createdAt,
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("analyses insert failed", error);
+    return NextResponse.json({ error: "Could not save that right now." }, { status: 500 });
+  }
   return NextResponse.json({ saved: true });
 }
 
@@ -43,6 +46,9 @@ export async function GET(request: Request) {
   const { db, user } = await userFor(request);
   if (!db || !user) return NextResponse.json({ items: [] });
   const { data, error } = await db.from("analyses").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(100);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("analyses read failed", error);
+    return NextResponse.json({ error: "Could not load your history right now." }, { status: 500 });
+  }
   return NextResponse.json({ items: data || [] });
 }
