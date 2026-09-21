@@ -80,7 +80,7 @@ export default function PhotoDiagnosis(){
 
     <Link className="h2-card dg-quiztip" href="/quiz">
       <span className="dg-quiztip-art" style={{backgroundImage:`url('${heroArt(calendarSeason(),"day")}')`}} aria-hidden/>
-      <div><b>Prefer no photo?</b><small>The free quiz is the zero-AI-cost path — 13 questions, same 16 tones.</small></div>
+      <div><b>Prefer no photo?</b><small>The free guided quiz is the zero-AI-cost path to the same 16 tones.</small></div>
       {MARK.chevron}
     </Link>
   </div>

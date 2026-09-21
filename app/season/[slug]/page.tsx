@@ -32,7 +32,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ slug: s
   const faq = [
     { q: `What colors suit a ${tone.name}?`, a: `${detail.best.map(c => c.name).join(", ")} — ${detail.blurb}` },
     { q: `What colors should a ${tone.name} avoid?`, a: `${detail.avoid.map(c => c.name).join(", ")}. These fight the ${tone.temperature} undertone and ${tone.chroma} chroma that define the season.` },
-    { q: `How do I know if I am a ${tone.name}?`, a: `Palevie's free 13-question quiz drapes colors against your face and scores four axes — warm/cool, light/deep, soft/bright and contrast — to place you in one of 16 tones. No photo or signup required.` },
+    { q: `How do I know if I am a ${tone.name}?`, a: `Palevie's free guided quiz drapes colors against your face and scores four axes — warm/cool, light/deep, soft/bright and contrast — to place you in one of 16 tones. No photo or signup required.` },
     { q: `What makeup works for a ${tone.name}?`, a: detail.makeup },
   ];
 
@@ -95,7 +95,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ slug: s
 
     <section className="h2-card sea-cta">
       <b>Not sure this is you?</b>
-      <p>Take the free 13-question quiz. It drapes real colors against your face and places you in one of 16 tones — no photo, no signup.</p>
+      <p>Take the free guided quiz. It drapes real colors against your face and places you in one of 16 tones — no photo, no signup.</p>
       <Link className="rs-cta" href="/quiz">Find my season</Link>
     </section>
 

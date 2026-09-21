@@ -6,7 +6,7 @@ This build intentionally keeps normal shopping checks **deterministic and AI-fre
 
 ## Product loop implemented
 
-1. **Free palette quiz** — 12 questions → ranked Korean-inspired 16-tone profile.
+1. **Free palette quiz** — guided questions → ranked Korean-inspired 16-tone profile.
 2. **Optional AI scan** — resized selfie → AI-assisted second opinion with server-side budget/call caps.
 3. **Shopping Check** — upload a product image → local color extraction → user color confirmation → Lab matching → BUY / MAYBE / SKIP.
 4. **Skincare profile** — cosmetic preferences only: post-cleanse feel, texture, fragrance, cosmetic goal and budget.
