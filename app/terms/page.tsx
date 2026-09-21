@@ -1,4 +1,10 @@
-export const metadata = { title: "Terms of Use — Palevie" };
+import { pageMetadata } from "@/lib/pageMetadata";
+
+export const metadata = pageMetadata({
+  title: "Terms of Use — Palevie",
+  description: "Read Palevie's terms for quizzes, optional AI tools, shopping guidance, accounts, and affiliate links.",
+  path: "/terms",
+});
 
 export default function TermsPage(){return <article className="privacy app-wrap narrow">
   <div className="eyebrow">Terms of use</div>
