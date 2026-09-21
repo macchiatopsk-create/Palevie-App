@@ -90,6 +90,7 @@ create table if not exists public.outbound_clicks (
   offer_id text not null,
   product_id text not null,
   retailer text not null,
+  tone_id text,
   attribution jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
