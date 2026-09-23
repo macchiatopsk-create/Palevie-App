@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { seasonSlugs } from "@/lib/seasonPages";
+import { launchGuideParams } from "@/lib/categoryGuides";
 
 const BASE = "https://palevie.com";
 
@@ -17,5 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
-  return [...core, ...seasons];
+  const guides = launchGuideParams.map(({ slug, category }) => ({ url: `${BASE}/season/${slug}/${category}`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.65 }));
+  return [...core, ...seasons, ...guides];
 }
