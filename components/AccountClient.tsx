@@ -232,7 +232,8 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
   const [confirmText,setConfirmText]=useState("");
   const [deleting,setDeleting]=useState(false);
   const [deleteError,setDeleteError]=useState("");
-  const [settingsTab,setSettingsTab]=useState<"personal"|"preferences"|"privacy"|"contact"|"policies">("personal");
+  const [accountView,setAccountView]=useState<"dashboard"|"personal"|"preferences"|"privacy"|"contact"|"policies">("dashboard");
+  const [accountMenuOpen,setAccountMenuOpen]=useState(false);
 
   async function deleteAccount(){
     const supabase=getSupabaseBrowser();
@@ -307,6 +308,45 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    </div>
   </div>
 
+  <div className="ac-account-nav">
+   <button
+    type="button"
+    className="ac-account-navbtn"
+    aria-haspopup="menu"
+    aria-expanded={accountMenuOpen}
+    onClick={()=>setAccountMenuOpen(v=>!v)}
+   >
+    <span className="ac-account-navicon" aria-hidden>
+     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <path d="M5 7h14M5 12h14M5 17h14"/>
+     </svg>
+    </span>
+    <b>{accountView==="dashboard"?"Dashboard":accountView==="personal"?"Personal information":accountView==="preferences"?"Preferences":accountView==="privacy"?"Privacy settings":accountView==="contact"?"Contact us":"Policies"}</b>
+    <span className={`ac-account-navchev${accountMenuOpen?" open":""}`} aria-hidden>{MARK.chevron}</span>
+   </button>
+   {accountMenuOpen&&<div className="ac-account-menu" role="menu">
+    {([
+     ["dashboard","Dashboard"],
+     ["personal","Personal information"],
+     ["preferences","Preferences"],
+     ["privacy","Privacy settings"],
+     ["contact","Contact us"],
+     ["policies","Policies"],
+    ] as const).map(([id,label])=>
+     <button
+      key={id}
+      type="button"
+      role="menuitem"
+      className={accountView===id?"on":""}
+      onClick={()=>{setAccountView(id);setAccountMenuOpen(false);}}
+     >
+      <span>{label}</span>{accountView===id&&MARK.check}
+     </button>
+    )}
+   </div>}
+  </div>
+
+  {accountView==="dashboard" && <>
   <div className="ac-head">
    <h1>My Dashboard</h1>
    <p>Hello {name}, glow your way.</p>
@@ -383,34 +423,19 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    </div>
   </div>}
 
-  <div className="ac-settings-picker">
-   <label htmlFor="account-settings-select">Account</label>
-   <div className="ac-settings-select-wrap">
-    <select
-      id="account-settings-select"
-      value={settingsTab}
-      onChange={e=>setSettingsTab(e.target.value as "personal"|"preferences"|"privacy"|"contact"|"policies")}
-      aria-label="Choose account section"
-    >
-     <option value="personal">Personal information</option>
-     <option value="preferences">Preferences</option>
-     <option value="privacy">Privacy settings</option>
-     <option value="contact">Contact us</option>
-     <option value="policies">Policies</option>
-    </select>
-    <span aria-hidden>{MARK.chevron}</span>
-   </div>
-  </div>
+  </>}
 
-  {settingsTab==="personal" && <div className="h2-card ac-settings">
+  {accountView==="personal" && <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Personal information</b><span className="ac-plan">{plan==="free"?"Free":plan}</span></div>
    <button className="ac-set-row" onClick={()=>setEditing(true)}><span>Nickname</span><small>{name}</small>{MARK.chevron}</button>
    <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
    <button className="ac-set-row" onClick={onResetPassword}><span>Change password</span><small>Emails a reset link</small>{MARK.chevron}</button>
    {since&&<div className="ac-set-row"><span>Member since</span><small>{since}</small></div>}
+   <button className="ac-signout" onClick={onSignOut}>Sign out</button>
+   <button className="ac-delete" onClick={()=>setConfirmDelete(true)}>Delete my account</button>
   </div>}
 
-  {settingsTab==="preferences" && <div className="h2-card ac-settings">
+  {accountView==="preferences" && <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Preferences</b></div>
    <Link className="ac-set-row" href="/quiz"><span>Color season</span><small>{tone?tone.name:"Not set"}</small>{MARK.chevron}</Link>
    <Link className="ac-set-row" href="/quiz?tab=makeup"><span>Makeup mood</span><small>{mk?(MAKEUP_STYLES.find(x=>x.id===mk.style)?.name??"Saved"):"Not set"}</small>{MARK.chevron}</Link>
@@ -419,7 +444,7 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    <Link className="ac-set-row" href="/theme"><span>Screen mood</span><small>Time of day</small>{MARK.chevron}</Link>
   </div>}
 
-  {settingsTab==="privacy" && <div className="h2-card ac-settings">
+  {accountView==="privacy" && <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Privacy &amp; data</b></div>
    <button className="ac-set-row" onClick={exportData}><span>Export my data</span><small>JSON</small>{MARK.chevron}</button>
    <button className="ac-set-row" onClick={()=>{if(confirm("Clear Palevie data saved on this device? Your account keeps its synced copy."))
@@ -429,20 +454,17 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    <Link className="ac-set-row" href="/terms"><span>Terms of Service</span>{MARK.chevron}</Link>
   </div>}
 
-  {settingsTab==="contact" && <div className="h2-card ac-settings">
+  {accountView==="contact" && <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Contact us</b></div>
    <a className="ac-set-row" href="mailto:support@palevie.com"><span>Email support</span><small>support@palevie.com</small>{MARK.chevron}</a>
   </div>}
 
-  {settingsTab==="policies" && <div className="h2-card ac-settings">
+  {accountView==="policies" && <div className="h2-card ac-settings">
    <div className="h2-cardhead"><b>Policies</b></div>
    <Link className="ac-set-row" href="/privacy"><span>Privacy Policy</span>{MARK.chevron}</Link>
    <Link className="ac-set-row" href="/terms"><span>Terms of Service</span>{MARK.chevron}</Link>
    <div className="ac-set-row"><span>Amazon Associate</span><small>We earn from qualifying purchases</small></div>
   </div>}
-
-  <button className="ac-signout" onClick={onSignOut}>Sign out</button>
-  <button className="ac-delete" onClick={()=>setConfirmDelete(true)}>Delete my account</button>
 
   {confirmDelete && <div className="ms" role="dialog" aria-label="Delete account">
    <div className="ms-sheet ac-del-sheet">
