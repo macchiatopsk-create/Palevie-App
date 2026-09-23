@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { tone, detail } = seasonPageData(id);
   const title = `${tone.name} Color Palette — Best Colors, Colors to Avoid & Makeup`;
   const description = `${detail.blurb.slice(0, 155)}`;
-  const socialImage = `/share/${slug}.jpg`;
+  const socialImage = `/share/${id}.jpg`;
   return {
     title,
     description,
