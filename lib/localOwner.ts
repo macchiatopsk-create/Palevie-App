@@ -1,4 +1,5 @@
 import { WISHLIST_EVENT } from "./wishlist";
+import { MEMBER_EVENT } from "./member";
 
 /**
  * Local-first storage means personal data lives in localStorage, which is
@@ -27,6 +28,7 @@ const PERSONAL_KEYS = [
   "palevie-fit-pref-v1",
   "palevie-makeup-prefs-v1",
   "palevie-free-product-checks-v2",
+  "palevie-member-v1",
 ];
 
 // Device-level keys (visitor id, attribution, event log) are deliberately
@@ -35,6 +37,7 @@ const PERSONAL_KEYS = [
 function clearPersonal() {
   for (const k of PERSONAL_KEYS) localStorage.removeItem(k);
   window.dispatchEvent(new Event(WISHLIST_EVENT));
+  window.dispatchEvent(new Event(MEMBER_EVENT));
 }
 
 /**
