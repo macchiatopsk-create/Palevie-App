@@ -1,3 +1,4 @@
+import { MEMBER_EVENT, MEMBER_KEY } from "./memberStorage";
 import { WISHLIST_EVENT } from "./wishlist";
 
 /**
@@ -27,6 +28,7 @@ const PERSONAL_KEYS = [
   "palevie-fit-pref-v1",
   "palevie-makeup-prefs-v1",
   "palevie-free-product-checks-v2",
+  MEMBER_KEY,
 ];
 
 // Device-level keys (visitor id, attribution, event log) are deliberately
@@ -35,6 +37,7 @@ const PERSONAL_KEYS = [
 function clearPersonal() {
   for (const k of PERSONAL_KEYS) localStorage.removeItem(k);
   window.dispatchEvent(new Event(WISHLIST_EVENT));
+  window.dispatchEvent(new Event(MEMBER_EVENT));
 }
 
 /**

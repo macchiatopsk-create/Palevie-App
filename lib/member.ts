@@ -1,4 +1,7 @@
 import type { Season } from "@/lib/heroArt";
+import { MEMBER_EVENT, MEMBER_KEY } from "./memberStorage";
+
+export { MEMBER_EVENT } from "./memberStorage";
 
 /**
  * The person's identity inside Palevie — kept locally so the app feels like
@@ -12,13 +15,12 @@ export type Member = {
   onboarded?: boolean;
 };
 
-const KEY = "palevie-member-v1";
-export const MEMBER_EVENT = "palevie:member";
+
 
 export function loadMember(): Member | null {
   if (typeof window === "undefined") return null;
   try {
-    const m = JSON.parse(localStorage.getItem(KEY) || "null") as Member | null;
+    const m = JSON.parse(localStorage.getItem(MEMBER_KEY) || "null") as Member | null;
     return m?.joinedAt ? m : null;
   } catch { return null; }
 }
@@ -34,7 +36,7 @@ export function ensureMember(): Member {
 
 export function saveMember(next: Member) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(KEY, JSON.stringify(next));
+  localStorage.setItem(MEMBER_KEY, JSON.stringify(next));
   window.dispatchEvent(new Event(MEMBER_EVENT));
 }
 
