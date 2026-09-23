@@ -66,7 +66,7 @@ export default function AccountClient() {
 
     if(Object.keys(patch).length) await supabase.from("profiles").update({...patch,updated_at:new Date().toISOString()}).eq("id",user.id);
     const meta = (user.user_metadata || {}) as { display_name?: string; avatar_season?: string };
-    if (meta.display_name) updateMember({ name: meta.display_name, onboarded: true, ...(meta.avatar_season ? { avatar: meta.avatar_season as never } : {}) });
+    if (meta.display_name) updateMember({ name: meta.display_name, joinedAt: user.created_at, onboarded: true, ...(meta.avatar_season ? { avatar: meta.avatar_season as never } : {}) });
     setAccount({ email: user.email || "Signed in", plan: remote?.plan || "free", subscriptionStatus: remote?.subscription_status, displayName: meta.display_name });
     // Merge whatever was saved before signing in with what the account already has.
     void syncWishlist();
