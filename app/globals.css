@@ -1190,6 +1190,11 @@ body.ms-open{overflow:hidden}
 .au-fine a{color:#A776C8;font-weight:650}
 
 /* ── dashboard settings sections ── */
+.ac-settings-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;border:1px solid #FCDEE0;background:#FEF8F8;border-radius:999px}
+.ac-settings-tabs button{min-width:0;border:0;background:transparent;border-radius:999px;padding:10px 7px;font:inherit;font-size:10.5px;font-weight:700;color:#9B8490;cursor:pointer;white-space:nowrap}
+.ac-settings-tabs button.on{background:#fff;color:#A776C8;box-shadow:0 2px 9px rgba(79,48,69,.08)}
+.ac-settings-tabs button:active{transform:scale(.98)}
+@media(max-width:380px){.ac-settings-tabs{display:flex;overflow-x:auto;scrollbar-width:none}.ac-settings-tabs::-webkit-scrollbar{display:none}.ac-settings-tabs button{min-width:88px;flex:0 0 auto}}
 .ac-plan{font-size:10.5px;font-weight:750;color:#A776C8;background:#F8EAF6;border-radius:999px;padding:4px 10px}
 .ac-signout{width:100%;min-height:44px;border:1px solid #FCDEE0;background:#fff;border-radius:999px;font:inherit;font-size:13px;font-weight:700;color:#C7788C;cursor:pointer;margin-top:2px}
 .ac-signout:active{transform:scale(.99)}
