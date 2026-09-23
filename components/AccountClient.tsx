@@ -423,6 +423,7 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    </div>
   </div>}
 
+  <button className="ac-signout" onClick={onSignOut}>Sign out</button>
   </>}
 
   {accountView==="personal" && <div className="h2-card ac-settings">
@@ -431,7 +432,6 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    <div className="ac-set-row"><span>Email</span><small>{email}</small></div>
    <button className="ac-set-row" onClick={onResetPassword}><span>Change password</span><small>Emails a reset link</small>{MARK.chevron}</button>
    {since&&<div className="ac-set-row"><span>Member since</span><small>{since}</small></div>}
-   <button className="ac-signout" onClick={onSignOut}>Sign out</button>
    <button className="ac-delete" onClick={()=>setConfirmDelete(true)}>Delete my account</button>
   </div>}
 
