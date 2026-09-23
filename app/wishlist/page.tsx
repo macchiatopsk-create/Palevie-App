@@ -9,6 +9,7 @@ export const metadata = pageMetadata({
 });
 export default function WishlistPage(){
   return <div className="app-wrap narrow h2-wrap">
+    <h1 className="route-heading">My saved beauty list</h1>
     <Suspense fallback={null}><WishlistClient/></Suspense>
   </div>;
 }

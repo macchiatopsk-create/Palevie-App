@@ -9,6 +9,7 @@ export const metadata = pageMetadata({
 });
 export default function QuizPage(){
   return <div className="app-wrap narrow h2-wrap">
+    <h1 className="route-heading">Personal color quiz</h1>
     <Suspense fallback={null}><QuizHub/></Suspense>
   </div>;
 }
