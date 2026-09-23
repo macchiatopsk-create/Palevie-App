@@ -232,7 +232,7 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
   const [confirmText,setConfirmText]=useState("");
   const [deleting,setDeleting]=useState(false);
   const [deleteError,setDeleteError]=useState("");
-  const [settingsTab,setSettingsTab]=useState<"personal"|"preferences"|"privacy"|"support">("personal");
+  const [settingsTab,setSettingsTab]=useState<"personal"|"preferences"|"privacy"|"contact"|"policies">("personal");
 
   async function deleteAccount(){
     const supabase=getSupabaseBrowser();
@@ -383,11 +383,23 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    </div>
   </div>}
 
-  <div className="ac-settings-tabs" role="tablist" aria-label="Account settings">
-   <button type="button" role="tab" aria-selected={settingsTab==="personal"} className={settingsTab==="personal"?"on":""} onClick={()=>setSettingsTab("personal")}>Personal</button>
-   <button type="button" role="tab" aria-selected={settingsTab==="preferences"} className={settingsTab==="preferences"?"on":""} onClick={()=>setSettingsTab("preferences")}>Preferences</button>
-   <button type="button" role="tab" aria-selected={settingsTab==="privacy"} className={settingsTab==="privacy"?"on":""} onClick={()=>setSettingsTab("privacy")}>Privacy</button>
-   <button type="button" role="tab" aria-selected={settingsTab==="support"} className={settingsTab==="support"?"on":""} onClick={()=>setSettingsTab("support")}>Support</button>
+  <div className="ac-settings-picker">
+   <label htmlFor="account-settings-select">Account</label>
+   <div className="ac-settings-select-wrap">
+    <select
+      id="account-settings-select"
+      value={settingsTab}
+      onChange={e=>setSettingsTab(e.target.value as "personal"|"preferences"|"privacy"|"contact"|"policies")}
+      aria-label="Choose account section"
+    >
+     <option value="personal">Personal information</option>
+     <option value="preferences">Preferences</option>
+     <option value="privacy">Privacy settings</option>
+     <option value="contact">Contact us</option>
+     <option value="policies">Policies</option>
+    </select>
+    <span aria-hidden>{MARK.chevron}</span>
+   </div>
   </div>
 
   {settingsTab==="personal" && <div className="h2-card ac-settings">
@@ -417,9 +429,13 @@ function AccountDashboard({email,plan,onSignOut,onResetPassword,saveIdentity}:{e
    <Link className="ac-set-row" href="/terms"><span>Terms of Service</span>{MARK.chevron}</Link>
   </div>}
 
-  {settingsTab==="support" && <div className="h2-card ac-settings">
-   <div className="h2-cardhead"><b>Contact &amp; support</b></div>
+  {settingsTab==="contact" && <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Contact us</b></div>
    <a className="ac-set-row" href="mailto:support@palevie.com"><span>Email support</span><small>support@palevie.com</small>{MARK.chevron}</a>
+  </div>}
+
+  {settingsTab==="policies" && <div className="h2-card ac-settings">
+   <div className="h2-cardhead"><b>Policies</b></div>
    <Link className="ac-set-row" href="/privacy"><span>Privacy Policy</span>{MARK.chevron}</Link>
    <Link className="ac-set-row" href="/terms"><span>Terms of Service</span>{MARK.chevron}</Link>
    <div className="ac-set-row"><span>Amazon Associate</span><small>We earn from qualifying purchases</small></div>
