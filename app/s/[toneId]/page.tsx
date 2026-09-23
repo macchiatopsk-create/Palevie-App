@@ -55,7 +55,7 @@ export default async function SharePage({ params }: Params) {
 
     <section className="h2-card sea-cta">
       <b>What&apos;s your season?</b>
-      <p>Thirteen questions, about two minutes. No photo, no account — you get your palette, your best shades and the ones to skip.</p>
+      <p>A short guided quiz, about two minutes. No photo, no account — you get your palette, your best shades and the ones to skip.</p>
       <Link className="rs-cta" href="/quiz">Find my season</Link>
     </section>
 

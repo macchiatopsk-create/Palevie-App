@@ -13,7 +13,7 @@ export default function PricingPage(){
       <div className="price-card">
         <h2>Free</h2><div className="price">$0</div>
         <ul>
-          <li>12-question palette quiz</li>
+          <li>Guided palette quiz</li>
           <li>5 shopping color checks / month</li>
           <li>Skincare preference profile</li>
           <li>Account + cloud history beta</li>
