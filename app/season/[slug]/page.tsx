@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { seasonSlugs, toneIdFromSlug, seasonPageData, toneSlug } from "@/lib/seasonPages";
 import { toneProfiles } from "@/lib/palettes";
+import { categoryGuide, launchGuidesForSeason } from "@/lib/categoryGuides";
 
 export function generateStaticParams() {
   return seasonSlugs.map(slug => ({ slug }));
@@ -28,6 +29,7 @@ export default async function SeasonPage({ params }: { params: Promise<{ slug: s
   const id = toneIdFromSlug(slug);
   if (!id) notFound();
   const { tone, detail, siblings } = seasonPageData(id);
+  const launchGuides = launchGuidesForSeason(slug);
 
   const faq = [
     { q: `What colors suit a ${tone.name}?`, a: `${detail.best.map(c => c.name).join(", ")} — ${detail.blurb}` },
@@ -103,6 +105,14 @@ export default async function SeasonPage({ params }: { params: Promise<{ slug: s
       <div className="h2-cardhead"><b>Questions about {tone.name}</b></div>
       {faq.map(f => <div key={f.q} className="sea-faq-row"><b>{f.q}</b><p>{f.a}</p></div>)}
     </section>
+
+    {launchGuides.length > 0 && <section className="h2-card">
+      <div className="h2-cardhead"><b>{tone.name} makeup guides</b></div>
+      <div className="sea-links">{launchGuides.map(item => {
+        const guide = categoryGuide(item.slug, item.category);
+        return <Link key={item.category} href={`/season/${slug}/${item.category}`}>{guide.label}</Link>;
+      })}</div>
+    </section>}
 
     <section className="h2-card">
       <div className="h2-cardhead"><b>Other {tone.season} tones</b></div>
