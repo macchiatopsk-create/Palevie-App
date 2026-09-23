@@ -52,7 +52,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
       <Link className="header-account" href="/account">My account</Link>
     </header>
     <main>{children}</main>
-    <footer className="site-footer"><div><strong>palévie</strong><p>Color, beauty and shopping guidance designed for repeat use.</p></div><div className="footer-links"><Link href="/privacy">Privacy</Link><Link href="/pricing">Pricing</Link><Link href="/dashboard">History</Link></div></footer>
+    <footer className="site-footer"><div><strong>palévie</strong><p>Color, beauty and shopping guidance designed for repeat use.</p></div><div className="footer-links"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/pricing">Pricing</Link><Link href="/dashboard">History</Link></div></footer>
     <MobileNav/>
         <FreshnessGuard build={process.env.VERCEL_GIT_COMMIT_SHA ?? "dev"} />
   </body></html>;

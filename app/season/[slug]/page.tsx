@@ -16,11 +16,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { tone, detail } = seasonPageData(id);
   const title = `${tone.name} Color Palette — Best Colors, Colors to Avoid & Makeup`;
   const description = `${detail.blurb.slice(0, 155)}`;
+  const socialImage = `/share/${id}.jpg`;
   return {
     title,
     description,
     alternates: { canonical: `/season/${slug}` },
-    openGraph: { title, description, url: `/season/${slug}`, type: "article" },
+    openGraph: {
+      title,
+      description,
+      url: `/season/${slug}`,
+      type: "article",
+      images: [{ url: socialImage, alt: `${tone.name} color palette` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [socialImage],
+    },
   };
 }
 
