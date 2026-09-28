@@ -20,6 +20,10 @@ import { CAT_ICON } from "@/components/icons";
 import { loadMember, MEMBER_EVENT } from "@/lib/member";
 import { calendarSeason, heroLight, activeTod } from "@/lib/heroArt";
 
+const QUIZ_POPUP_HIDE_KEY = "palevie-quiz-popup-hide-until-v1";
+const QUIZ_POPUP_SESSION_KEY = "palevie-quiz-popup-session-dismissed-v1";
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const SUB: Record<TimeOfDay, string> = {
   morning: "Good morning — your colors are up early too.",
   day: "Your beauty, your colors. Palevie is here for you.",
@@ -43,6 +47,8 @@ export default function HomeClient() {
   const [interest, setInterest] = useState<Interest | null>(null);
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
+  const [quizPopupOpen, setQuizPopupOpen] = useState(false);
+  const [quizPopupHide24h, setQuizPopupHide24h] = useState(false);
 
   useEffect(() => {
     document.body.classList.add("h2-clean");
@@ -71,6 +77,15 @@ export default function HomeClient() {
     const supabase = getSupabaseBrowser();
     supabase?.auth.getSession().then(({ data }) => {
       const email = data.session?.user?.email;
+      const hideUntil = Number(localStorage.getItem(QUIZ_POPUP_HIDE_KEY) || "0");
+      const sessionDismissed = sessionStorage.getItem(QUIZ_POPUP_SESSION_KEY) === "1";
+      const hasColorProfile = Boolean(loadProfile());
+      if (!data.session && !hasColorProfile && !sessionDismissed && Date.now() >= hideUntil) {
+        window.setTimeout(() => {
+          setQuizPopupOpen(true);
+          track("welcome_quiz_popup_shown", { surface: "home" });
+        }, 2400);
+      }
       if (email && !loadMember()?.name) {
         const first = email.split("@")[0].split(/[._\-+0-9]+/)[0];
         if (/^[a-zA-Z]{3,12}$/.test(first)) setName(first.charAt(0).toUpperCase() + first.slice(1).toLowerCase());
@@ -125,6 +140,22 @@ export default function HomeClient() {
 
   const avoid = tone ? getToneDetail(profile!.primaryType).avoid.slice(0, 5) : [];
 
+  function dismissQuizPopup(reason: "later" | "close") {
+    if (quizPopupHide24h) {
+      localStorage.setItem(QUIZ_POPUP_HIDE_KEY, String(Date.now() + DAY_MS));
+    } else {
+      sessionStorage.setItem(QUIZ_POPUP_SESSION_KEY, "1");
+    }
+    setQuizPopupOpen(false);
+    track("welcome_quiz_popup_dismissed", { surface: "home", reason, hide24h: quizPopupHide24h });
+  }
+
+  function startQuizFromPopup() {
+    localStorage.setItem(QUIZ_POPUP_HIDE_KEY, String(Date.now() + DAY_MS));
+    setQuizPopupOpen(false);
+    track("welcome_quiz_popup_cta", { surface: "home" });
+  }
+
   function heart(id: string, label: string) {
     const { items, saved } = toggleProduct(id);
     const key = productKey(id);
@@ -136,6 +167,27 @@ export default function HomeClient() {
 
   return (
     <div className="h2">
+      {quizPopupOpen && (
+        <div className="qp-backdrop" role="presentation">
+          <section className="qp-modal" role="dialog" aria-modal="true" aria-labelledby="qp-title">
+            <button className="qp-close" type="button" aria-label="Close" onClick={() => dismissQuizPopup("close")}>×</button>
+            <div className="qp-art">
+              <img src="/img/popup-hero.svg" alt="" />
+            </div>
+            <div className="qp-body">
+              <span className="qp-kicker">4 seasons · 16 tones</span>
+              <h2 id="qp-title">Still guessing your color season?</h2>
+              <p>Find your best shades in just a few steps.</p>
+              <Link className="qp-cta" href="/quiz" onClick={startQuizFromPopup}>Start the free quiz <b>›</b></Link>
+              <button className="qp-later" type="button" onClick={() => dismissQuizPopup("later")}>Maybe later</button>
+              <label className="qp-hide">
+                <input type="checkbox" checked={quizPopupHide24h} onChange={e => setQuizPopupHide24h(e.target.checked)} />
+                <span>Don&apos;t show again for 24 hours</span>
+              </label>
+            </div>
+          </section>
+        </div>
+      )}
       {ready && !interest && (
         <section className="h2-card h2-interest">
           <b>What are you shopping for?</b>

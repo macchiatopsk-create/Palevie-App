@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff9f5"/>
+      <stop offset="1" stop-color="#f2dfdc"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3c3034"/>
+      <stop offset="1" stop-color="#171316"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#6f4b55" flood-opacity=".2"/>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" rx="44" fill="url(#bg)"/>
+  <circle cx="1050" cy="80" r="210" fill="#f6dfe4" opacity=".55" filter="url(#soft)"/>
+  <circle cx="120" cy="790" r="240" fill="#eaded4" opacity=".7" filter="url(#soft)"/>
+
+  <text x="76" y="106" fill="#76515a" font-family="Georgia, serif" font-size="52" letter-spacing="-1">Palevie</text>
+  <text x="80" y="146" fill="#9a737c" font-family="Arial, sans-serif" font-size="13" letter-spacing="7">COLORS • A MORE YOU</text>
+
+  <text x="74" y="285" fill="#5c3b44" font-family="Georgia, serif" font-size="78" letter-spacing="-2">Find Your</text>
+  <text x="74" y="370" fill="#5c3b44" font-family="Georgia, serif" font-size="78" letter-spacing="-2">Personal Color</text>
+  <text x="80" y="425" fill="#8d6972" font-family="Arial, sans-serif" font-size="20" letter-spacing="8">4 SEASONS  •  16 TONES</text>
+
+  <rect x="78" y="480" width="390" height="2" rx="1" fill="#d4b8bd"/>
+  <text x="80" y="528" fill="#9a737c" font-family="Arial, sans-serif" font-size="15" letter-spacing="4">DISCOVER SHADES THAT FEEL LIKE YOU</text>
+
+  <g transform="translate(650 108) rotate(7 215 330)" filter="url(#shadow)">
+    <rect x="0" y="0" width="430" height="665" rx="62" fill="url(#phone)"/>
+    <rect x="18" y="18" width="394" height="629" rx="48" fill="#fffaf7"/>
+    <rect x="155" y="34" width="120" height="28" rx="14" fill="#1e191c"/>
+    <text x="58" y="105" fill="#7b5660" font-family="Georgia, serif" font-size="30">Palevie</text>
+    <text x="58" y="145" fill="#a8868e" font-family="Arial, sans-serif" font-size="10" letter-spacing="4">YOUR PERSONAL COLOR</text>
+    <text x="58" y="205" fill="#5d4048" font-family="Georgia, serif" font-size="45">Soft Autumn</text>
+    <line x1="58" y1="228" x2="350" y2="228" stroke="#ead9dc"/>
+    <g>
+      <circle cx="95" cy="295" r="25" fill="#d9aa8d"/>
+      <circle cx="157" cy="295" r="25" fill="#d5b18e"/>
+      <circle cx="219" cy="295" r="25" fill="#cc7f73"/>
+      <circle cx="281" cy="295" r="25" fill="#c98f96"/>
+      <circle cx="95" cy="357" r="25" fill="#9f7d73"/>
+      <circle cx="157" cy="357" r="25" fill="#c98f78"/>
+      <circle cx="219" cy="357" r="25" fill="#a99563"/>
+      <circle cx="281" cy="357" r="25" fill="#6e655f"/>
+      <circle cx="95" cy="419" r="25" fill="#94956e"/>
+      <circle cx="157" cy="419" r="25" fill="#84745a"/>
+      <circle cx="219" cy="419" r="25" fill="#909a85"/>
+      <circle cx="281" cy="419" r="25" fill="#668783"/>
+    </g>
+    <rect x="58" y="500" width="292" height="62" rx="31" fill="#c88998"/>
+    <text x="204" y="539" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="3">YOUR COLORS AWAIT  →</text>
+    <g fill="none" stroke="#9c7c84" stroke-width="3">
+      <path d="M85 602 l16-14 16 14 v20 h-32z"/>
+      <circle cx="177" cy="605" r="12"/>
+      <path d="M265 604 c-7-13-27-8-27 7 0 12 27 27 27 27s27-15 27-27c0-15-20-20-27-7z" transform="scale(.7) translate(108 250)"/>
+      <circle cx="326" cy="600" r="9"/><path d="M310 628c4-16 28-16 32 0"/>
+    </g>
+  </g>
+
+  <g transform="translate(70 650)">
+    <g>
+      <rect width="210" height="150" rx="18" fill="#fffaf7" stroke="#ecd9dc"/>
+      <text x="24" y="32" fill="#8d6871" font-family="Arial, sans-serif" font-size="14" letter-spacing="4">SPRING</text>
+      <rect x="24" y="54" width="162" height="18" rx="9" fill="#edaaa4"/>
+      <rect x="24" y="78" width="162" height="18" rx="9" fill="#e6c68c"/>
+      <rect x="24" y="102" width="162" height="18" rx="9" fill="#aeb789"/>
+    </g>
+    <g transform="translate(228)">
+      <rect width="210" height="150" rx="18" fill="#fffaf7" stroke="#ecd9dc"/>
+      <text x="24" y="32" fill="#8d6871" font-family="Arial, sans-serif" font-size="14" letter-spacing="4">SUMMER</text>
+      <rect x="24" y="54" width="162" height="18" rx="9" fill="#d9a5b8"/>
+      <rect x="24" y="78" width="162" height="18" rx="9" fill="#b8aacd"/>
+      <rect x="24" y="102" width="162" height="18" rx="9" fill="#8fa5bd"/>
+    </g>
+    <g transform="translate(456)">
+      <rect width="210" height="150" rx="18" fill="#fffaf7" stroke="#ecd9dc"/>
+      <text x="24" y="32" fill="#8d6871" font-family="Arial, sans-serif" font-size="14" letter-spacing="4">AUTUMN</text>
+      <rect x="24" y="54" width="162" height="18" rx="9" fill="#bd7658"/>
+      <rect x="24" y="78" width="162" height="18" rx="9" fill="#96724f"/>
+      <rect x="24" y="102" width="162" height="18" rx="9" fill="#6d7551"/>
+    </g>
+    <g transform="translate(684)">
+      <rect width="210" height="150" rx="18" fill="#fffaf7" stroke="#ecd9dc"/>
+      <text x="24" y="32" fill="#8d6871" font-family="Arial, sans-serif" font-size="14" letter-spacing="4">WINTER</text>
+      <rect x="24" y="54" width="162" height="18" rx="9" fill="#b45776"/>
+      <rect x="24" y="78" width="162" height="18" rx="9" fill="#70445f"/>
+      <rect x="24" y="102" width="162" height="18" rx="9" fill="#4e5c78"/>
+    </g>
+  </g>
+</svg>
