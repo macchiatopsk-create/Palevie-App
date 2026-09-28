@@ -19,7 +19,6 @@ import { track } from "@/lib/analytics";
 import { CAT_ICON } from "@/components/icons";
 import { loadMember, MEMBER_EVENT } from "@/lib/member";
 import { calendarSeason, heroLight, activeTod } from "@/lib/heroArt";
-import { POPUP_HERO } from "@/lib/popupHero";
 
 const QUIZ_POPUP_HIDE_KEY = "palevie-quiz-popup-hide-until-v1";
 const QUIZ_POPUP_SESSION_KEY = "palevie-quiz-popup-session-dismissed-v1";
@@ -173,7 +172,7 @@ export default function HomeClient() {
           <section className="qp-modal" role="dialog" aria-modal="true" aria-labelledby="qp-title">
             <button className="qp-close" type="button" aria-label="Close" onClick={() => dismissQuizPopup("close")}>×</button>
             <div className="qp-art">
-              <img src={POPUP_HERO} alt="" />
+              <img src="/img/popup-hero.svg" alt="" />
             </div>
             <div className="qp-body">
               <span className="qp-kicker">4 seasons · 16 tones</span>
