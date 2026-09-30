@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { catalogProducts } from "@/data/products";
-import { retailers } from "@/lib/retailers";
 import { loadProfile } from "@/lib/profile";
 import { getToneProfile } from "@/lib/palettes";
 import { scoreColor, hexToRgb } from "@/lib/color";
@@ -262,6 +261,15 @@ export default function ShopClient() {
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
+        <a
+          className="sh-buy"
+          href={`/go/search?${new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r: "amazon", surface: "shop_card", tone: profile?.id ?? "", v: ready ? getVisitorId() : "" }).toString()}`}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          onClick={() => track("affiliate_outbound_click", { retailer: "amazon", product: p.id, surface: "shop_card" })}
+        >
+          Shop on Amazon <span>›</span>
+        </a>
       </div>
     </article>)}</div>
     )}
