@@ -142,8 +142,11 @@ export default function ShopClient() {
         shades={drapeShades}
         saved={wl.some(w => w.id === productKey(drapeProduct.id))}
         onSave={() => heart(drapeProduct.id, drapeProduct.name)}
-        shopHref={`/go/search?${new URLSearchParams({ q: `${drapeProduct.brand} ${drapeProduct.name}`, label: drapeProduct.name, r: "amazon", surface: "shade_drape", tone: profile?.id ?? "", v: getVisitorId() }).toString()}`}
-        onShop={() => track("shade_drape_shop_click", { product: drapeProduct.id })}
+        shopHref={drapeProduct.offers[0] ? `/go/${drapeProduct.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shade_drape&utm_medium=affiliate` : undefined}
+        onShop={() => {
+          track("shade_drape_shop_click", { product: drapeProduct.id });
+          track("affiliate_outbound_click", { retailer: "amazon", product: drapeProduct.id, surface: "shade_drape" });
+        }}
         onClose={() => setDraping(null)}
       />
     )}
@@ -265,7 +268,7 @@ export default function ShopClient() {
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
             onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop"})}
-          >Amazon ↗</a>}
+           >View exact product ↗</a>}
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
