@@ -128,7 +128,7 @@ export default function WishlistClient() {
 
       <Link className="wl-add" href="/shop"><span>+</span> Add more to your list {MARK.chevron}</Link>
 
-      <p className="wl-disc">Compare opens a live search at each retailer so you can check today&apos;s price before buying. As an Amazon Associate we earn from qualifying purchases.</p>
+      <p className="wl-disc">Amazon opens a live product search so you can check today&apos;s listing before buying. As an Amazon Associate we earn from qualifying purchases.</p>
     </div>
   );
 }
