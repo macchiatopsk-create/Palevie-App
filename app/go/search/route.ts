@@ -33,9 +33,7 @@ export async function GET(request: Request) {
   }
 
   const tone = (url.searchParams.get("tone") || "").slice(0, 40);
-  const rRaw = url.searchParams.get("r") || "amazon";
-  const RETAILERS: RetailerId[] = ["amazon","sephora","oliveyoung","yesstyle","target","walmart","iherb"];
-  const retailer: RetailerId = (RETAILERS as string[]).includes(rRaw) ? rRaw as RetailerId : "amazon";
+  const retailer: RetailerId = "amazon";
   const label = (url.searchParams.get("label") || "").slice(0, 60);
   const visitor = (url.searchParams.get("v") || request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
 
