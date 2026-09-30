@@ -1424,3 +1424,8 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
   .qp-body p{font-size:13px;margin-bottom:12px}
 }
 @media(prefers-reduced-motion:reduce){.qp-backdrop,.qp-modal{animation:none}}
+
+/* Amazon-first launch CTA */
+.sh-amazon{display:flex;align-items:center;justify-content:center;gap:7px;margin:12px 0 0;min-height:42px;border-radius:999px;background:#171316;color:#fff;font-size:12px;font-weight:750;letter-spacing:-.01em}
+.sh-amazon:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(23,19,22,.14)}
+.sh-amazon b{font-size:18px;font-weight:500;line-height:1}
