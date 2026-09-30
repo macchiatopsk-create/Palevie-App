@@ -256,7 +256,14 @@ export default function ShopClient() {
       </div>
       <div className="sh-meta">
         <b className="sh-brand">{p.brand}</b>
-        <h3>{p.name}</h3>
+        <h3>
+          <a
+            href={`/go/${p.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shop_title&utm_medium=affiliate`}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_title"})}
+          >{p.name}</a>
+        </h3>
         <div className="sh-line">
           {p.offers[0]?.priceLabel && <span className="sh-price">{p.offers[0].priceLabel}</span>}
           <button type="button" className={`sh-add${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)}>
@@ -268,7 +275,7 @@ export default function ShopClient() {
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
             onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop"})}
-           >View exact product ↗</a>}
+           >View on Amazon ↗</a>}
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
