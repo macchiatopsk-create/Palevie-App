@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/server/supabaseAdmin";
 import { retailerSearchUrl } from "@/lib/retailers";
-import type { RetailerId } from "@/lib/types";
 
 /**
  * Outbound redirect for wardrobe / styling search links.
@@ -33,9 +32,8 @@ export async function GET(request: Request) {
   }
 
   const tone = (url.searchParams.get("tone") || "").slice(0, 40);
-  const rRaw = url.searchParams.get("r") || "amazon";
-  const RETAILERS: RetailerId[] = ["amazon","sephora","oliveyoung","yesstyle","target","walmart","iherb"];
-  const retailer: RetailerId = (RETAILERS as string[]).includes(rRaw) ? rRaw as RetailerId : "amazon";
+  // Launch mode is Amazon-only. Old retailer links also resolve to Amazon.
+  const retailer = "amazon" as const;
   const label = (url.searchParams.get("label") || "").slice(0, 60);
   const visitor = (url.searchParams.get("v") || request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
 
