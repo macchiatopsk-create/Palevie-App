@@ -39,17 +39,10 @@ export function retailerSearchUrl(retailer: RetailerId, query: string): string {
   }
 }
 
-const KBEAUTY = new Set(["rom&nd","Peripera","CLIO","Etude","TIRTIR","Laneige","COSRX","Beauty of Joseon","Anua","Palevie Edit"]);
-const DRUGSTORE = new Set(["e.l.f.","Maybelline","NYX","Milani","Physicians Formula"]);
-const PRESTIGE = new Set(["Rare Beauty","NARS"]);
-
-/** Which retailers actually carry a brand — drives the price-compare row. */
-export function compareRetailersFor(brand: string): RetailerId[] {
-  if (KBEAUTY.has(brand)) return ["amazon","oliveyoung","yesstyle"];
-  if (DRUGSTORE.has(brand)) return ["amazon","target","walmart"];
-  if (PRESTIGE.has(brand)) return ["amazon","sephora"];
+/** Launch phase: every shopping CTA intentionally routes to Amazon only. */
+export function compareRetailersFor(_brand: string): RetailerId[] {
   return ["amazon"];
 }
 
-/** Clothing searches: general-merch retailers. */
-export const CLOTHING_RETAILERS: RetailerId[] = ["amazon","target","walmart"];
+/** Temporary launch mode: route all clothing shopping to Amazon only. */
+export const CLOTHING_RETAILERS: RetailerId[] = ["amazon"];
