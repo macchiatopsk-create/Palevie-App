@@ -2,7 +2,7 @@ import { CatalogProduct } from "@/lib/types";
 
 /**
  * Seed catalog: real branded retail products only; shade hexes are approximated from brand swatches.
- * Offers use Amazon search URLs until Associates tag + PA-API are approved.
+ * Seed entries may include Amazon search URLs, but the live catalog below exposes only manually verified direct product pages.
  */
 const seedCatalogProducts: CatalogProduct[] = [
   {
@@ -63,7 +63,7 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "lng-balm-berry", brand: "Laneige", name: "Lip Glowy Balm · Berry", category: "makeup", subcategory: "lip",
     description: "Cushiony berry balm for daily glow.", colorHex: "#C96A7E", tags: ["k-beauty"],
-    offers: [{ id: "of-lng-balm-berry", retailer: "amazon", url: "https://www.amazon.com/dp/B07DY2YZW6", priceLabel: "$18", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-lng-balm-berry", retailer: "amazon", url: "https://www.amazon.com/dp/B07DY2QRF6", priceLabel: "$18", currency: "USD", affiliateReady: true }],
   },
   {
     id: "rmd-cheek-peach", brand: "rom&nd", name: "Better Than Cheek · P01 Peach Whip", category: "makeup", subcategory: "blush",
@@ -138,7 +138,7 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "pf-butter-pearl", brand: "Physicians Formula", name: "Butter Highlighter · Pearl", category: "makeup", subcategory: "highlighter",
     description: "Creamy pearl butter glow.", colorHex: "#F3E6DC", tags: ["k-beauty"],
-    offers: [{ id: "of-pf-butter-pearl", retailer: "amazon", url: "https://www.amazon.com/s?k=physicians+formula+butter+highlighter+pearl", priceLabel: "$11", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-pf-butter-pearl", retailer: "amazon", url: "https://www.amazon.com/dp/B075K784FK", priceLabel: "$11", currency: "USD", affiliateReady: true }],
   },
   {
     id: "tirtir-21n", brand: "TIRTIR", name: "Mask Fit Red Cushion · 21N", category: "makeup", subcategory: "cushion",
@@ -213,11 +213,11 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "sk-cosrx-patch", brand: "COSRX", name: "Acne Pimple Master Patch", category: "skincare", subcategory: "treatment",
     description: "Hydrocolloid patches for an overnight spot.", tags: ["gentle", "fragrance-free", "smoother-looking"],
-    offers: [{ id: "of-cosrx-patch", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+acne+pimple+master+patch", priceLabel: "$6", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-cosrx-patch", retailer: "amazon", url: "https://www.amazon.com/dp/B01LWCQR59", priceLabel: "$6", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "mk-laneige-balm", brand: "Laneige", name: "Lip Sleeping Mask Untinted", category: "makeup", subcategory: "lip",
-    description: "Clear overnight lip balm, no color, no shine in daylight.", colorHex: "#E8C9BE",
+    id: "mk-laneige-balm", brand: "Laneige", name: "Lip Sleeping Mask", category: "makeup", subcategory: "lip",
+    description: "Overnight lip treatment mask for dry, flaky lips.", colorHex: "#E8C9BE",
     tags: ["balm", "fragrance-free", "gentle"],
     offers: [{ id: "of-laneige-balm", retailer: "amazon", url: "https://www.amazon.com/dp/B07XXPHQZK", priceLabel: "$24", currency: "USD", affiliateReady: true }],
   },
@@ -235,13 +235,14 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "elf-lipoil-rose",
   "lng-balm-berry",
   "mln-baked-lum",
-  "rare-pinch-joy",
   "nars-orgasm",
   "elf-bite-rose",
+  "pf-butter-pearl",
   "cosrx-snail",
   "boj-glow",
   "anua-toner",
   "sk-illiyoon-cream",
+  "sk-cosrx-patch",
   "mk-laneige-balm",
 ]);
 
