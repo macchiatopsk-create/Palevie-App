@@ -6,7 +6,7 @@ import { removeWishlistItem, syncWishlist } from "@/lib/cloudWishlist";
 import { STYLES, loadStyleDetail } from "@/lib/style";
 import { catalogProducts } from "@/data/products";
 import { loadProfile } from "@/lib/profile";
-import { retailers, compareRetailersFor, CLOTHING_RETAILERS } from "@/lib/retailers";
+import { retailers, CLOTHING_RETAILERS } from "@/lib/retailers";
 import { track, getVisitorId } from "@/lib/analytics";
 import { NAV_ICON, MARK } from "@/components/icons";
 
@@ -24,6 +24,8 @@ export default function WishlistClient() {
 
   const tone = typeof window !== "undefined" ? (() => { const pr = loadProfile(); return pr ? { id: pr.primaryType } : null; })() : null;
   if (items === null) return null;
+  // Hide retired catalog entries (including the old fictional Palevie Edit seeds).
+  const shownItems = items.filter(item => item.kind === "style" || catalogProducts.some(p => p.id === item.productId));
 
   function remove(id: string, label: string) {
     setItems(removeSaved(id));
@@ -47,11 +49,11 @@ export default function WishlistClient() {
         <b>My List</b>
         <small>Your saved beauty favorites.</small>
       </div>
-      <span className="wl-head-count">{items.length} item{items.length === 1 ? "" : "s"}</span>
+      <span className="wl-head-count">{shownItems.length} item{shownItems.length === 1 ? "" : "s"}</span>
     </div>
   );
 
-  if (items.length === 0) {
+  if (shownItems.length === 0) {
     return (
       <div className="wl">
         {head}
@@ -70,7 +72,7 @@ export default function WishlistClient() {
       {banner}
 
       <div className="wl-list">
-        {items.map(item => {
+        {shownItems.map(item => {
           if (item.kind === "style") {
             const budget = loadStyleDetail().budget;
             return (
@@ -102,11 +104,12 @@ export default function WishlistClient() {
                 <span>{p.name}</span>
                 <small>{p.subcategory}{p.offers[0]?.priceLabel ? ` · ${p.offers[0].priceLabel}` : ""}</small>
                 <div className="wl-compare">
-                  {compareRetailersFor(p.brand).map(r => {
-                    const rq = new URLSearchParams({ q: `${p.brand} ${p.name}`, label: p.name, r, surface: "wishlist_page", tone: tone?.id ?? "", v: getVisitorId() });
-                    return <a key={r} href={`/go/search?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
-                      onClick={() => track("affiliate_outbound_click", { retailer: r, product: p.id, surface: "wishlist_page" })}>{retailers[r].name}</a>;
-                  })}
+                  {p.offers[0] && (() => {
+                    const r = "amazon" as const;
+                    const rq = new URLSearchParams({ v: getVisitorId(), tone: tone?.id ?? "", utm_source: "wishlist", utm_medium: "affiliate" });
+                    return <a href={`/go/${p.offers[0].id}?${rq.toString()}`} target="_blank" rel="nofollow sponsored noopener noreferrer"
+                      onClick={() => track("affiliate_outbound_click", { retailer: r, product: p.id, surface: "wishlist_page" })}>Shop on {retailers[r].name}</a>;
+                  })()}
                 </div>
               </div>
               <button className="wl-heart" aria-label={`Remove ${p.name}`} onClick={() => remove(item.id, p.name)}>{NAV_ICON.heart}</button>
@@ -116,7 +119,7 @@ export default function WishlistClient() {
       </div>
 
       {(() => {
-        const cents = items.reduce((sum, it) => {
+        const cents = shownItems.reduce((sum, it) => {
           if (it.kind !== "product") return sum;
           const p = catalogProducts.find(c => c.id === it.productId);
           const c = p?.offers?.[0]?.priceCents;
@@ -128,7 +131,7 @@ export default function WishlistClient() {
 
       <Link className="wl-add" href="/shop"><span>+</span> Add more to your list {MARK.chevron}</Link>
 
-      <p className="wl-disc">Compare opens a live search at each retailer so you can check today&apos;s price before buying. As an Amazon Associate we earn from qualifying purchases.</p>
+      <p className="wl-disc">Shopping links currently go to Amazon only. As an Amazon Associate we earn from qualifying purchases.</p>
     </div>
   );
 }

@@ -1,44 +1,14 @@
 import { CatalogProduct } from "@/lib/types";
 
 /**
- * Seed catalog: real retail products, shade hexes approximated from brand swatches.
- * Offers use Amazon search URLs until Associates tag + PA-API are approved.
+ * Seed catalog: real branded retail products only; shade hexes are approximated from brand swatches.
+ * Seed entries may include Amazon search URLs, but the live catalog below exposes only manually verified direct product pages.
  */
-export const catalogProducts: CatalogProduct[] = [
-  {
-    id: "pv-tint", brand: "Palevie Edit", name: "Crystal Dew Tint", category: "makeup", subcategory: "lip",
-    description: "Glass-dew tint from the Palevie edit.", colorHex: "#C34664", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-tint", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+glossy+lip+tint", priceLabel: "$18.00", priceCents: 1800, currency: "USD", affiliateReady: true }],
-  },
-  {
-    id: "pv-palette", brand: "Palevie Edit", name: "Soft Glam Eyeshadow Palette", category: "makeup", subcategory: "eyeshadow",
-    description: "Ten soft-glam rose and bronze shades.", colorHex: "#C98F82", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-palette", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+eyeshadow+palette+rose", priceLabel: "$36.00", priceCents: 3600, currency: "USD", affiliateReady: true }],
-  },
-  {
-    id: "pv-blush", brand: "Palevie Edit", name: "Bloom Soft Blush", category: "makeup", subcategory: "blush",
-    description: "Petal-soft flush in a crystal compact.", colorHex: "#F09A93", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-blush", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+cream+blush+compact", priceLabel: "$20.00", priceCents: 2000, currency: "USD", affiliateReady: true }],
-  },
-  {
-    id: "pv-highlight", brand: "Palevie Edit", name: "Lumi Glow Highlighter", category: "makeup", subcategory: "highlighter",
-    description: "Liquid pearl for a lit-from-within glow.", colorHex: "#F3DCCE", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-highlight", retailer: "amazon", url: "https://www.amazon.com/s?k=liquid+highlighter+pearl+glow", priceLabel: "$22.00", priceCents: 2200, currency: "USD", affiliateReady: true }],
-  },
-  {
-    id: "pv-shimmer", brand: "Palevie Edit", name: "Glossy Shimmer", category: "makeup", subcategory: "gloss",
-    description: "Sparkling topper for any lip look.", colorHex: "#EFB7B0", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-shimmer", retailer: "amazon", url: "https://www.amazon.com/s?k=shimmer+lip+gloss+topper", priceLabel: "$16.00", priceCents: 1600, currency: "USD", affiliateReady: true }],
-  },
-  {
-    id: "pv-cushion", brand: "Palevie Edit", name: "Glow Fit Cushion", category: "makeup", subcategory: "cushion",
-    description: "Second-skin cushion with a dewy finish.", colorHex: "#F0D3BE", tags: ["palevie-edit"],
-    offers: [{ id: "of-pv-cushion", retailer: "amazon", url: "https://www.amazon.com/s?k=k+beauty+glow+cushion+foundation", priceLabel: "$28.00", priceCents: 2800, currency: "USD", affiliateReady: true }],
-  },
+const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "rmd-jlt-06", brand: "rom&nd", name: "Juicy Lasting Tint · 06 Figfig", category: "makeup", subcategory: "lip",
     description: "Glassy plum-rose tint that lasts through coffee.", colorHex: "#B04A60", tags: ["k-beauty"],
-    offers: [{ id: "of-rmd-jlt-06", retailer: "amazon", url: "https://www.amazon.com/s?k=romand+juicy+lasting+tint+06+figfig", priceLabel: "$11", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-rmd-jlt-06", retailer: "amazon", url: "https://www.amazon.com/dp/B081S1D7BP", priceLabel: "$11", currency: "USD", affiliateReady: true }],
   },
   {
     id: "rmd-jlt-09", brand: "rom&nd", name: "Juicy Lasting Tint · 09 Litchi Coral", category: "makeup", subcategory: "lip",
@@ -53,7 +23,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "rmd-jlt-25", brand: "rom&nd", name: "Juicy Lasting Tint · 25 Bare Grape", category: "makeup", subcategory: "lip",
     description: "Muted grape-mauve everyday shade.", colorHex: "#A05A6B", tags: ["k-beauty"],
-    offers: [{ id: "of-rmd-jlt-25", retailer: "amazon", url: "https://www.amazon.com/s?k=romand+juicy+lasting+tint+25+bare+grape", priceLabel: "$11", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-rmd-jlt-25", retailer: "amazon", url: "https://www.amazon.com/dp/B09242GH8Q", priceLabel: "$11", currency: "USD", affiliateReady: true }],
   },
   {
     id: "ppr-ink-17", brand: "Peripera", name: "Ink the Velvet · 17 Rosy Nude", category: "makeup", subcategory: "lip",
@@ -83,7 +53,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "elf-lipoil-rose", brand: "e.l.f.", name: "Glow Reviver Lip Oil · Rose Envy", category: "makeup", subcategory: "lip",
     description: "Sheer rose gloss-oil, comfy wear.", colorHex: "#C05A6E", tags: ["k-beauty"],
-    offers: [{ id: "of-elf-lipoil-rose", retailer: "amazon", url: "https://www.amazon.com/s?k=elf+glow+reviver+lip+oil+rose+envy", priceLabel: "$8", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-elf-lipoil-rose", retailer: "amazon", url: "https://www.amazon.com/dp/B0CMJZ8G6Y", priceLabel: "$8", currency: "USD", affiliateReady: true }],
   },
   {
     id: "nyx-smlc-istanbul", brand: "NYX", name: "Soft Matte Lip Cream · Istanbul", category: "makeup", subcategory: "lip",
@@ -93,7 +63,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "lng-balm-berry", brand: "Laneige", name: "Lip Glowy Balm · Berry", category: "makeup", subcategory: "lip",
     description: "Cushiony berry balm for daily glow.", colorHex: "#C96A7E", tags: ["k-beauty"],
-    offers: [{ id: "of-lng-balm-berry", retailer: "amazon", url: "https://www.amazon.com/s?k=laneige+lip+glowy+balm+berry", priceLabel: "$18", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-lng-balm-berry", retailer: "amazon", url: "https://www.amazon.com/dp/B07DY2QRF6", priceLabel: "$18", currency: "USD", affiliateReady: true }],
   },
   {
     id: "rmd-cheek-peach", brand: "rom&nd", name: "Better Than Cheek · P01 Peach Whip", category: "makeup", subcategory: "blush",
@@ -113,17 +83,17 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "rare-pinch-joy", brand: "Rare Beauty", name: "Soft Pinch Liquid Blush · Joy", category: "makeup", subcategory: "blush",
     description: "One dot of luminous peach joy.", colorHex: "#EE8A74", tags: ["k-beauty"],
-    offers: [{ id: "of-rare-pinch-joy", retailer: "amazon", url: "https://www.amazon.com/s?k=rare+beauty+soft+pinch+liquid+blush+joy", priceLabel: "$23", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-rare-pinch-joy", retailer: "amazon", url: "https://www.amazon.com/dp/B08KFPVVXY", priceLabel: "$23", currency: "USD", affiliateReady: true }],
   },
   {
     id: "mln-baked-lum", brand: "Milani", name: "Baked Blush · Luminoso", category: "makeup", subcategory: "blush",
     description: "Cult peachy-gold baked glow.", colorHex: "#F09A7E", tags: ["k-beauty"],
-    offers: [{ id: "of-mln-baked-lum", retailer: "amazon", url: "https://www.amazon.com/s?k=milani+baked+blush+luminoso", priceLabel: "$10", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-mln-baked-lum", retailer: "amazon", url: "https://www.amazon.com/dp/B00518N2JC", priceLabel: "$10", currency: "USD", affiliateReady: true }],
   },
   {
     id: "nars-orgasm", brand: "NARS", name: "Blush · Orgasm", category: "makeup", subcategory: "blush",
     description: "The iconic peachy-pink shimmer.", colorHex: "#E98E7E", tags: ["k-beauty"],
-    offers: [{ id: "of-nars-orgasm", retailer: "amazon", url: "https://www.amazon.com/s?k=nars+blush+orgasm", priceLabel: "$32", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-nars-orgasm", retailer: "amazon", url: "https://www.amazon.com/dp/B000PVPEFU", priceLabel: "$32", currency: "USD", affiliateReady: true }],
   },
   {
     id: "clio-pro-01", brand: "CLIO", name: "Pro Eye Palette · 01 Simply Pink", category: "makeup", subcategory: "eyeshadow",
@@ -143,7 +113,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "elf-bite-rose", brand: "e.l.f.", name: "Bite Size Eyeshadow · Rose Water", category: "makeup", subcategory: "eyeshadow",
     description: "Mini rose quad, big payoff.", colorHex: "#D5A3A8", tags: ["k-beauty"],
-    offers: [{ id: "of-elf-bite-rose", retailer: "amazon", url: "https://www.amazon.com/s?k=elf+bite+size+eyeshadow+rose+water", priceLabel: "$4", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-elf-bite-rose", retailer: "amazon", url: "https://www.amazon.com/dp/B085P2FL8B", priceLabel: "$4", currency: "USD", affiliateReady: true }],
   },
   {
     id: "etude-wine", brand: "Etude", name: "Play Color Eyes · Wine Party", category: "makeup", subcategory: "eyeshadow",
@@ -168,7 +138,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "pf-butter-pearl", brand: "Physicians Formula", name: "Butter Highlighter · Pearl", category: "makeup", subcategory: "highlighter",
     description: "Creamy pearl butter glow.", colorHex: "#F3E6DC", tags: ["k-beauty"],
-    offers: [{ id: "of-pf-butter-pearl", retailer: "amazon", url: "https://www.amazon.com/s?k=physicians+formula+butter+highlighter+pearl", priceLabel: "$11", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-pf-butter-pearl", retailer: "amazon", url: "https://www.amazon.com/dp/B075K784FK", priceLabel: "$11", currency: "USD", affiliateReady: true }],
   },
   {
     id: "tirtir-21n", brand: "TIRTIR", name: "Mask Fit Red Cushion · 21N", category: "makeup", subcategory: "cushion",
@@ -178,12 +148,12 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "cosrx-snail", brand: "COSRX", name: "Advanced Snail 96 Mucin Essence", category: "skincare", subcategory: "serum",
     description: "Hydration-first glow essence.", tags: ["hydration", "gentle", "lightweight", "barrier"],
-    offers: [{ id: "of-cosrx-snail", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+advanced+snail+96+mucin+power+essence", priceLabel: "$14", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-cosrx-snail", retailer: "amazon", url: "https://www.amazon.com/dp/B00PBX3L7K", priceLabel: "$14", currency: "USD", affiliateReady: true }],
   },
   {
     id: "boj-glow", brand: "Beauty of Joseon", name: "Glow Deep Serum", category: "skincare", subcategory: "serum",
     description: "Rice + alpha-arbutin brightening.", tags: ["brightening", "gentle", "lightweight"],
-    offers: [{ id: "of-boj-glow", retailer: "amazon", url: "https://www.amazon.com/s?k=beauty+of+joseon+glow+deep+serum", priceLabel: "$17", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-boj-glow", retailer: "amazon", url: "https://www.amazon.com/dp/B09DLFCB69", priceLabel: "$17", currency: "USD", affiliateReady: true }],
   },
   {
     id: "boj-sun", brand: "Beauty of Joseon", name: "Relief Sun SPF50+", category: "skincare", subcategory: "moisturizer",
@@ -193,7 +163,7 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "anua-toner", brand: "Anua", name: "Heartleaf 77% Soothing Toner", category: "skincare", subcategory: "toner",
     description: "Calming daily reset toner.", tags: ["gentle", "calming", "hydration", "fragrance-free"],
-    offers: [{ id: "of-anua-toner", retailer: "amazon", url: "https://www.amazon.com/s?k=anua+heartleaf+77+soothing+toner", priceLabel: "$18", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-anua-toner", retailer: "amazon", url: "https://www.amazon.com/dp/B08CMS8P67", priceLabel: "$18", currency: "USD", affiliateReady: true }],
   },
   {
     id: "lng-sleep", brand: "Laneige", name: "Water Sleeping Mask", category: "skincare", subcategory: "moisturizer",
@@ -238,18 +208,18 @@ export const catalogProducts: CatalogProduct[] = [
   {
     id: "sk-illiyoon-cream", brand: "Illiyoon", name: "Ceramide Ato Concentrate Cream", category: "skincare", subcategory: "moisturizer",
     description: "Unscented ceramide cream that works on face and body.", tags: ["barrier-support", "fragrance-free", "gentle", "hydration", "cream"],
-    offers: [{ id: "of-illiyoon-cream", retailer: "amazon", url: "https://www.amazon.com/s?k=illiyoon+ceramide+ato+concentrate+cream", priceLabel: "$16", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-illiyoon-cream", retailer: "amazon", url: "https://www.amazon.com/dp/B077RTL1HJ", priceLabel: "$16", currency: "USD", affiliateReady: true }],
   },
   {
     id: "sk-cosrx-patch", brand: "COSRX", name: "Acne Pimple Master Patch", category: "skincare", subcategory: "treatment",
     description: "Hydrocolloid patches for an overnight spot.", tags: ["gentle", "fragrance-free", "smoother-looking"],
-    offers: [{ id: "of-cosrx-patch", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+acne+pimple+master+patch", priceLabel: "$6", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-cosrx-patch", retailer: "amazon", url: "https://www.amazon.com/dp/B01LWCQR59", priceLabel: "$6", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "mk-laneige-balm", brand: "Laneige", name: "Lip Sleeping Mask Untinted", category: "makeup", subcategory: "lip",
-    description: "Clear overnight lip balm, no color, no shine in daylight.", colorHex: "#E8C9BE",
+    id: "mk-laneige-balm", brand: "Laneige", name: "Lip Sleeping Mask", category: "makeup", subcategory: "lip",
+    description: "Overnight lip treatment mask for dry, flaky lips.", colorHex: "#E8C9BE",
     tags: ["balm", "fragrance-free", "gentle"],
-    offers: [{ id: "of-laneige-balm", retailer: "amazon", url: "https://www.amazon.com/s?k=laneige+lip+sleeping+mask+untinted", priceLabel: "$24", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-laneige-balm", retailer: "amazon", url: "https://www.amazon.com/dp/B07XXPHQZK", priceLabel: "$24", currency: "USD", affiliateReady: true }],
   },
   {
     id: "mk-thesaem-stick", brand: "the SAEM", name: "Cover Perfection Concealer Stick", category: "makeup", subcategory: "base",
@@ -258,5 +228,31 @@ export const catalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-thesaem-stick", retailer: "amazon", url: "https://www.amazon.com/s?k=the+saem+cover+perfection+concealer+stick", priceLabel: "$9", currency: "USD", affiliateReady: true }],
   },
 ];
+
+const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
+  "rmd-jlt-06",
+  "rmd-jlt-25",
+  "elf-lipoil-rose",
+  "lng-balm-berry",
+  "mln-baked-lum",
+  "nars-orgasm",
+  "elf-bite-rose",
+  "pf-butter-pearl",
+  "cosrx-snail",
+  "boj-glow",
+  "anua-toner",
+  "sk-illiyoon-cream",
+  "sk-cosrx-patch",
+  "mk-laneige-balm",
+]);
+
+/**
+ * Until PA-API is approved, only surface products whose exact Amazon product page
+ * has been manually verified. Search-result URLs are intentionally excluded from
+ * the live recommendation catalog.
+ */
+export const catalogProducts: CatalogProduct[] = seedCatalogProducts.filter(
+  product => VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
+);
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
