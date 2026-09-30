@@ -259,6 +259,13 @@ export default function ShopClient() {
           <button type="button" className={`sh-add${wl.some(w=>w.id===productKey(p.id))?" on":""}`} onClick={()=>heart(p.id,p.name)}>
             {wl.some(w=>w.id===productKey(p.id))?"Saved":"+ Add"}
           </button>
+          {p.offers[0] && <a
+            className="sh-buy"
+            href={`/go/${p.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shop&utm_medium=affiliate`}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop"})}
+          >Amazon ↗</a>}
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
         </div>
