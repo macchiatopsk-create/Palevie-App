@@ -39,6 +39,8 @@ const allowed = new Set([
   "bio_consent_given",
   "member_setup_shown","member_setup_done","member_profile_updated",
   "shade_drape_opened","shade_drape_shop_click",
+  "welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed",
+  "drape_guide_shown","drape_guide_continued",
 ]);
 
 function safeProps(value: unknown) {
