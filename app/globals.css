@@ -1503,3 +1503,8 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
  .dg-overlay::-webkit-scrollbar{display:none}
  .dg-card{margin-bottom:6px}
 }
+
+@media(max-width:520px){
+ .dg-overlay{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+ .dg-card{margin-bottom:10px}
+}
