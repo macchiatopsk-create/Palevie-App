@@ -5,10 +5,12 @@ import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, confirmDrape, type ActId } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { getToneDetail } from "@/lib/toneDetail";
+import { catalogProducts } from "@/data/products";
+import { scoreColor, hexToRgb } from "@/lib/color";
 import { heroArt, activeTod } from "@/lib/heroArt";
 import type { TimeOfDay } from "@/lib/theme";
 import { saveProfile } from "@/lib/profile";
-import { track } from "@/lib/analytics";
+import { getVisitorId, track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 import ShareResult from "@/components/ShareResult";
 import { CAT_ICON, MARK } from "@/components/icons";
@@ -29,7 +31,7 @@ export default function QuizClient(){
  useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
  const q=QUIZ_QUESTIONS[step];
  const prevAct=step>0?QUIZ_QUESTIONS[step-1].act:null;
- const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=!queue&&step<4;
+ const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function advance(na:(number|null)[],ct:number[]){
   if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
@@ -123,10 +125,7 @@ export default function QuizClient(){
         </button>)}
     </div>
     <div className="qz-actions">
-    {!quickAdvance&&<button className="qz-next" disabled={selected===null} onClick={next}>
-     {step===QUIZ_QUESTIONS.length-1?"See my colors":"Next"} {MARK.chevron}
-    </button>}
-    <button className="qz-skip" disabled={autoAdvancing} onClick={skip}>{quickAdvance?"Not sure — skip":"Skip"}</button>
+    <button className="qz-skip" disabled={autoAdvancing} onClick={skip}>Not sure — skip</button>
     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
     </div>
    </>}
@@ -205,6 +204,27 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
  const id=result.ranked[0].id;
  const primary=useMemo(()=>getToneProfile(id),[id]);
  const detail=useMemo(()=>getToneDetail(id),[id]);
+ const amazonMatches=useMemo(()=>{
+  const ranked=catalogProducts
+   .filter(p=>p.category==="makeup"&&Boolean(p.colorHex)&&Boolean(p.offers[0]))
+   .map(p=>({...p,fit:scoreColor(hexToRgb(p.colorHex as string),primary).colorFit}))
+   .sort((a,b)=>b.fit-a.fit);
+  const picks:typeof ranked=[];
+  const seen=new Set<string>();
+  for(const p of ranked){
+   if(seen.has(p.subcategory))continue;
+   picks.push(p);seen.add(p.subcategory);
+   if(picks.length===3)break;
+  }
+  if(picks.length<3){
+   for(const p of ranked){
+    if(picks.some(x=>x.id===p.id))continue;
+    picks.push(p);
+    if(picks.length===3)break;
+   }
+  }
+  return picks;
+ },[primary]);
  const season=(primary.season||"Summer").toLowerCase() as "spring"|"summer"|"autumn"|"winter";
  const [tod,setTod]=useState<TimeOfDay>("day");
  useEffect(()=>{setTod(activeTod())},[]);
@@ -235,6 +255,36 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
    <div className="h2-cardhead"><b>Your {primary.name} palette</b></div>
    <div className="rs-chips">{primary.colors.slice(0,8).map(c=><i key={c} style={{background:c}}/>)}</div>
   </div>
+
+  {amazonMatches.length>0&&<section className="h2-card rs-amazon">
+   <div className="rs-amazon-head">
+    <div>
+     <span className="rs-eyebrow">{MARK.flower} Shop your result</span>
+     <h2>Your best Amazon matches</h2>
+     <p>Exact products picked from your {primary.name} palette.</p>
+    </div>
+   </div>
+   <div className="rs-amazon-grid">
+    {amazonMatches.map((p,i)=>{
+     const offer=p.offers[0];
+     const href=`/go/${offer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(id)}&utm_source=quiz_result&utm_medium=affiliate`;
+     return <article key={p.id} className="rs-amazon-item">
+      <div className="rs-amazon-rank">#{i+1}</div>
+      <div className="rs-amazon-swatch" style={{background:p.colorHex}} aria-hidden/>
+      <div className="rs-amazon-copy">
+       <small>{p.brand} · {p.subcategory}</small>
+       <b>{p.name}</b>
+       <p>{p.fit}% color match</p>
+      </div>
+      <a href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
+       onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"quiz_result",rank:i+1,tone:id})}>
+       View on Amazon {MARK.chevron}
+      </a>
+     </article>;
+    })}
+   </div>
+   <p className="rs-amazon-note">As an Amazon Associate, Palevie may earn from qualifying purchases.</p>
+  </section>}
 
   <div className="rs-duo">
    <div className="h2-card rs-names">
