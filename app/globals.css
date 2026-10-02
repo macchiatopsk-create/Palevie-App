@@ -1427,3 +1427,84 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
   .qp-body p{font-size:13px;margin-bottom:12px}
 }
 @media(prefers-reduced-motion:reduce){.qp-backdrop,.qp-modal{animation:none}}
+
+
+/* ── one-page draping guide ── */
+.dg-overlay{
+ display:block;
+ overflow-y:auto;
+ overflow-x:hidden;
+ -webkit-overflow-scrolling:touch;
+ touch-action:pan-y;
+ overscroll-behavior-y:auto;
+ padding:max(10px,env(safe-area-inset-top)) 10px max(22px,calc(env(safe-area-inset-bottom) + 14px));
+ background:rgba(253,249,248,.985)
+}
+.dg-card{
+ width:min(520px,100%);
+ max-height:none;
+ overflow:visible;
+ margin:0 auto;
+ border:1px solid #F7DCE4;
+ border-radius:26px;
+ background:#FFFDFC;
+ padding:20px;
+ box-shadow:0 20px 60px rgba(83,52,68,.13)
+}
+.dg-head{text-align:left}
+.dg-head .qz-act{margin:0 0 7px}
+.dg-head h2{font-family:var(--display);font-weight:600;font-size:clamp(29px,8vw,38px);line-height:1;letter-spacing:-.035em;color:#3B2B36;margin:0}
+.dg-head p{font-size:12.5px;line-height:1.55;color:#9B8490;margin:10px 0 14px}
+.dg-visual{border-radius:21px;overflow:hidden;background:#F8ECEA;border:1px solid #F8E0E4}
+.dg-visual svg{display:block;width:100%;height:auto}
+.dg-tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.dg-tips>div{display:flex;align-items:center;gap:9px;min-height:64px;padding:10px;border:1px solid #F8E2E7;border-radius:17px;background:#FFF9FA}
+.dg-ico{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#FCE8EE;color:#B96E85;font-size:18px;font-weight:700}
+.dg-tips p{margin:0;min-width:0}
+.dg-tips b{display:block;font-size:11px;line-height:1.25;color:#3B2B36}
+.dg-tips small{display:block;font-size:9.5px;line-height:1.35;color:#A38D98;margin-top:3px}
+.dg-avoid{margin-top:10px;padding:12px 14px;border-radius:18px;background:#FFF7F8;border:1px solid #F8E4E9}
+.dg-avoid>b{display:block;font-size:12px;color:#4C3742;margin-bottom:8px}
+.dg-avoid-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dg-avoid-grid span{text-align:center}
+.dg-bad{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 5px;border-radius:50%;font-style:normal;font-size:16px;position:relative}
+.dg-bad::after{content:"×";position:absolute;right:-2px;bottom:-1px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#EF718F;color:#fff;font-size:11px;font-weight:800;border:2px solid #FFF7F8}
+.dg-dark{background:#D8CBD0;color:#67555E}.dg-yellow{background:#F7D89A;color:#986C2C}.dg-cover{background:#E8D6D7;color:#8C6870}
+.dg-avoid-grid small{display:block;font-size:9px;line-height:1.25;color:#816D77;font-weight:650}
+.dg-go{width:100%;min-height:52px;margin-top:12px;border:0;border-radius:999px;background:linear-gradient(95deg,#F48DA8,#ED7F9D);color:#fff;font:inherit;font-size:14px;font-weight:750;cursor:pointer;box-shadow:0 8px 20px rgba(237,127,157,.25)}
+.dg-go:active{transform:scale(.985)}
+@media(max-width:420px){
+ .dg-card{padding:16px;border-radius:22px}
+ .dg-head h2{font-size:29px}
+ .dg-head p{margin-bottom:10px}
+ .dg-tips{gap:6px}
+ .dg-tips>div{min-height:58px;padding:8px}
+ .dg-ico{width:31px;height:31px;font-size:15px}
+ .dg-tips b{font-size:10.5px}.dg-tips small{font-size:9px}
+ .dg-avoid{padding:10px 12px}
+ .dg-bad{width:36px;height:36px}
+ .dg-go{min-height:48px}
+}
+@media(max-height:720px){
+ .dg-card{padding:14px}
+ .dg-head h2{font-size:27px}
+ .dg-head p{font-size:11.5px;margin:7px 0 9px}
+ .dg-visual svg{max-height:165px}
+ .dg-tips>div{min-height:52px}
+ .dg-avoid{margin-top:7px}
+ .dg-go{margin-top:8px}
+}
+
+
+/* Keep the draping guide on a single smooth scroll surface on mobile.
+   The overlay scrolls; the card itself never becomes a nested scroll container. */
+@media(max-width:560px){
+ .dg-overlay{scrollbar-width:none}
+ .dg-overlay::-webkit-scrollbar{display:none}
+ .dg-card{margin-bottom:6px}
+}
+
+@media(max-width:520px){
+ .dg-overlay{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+ .dg-card{margin-bottom:10px}
+}

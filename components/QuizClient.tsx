@@ -16,7 +16,7 @@ const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([]);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);
  useEffect(()=>{setSide(0);setFull(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
@@ -59,7 +59,13 @@ export default function QuizClient(){
  if(result)return <QuizResultView result={result} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
-  {actOpens&&!actSeen.includes(q.act)&&(
+  {actOpens&&!actSeen.includes(q.act)&&q.id==="jewelry"&&(
+   <DrapeGuide onContinue={()=>{
+    track("drape_guide_continued",{step:step+1});
+    setActSeen(a=>[...a,q.act]);
+   }}/>
+  )}
+  {actOpens&&!actSeen.includes(q.act)&&q.id!=="jewelry"&&(
    <div className="qz-inter">
     <div className="qz-inter-card">
      <span className="rs-eyebrow">{MARK.flower} Step {q.act} of 3</span>
@@ -118,6 +124,73 @@ export default function QuizClient(){
     </div>
    </>}
   </div>
+ </div>;
+}
+
+
+function DrapeGuide({onContinue}:{onContinue:()=>void}){
+ useEffect(()=>{track("drape_guide_shown",{surface:"quiz",step:5})},[]);
+ return <div className="qz-inter dg-overlay">
+  <section className="dg-card" role="dialog" aria-modal="true" aria-labelledby="dg-title">
+   <div className="dg-head">
+    <span className="qz-act">Step 2 of 3 · Draping</span>
+    <h2 id="dg-title">Before you start draping</h2>
+    <p>Follow these quick tips for the most accurate result.</p>
+   </div>
+
+   <div className="dg-visual" aria-label="Illustration showing the phone screen held beside the cheek in natural light">
+    <svg viewBox="0 0 360 205" role="img" aria-hidden="true">
+     <defs>
+      <linearGradient id="dgBg" x1="0" y1="0" x2="1" y2="1">
+       <stop offset="0" stopColor="#FFF8F3"/>
+       <stop offset="1" stopColor="#F5E5E5"/>
+      </linearGradient>
+      <linearGradient id="dgSkin" x1="0" y1="0" x2="1" y2="1">
+       <stop offset="0" stopColor="#F1C9B2"/>
+       <stop offset="1" stopColor="#E8BCA7"/>
+      </linearGradient>
+     </defs>
+     <rect x="0" y="0" width="360" height="205" rx="24" fill="url(#dgBg)"/>
+     <path d="M0 0h94c-8 34-35 51-94 58z" fill="#FFFDF8" opacity=".82"/>
+     <circle cx="42" cy="38" r="13" fill="#FFF8F1" stroke="#C9879B" strokeWidth="2"/>
+     <g stroke="#C9879B" strokeWidth="2" strokeLinecap="round">
+      <path d="M42 16v8M42 52v8M20 38h8M56 38h8M27 23l6 6M51 47l6 6M57 23l-6 6M33 47l-6 6"/>
+     </g>
+     <path d="M141 76c2-37 24-58 58-58 36 0 60 25 60 62v30c0 42-24 73-60 73-33 0-59-28-59-69z" fill="#5D443E"/>
+     <ellipse cx="202" cy="102" rx="48" ry="63" fill="url(#dgSkin)"/>
+     <path d="M157 86c8-42 31-59 63-53 23 4 40 19 45 44-28-11-59-9-88 11-6 4-13 4-20-2z" fill="#6B5049"/>
+     <path d="M164 147c-15 8-27 23-34 43h139c-7-21-21-36-39-44-17 12-48 13-66 1z" fill="#FFFDFC"/>
+     <path d="M157 101c-7 4-10 10-9 18 1 7 6 11 12 11" fill="none" stroke="#D9A792" strokeWidth="2"/>
+     <rect x="245" y="75" width="48" height="88" rx="10" fill="#4B4142" transform="rotate(7 269 119)"/>
+     <rect x="250" y="81" width="38" height="75" rx="7" fill="#E3B966" transform="rotate(7 269 119)"/>
+     <path d="M270 143c12-2 20 1 24 9 4 7 3 17-1 28" fill="none" stroke="#E2B39F" strokeWidth="10" strokeLinecap="round"/>
+     <path d="M113 45c23-12 48-13 70-4" fill="none" stroke="#D49AAF" strokeWidth="2.5" strokeLinecap="round"/>
+     <path d="M112 46l9-10M112 46l13 2" fill="none" stroke="#D49AAF" strokeWidth="2.5" strokeLinecap="round"/>
+     <text x="80" y="31" fill="#A76C81" fontFamily="Poppins, sans-serif" fontSize="10" fontWeight="600">Natural light</text>
+     <text x="281" y="54" fill="#A76C81" fontFamily="Poppins, sans-serif" fontSize="10" fontWeight="600">By your cheek</text>
+     <path d="M309 60c-3 15-8 24-18 31" fill="none" stroke="#D49AAF" strokeWidth="2.2" strokeLinecap="round"/>
+     <path d="M289 86l1 9 8-4" fill="none" stroke="#D49AAF" strokeWidth="2.2" strokeLinecap="round"/>
+    </svg>
+   </div>
+
+   <div className="dg-tips">
+    <div><span className="dg-ico">☀</span><p><b>Good natural light</b><small>Near a window if possible.</small></p></div>
+    <div><span className="dg-ico">◯</span><p><b>Full face visible</b><small>Keep hair off your face.</small></p></div>
+    <div><span className="dg-ico">▯</span><p><b>Screen by your cheek</b><small>Compare colors next to skin.</small></p></div>
+    <div><span className="dg-ico">⊘</span><p><b>No filters or shadows</b><small>Use your normal camera view.</small></p></div>
+   </div>
+
+   <div className="dg-avoid">
+    <b>Avoid</b>
+    <div className="dg-avoid-grid">
+     <span><i className="dg-bad dg-dark">◼</i><small>Dark room</small></span>
+     <span><i className="dg-bad dg-yellow">●</i><small>Yellow lighting</small></span>
+     <span><i className="dg-bad dg-cover">◒</i><small>Face covered</small></span>
+    </div>
+   </div>
+
+   <button className="dg-go" type="button" onClick={onContinue}>Got it — Start draping {MARK.chevron}</button>
+  </section>
  </div>;
 }
 
