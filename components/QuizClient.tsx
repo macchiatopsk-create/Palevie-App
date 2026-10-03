@@ -5,10 +5,12 @@ import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, confirmDrape, type ActId } from "@/lib/quiz";
 import { getToneProfile } from "@/lib/palettes";
 import { getToneDetail } from "@/lib/toneDetail";
+import { catalogProducts } from "@/data/products";
+import { scoreColor, hexToRgb } from "@/lib/color";
 import { heroArt, activeTod } from "@/lib/heroArt";
 import type { TimeOfDay } from "@/lib/theme";
 import { saveProfile } from "@/lib/profile";
-import { track } from "@/lib/analytics";
+import { getVisitorId, track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 import ShareResult from "@/components/ShareResult";
 import { CAT_ICON, MARK } from "@/components/icons";
@@ -16,8 +18,8 @@ const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);
- useEffect(()=>{setSide(0);setFull(false)},[step]);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);const [autoAdvancing,setAutoAdvancing]=useState(false);
+ useEffect(()=>{setSide(0);setFull(false);setAutoAdvancing(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
   return()=>{document.body.classList.remove("quiz-focus")}},[result,pending]);
@@ -29,7 +31,7 @@ export default function QuizClient(){
  useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
  const q=QUIZ_QUESTIONS[step];
  const prevAct=step>0?QUIZ_QUESTIONS[step-1].act:null;
- const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);
+ const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function advance(na:(number|null)[],ct:number[]){
   if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
@@ -38,6 +40,14 @@ export default function QuizClient(){
   if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1); else finish(na,ct);
  }
  function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);const ct=cantTell.filter(i=>i!==step);setCantTell(ct);track("quiz_answered",{question:q.id,step:step+1});advance(na,ct)}
+ function chooseAndAutoNext(idx:number){
+  if(autoAdvancing)return;
+  const na=[...answers];na[step]=idx;setAnswers(na);
+  const ct=cantTell.filter(i=>i!==step);setCantTell(ct);
+  track("quiz_answered",{question:q.id,step:step+1});
+  setAutoAdvancing(true);
+  window.setTimeout(()=>advance(na,ct),260);
+ }
  function next(){if(selected===null)return;advance(answers,cantTell)}
  /** Skip stores nothing: the engine scores what was answered and reports the gap. */
  function skip(){const na=[...answers];na[step]=null;setAnswers(na);advance(na,cantTell)}
@@ -76,8 +86,7 @@ export default function QuizClient(){
    </div>)}
   <div className="h2-card qz-card" id="qz-card">
    <div className="qz-prog">
-    <span className="qz-count"><b>{step+1}</b> / {QUIZ_QUESTIONS.length}</span>
-    <div className="qz-bar"><i style={{width:`${progress}%`}}/></div>
+    <div className="qz-bar" role="progressbar" aria-label="Quiz progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{width:`${progress}%`}}/></div>
    </div>
 
    <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
@@ -107,19 +116,16 @@ export default function QuizClient(){
    <>
     <div className={q.options.some(o=>o.tone||o.img)?"qz-tones":"qz-opts"}>{q.options.map((o,idx)=>
      o.tone||o.img
-      ? <button key={o.label} className={`qz-tone ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+      ? <button key={o.label} className={`qz-tone ${selected===idx?"on":""}`} disabled={autoAdvancing} onClick={()=>quickAdvance?chooseAndAutoNext(idx):choose(idx)}>
          <span className="qz-tone-tile" style={{background:o.tone}} aria-hidden/>
          <span className="qz-tone-tx">{o.label}<i/></span>
         </button>
-      : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} onClick={()=>choose(idx)}>
+      : <button key={o.label} className={`qz-opt ${selected===idx?"on":""}`} disabled={autoAdvancing} onClick={()=>quickAdvance?chooseAndAutoNext(idx):choose(idx)}>
          <span>{o.label}</span><i/>
         </button>)}
     </div>
     <div className="qz-actions">
-    <button className="qz-next" disabled={selected===null} onClick={next}>
-     {step===QUIZ_QUESTIONS.length-1?"See my colors":"Next"} {MARK.chevron}
-    </button>
-    <button className="qz-skip" onClick={skip}>Skip</button>
+    <button className="qz-skip" disabled={autoAdvancing} onClick={skip}>Not sure — skip</button>
     {step>0 && <button className="dr-prev" onClick={()=>setStep(st=>st-1)}>{MARK.back} Previous question</button>}
     </div>
    </>}
@@ -198,6 +204,27 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
  const id=result.ranked[0].id;
  const primary=useMemo(()=>getToneProfile(id),[id]);
  const detail=useMemo(()=>getToneDetail(id),[id]);
+ const amazonMatches=useMemo(()=>{
+  const ranked=catalogProducts
+   .filter(p=>p.category==="makeup"&&Boolean(p.colorHex)&&Boolean(p.offers[0]))
+   .map(p=>({...p,fit:scoreColor(hexToRgb(p.colorHex as string),primary).colorFit}))
+   .sort((a,b)=>b.fit-a.fit);
+  const picks:typeof ranked=[];
+  const seen=new Set<string>();
+  for(const p of ranked){
+   if(seen.has(p.subcategory))continue;
+   picks.push(p);seen.add(p.subcategory);
+   if(picks.length===3)break;
+  }
+  if(picks.length<3){
+   for(const p of ranked){
+    if(picks.some(x=>x.id===p.id))continue;
+    picks.push(p);
+    if(picks.length===3)break;
+   }
+  }
+  return picks;
+ },[primary]);
  const season=(primary.season||"Summer").toLowerCase() as "spring"|"summer"|"autumn"|"winter";
  const [tod,setTod]=useState<TimeOfDay>("day");
  useEffect(()=>{setTod(activeTod())},[]);
@@ -228,6 +255,36 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
    <div className="h2-cardhead"><b>Your {primary.name} palette</b></div>
    <div className="rs-chips">{primary.colors.slice(0,8).map(c=><i key={c} style={{background:c}}/>)}</div>
   </div>
+
+  {amazonMatches.length>0&&<section className="h2-card rs-amazon">
+   <div className="rs-amazon-head">
+    <div>
+     <span className="rs-eyebrow">{MARK.flower} Shop your result</span>
+     <h2>Your best Amazon matches</h2>
+     <p>Exact products picked from your {primary.name} palette.</p>
+    </div>
+   </div>
+   <div className="rs-amazon-grid">
+    {amazonMatches.map((p,i)=>{
+     const offer=p.offers[0];
+     const href=`/go/${offer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(id)}&utm_source=quiz_result&utm_medium=affiliate`;
+     return <article key={p.id} className="rs-amazon-item">
+      <div className="rs-amazon-rank">#{i+1}</div>
+      <div className="rs-amazon-swatch" style={{background:p.colorHex}} aria-hidden/>
+      <div className="rs-amazon-copy">
+       <small>{p.brand} · {p.subcategory}</small>
+       <b>{p.name}</b>
+       <p>{p.fit}% color match</p>
+      </div>
+      <a href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
+       onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"quiz_result",rank:i+1,tone:id})}>
+       View on Amazon {MARK.chevron}
+      </a>
+     </article>;
+    })}
+   </div>
+   <p className="rs-amazon-note">As an Amazon Associate, Palevie may earn from qualifying purchases.</p>
+  </section>}
 
   <div className="rs-duo">
    <div className="h2-card rs-names">
