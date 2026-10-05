@@ -13,6 +13,7 @@ import { saveProfile } from "@/lib/profile";
 import { getVisitorId, track } from "@/lib/analytics";
 import { syncColorProfileToCloud, saveQuizResultToCloud } from "@/lib/cloudProfile";
 import ShareResult from "@/components/ShareResult";
+import IosInstallPrompt from "@/components/IosInstallPrompt";
 import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
@@ -229,6 +230,7 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
  const [tod,setTod]=useState<TimeOfDay>("day");
  useEffect(()=>{setTod(activeTod())},[]);
  return <div className="rs" data-season={season}>
+  <IosInstallPrompt />
   <section className="rs-hero">
    <div className="rs-hero-art" aria-hidden style={{backgroundImage:`url('${heroArt(season,tod)}')`}}/>
    <div className="rs-hero-tx">
