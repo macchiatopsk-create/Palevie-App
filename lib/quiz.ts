@@ -29,7 +29,7 @@ export type QuizOption = {
 export type ActId = 1 | 2 | 3;
 export const ACTS: Record<ActId, { label: string; intro: string }> = {
   1: { label: "About you", intro: "First, answer a few easy things you can see in the mirror." },
-  2: { label: "Color check", intro: "Now compare colors. Hold your phone beside your cheek in good light and see which color makes your face look better." },
+  2: { label: "Draping", intro: "Now try draping. Hold your phone beside your cheek in good light and pick the color that makes your face look better." },
   3: { label: "Last check", intro: "A few more easy questions will help pick your closest color type." },
 };
 
@@ -140,22 +140,22 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   { id: "white", act: 2, kind: "drape", text: "Which white makes your face look fresher?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Creamy white", hex: "#FAF1DC", t: 1.5 },
+      { label: "Ivory (creamy white)", hex: "#FAF1DC", t: 1.5 },
       { label: "Pure white", hex: "#FFFFFF", t: -1.5, k: 0.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "worst", act: 2, kind: "drape", text: "Which pink looks better on you?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Coral pink", hex: "#FF8A70", t: 1.5 },
+      { label: "Warm coral (coral pink)", hex: "#FF8A70", t: 1.5 },
       { label: "Cool pink", hex: "#F06CA0", t: -1.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "lip", act: 2, kind: "drape", text: "Which red makes your face look brighter?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Warm red", hex: "#E8442E", t: 1.5 },
-      { label: "Cool berry red", hex: "#C2185B", t: -1.5 },
+      { label: "Tomato red (warm red)", hex: "#E8442E", t: 1.5 },
+      { label: "Berry red (cool red)", hex: "#C2185B", t: -1.5 },
       { label: "Honestly can't tell" },
     ]},
 
@@ -186,15 +186,15 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   { id: "depth", act: 2, kind: "drape", text: "Which color looks better next to your face?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Light soft pink", hex: "#F6CFD8", v: 2 },
-      { label: "Dark red", hex: "#6E2136", v: -2 },
+      { label: "Soft powder pink (light pink)", hex: "#F6CFD8", v: 2 },
+      { label: "Deep burgundy (dark red)", hex: "#6E2136", v: -2 },
       { label: "Honestly can't tell" },
     ]},
   { id: "vividness", act: 2, kind: "drape", text: "Which color looks more natural on you?",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
-      { label: "Bright hot pink", hex: "#E9339B", c: 2, k: 0.5 },
-      { label: "Soft dusty pink", hex: "#B08699", c: -2, k: -0.5 },
+      { label: "Vivid fuchsia (bright hot pink)", hex: "#E9339B", c: 2, k: 0.5 },
+      { label: "Dusty mauve (soft dusty pink)", hex: "#B08699", c: -2, k: -0.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "yellow", act: 2, kind: "drape", text: "Which yellow looks better on your skin?",
@@ -208,21 +208,21 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     help: "Pick the one that blends better with your skin instead of looking separate.",
     options: [
       { label: "Olive green", hex: "#8A8B5C", t: 1, c: -1 },
-      { label: "Pink beige", hex: "#C9A099", t: -0.5, c: 0.5 },
+      { label: "Rose beige (pink beige)", hex: "#C9A099", t: -0.5, c: 0.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "neutralTemp", act: 2, kind: "drape", text: "Which simple color looks better on you?",
     help: "Look at your face, not the color. Pick the one that makes your skin look clearer.",
     options: [
-      { label: "Dark gray", hex: "#4A4A52", t: -1.5, v: -1, k: 1 },
-      { label: "Warm tan brown", hex: "#A9784E", t: 1.5, c: 0.5 },
+      { label: "Charcoal gray (dark gray)", hex: "#4A4A52", t: -1.5, v: -1, k: 1 },
+      { label: "Camel brown (warm tan brown)", hex: "#A9784E", t: 1.5, c: 0.5 },
       { label: "Honestly can't tell" },
     ]},
   { id: "recheck", act: 2, kind: "drape", text: "One more color check:",
     help: "In a mirror, hold the screen beside your cheek in good light — like a pro draping session.",
     options: [
       { label: "Peach", hex: "#F2B79A", t: 1.5, v: 1 },
-      { label: "Light purple", hex: "#B9A5D9", t: -1.5, v: 1 },
+      { label: "Lavender (light purple)", hex: "#B9A5D9", t: -1.5, v: 1 },
       { label: "Honestly can't tell" },
     ]},
 
@@ -240,7 +240,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "A little", k: 0 },
       { label: "No — they blend together softly", k: -1.5, v: 0.5 },
     ]},
-  { id: "confirm", act: 3, kind: "drape", text: "Last color check — which one looks better on you?",
+  { id: "confirm", act: 3, kind: "drape", text: "Last drape — which one looks better on you?",
     help: "We picked these two from your answers. Choose the one that makes your face look better.",
     options: [
       { label: "Softer", hex: "#C3A3B5", c: -1.5 },
