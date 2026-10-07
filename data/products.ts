@@ -367,9 +367,46 @@ const seedCatalogProducts: CatalogProduct[] = [
     description: "Blush in Bold-Faced Lilac. Displayed shade is approximate; color on skin varies.", colorHex: "#D17B98", tags: [],
     offers: [{ id: "of-elf-camo-bold-faced-lilac", retailer: "amazon", url: "https://www.amazon.com/dp/B0DFMXLWN2", currency: "USD", affiliateReady: true }],
   },
+  {
+    id: "loreal-miss-magenta", brand: "L’Oréal Paris", name: "Colour Riche · Miss Magenta", category: "makeup", subcategory: "lip",
+    description: "Colour Riche · Miss Magenta. Displayed shade is approximate; color on skin varies.", colorHex: "#CA2B62", tags: [],
+    offers: [{ id: "of-loreal-miss-magenta", retailer: "amazon", url: "https://www.amazon.com/dp/B00EIA4JA0", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "clinique-punch-pop-shine", brand: "Clinique", name: "Pop Longwear · Punch Pop - Shine", category: "makeup", subcategory: "lip",
+    description: "Pop Longwear · Punch Pop - Shine. Displayed shade is approximate; color on skin varies.", colorHex: "#CC2760", tags: [],
+    offers: [{ id: "of-clinique-punch-pop-shine", retailer: "amazon", url: "https://www.amazon.com/dp/B0CVBCKLPD", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-liquid-suede-amethyst", brand: "NYX Professional Makeup", name: "Liquid Suede Cream Lipstick · Amethyst", category: "makeup", subcategory: "lip",
+    description: "Liquid Suede Cream Lipstick · Amethyst. Displayed shade is approximate; color on skin varies.", colorHex: "#4F0D67", tags: [],
+    offers: [{ id: "of-nyx-liquid-suede-amethyst", retailer: "amazon", url: "https://www.amazon.com/dp/B013S18G3A", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-plum-intended", brand: "e.l.f.", name: "Soft Glam Cream Blush Stick · Plum Intended", category: "makeup", subcategory: "blush",
+    description: "Soft Glam Cream Blush Stick · Plum Intended. Displayed shade is approximate; color on skin varies.", colorHex: "#7E3747", tags: [],
+    offers: [{ id: "of-elf-plum-intended", retailer: "amazon", url: "https://www.amazon.com/dp/B0GVGD8KF1", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-pinky-promise", brand: "e.l.f.", name: "Camo Liquid Blush · Pinky Promise", category: "makeup", subcategory: "blush",
+    description: "Camo Liquid Blush · Pinky Promise. Displayed shade is approximate; color on skin varies.", colorHex: "#F45B6D", tags: [],
+    offers: [{ id: "of-elf-pinky-promise", retailer: "amazon", url: "https://www.amazon.com/dp/B0054KM1FS", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-comin-in-hot-pink", brand: "e.l.f.", name: "Camo Liquid Blush · Comin’ In Hot Pink", category: "makeup", subcategory: "blush",
+    description: "Camo Liquid Blush · Comin’ In Hot Pink. Displayed shade is approximate; color on skin varies.", colorHex: "#EE355E", tags: [],
+    offers: [{ id: "of-elf-comin-in-hot-pink", retailer: "amazon", url: "https://www.amazon.com/dp/B0CPFX8Z72", currency: "USD", affiliateReady: true }],
+  },
 ];
 
 const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
+  "loreal-miss-magenta",
+  "clinique-punch-pop-shine",
+  "nyx-liquid-suede-amethyst",
+  "elf-plum-intended",
+  "elf-pinky-promise",
+  "elf-comin-in-hot-pink",
+
   "elf-camo-bold-faced-lilac",
   "elf-putty-tahiti",
   "nyx-smlc-istanbul",
