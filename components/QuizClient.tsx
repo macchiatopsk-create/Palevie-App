@@ -91,6 +91,7 @@ export default function QuizClient(){
    </div>
 
    <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
+   {step===0&&<p className="qz-start-note">21 quick questions · No filters, no signup · Tap an answer to start.</p>}
    <h2 className="qz-q">{q.text}</h2>
    {q.help&&<p className="qz-help">{q.id==="confirm"
      ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`
