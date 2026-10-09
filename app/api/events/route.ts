@@ -41,6 +41,7 @@ const allowed = new Set([
   "shade_drape_opened","shade_drape_shop_click",
   "welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed",
   "drape_guide_shown","drape_guide_continued",
+  "drape_mode_selected","drape_camera_started","drape_camera_error","drape_camera_color_switched",
 ]);
 
 function safeProps(value: unknown) {
