@@ -205,6 +205,11 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
   streamRef.current=null;
  }
  useEffect(()=>()=>stopCamera(),[]);
+ useEffect(()=>{
+  if(status!=="live"||!videoRef.current||!streamRef.current)return;
+  videoRef.current.srcObject=streamRef.current;
+  void videoRef.current.play();
+ },[status]);
 
  async function startCamera(){
   if(!navigator.mediaDevices?.getUserMedia){
@@ -222,10 +227,6 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
     audio:false
    });
    streamRef.current=stream;
-   if(videoRef.current){
-    videoRef.current.srcObject=stream;
-    await videoRef.current.play();
-   }
    setStatus("live");
    track("drape_camera_started",{surface:"quiz"});
   }catch(err){
