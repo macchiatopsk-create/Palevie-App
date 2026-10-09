@@ -12,7 +12,8 @@ export type AnalyticsEventName =
   | "skincare_profile_completed" | "shop_viewed"
   | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed"
   | "welcome_quiz_popup_shown" | "welcome_quiz_popup_cta" | "welcome_quiz_popup_dismissed"
-  | "drape_guide_shown" | "drape_guide_continued";
+  | "drape_guide_shown" | "drape_guide_continued"
+  | "drape_mode_selected" | "drape_camera_started" | "drape_camera_error" | "drape_camera_color_switched";
 
 type StoredEvent = { id: string; name: AnalyticsEventName; ts: string; props: Record<string, unknown> };
 const EVENTS_KEY = "palevie-events-v1";
