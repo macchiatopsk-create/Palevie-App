@@ -1,5 +1,5 @@
 "use client";
-import { useEffect,useMemo,useState } from "react";
+import { useEffect,useMemo,useRef,useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS, scoreQuiz, QuizResult, ACTS, confirmDrape, type ActId } from "@/lib/quiz";
@@ -19,7 +19,7 @@ const STATE_KEY="palevie-quiz-state-v1";
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);const [autoAdvancing,setAutoAdvancing]=useState(false);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);const [autoAdvancing,setAutoAdvancing]=useState(false);const [drapeMode,setDrapeMode]=useState<"camera"|"mirror"|null>(null);
  useEffect(()=>{setSide(0);setFull(false);setAutoAdvancing(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
@@ -71,8 +71,10 @@ export default function QuizClient(){
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
   {actOpens&&!actSeen.includes(q.act)&&q.id==="jewelry"&&(
-   <DrapeGuide onContinue={()=>{
-    track("drape_guide_continued",{step:step+1});
+   <DrapeGuide onSelect={(mode)=>{
+    track("drape_guide_continued",{step:step+1,mode});
+    track("drape_mode_selected",{mode,step:step+1});
+    setDrapeMode(mode);
     setActSeen(a=>[...a,q.act]);
    }}/>
   )}
@@ -95,12 +97,23 @@ export default function QuizClient(){
    <h2 className="qz-q">{q.text}</h2>
    {q.help&&<p className="qz-help">{q.id==="confirm"
      ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`
-     : q.help}</p>}
+     : drapeMode==="camera"&&q.kind==="drape"
+       ? "Use the live selfie preview and switch between the two colors. Pick the one that makes your face look clearer and healthier."
+       : q.help}</p>}
 
-   {q.kind==="drape" ? (()=>{const opts=q.id==="confirm"?confirmDrape(answers).options:q.options;const sw=opts.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=opts.indexOf(cur);const neutral=opts.findIndex(o=>!o.hex);
+   {q.kind==="drape" ? (()=>{const opts=q.id==="confirm"?confirmDrape(answers).options:q.options;const sw=opts.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=opts.indexOf(cur);
     const toggle=<div className="dr-toggle">{sw.map((o,i)=><button key={o.label} className={side===i?"on":""} onPointerDown={()=>setSide(i)}>{o.label}</button>)}</div>;
-    const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>{MARK.check} This one suits me</button>;
+    const pick=<button className="dr-pick" onPointerDown={()=>{setFull(false);chooseAndNext(curIdx)}}>{MARK.check} This looks better</button>;
     const cant=<button className="qz-skip dr-skip" onPointerDown={()=>{setFull(false);cannotTell()}}>Honestly can&apos;t tell</button>;
+    if(drapeMode==="camera")return <CameraDrape
+      colors={sw.map(o=>({label:o.label,hex:o.hex as string}))}
+      side={side}
+      onSide={setSide}
+      onPick={()=>chooseAndNext(curIdx)}
+      onCant={cannotTell}
+      onPrev={step>0?()=>setStep(st=>st-1):undefined}
+      onUseMirror={()=>setDrapeMode("mirror")}
+    />;
     return <div className="dr">
      <div className="dr-swatch" style={{background:cur.hex}}>
       <button className="dr-expand" onClick={()=>setFull(true)} aria-label="Fill the screen">{MARK.expand} Fill screen</button>
@@ -136,71 +149,141 @@ export default function QuizClient(){
 }
 
 
-function DrapeGuide({onContinue}:{onContinue:()=>void}){
+function DrapeGuide({onSelect}:{onSelect:(mode:"camera"|"mirror")=>void}){
  useEffect(()=>{track("drape_guide_shown",{surface:"quiz",step:5})},[]);
  return <div className="qz-inter dg-overlay">
   <section className="dg-card" role="dialog" aria-modal="true" aria-labelledby="dg-title">
    <div className="dg-head">
     <span className="qz-act">Step 2 of 3 · Draping</span>
-    <h2 id="dg-title">Before you start draping</h2>
-    <p>Follow these quick tips for the most accurate result.</p>
+    <h2 id="dg-title">Choose how you want to drape</h2>
+    <p>Compare colors next to your face. The front camera is the easiest option when you do not have a mirror nearby.</p>
    </div>
 
-   <div className="dg-visual" aria-label="Illustration showing the phone screen held beside the cheek in natural light">
-    <svg viewBox="0 0 360 205" role="img" aria-hidden="true">
-     <defs>
-      <linearGradient id="dgBg" x1="0" y1="0" x2="1" y2="1">
-       <stop offset="0" stopColor="#FFF8F3"/>
-       <stop offset="1" stopColor="#F5E5E5"/>
-      </linearGradient>
-      <linearGradient id="dgSkin" x1="0" y1="0" x2="1" y2="1">
-       <stop offset="0" stopColor="#F1C9B2"/>
-       <stop offset="1" stopColor="#E8BCA7"/>
-      </linearGradient>
-     </defs>
-     <rect x="0" y="0" width="360" height="205" rx="24" fill="url(#dgBg)"/>
-     <path d="M0 0h94c-8 34-35 51-94 58z" fill="#FFFDF8" opacity=".82"/>
-     <circle cx="42" cy="38" r="13" fill="#FFF8F1" stroke="#C9879B" strokeWidth="2"/>
-     <g stroke="#C9879B" strokeWidth="2" strokeLinecap="round">
-      <path d="M42 16v8M42 52v8M20 38h8M56 38h8M27 23l6 6M51 47l6 6M57 23l-6 6M33 47l-6 6"/>
-     </g>
-     <path d="M141 76c2-37 24-58 58-58 36 0 60 25 60 62v30c0 42-24 73-60 73-33 0-59-28-59-69z" fill="#5D443E"/>
-     <ellipse cx="202" cy="102" rx="48" ry="63" fill="url(#dgSkin)"/>
-     <path d="M157 86c8-42 31-59 63-53 23 4 40 19 45 44-28-11-59-9-88 11-6 4-13 4-20-2z" fill="#6B5049"/>
-     <path d="M164 147c-15 8-27 23-34 43h139c-7-21-21-36-39-44-17 12-48 13-66 1z" fill="#FFFDFC"/>
-     <path d="M157 101c-7 4-10 10-9 18 1 7 6 11 12 11" fill="none" stroke="#D9A792" strokeWidth="2"/>
-     <rect x="245" y="75" width="48" height="88" rx="10" fill="#4B4142" transform="rotate(7 269 119)"/>
-     <rect x="250" y="81" width="38" height="75" rx="7" fill="#E3B966" transform="rotate(7 269 119)"/>
-     <path d="M270 143c12-2 20 1 24 9 4 7 3 17-1 28" fill="none" stroke="#E2B39F" strokeWidth="10" strokeLinecap="round"/>
-     <path d="M113 45c23-12 48-13 70-4" fill="none" stroke="#D49AAF" strokeWidth="2.5" strokeLinecap="round"/>
-     <path d="M112 46l9-10M112 46l13 2" fill="none" stroke="#D49AAF" strokeWidth="2.5" strokeLinecap="round"/>
-     <text x="80" y="31" fill="#A76C81" fontFamily="Poppins, sans-serif" fontSize="10" fontWeight="600">Natural light</text>
-     <text x="281" y="54" fill="#A76C81" fontFamily="Poppins, sans-serif" fontSize="10" fontWeight="600">By your cheek</text>
-     <path d="M309 60c-3 15-8 24-18 31" fill="none" stroke="#D49AAF" strokeWidth="2.2" strokeLinecap="round"/>
-     <path d="M289 86l1 9 8-4" fill="none" stroke="#D49AAF" strokeWidth="2.2" strokeLinecap="round"/>
-    </svg>
+   <div className="dg-methods">
+    <button type="button" className="dg-method dg-method-primary" onClick={()=>onSelect("camera")}>
+     <span className="dg-method-icon" aria-hidden>◎</span>
+     <span><b>Use front camera</b><small>Recommended · no mirror needed</small></span>
+     <i>{MARK.chevron}</i>
+    </button>
+    <button type="button" className="dg-method" onClick={()=>onSelect("mirror")}>
+     <span className="dg-method-icon" aria-hidden>◯</span>
+     <span><b>Use a mirror instead</b><small>Hold the color screen beside your cheek</small></span>
+     <i>{MARK.chevron}</i>
+    </button>
    </div>
 
-   <div className="dg-tips">
-    <div><span className="dg-ico">☀</span><p><b>Good natural light</b><small>Near a window if possible.</small></p></div>
-    <div><span className="dg-ico">◯</span><p><b>Full face visible</b><small>Keep hair off your face.</small></p></div>
-    <div><span className="dg-ico">▯</span><p><b>Screen by your cheek</b><small>Compare colors next to skin.</small></p></div>
-    <div><span className="dg-ico">⊘</span><p><b>No filters or shadows</b><small>Use your normal camera view.</small></p></div>
+   <div className="dg-camera-tips">
+    <span>☀ <b>Bright neutral light</b></span>
+    <span>◌ <b>Face centered</b></span>
+    <span>⊘ <b>No beauty filters</b></span>
    </div>
 
-   <div className="dg-avoid">
-    <b>Avoid</b>
-    <div className="dg-avoid-grid">
-     <span><i className="dg-bad dg-dark">◼</i><small>Dark room</small></span>
-     <span><i className="dg-bad dg-yellow">●</i><small>Yellow lighting</small></span>
-     <span><i className="dg-bad dg-cover">◒</i><small>Face covered</small></span>
-    </div>
-   </div>
-
-   <button className="dg-go" type="button" onClick={onContinue}>Got it — Start draping {MARK.chevron}</button>
+   <p className="dg-privacy">Your camera preview stays on your device. Palevie does not capture, save, or upload images.</p>
   </section>
  </div>;
 }
+
+type CameraDrapeColor={label:string;hex:string};
+
+function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
+ colors:CameraDrapeColor[];
+ side:number;
+ onSide:(next:number)=>void;
+ onPick:()=>void;
+ onCant:()=>void;
+ onPrev?:()=>void;
+ onUseMirror:()=>void;
+}){
+ const videoRef=useRef<HTMLVideoElement>(null);
+ const streamRef=useRef<MediaStream|null>(null);
+ const [status,setStatus]=useState<"idle"|"starting"|"live"|"error">("idle");
+ const [errorText,setErrorText]=useState("");
+ const current=colors[side]??colors[0];
+
+ function stopCamera(){
+  streamRef.current?.getTracks().forEach(t=>t.stop());
+  streamRef.current=null;
+ }
+ useEffect(()=>()=>stopCamera(),[]);
+
+ async function startCamera(){
+  if(!navigator.mediaDevices?.getUserMedia){
+   setStatus("error");
+   setErrorText("Camera preview is not available in this browser.");
+   track("drape_camera_error",{reason:"unsupported"});
+   return;
+  }
+  setStatus("starting");
+  setErrorText("");
+  try{
+   stopCamera();
+   const stream=await navigator.mediaDevices.getUserMedia({
+    video:{facingMode:"user",width:{ideal:720},height:{ideal:960}},
+    audio:false
+   });
+   streamRef.current=stream;
+   if(videoRef.current){
+    videoRef.current.srcObject=stream;
+    await videoRef.current.play();
+   }
+   setStatus("live");
+   track("drape_camera_started",{surface:"quiz"});
+  }catch(err){
+   const name=err instanceof DOMException?err.name:"camera_error";
+   setStatus("error");
+   setErrorText(name==="NotAllowedError"
+    ?"Camera access was blocked. You can allow it in your browser settings or use the mirror method."
+    :"We could not start the camera. You can still use the mirror method.");
+   track("drape_camera_error",{reason:name});
+  }
+ }
+
+ function chooseSide(next:number){
+  onSide(next);
+  track("drape_camera_color_switched",{from:side,to:next});
+ }
+
+ if(status!=="live")return <div className="camera-drape camera-drape-setup">
+  <div className="camera-drape-setup-art" aria-hidden>
+   <div className="camera-drape-face">◯</div>
+   <div className="camera-drape-band" style={{background:current?.hex}}/>
+  </div>
+  <h3>Live draping preview</h3>
+  <p>See each draping color beside your face. Bright natural or neutral light works best.</p>
+  {status==="error"&&<p className="camera-drape-error">{errorText}</p>}
+  <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>
+   {status==="starting"?"Starting camera…":"Turn on front camera"}
+  </button>
+  <button type="button" className="camera-drape-link" onClick={onUseMirror}>Use a mirror instead</button>
+  <small>Your camera stays on your device. No photos are saved or uploaded.</small>
+ </div>;
+
+ return <div className="camera-drape">
+  <div className="camera-drape-stage">
+   <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted aria-label="Live front camera preview"/>
+   <div className="camera-drape-guide" aria-hidden/>
+   <div className="camera-drape-color" style={{background:current.hex}}>
+    <span>{current.label}</span>
+   </div>
+  </div>
+
+  <p className="camera-drape-prompt">Look at your face, not the color. Which one makes your skin look clearer?</p>
+  <div className="camera-drape-toggle">
+   {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}>
+    <i style={{background:color.hex}}/>
+    <span>{color.label}</span>
+   </button>)}
+  </div>
+
+  <div className="qz-actions camera-drape-actions">
+   <button type="button" className="dr-pick" onClick={onPick}>{MARK.check} This looks better</button>
+   <button type="button" className="qz-skip dr-skip" onClick={onCant}>Honestly can&apos;t tell</button>
+   <button type="button" className="camera-drape-link" onClick={onUseMirror}>Switch to mirror method</button>
+   {onPrev&&<button type="button" className="dr-prev" onClick={onPrev}>{MARK.back} Previous question</button>}
+  </div>
+ </div>;
+}
+
 
 function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onRestart:()=>void;onFillGaps:()=>void}){
  const id=result.ranked[0].id;
