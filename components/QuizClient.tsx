@@ -198,6 +198,7 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
  const streamRef=useRef<MediaStream|null>(null);
  const [status,setStatus]=useState<"idle"|"starting"|"live"|"error">("idle");
  const [errorText,setErrorText]=useState("");
+ const [cameraPlaying,setCameraPlaying]=useState(false);
  const current=colors[side]??colors[0];
 
  function stopCamera(){
@@ -207,8 +208,9 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
  useEffect(()=>()=>stopCamera(),[]);
  useEffect(()=>{
   if(status!=="live"||!videoRef.current||!streamRef.current)return;
-  videoRef.current.srcObject=streamRef.current;
-  void videoRef.current.play();
+  const video=videoRef.current;
+  video.srcObject=streamRef.current;
+  void video.play().catch(()=>setCameraPlaying(false));
  },[status]);
 
  async function startCamera(){
@@ -219,6 +221,7 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
    return;
   }
   setStatus("starting");
+  setCameraPlaying(false);
   setErrorText("");
   try{
    stopCamera();
@@ -271,7 +274,15 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
   </div>
 
   <div className="camera-drape-stage">
-   <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted aria-label="Live front camera preview"/>
+   <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted
+    onPlaying={()=>setCameraPlaying(true)} onPause={()=>setCameraPlaying(false)}
+    aria-label="Live front camera preview"/>
+   {!cameraPlaying&&<button type="button" className="camera-drape-resume" onClick={()=>{
+    const video=videoRef.current;
+    if(!video)return;
+    if(streamRef.current&&video.srcObject!==streamRef.current)video.srcObject=streamRef.current;
+    void video.play().then(()=>setCameraPlaying(true)).catch(()=>setCameraPlaying(false));
+   }}>Tap to show camera</button>}
    <div className="camera-drape-vignette" aria-hidden/>
    <div className="camera-drape-guide" aria-hidden/>
    <div className="camera-drape-switch" role="group" aria-label="Draping colors">
