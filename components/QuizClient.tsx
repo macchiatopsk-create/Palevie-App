@@ -245,42 +245,56 @@ function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror}:{
  }
 
  if(status!=="live")return <div className="camera-drape camera-drape-setup">
+  <div className="camera-drape-kicker"><span>Live Draping</span><small>Private camera preview</small></div>
   <div className="camera-drape-setup-art" aria-hidden>
-   <div className="camera-drape-face">◯</div>
+   <div className="camera-drape-setup-glow"/>
+   <div className="camera-drape-face"/>
    <div className="camera-drape-band" style={{background:current?.hex}}/>
   </div>
-  <h3>Live draping preview</h3>
-  <p>See each draping color beside your face. Bright natural or neutral light works best.</p>
+  <h3>See the color on you</h3>
+  <p>Compare each shade beside your face in real time. Bright, neutral light gives the clearest read.</p>
+  <div className="camera-drape-mini-tips" aria-hidden>
+   <span>☀ Neutral light</span><span>◌ Face centered</span><span>⊘ No filters</span>
+  </div>
   {status==="error"&&<p className="camera-drape-error">{errorText}</p>}
   <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>
    {status==="starting"?"Starting camera…":"Turn on front camera"}
   </button>
   <button type="button" className="camera-drape-link" onClick={onUseMirror}>Use a mirror instead</button>
-  <small>Your camera stays on your device. No photos are saved or uploaded.</small>
+  <small>🔒 On-device preview · no photos saved or uploaded</small>
  </div>;
 
- return <div className="camera-drape">
+ return <div className="camera-drape camera-drape-live">
+  <div className="camera-drape-livebar">
+   <span><b>Live Draping</b><small>Compare on your face</small></span>
+   <em>🔒 On-device</em>
+  </div>
+
   <div className="camera-drape-stage">
    <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted aria-label="Live front camera preview"/>
+   <div className="camera-drape-vignette" aria-hidden/>
    <div className="camera-drape-guide" aria-hidden/>
-   <div className="camera-drape-color" style={{background:current.hex}}>
+   <div className="camera-drape-switch" role="group" aria-label="Draping colors">
+    {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}>
+     <i style={{background:color.hex}}/>
+     <span>{color.label}</span>
+    </button>)}
+   </div>
+   <div className="camera-drape-cloth" style={{background:current.hex}}>
+    <div className="camera-drape-cloth-folds" aria-hidden/>
     <span>{current.label}</span>
    </div>
   </div>
 
-  <p className="camera-drape-prompt">Look at your face, not the color. Which one makes your skin look clearer?</p>
-  <div className="camera-drape-toggle">
-   {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}>
-    <i style={{background:color.hex}}/>
-    <span>{color.label}</span>
-   </button>)}
-  </div>
+  <p className="camera-drape-prompt"><b>Look at your face, not the color.</b><br/>Which shade makes your skin look clearer and more even?</p>
 
   <div className="qz-actions camera-drape-actions">
-   <button type="button" className="dr-pick" onClick={onPick}>{MARK.check} This looks better</button>
+   <button type="button" className="dr-pick camera-drape-pick" onClick={onPick}>{MARK.check} This looks better</button>
    <button type="button" className="qz-skip dr-skip" onClick={onCant}>Honestly can&apos;t tell</button>
-   <button type="button" className="camera-drape-link" onClick={onUseMirror}>Switch to mirror method</button>
-   {onPrev&&<button type="button" className="dr-prev" onClick={onPrev}>{MARK.back} Previous question</button>}
+   <div className="camera-drape-subactions">
+    <button type="button" className="camera-drape-link" onClick={onUseMirror}>Switch to mirror</button>
+    {onPrev&&<button type="button" className="camera-drape-link" onClick={onPrev}>Previous question</button>}
+   </div>
   </div>
  </div>;
 }
