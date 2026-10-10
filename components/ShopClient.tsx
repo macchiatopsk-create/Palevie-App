@@ -15,6 +15,10 @@ import { loadInterest, INTEREST_EVENT, type Interest } from "@/lib/interest";
 import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 
+type ShopTab = "all" | "beauty" | "lip" | "eyeshadow" | "blush" | "skincare" | "clothes";
+function shoppingCategory(tab: ShopTab) {
+  return tab === "clothes" ? "fashion" : tab === "skincare" ? "skincare" : tab === "all" ? "all" : "beauty";
+}
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
 function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string;filter?:string}{
@@ -32,7 +36,7 @@ function artFor(id:string, sub:string, cat:string, colorHex?:string):{src:string
   return {src};
 }
 export default function ShopClient() {
-  const [tab, setTab] = useState<"all"|"lip"|"eyeshadow"|"blush"|"skincare"|"clothes">("all");
+  const [tab, setTab] = useState<ShopTab>("all");
   const [qtext, setQtext] = useState("");
   const [sort, setSort] = useState<"match"|"lo"|"hi">("match");
   const [cols, setCols] = useState<1|2|3>(2);
@@ -57,10 +61,12 @@ export default function ShopClient() {
   const rawProfile = useMemo(() => ready ? loadProfile() : null, [ready]);
 
   useEffect(() => {
-    setReady(true); setWl(loadWishlist()); track("shop_viewed");
+    setReady(true); setWl(loadWishlist());
     const t = new URLSearchParams(window.location.search).get("tab");
-    if (t==="clothes"||t==="skincare"||t==="lip"||t==="eyeshadow"|| t==="blush") setTab(t);
-    else if (loadInterest() === "skincare") setTab("skincare");
+    const initialTab: ShopTab = t==="clothes"||t==="beauty"||t==="skincare"||t==="lip"||t==="eyeshadow"||t==="blush"
+      ? t : loadInterest()==="skincare" ? "skincare" : "all";
+    setTab(initialTab);
+    track("shop_viewed",{category:shoppingCategory(initialTab),tab:initialTab});
     const sync = () => setWl(loadWishlist());
     window.addEventListener(WISHLIST_EVENT, sync);
     window.addEventListener("storage", sync);
@@ -76,7 +82,7 @@ export default function ShopClient() {
   }
 
   const items = catalogProducts
-    .filter(p => tab==="all" || (tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
+    .filter(p => tab==="all" || (tab==="beauty" ? p.category==="makeup" : tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
     .filter(p => !qtext || p.name.toLowerCase().includes(qtext.toLowerCase()) || p.brand.toLowerCase().includes(qtext.toLowerCase()))
     .map(p => {
       let match: number | undefined;
@@ -145,7 +151,7 @@ export default function ShopClient() {
         shopHref={drapeProduct.offers[0] ? `/go/${drapeProduct.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shade_drape&utm_medium=affiliate` : undefined}
         onShop={() => {
           track("shade_drape_shop_click", { product: drapeProduct.id });
-          track("affiliate_outbound_click", { retailer: "amazon", product: drapeProduct.id, surface: "shade_drape" });
+          track("affiliate_outbound_click", { retailer: "amazon", product: drapeProduct.id, category:shoppingCategory(tab), surface: "shade_drape" });
         }}
         onClose={() => setDraping(null)}
       />
@@ -162,8 +168,14 @@ export default function ShopClient() {
       <input value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search products, brands, or shades"/>
     </div>
     <div className="sh-pills">
-      {([["all","All"],["lip","Lips"],["blush","Cheek"],["eyeshadow","Eye"],["skincare","Skincare"],["clothes","Clothes"]] as const).map(([k,l])=>
-        <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>)}
+      {([["all","All"],["clothes","Fashion"],["beauty","Beauty"],["lip","Lips"],["blush","Cheek"],["eyeshadow","Eye"],["skincare","Skincare"]] as const).map(([k,l])=>
+        <button key={k} className={tab===k?"on":""} onClick={()=>{
+          setTab(k);
+          const url=new URL(window.location.href);
+          url.searchParams.set("tab",k);
+          window.history.replaceState(null,"",url.toString());
+          track("shop_category_selected",{category:shoppingCategory(k),tab:k,surface:"shop_filter"});
+        }}>{l}</button>)}
     </div>
 
     {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Take the color quiz first to rank makeup shades for your palette.</div>}
@@ -181,7 +193,7 @@ export default function ShopClient() {
         <ul>{heldBack.slice(0, 4).map(p => <li key={p.id}><span>{p.brand} {p.name}</span><small>{p.held}</small></li>)}</ul>
       </div>
     )}
-    <div className="sh-tools">
+    {tab!=="clothes" && <div className="sh-tools">
       <span className="sh-count">{shown.length} item{shown.length===1?"":"s"}</span>
       <div className="sh-dd">
         <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>Sort: {sort==="match"?"Best Match":sort==="lo"?"Price Low":"Price High"} <em>▾</em></button>
@@ -202,7 +214,7 @@ export default function ShopClient() {
               : <svg viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="4.6" height="4.6" rx="1"/><rect x="7.7" y="1.5" width="4.6" height="4.6" rx="1"/><rect x="13.9" y="1.5" width="4.6" height="4.6" rx="1"/><rect x="1.5" y="7.7" width="4.6" height="4.6" rx="1"/><rect x="7.7" y="7.7" width="4.6" height="4.6" rx="1"/><rect x="13.9" y="7.7" width="4.6" height="4.6" rx="1"/><rect x="1.5" y="13.9" width="4.6" height="4.6" rx="1"/><rect x="7.7" y="13.9" width="4.6" height="4.6" rx="1"/><rect x="13.9" y="13.9" width="4.6" height="4.6" rx="1"/></svg>}
           </button>)}
       </div>
-    </div>
+    </div>}
 
     {tab === "clothes" ? (
       !profile || !rawProfile ? (
@@ -212,20 +224,26 @@ export default function ShopClient() {
           <p className="lede-small">Take the color quiz first — then your clothing picks appear here in your exact palette.</p>
           <a className="button rose" href="/quiz">Take the color quiz</a>
         </div>
-      ) : styleIds.length === 0 ? (
-        <div className="beauty-card" style={{textAlign:"center",marginTop:14}}>
-          <div className="eyebrow">Clothes</div>
-          <h2>Tell us your style first.</h2>
-          <p className="lede-small">Pick the aesthetics you love in the Quiz → Style tab and your picks appear here.</p>
-          <a className="button rose" href="/quiz?tab=style">Pick my styles</a>
-        </div>
       ) : (
         <div className="clothes-wrap">
-          {styleIds.map(sid => {
+          <div className="h2-card clothes-palette-intro">
+            <span className="eyebrow">Your fashion colors</span>
+            <h2>Wear your {profile.name} palette</h2>
+            <p>Start with shades near your face: tops, scarves and outer layers. These are outfit ideas, not verified retailer listings.</p>
+            <div className="clothes-palette-swatches" aria-label="Your suggested clothing colors">
+              {profile.colors.slice(0,6).map((color,i)=><i key={i} style={{background:color}} title={color}/>)}
+            </div>
+          </div>
+          {styleIds.length===0 && <div className="h2-card clothes-starter-intro">
+            <b>Everyday outfit ideas, ready to explore</b>
+            <p>No extra quiz required. Save the pieces you like, or personalize your favorite silhouettes.</p>
+            <a href="/quiz?tab=style">Personalize my style ↗</a>
+          </div>}
+          {(styleIds.length ? styleIds : (["casual"] as const)).map(sid => {
             const styleName = STYLES.find(x=>x.id===sid)?.name;
             return (
               <section key={sid} className="clothes-sec">
-                <div className="eyebrow">{styleName} · in your {profile.name} colors</div>
+                <div className="eyebrow">{styleIds.length ? styleName : "Everyday starters"} · in your {profile.name} colors</div>
                 <div className="sp-grid">
                   {stylePieces(rawProfile.primaryType, sid, garmentCats.length ? garmentCats : undefined, styleDetail, fitPref).map(piece => {
                     const saved = wl.some(w => w.id === pieceId(sid, piece.query));
@@ -233,7 +251,7 @@ export default function ShopClient() {
                       <button key={piece.query} className={`sp-tile${saved?" on":""}`} onClick={()=>{
                         const r = toggleSaved(piece, sid, rawProfile.primaryType);
                         setWl(r.items);
-                        track(r.saved?"wishlist_added":"wishlist_removed",{label:piece.label,style:sid,surface:"shop_clothes"});
+                        track(r.saved?"wishlist_added":"wishlist_removed",{label:piece.label,style:sid,category:"fashion",surface:"shop_clothes"});
                       }}>
                         <span className="sp-swatch" style={{background:piece.hex}}><i>{piece.icon}</i></span>
                         <b>{piece.label}</b>
@@ -261,7 +279,7 @@ export default function ShopClient() {
             href={`/go/${p.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shop_title&utm_medium=affiliate`}
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
-            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_title"})}
+            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,category:p.category==="makeup"?"beauty":p.category,surface:"shop_title"})}
           >{p.name}</a>
         </h3>
         <div className="sh-line">
@@ -274,7 +292,7 @@ export default function ShopClient() {
             href={`/go/${p.offers[0].id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id ?? "")}&utm_source=shop&utm_medium=affiliate`}
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
-            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop"})}
+            onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,category:p.category==="makeup"?"beauty":p.category,surface:"shop"})}
            >View on Amazon ↗</a>}
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Try on face</button>}
           {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
