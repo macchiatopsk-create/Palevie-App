@@ -368,12 +368,42 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
    <div className="rs-chips">{primary.colors.slice(0,8).map(c=><i key={c} style={{background:c}}/>)}</div>
   </div>
 
+  <section className="h2-card rs-shop-paths" aria-labelledby="rs-shop-path-title">
+   <div className="rs-shop-intro">
+    <span className="rs-eyebrow">{MARK.flower} Your colors, your style</span>
+    <h2 id="rs-shop-path-title">Find your look in fashion &amp; beauty</h2>
+    <p>Start with your best clothing colors, then find makeup shades that work with your palette.</p>
+   </div>
+   <div className="rs-shop-path-grid">
+    <Link href="/shop?tab=clothes" className="rs-shop-path rs-shop-path-fashion"
+     onClick={()=>track("shop_category_selected",{category:"fashion",surface:"quiz_result",tone:id})}>
+     <span className="rs-shop-path-kicker">01 / FASHION</span>
+     <strong>Shop Fashion</strong>
+     <span className="rs-shop-path-desc">Build outfits around the shades that flatter you.</span>
+     <span className="rs-shop-path-swatches" aria-hidden>
+      {primary.colors.slice(0,5).map((hex,i)=><i key={i} style={{background:hex}}/>)}
+     </span>
+     <span className="rs-shop-path-action">Explore outfit ideas <span aria-hidden>↗</span></span>
+    </Link>
+    <Link href="/shop?tab=beauty" className="rs-shop-path rs-shop-path-beauty"
+     onClick={()=>track("shop_category_selected",{category:"beauty",surface:"quiz_result",tone:id})}>
+     <span className="rs-shop-path-kicker">02 / BEAUTY</span>
+     <strong>Shop Beauty</strong>
+     <span className="rs-shop-path-desc">Explore lip, cheek and eye shades picked for your palette.</span>
+     <span className="rs-shop-path-swatches" aria-hidden>
+      {amazonMatches.slice(0,5).map(p=><i key={p.id} style={{background:p.colorHex}}/>)}
+     </span>
+     <span className="rs-shop-path-action">Browse verified makeup <span aria-hidden>↗</span></span>
+    </Link>
+   </div>
+  </section>
+
   {amazonMatches.length>0&&<section className="h2-card rs-amazon">
    <div className="rs-amazon-head">
     <div>
      <span className="rs-eyebrow">{MARK.flower} Shop your result</span>
-     <h2>Your best Amazon matches</h2>
-     <p>Exact products picked from your {primary.name} palette.</p>
+     <h2>Beauty picks on Amazon</h2>
+     <p>Makeup shades selected to complement your {primary.name} palette.</p>
     </div>
    </div>
    <div className="rs-amazon-grid">
@@ -389,7 +419,7 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
        <p>{p.fit}% color match</p>
       </div>
       <a href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
-       onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"quiz_result",rank:i+1,tone:id})}>
+       onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,category:"beauty",surface:"quiz_result",rank:i+1,tone:id})}>
        View on Amazon {MARK.chevron}
       </a>
      </article>;
@@ -425,9 +455,9 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
 
   <div className="h2-card rs-more">
    <div className="h2-cardhead"><b>Go deeper</b></div>
-   <Link href="/shop" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.lip}</span><em>Shop my match</em>{MARK.chevron}</Link>
-   <Link href="/quiz?tab=makeup" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.cheek}</span><em>Makeup in my shades</em>{MARK.chevron}</Link>
-   <Link href="/quiz?tab=style" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.clothes}</span><em>Dress in my colors</em>{MARK.chevron}</Link>
+   <Link href="/shop?tab=beauty" className="rs-more-row" onClick={()=>track("shop_category_selected",{category:"beauty",surface:"quiz_result_more",tone:id})}><span className="rs-more-ic">{CAT_ICON.lip}</span><em>Shop Beauty</em>{MARK.chevron}</Link>
+   <Link href="/shop?tab=lip" className="rs-more-row" onClick={()=>track("shop_category_selected",{category:"beauty",surface:"quiz_result_more",tone:id})}><span className="rs-more-ic">{CAT_ICON.cheek}</span><em>Lip shades for me</em>{MARK.chevron}</Link>
+   <Link href="/shop?tab=clothes" className="rs-more-row" onClick={()=>track("shop_category_selected",{category:"fashion",surface:"quiz_result_more",tone:id})}><span className="rs-more-ic">{CAT_ICON.clothes}</span><em>Dress in my colors</em>{MARK.chevron}</Link>
    <Link href="/quiz?tab=skin" className="rs-more-row"><span className="rs-more-ic">{CAT_ICON.skin}</span><em>Skin profile</em>{MARK.chevron}</Link>
   </div>
 
