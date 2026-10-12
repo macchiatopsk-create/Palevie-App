@@ -9,7 +9,7 @@ export type AnalyticsEventName =
   | "member_setup_shown" | "member_setup_done" | "member_profile_updated"
   | "shade_drape_opened" | "shade_drape_shop_click"
   | "product_check_started" | "product_check_completed"
-  | "skincare_profile_completed" | "shop_viewed"
+  | "skincare_profile_completed" | "shop_viewed" | "shop_category_selected"
   | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed"
   | "welcome_quiz_popup_shown" | "welcome_quiz_popup_cta" | "welcome_quiz_popup_dismissed"
   | "drape_guide_shown" | "drape_guide_continued"

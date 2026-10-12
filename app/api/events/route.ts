@@ -32,7 +32,7 @@ const allowed = new Set([
   "quiz_started","quiz_answered","quiz_completed",
   "ai_scan_started","ai_scan_completed","ai_scan_failed",
   "product_check_started","product_check_completed",
-  "skincare_profile_completed","shop_viewed",
+  "skincare_profile_completed","shop_viewed","shop_category_selected",
   "affiliate_outbound_click","result_shared","checkout_started",
   "signup_started","signup_completed",
   "wishlist_added","wishlist_removed",

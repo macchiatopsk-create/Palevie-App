@@ -1630,3 +1630,39 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .ios-install-gotit{width:100%;min-height:46px;border:0;border-radius:999px;background:#F18AA6;color:#fff;font-size:12px;font-weight:800;box-shadow:0 7px 18px rgba(241,138,166,.24)}
 .ios-install-later{display:block;margin:9px auto 0;border:0;background:transparent;color:#9C8790;font-size:11px;text-decoration:underline;text-underline-offset:3px}
 @media(min-width:700px){.ios-install-backdrop{place-items:center}.ios-install-card{padding-bottom:20px}}
+
+
+/* Results: browse fashion + beauty independently without changing quiz scoring. */
+.rs-shop-paths{padding:18px}
+.rs-shop-intro h2{font-family:var(--display);font-weight:600;font-size:clamp(20px,4.9vw,26px);line-height:1.15;letter-spacing:-.025em;color:#3B2B36;margin:6px 0}
+.rs-shop-intro p{font-size:12px;line-height:1.6;color:#8A7186;margin:0 0 15px}
+.rs-shop-path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rs-shop-path{display:flex;flex-direction:column;gap:9px;min-height:201px;padding:16px;border:1px solid #E8D8DB;border-radius:17px;transition:transform .17s ease,border-color .17s ease,box-shadow .17s ease}
+.rs-shop-path:hover{transform:translateY(-2px);border-color:#E9B6C9;box-shadow:0 9px 20px rgba(83,41,61,.08)}
+.rs-shop-path:focus-visible{outline:3px solid #A776C8;outline-offset:3px}
+.rs-shop-path-fashion{background:linear-gradient(145deg,#F5F2EA,#FFFDFB)}
+.rs-shop-path-beauty{background:linear-gradient(145deg,#FFF0F5,#FFFAFB)}
+.rs-shop-path-kicker{font-size:9px;font-weight:800;letter-spacing:.15em;color:#A07684}
+.rs-shop-path strong{display:block;font-family:var(--display);font-size:22px;font-weight:600;line-height:1.1;letter-spacing:-.025em;color:#3B2B36}
+.rs-shop-path-desc{font-size:11px;line-height:1.5;color:#756673;flex:1}
+.rs-shop-path-swatches{display:flex;gap:5px;height:29px}
+.rs-shop-path-swatches i{flex:1;min-width:0;height:100%;border:1px solid rgba(92,57,70,.1);border-radius:7px}
+.rs-shop-path-action{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:800;color:#965367}
+.rs-shop-path-action>span{font-size:16px}
+.clothes-palette-intro h2{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.02em;margin:6px 0}
+.clothes-palette-intro p{font-size:12px;line-height:1.6;color:#8A7186;margin:0}
+.clothes-palette-swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:14px}
+.clothes-palette-swatches i{display:block;height:47px;border-radius:9px;border:1px solid rgba(92,57,70,.1)}
+.clothes-starter-intro{margin-top:12px}
+.clothes-starter-intro b{display:block;font-size:13px;color:#3B2B36}
+.clothes-starter-intro p{font-size:11px;color:#8A7186;line-height:1.5;margin:6px 0 11px}
+.clothes-starter-intro a{display:inline-flex;align-items:center;justify-content:center;border:1px solid #E4BDD0;border-radius:999px;padding:10px 14px;font-weight:700;font-size:11px;color:#9B5375;background:#FFF}
+@media(max-width:460px){
+ .rs-shop-paths{padding:14px}
+ .rs-shop-path-grid{gap:8px}
+ .rs-shop-path{padding:11px;gap:8px;min-height:200px}
+ .rs-shop-path strong{font-size:20px}
+ .rs-shop-path-desc{font-size:10.5px}
+ .rs-shop-path-action{font-size:10px}
+ .rs-shop-path-swatches{height:26px}
+}
