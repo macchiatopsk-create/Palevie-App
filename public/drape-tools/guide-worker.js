@@ -34,7 +34,8 @@ self.onmessage=async({data})=>{
    if(typeof OffscreenCanvas==='undefined')throw new Error('Worker canvas unavailable');
    importScripts(PREFIX+'vision_bundle.js');
    const {FilesetResolver,FaceLandmarker}=self.exports;
-   const files=await FilesetResolver.forVisionTasks(PREFIX);
+   // FilesetResolver appends its own slash; keep exact same-origin asset paths.
+   const files=await FilesetResolver.forVisionTasks(PREFIX.slice(0,-1));
    model=await FaceLandmarker.createFromOptions(files,{
     baseOptions:{modelAssetPath:PREFIX+'face_landmarker.task',delegate:'CPU'},
     runningMode:'VIDEO',numFaces:2,outputFaceBlendshapes:false,outputFacialTransformationMatrixes:false,
