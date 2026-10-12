@@ -55,6 +55,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   await live(page);
   assert.equal(requests.filter(r=>r.url.includes('/drape-tools/')).length,0);ok('no model assets or guide worker before opt-in');
   const before=await context.storageState();
+  const optinRequestIndex=requests.length;
   await enabled(page);await steady(page);
   assert.equal(await page.locator('.camera-drape-stage svg circle').count(),3);
   assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),2);
@@ -64,7 +65,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   const workerRes=await context.request.get(base+'/drape-tools/guide-worker.js');
   assert.ok(workerRes.headers()['content-security-policy'].includes("connect-src 'self'"));
   assert.ok(requests.filter(r=>r.url.includes('/drape-tools/')).every(r=>r.method==='GET'&&new URL(r.url).origin===new URL(base).origin&&!new URL(r.url).search));
-  assert.ok(!requests.some(r=>/mediapipe|googleapis|jsdelivr/.test(new URL(r.url).hostname)));
+  assert.ok(!requests.slice(optinRequestIndex).some(r=>new URL(r.url).origin!==new URL(base).origin));
   ok('actual landmark inference, three registered patches, two measured swatches, no guide storage/uploads/vendor requests');
   await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
   await panel(page).getByText('Navy',{exact:true}).waitFor();await panel(page).getByText('Cream',{exact:true}).waitFor();
