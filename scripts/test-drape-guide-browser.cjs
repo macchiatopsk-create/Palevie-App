@@ -72,7 +72,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.ok(offDock.y+offDock.height<=offCamera.y+1);
   assert.ok(offCamera.y-offDock.y-offDock.height<=12);
   assert.equal(await page.locator('[data-guide-dock]').count(),1);
-  assert.ok(offDock.height<145);
+  assert.ok(offDock.height<185);
   ok('one discoverable Live Guide toggle and privacy notice immediately above camera before opt-in');
   assert.equal(requests.filter(r=>r.url.includes('/drape-tools/')).length,0);ok('no model assets or guide worker before opt-in');
   const before=await context.storageState();
@@ -91,7 +91,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.equal(await page.getByRole('button',{name:'Turn guide off & clear measurements',exact:true}).getAttribute('aria-pressed'),'true');
   const dock=await page.locator('[data-guide-dock]').boundingBox(),camera=await page.locator('.camera-drape-stage').boundingBox();
   const compare=await page.locator('[data-guide-comparison]').boundingBox();
-  assert.ok(dock.height<=330);assert.ok(compare.y+compare.height<=camera.y);
+  assert.ok(dock.height<=370);assert.ok(compare.y+compare.height<=camera.y);
   assert.ok(camera.y-dock.y-dock.height<=12);
   assert.ok((await page.getByRole('button',{name:'Refresh comparison',exact:true}).boundingBox()).height>=44);
   await page.locator('[data-guide-dock]').evaluate(el=>window.scrollTo(0,el.getBoundingClientRect().top+scrollY-76));
@@ -110,10 +110,38 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   const geometry=await page.evaluate(()=>{
    const stage=document.querySelector('.camera-drape-stage'),guide=document.querySelector('.camera-drape-guide'),video=document.querySelector('video'),controls=document.querySelector('.camera-drape-switch');
    const s=stage.getBoundingClientRect(),g=guide.getBoundingClientRect(),c=controls.getBoundingClientRect();
-   return {widthRatio:g.width/s.width,fit:getComputedStyle(video).objectFit,position:getComputedStyle(video).objectPosition,clearControls:c.bottom<=s.top+1};
+   return {widthRatio:g.width/s.width,fit:getComputedStyle(video).objectFit,position:getComputedStyle(video).objectPosition,clearControls:c.left>=s.left&&c.right<=s.right&&c.bottom<=s.bottom&&c.top>=document.querySelector('.camera-drape-cloth').getBoundingClientRect().top};
   });
   assert.ok(geometry.widthRatio>=.76);assert.equal(geometry.fit,'contain');assert.ok(['50% 0px','50% 0%'].includes(geometry.position));assert.ok(geometry.clearControls);
-  ok('larger loose outline and uncropped view; color controls no longer obscure forehead');
+  ok('larger loose outline; color buttons are inside camera over cloth, not the face');
+  assert.ok(await page.locator('[data-light-warning]').isVisible());
+  assert.ok((await page.locator('[data-light-warning]').innerText()).includes('even daylight'));
+  assert.ok((await page.locator('[data-look-recommendation]').innerText()).includes('not a season-match score'));
+  assert.equal(await page.locator('[data-camera-colors]').count(),1);
+  assert.equal(await page.locator('.camera-drape-stage [data-look-score]').count(),2);
+  for(const v of await page.locator('[data-look-score]').allTextContents())assert.ok(Number(v)>=0&&Number(v)<=100&&Number(v)%5===0);
+  ok('readable /100 goal scores plus visible lighting and non-diagnostic labels');
+  await page.locator('.camera-drape-stage').evaluate(el=>window.scrollTo(0,el.getBoundingClientRect().top+scrollY-76));
+  await page.waitForTimeout(350);
+  const beforeSwitch=await page.evaluate(()=>scrollY);
+  await page.locator('[data-camera-colors] button').nth(1).click();
+  assert.ok(Math.abs((await page.evaluate(()=>scrollY))-beforeSwitch)<2);
+  assert.equal(await page.locator('[data-camera-colors] button').nth(1).getAttribute('aria-pressed'),'true');
+  assert.ok(await page.evaluate(()=>window.initialVideo===document.querySelector('video')&&window.initialStream===document.querySelector('video').srcObject&&!document.querySelector('video').paused));
+  ok('switch colors at camera without scroll jump, pausing video, or answering quiz');
+  await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
+  const soft=(await page.locator('[data-look-score]').allTextContents()).map(Number);
+  const softBadge=await page.locator('[data-score-badge]').allTextContents();
+  await page.getByRole('button',{name:'Bold look',exact:true}).click();
+  const bold=(await page.locator('[data-look-score]').allTextContents()).map(Number);
+  assert.ok(soft.every((v,i)=>v+bold[i]===100));
+  if(softBadge.includes('Try first'))assert.notEqual((await page.locator('[data-score-badge]').allTextContents()).indexOf('Try first'),softBadge.indexOf('Try first'));
+  assert.ok((await page.locator('[data-look-recommendation]').innerText()).includes('bold look'));
+  await page.getByRole('button',{name:'Soft look',exact:true}).click();
+  assert.deepEqual((await page.locator('[data-look-score]').allTextContents()).map(Number),soft);
+  ok('recommendation follows explicitly chosen look goal; changing goal does not invent new camera evidence');
+  await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
+
   const comparisonText=await page.locator('[data-guide-comparison]').innerText();
   const gridBefore=await page.locator('[data-guide-comparison]').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y+scrollY,width:r.width,height:r.height};});
   await page.evaluate(()=>{window.fixtureMode='jitter';});await page.waitForTimeout(800);
@@ -134,10 +162,11 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   await page.evaluate(()=>{window.fixtureMode='face';});await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await steady(page);
 
   await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
-  await page.locator('[data-guide-comparison]').getByText('Navy',{exact:true}).waitFor();await page.locator('[data-guide-comparison]').getByText('Cream',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Show Navy',exact:true}).waitFor();await page.getByRole('button',{name:'Show Cream',exact:true}).waitFor();
   ok('changing pairs clears old comparison and recomputes both swatches');
   await page.evaluate(()=>{window.fixtureMode='blank';});await panel(page).getByText('Find your face',{exact:true}).waitFor();
   assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
+  assert.ok((await page.locator('[data-look-score]').allTextContents()).every(t=>t==='—'));
   await page.evaluate(()=>{window.fixtureMode='face';});await steady(page);ok('no-face discards values; face return requires stable frames');
   await page.locator('video').evaluate(v=>v.pause());await panel(page).getByText('Guide paused',{exact:true}).waitFor();
   assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
@@ -153,6 +182,8 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.ok(await page.evaluate(()=>window.initialVideo===document.querySelector('video')&&window.initialStream===document.querySelector('video').srcObject&&!document.querySelector('video').paused));
   assert.equal(await page.getByRole('button',{name:'Enable on-device guide',exact:true}).getAttribute('aria-pressed'),'false');
   ok('top-toggle opt-out clears values without replacing the live video or stream');
+  assert.equal(await page.locator('[data-look-score]').count(),0);await page.locator('[data-camera-colors] button').first().click();assert.equal(await page.locator('[data-camera-colors] button').first().getAttribute('aria-pressed'),'true');
+  ok('guide off removes scores but keeps in-camera switches usable');
   await enabled(page);await steady(page);
   await page.getByRole('button',{name:'Switch to mirror',exact:true}).click();await stopped(page);
   assert.equal(await panel(page).count(),0);assert.equal(events.filter(e=>/quiz_|drape_camera/.test(e.name)).length,0);assert.deepEqual(errors,[]);
@@ -163,6 +194,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
    await s.page.waitForTimeout(6000);
    const text=await panel(s.page).innerText();assert.ok(!text.includes('unavailable here')&&!text.includes('Loading tools'));
    const size=await s.page.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:innerWidth}));assert.ok(size.scroll<=size.view+1);
+   const placement=await s.page.locator('[data-camera-colors]').evaluate(el=>{const r=el.getBoundingClientRect(),c=document.querySelector('.camera-drape-stage').getBoundingClientRect(),cloth=document.querySelector('.camera-drape-cloth').getBoundingClientRect();return {inside:r.x>=c.x&&r.right<=c.right&&r.bottom<=c.bottom,faceClear:r.top>=cloth.top,buttons:[...el.querySelectorAll('button')].map(b=>({height:b.getBoundingClientRect().height,overflow:b.scrollWidth>b.clientWidth+2}))};});assert.ok(placement.inside&&placement.faceClear);assert.ok(placement.buttons.every(b=>b.height>=44&&!b.overflow));
    await s.page.goto(base+'/shop',{waitUntil:'networkidle'});assert.equal(await s.page.locator('video').count(),0);assert.deepEqual(s.errors,[]);
    ok(`layout/model navigation smoke ${viewport.width}x${viewport.height}`);await s.context.close();
   }

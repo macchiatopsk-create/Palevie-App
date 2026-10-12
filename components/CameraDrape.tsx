@@ -69,7 +69,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
    <div className="camera-drape-band" style={{background:current?.hex}}/>
   </div>
   <h3>See the color on you</h3>
-  <p>Turn on the camera, then tap Live Guide directly above the preview. It checks the view and explains brightness contrast; you still choose your answer.</p>
+  <p>Turn on the camera, then tap Live Guide directly above the preview. Choose a Soft or Bold look; the guide scores that effect. Switch shades using the buttons inside the camera. Use even daylight, not colored light or filters.</p>
   <div className="camera-drape-mini-tips" aria-hidden><span>☀ Neutral light</span><span>◌ Face centered</span><span>⊘ No filters</span></div>
   {status==="error"&&<p className="camera-drape-error">{errorText}</p>}
   <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>{status==="starting"?"Starting camera…":"Turn on front camera"}</button>
@@ -79,10 +79,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
  return <div className="camera-drape camera-drape-live">
   <div className="camera-drape-livebar"><span><b>Live Draping</b><small>Compare on your face</small></span><em>On-device</em></div>
   <p className={styles.comfort}>Hold your phone comfortably. Your face does not need to fit the outline.</p>
-   <div className={`camera-drape-switch ${styles.controls}`} role="group" aria-label="Draping colors">
-    {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}><i style={{background:color.hex}}/><span>{color.label}</span></button>)}
-   </div>
-  <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors}>
+  <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors} side={side} onSide={chooseSide}>
   <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}>
    <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted
     onPlaying={()=>setCameraPlaying(true)} onPause={()=>setCameraPlaying(false)} aria-label="Live front camera preview"/>
@@ -96,7 +93,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
    <div className="camera-drape-cloth" style={{background:current.hex}}><div className="camera-drape-cloth-folds" aria-hidden/><span>{current.label}</span></div>
   </div>
   </DrapeLiveGuide>
-  <p className="camera-drape-prompt"><b>Compare the effect, not a right answer.</b><br/>Tap Live Guide above the camera for contrast help. Its held comparison stays still while you read. Choose only when your preference is clear; otherwise use Honestly can&apos;t tell.</p>
+  <p className="camera-drape-prompt"><b>Compare the effect, not a right answer.</b><br/>Switch shades on the camera itself. Live Guide suggests which to try for a Soft or Bold look; its scores are not a personal-color diagnosis. Use even daylight. Choose Honestly can&apos;t tell when unsure.</p>
   <div className="qz-actions camera-drape-actions">
    <button type="button" className="dr-pick camera-drape-pick" onClick={onPick}>{MARK.check} This looks better</button>
    <button type="button" className="qz-skip dr-skip" onClick={onCant}>Honestly can&apos;t tell</button>

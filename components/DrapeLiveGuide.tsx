@@ -5,6 +5,8 @@ import {createPortal} from "react-dom";
 import {advanceGuideView,emptyGuideView,mapGuidePoint,patchObstructed} from "@/lib/drapeGuideView";
 import type {GuideComparison,GuideLayout,GuidePoint} from "@/lib/drapeGuideView";
 import styles from "./DrapeLiveGuide.module.css";
+import DrapeColorControls from "./DrapeColorControls";
+import {scoreDrapeLook,type DrapeLookGoal} from "@/lib/drapeLookScore";
 
 type Color={label:string;hex:string};
 type Measurement={type:"measurement";status:string;points:GuidePoint[];comparison:GuideComparison|null;pair:string;received:number};
@@ -22,10 +24,11 @@ const MESSAGES:Record<string,[string,string]>={
  held:["Comparison held","This is your last steady comparison, not a changing live score. Read at your pace, or refresh for a new reading."],
  obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."]
 };
-export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children}:{
- videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;
+export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide}:{
+ videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;
 }){
  const consentId=useId(),toolsId=useId();
+ const [goal,setGoal]=useState<DrapeLookGoal>("soft");
  const [enabled,setEnabled]=useState(false),[visible,setVisible]=useState(true);
  const [phase,setPhase]=useState<Phase>("off"),[sample,setSample]=useState<Measurement|null>(null);
  const [epoch,setEpoch]=useState(0);
@@ -120,7 +123,9 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
  const obstructed=patchObstructed(mapped,layout);
  const comparison=active&&phase==="running"&&view.pair===pair&&!obstructed?view.held?.comparison:null;
  const message=MESSAGES[view.pair===pair?view.status:"settling"]||MESSAGES.settling;
+ const lookScore=scoreDrapeLook(comparison,goal);
  return <>
+  {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
   {active&&stage&&mapped.length===3&&!obstructed&&createPortal(
    <svg className={styles.overlay} viewBox={`0 0 ${layout.width} ${layout.height}`} aria-hidden>
     {mapped.map((p,i)=><g key={i}><circle className={styles.ring} cx={p.x} cy={p.y} r={p.r}/><text className={styles.label} x={p.x+p.r+4} y={p.y+3}>{i+1}</text></g>)}
@@ -136,22 +141,26 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       <i aria-hidden/>Live Guide <span>{enabled?"On":"Off"}</span>
      </button>
     </div>
-    <p id={consentId} className={styles.consent}>Tap Live Guide for light and brightness-contrast help. Frames stay on this device, never saved or uploaded.</p>
+    <p id={consentId} className={styles.consent}>Opt in for a Soft/Bold look guide. Frames stay on this device, never saved or uploaded.</p>
+    <p className={styles.lighting} data-light-warning>Use even daylight. Colored light, shadows and beauty filters can change the scores.</p>
     <div id={toolsId} hidden={!enabled}>
+     <div className={styles.goals} role="group" aria-label="Choose a look goal">
+      <span>Look goal</span>
+      <button type="button" aria-pressed={goal==="soft"} onClick={()=>setGoal("soft")}>Soft look</button>
+      <button type="button" aria-pressed={goal==="bold"} onClick={()=>setGoal("bold")}>Bold look</button>
+     </div>
      <div className={styles.notice}>
       <div role="status" className={`${styles.status} ${comparison?styles.ready:""}`}><i className={styles.dot}/>
        {phase==="loading"?"Loading tools on this device…":phase==="error"?"Live Guide is unavailable here":phase==="paused"?"Guide paused":message[0]}
       </div>
-      <p>{phase==="error"?"Keep using the camera or mirror. No cloud fallback.":phase==="loading"?"One-time model load. No camera images are sent.":phase==="paused"?"Camera paused or page hidden. Measurements cleared.":comparison?"Last steady reading. Read at your pace; refresh when ready.":message[1]}</p>
+
      </div>
-     <div className={styles.grid} data-guide-comparison>
-      {colors.slice(0,2).map((color,i)=><div key={color.hex+i} className={styles.card}>
-       <div className={styles.name}><i className={styles.swatch} style={{background:color.hex}}/>{color.label}</div>
-       <strong>{!comparison?"Waiting for a steady view":comparison.blended===null?"Similar brightness gap":comparison.blended===i?"Blends more in brightness":"Stronger brightness contrast"}</strong>
-      </div>)}
+     <div className={styles.recommendation} data-guide-comparison data-look-recommendation>
+      <strong>{!lookScore?"Check your camera view first":lookScore.preferred===null?"Too close to choose":`Try ${colors[lookScore.preferred].label} first`}</strong>
+      <small>{lookScore?`For a ${goal} look · not a season-match score.`:"Scores appear on the camera buttons after a steady reading."}</small>
      </div>
      <div className={styles.actions}>
-      <span>Contrast guide, not a match score.</span>
+      <span>Look-goal guide only · Beta</span>
       <button type="button" className={styles.refresh} disabled={phase!=="running"} onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}}>Refresh comparison</button>
      </div>
     </div>
@@ -160,9 +169,11 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
    <details className={styles.explain} data-guide-help>
     <summary>How to use Live Guide</summary>
     <p><b>1.</b> Tap <b>Live Guide</b> directly above the camera. Keep your phone comfortable; your face does not need to fit the outline.</p>
-    <p><b>2.</b> The guide checks forehead and cheek areas, then compares both swatches against the same steady frame. Read the two cards above the camera.</p>
+    <p><b>2.</b> Choose Soft look for a more blended effect, or Bold look for a stronger stand-out effect. Read the /100 scores on the camera buttons and tap a shade there; no scrolling needed.</p>
     <p><b>3.</b> <b>Comparison held</b> keeps that reading still. Tap <b>Refresh comparison</b> for a new reading after changing light or position.</p>
-    <p>Less brightness contrast looks more blended; more contrast stands out. Neither is automatically more flattering. Choose only when your preference is clear, or use <b>Honestly can&apos;t tell</b>.</p>
+    <p>Higher scores mean more of your selected effect, not greater beauty or more accurate personal color. A recommendation only compares these two shades for that goal. Close scores do not pick a winner. Use <b>Honestly can&apos;t tell</b> when unsure.</p>
+    <p><b>How the score works:</b> We compare lightness, not undertone. Soft-look score = 100 minus the light/dark gap; Bold-look score = that gap. Scores are rounded to 5-point steps. These are experimental styling indices, not percentages, expert ratings or validated suitability scores.</p>
+    <p><b>Lighting matters:</b> Face even daylight, avoid colored lamps and beauty filters, and refresh after moving. A steady frame does not prove neutral lighting. Do not use these scores alone to choose your season.</p>
     {enabled&&<div className={styles.numbers}>
      {colors.slice(0,2).map((color,i)=><p key={color.hex+i}>{color.label}: {comparison?`Light/dark gap: ${comparison.gaps[i]} / 100 · not a match score`:"No comparison yet"}</p>)}
     </div>}
