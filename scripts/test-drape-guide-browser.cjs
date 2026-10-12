@@ -40,19 +40,40 @@ async function session(browser,{viewport={width:390,height:844},denied=false,del
   if(quiz)localStorage.setItem('palevie-quiz-state-v1',JSON.stringify({answers:[0,0,0,0,...Array(17).fill(null)],step:4,cantTell:[]}));
  },{denied,delayed,quiz});
  await page.goto(base+(quiz?'/quiz':'/camera-guide'),{waitUntil:'networkidle'});
- if(quiz)await page.getByRole('button',{name:'Use front camera',exact:false}).click();
+ if(quiz){
+  const guide=page.locator('[data-guide-instructions]');await guide.waitFor({state:'visible'});
+  assert.ok((await guide.innerText()).includes('Live Guide'));
+  assert.ok((await guide.innerText()).includes('Comparison held'));
+  assert.ok((await guide.innerText()).includes('Refresh comparison'));
+  await page.getByRole('button',{name:'Use front camera',exact:false}).click();
+  assert.ok((await page.locator('.camera-drape-setup').innerText()).includes('tap Live Guide directly above the preview'));
+  assert.equal(requests.filter(r=>r.url.includes('/drape-tools/')).length,0);
+  ok('real quiz onboarding and camera setup describe Live Guide without pre-enabling analysis');
+ }
  return {page,context,requests,events,errors};
 }
 async function live(page){await page.getByRole('button',{name:'Turn on front camera',exact:true}).click();await page.waitForFunction(()=>{const v=document.querySelector('.camera-drape-video');return v&&v.readyState>=2&&!v.paused;});}
 function panel(page){return page.getByRole('region',{name:'Palevie live comparison guide'});}
 async function enabled(page){await page.getByRole('button',{name:'Enable on-device guide',exact:true}).click();}
-async function steady(page){try{await panel(page).getByText('Comparison held',{exact:true}).waitFor({timeout:15000});}catch(e){console.error('GUIDE',await panel(page).innerText());await page.screenshot({path:'/tmp/comfort-failure.png',fullPage:true});throw e;}}
+async function steady(page){try{await panel(page).getByRole('status').filter({hasText:'Comparison held'}).waitFor({timeout:15000});}catch(e){console.error('GUIDE',await panel(page).innerText());await page.screenshot({path:'/tmp/comfort-failure.png',fullPage:true});throw e;}}
 async function stopped(page){await page.waitForFunction(()=>window.fixtureStream?.getTracks().every(t=>t.readyState==='ended'));}
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
   const s=await session(browser);const {page,context,requests,events,errors}=s;
   await live(page);
+  await page.evaluate(()=>{window.initialVideo=document.querySelector('video');window.initialStream=window.initialVideo.srcObject;});
+  const offButton=page.getByRole('button',{name:'Enable on-device guide',exact:true});
+  assert.equal(await offButton.getAttribute('aria-pressed'),'false');
+  const consent=await offButton.getAttribute('aria-describedby');
+  assert.ok(await page.locator(`[id="${consent}"]`).isVisible());
+  const offDock=await page.locator('[data-guide-dock]').boundingBox();
+  const offCamera=await page.locator('.camera-drape-stage').boundingBox();
+  assert.ok(offDock.y+offDock.height<=offCamera.y+1);
+  assert.ok(offCamera.y-offDock.y-offDock.height<=12);
+  assert.equal(await page.locator('[data-guide-dock]').count(),1);
+  assert.ok(offDock.height<145);
+  ok('one discoverable Live Guide toggle and privacy notice immediately above camera before opt-in');
   assert.equal(requests.filter(r=>r.url.includes('/drape-tools/')).length,0);ok('no model assets or guide worker before opt-in');
   const before=await context.storageState();
   const optinRequestIndex=requests.length;
@@ -67,6 +88,25 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.ok(requests.filter(r=>r.url.includes('/drape-tools/')).every(r=>r.method==='GET'&&new URL(r.url).origin===new URL(base).origin&&!new URL(r.url).search));
   assert.ok(!requests.slice(optinRequestIndex).some(r=>new URL(r.url).origin!==new URL(base).origin));
   ok('actual landmark inference, three registered patches, two measured swatches, no guide storage/uploads/vendor requests');
+  assert.equal(await page.getByRole('button',{name:'Turn guide off & clear measurements',exact:true}).getAttribute('aria-pressed'),'true');
+  const dock=await page.locator('[data-guide-dock]').boundingBox(),camera=await page.locator('.camera-drape-stage').boundingBox();
+  const compare=await page.locator('[data-guide-comparison]').boundingBox();
+  assert.ok(dock.height<=330);assert.ok(compare.y+compare.height<=camera.y);
+  assert.ok(camera.y-dock.y-dock.height<=12);
+  assert.ok((await page.getByRole('button',{name:'Refresh comparison',exact:true}).boundingBox()).height>=44);
+  await page.locator('[data-guide-dock]').evaluate(el=>window.scrollTo(0,el.getBoundingClientRect().top+scrollY-76));
+  const visible=await page.locator('.camera-drape-stage').boundingBox();assert.ok(visible.y<844-170);
+  ok('compact held comparison and refresh are beside camera, with face area visible on mobile');
+  const requestCount=requests.filter(r=>r.url.includes('/drape-tools/')).length;
+  await page.locator('[data-guide-help] summary').click();
+  assert.ok((await page.locator('[data-guide-help]').innerText()).includes('Refresh comparison'));
+  assert.ok((await page.locator('[data-guide-help]').innerText()).includes('No photo is held'));
+  assert.ok((await page.locator('[data-guide-help]').innerText()).includes('Honestly can'));
+  await page.locator('[data-guide-help] summary').click();
+  assert.equal(requests.filter(r=>r.url.includes('/drape-tools/')).length,requestCount);
+  assert.ok(await page.evaluate(()=>window.initialVideo===document.querySelector('video')&&window.initialStream===document.querySelector('video').srcObject));
+  ok('expanded help explains use/privacy/limits without restarting camera or analysis');
+
   const geometry=await page.evaluate(()=>{
    const stage=document.querySelector('.camera-drape-stage'),guide=document.querySelector('.camera-drape-guide'),video=document.querySelector('video'),controls=document.querySelector('.camera-drape-switch');
    const s=stage.getBoundingClientRect(),g=guide.getBoundingClientRect(),c=controls.getBoundingClientRect();
@@ -75,17 +115,17 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.ok(geometry.widthRatio>=.76);assert.equal(geometry.fit,'contain');assert.ok(['50% 0px','50% 0%'].includes(geometry.position));assert.ok(geometry.clearControls);
   ok('larger loose outline and uncropped view; color controls no longer obscure forehead');
   const comparisonText=await page.locator('[data-guide-comparison]').innerText();
-  const gridBefore=await page.locator('[data-guide-comparison]').boundingBox();
+  const gridBefore=await page.locator('[data-guide-comparison]').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y+scrollY,width:r.width,height:r.height};});
   await page.evaluate(()=>{window.fixtureMode='jitter';});await page.waitForTimeout(800);
   assert.equal(await page.locator('[data-guide-comparison]').innerText(),comparisonText);
-  assert.equal(await panel(page).getByText('Comparison held',{exact:true}).count(),1);
+  assert.equal(await panel(page).getByRole('status').filter({hasText:'Comparison held'}).count(),1);
   await page.evaluate(()=>{window.fixtureMode='face';});await page.waitForTimeout(1600);
   assert.equal(await page.locator('[data-guide-comparison]').innerText(),comparisonText);
-  const gridAfter=await page.locator('[data-guide-comparison]').boundingBox();assert.ok(Math.abs(gridAfter.y-gridBefore.y)<1);assert.equal(gridAfter.height,gridBefore.height);
+  const gridAfter=await page.locator('[data-guide-comparison]').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y+scrollY,width:r.width,height:r.height};});assert.ok(Math.abs(gridAfter.y-gridBefore.y)<1);assert.equal(gridAfter.height,gridBefore.height);
   ok('brief synthetic hand jitter leaves explanation, values and panel geometry fixed');
   await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();
   assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
-  const waitingGrid=await page.locator('[data-guide-comparison]').boundingBox();assert.equal(waitingGrid.height,gridBefore.height);assert.ok(Math.abs(waitingGrid.y-gridBefore.y)<1);
+  const waitingGrid=await page.locator('[data-guide-comparison]').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y+scrollY,width:r.width,height:r.height};});assert.equal(waitingGrid.height,gridBefore.height);assert.ok(Math.abs(waitingGrid.y-gridBefore.y)<1);
   await steady(page);ok('explicit refresh clears old data and remeasures without layout jump');
   await page.evaluate(()=>{window.fixtureMode='close';});
   await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await steady(page);
@@ -94,7 +134,7 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   await page.evaluate(()=>{window.fixtureMode='face';});await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await steady(page);
 
   await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
-  await panel(page).getByText('Navy',{exact:true}).waitFor();await panel(page).getByText('Cream',{exact:true}).waitFor();
+  await page.locator('[data-guide-comparison]').getByText('Navy',{exact:true}).waitFor();await page.locator('[data-guide-comparison]').getByText('Cream',{exact:true}).waitFor();
   ok('changing pairs clears old comparison and recomputes both swatches');
   await page.evaluate(()=>{window.fixtureMode='blank';});await panel(page).getByText('Find your face',{exact:true}).waitFor();
   assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
@@ -106,16 +146,19 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   await panel(page).getByText('Guide paused',{exact:true}).waitFor();
   assert.equal(await page.locator('.camera-drape-stage svg circle').count(),0);
   await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,get:()=> 'visible'});document.dispatchEvent(new Event('visibilitychange'));});await steady(page);ok('simulated hidden-tab transition clears guide and restarts without stale values');
-  if(process.env.DRAPE_SCREENSHOT_PATH){await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);await page.screenshot({path:process.env.DRAPE_SCREENSHOT_PATH,fullPage:true});}
+  if(process.env.DRAPE_SCREENSHOT_PATH){await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);await panel(page).screenshot({path:process.env.DRAPE_SCREENSHOT_PATH});}
   await page.getByRole('button',{name:'Turn guide off & clear measurements',exact:true}).click();
   assert.equal(await page.locator('.camera-drape-stage svg circle').count(),0);
-  assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);ok('opt-out removes measurements/markers while camera remains usable');
+  assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
+  assert.ok(await page.evaluate(()=>window.initialVideo===document.querySelector('video')&&window.initialStream===document.querySelector('video').srcObject&&!document.querySelector('video').paused));
+  assert.equal(await page.getByRole('button',{name:'Enable on-device guide',exact:true}).getAttribute('aria-pressed'),'false');
+  ok('top-toggle opt-out clears values without replacing the live video or stream');
   await enabled(page);await steady(page);
   await page.getByRole('button',{name:'Switch to mirror',exact:true}).click();await stopped(page);
   assert.equal(await panel(page).count(),0);assert.equal(events.filter(e=>/quiz_|drape_camera/.test(e.name)).length,0);assert.deepEqual(errors,[]);
   ok('mirror stops tracks and unmounts worker; lab writes no quiz/camera events');await context.close();
 
-  for(const viewport of [{width:1280,height:900},{width:844,height:390}]){
+  for(const viewport of [{width:1280,height:900},{width:844,height:390},{width:320,height:740}]){
    const s=await session(browser,{viewport});await live(s.page);await enabled(s.page);
    await s.page.waitForTimeout(6000);
    const text=await panel(s.page).innerText();assert.ok(!text.includes('unavailable here')&&!text.includes('Loading tools'));

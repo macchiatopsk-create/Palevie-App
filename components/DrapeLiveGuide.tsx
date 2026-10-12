@@ -1,6 +1,6 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
-import type {RefObject} from "react";
+import {useEffect,useId,useRef,useState} from "react";
+import type {ReactNode,RefObject} from "react";
 import {createPortal} from "react-dom";
 import {advanceGuideView,emptyGuideView,mapGuidePoint,patchObstructed} from "@/lib/drapeGuideView";
 import type {GuideComparison,GuideLayout,GuidePoint} from "@/lib/drapeGuideView";
@@ -22,9 +22,10 @@ const MESSAGES:Record<string,[string,string]>={
  held:["Comparison held","This is your last steady comparison, not a changing live score. Read at your pace, or refresh for a new reading."],
  obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."]
 };
-export default function DrapeLiveGuide({videoRef,stageRef,playing,colors}:{
- videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];
+export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children}:{
+ videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;
 }){
+ const consentId=useId(),toolsId=useId();
  const [enabled,setEnabled]=useState(false),[visible,setVisible]=useState(true);
  const [phase,setPhase]=useState<Phase>("off"),[sample,setSample]=useState<Measurement|null>(null);
  const [epoch,setEpoch]=useState(0);
@@ -125,37 +126,49 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors}:{
     {mapped.map((p,i)=><g key={i}><circle className={styles.ring} cx={p.x} cy={p.y} r={p.r}/><text className={styles.label} x={p.x+p.r+4} y={p.y+3}>{i+1}</text></g>)}
    </svg>,stage)}
   <section className={styles.panel} aria-label="Palevie live comparison guide">
-   <div className={styles.header}><b>Palevie Live Guide</b><span>BETA</span></div>
-   {!enabled?<>
-    <p>Hold your phone comfortably. We will check the view, then hold the comparison still so you can read it.</p>
-    <button type="button" className={styles.enable} onClick={()=>setEnabled(true)}>Enable on-device guide</button>
-    <small>AI locates forehead and cheek areas only. Frames and measurements stay in memory, never saved or uploaded. The guide does not answer the quiz for you.</small>
-   </>:<>
-    <div className={styles.notice}>
-     <div role="status" className={`${styles.status} ${comparison?styles.ready:""}`}><i className={styles.dot}/>
-      {phase==="loading"?"Loading tools on this device…":phase==="error"?"Live Guide is unavailable here":phase==="paused"?"Guide paused":message[0]}
+   <div className={styles.dock} data-guide-dock>
+    <div className={styles.header}>
+     <div className={styles.title}><b>Palevie Live Guide</b><span>BETA · ON-DEVICE</span></div>
+     <button type="button" className={`${styles.toggle} ${enabled?styles.toggleOn:""}`}
+      aria-label={enabled?"Turn guide off & clear measurements":"Enable on-device guide"}
+      aria-pressed={enabled} aria-controls={toolsId} aria-describedby={consentId}
+      onClick={()=>{clearMeasurements();setEnabled(v=>!v);}}>
+      <i aria-hidden/>Live Guide <span>{enabled?"On":"Off"}</span>
+     </button>
+    </div>
+    <p id={consentId} className={styles.consent}>Tap Live Guide for light and brightness-contrast help. Frames stay on this device, never saved or uploaded.</p>
+    <div id={toolsId} hidden={!enabled}>
+     <div className={styles.notice}>
+      <div role="status" className={`${styles.status} ${comparison?styles.ready:""}`}><i className={styles.dot}/>
+       {phase==="loading"?"Loading tools on this device…":phase==="error"?"Live Guide is unavailable here":phase==="paused"?"Guide paused":message[0]}
+      </div>
+      <p>{phase==="error"?"Keep using the camera or mirror. No cloud fallback.":phase==="loading"?"One-time model load. No camera images are sent.":phase==="paused"?"Camera paused or page hidden. Measurements cleared.":comparison?"Last steady reading. Read at your pace; refresh when ready.":message[1]}</p>
      </div>
-     <p>{phase==="error"?"Your camera and quiz still work. Continue without the guide or use a mirror. We never switch to cloud analysis.":phase==="loading"?"Loading the face-location model. No camera frames are sent to load it.":phase==="paused"?"Measurements are cleared while the camera is paused or this page is hidden.":message[1]}</p>
+     <div className={styles.grid} data-guide-comparison>
+      {colors.slice(0,2).map((color,i)=><div key={color.hex+i} className={styles.card}>
+       <div className={styles.name}><i className={styles.swatch} style={{background:color.hex}}/>{color.label}</div>
+       <strong>{!comparison?"Waiting for a steady view":comparison.blended===null?"Similar brightness gap":comparison.blended===i?"Blends more in brightness":"Stronger brightness contrast"}</strong>
+      </div>)}
+     </div>
+     <div className={styles.actions}>
+      <span>Contrast guide, not a match score.</span>
+      <button type="button" className={styles.refresh} disabled={phase!=="running"} onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}}>Refresh comparison</button>
+     </div>
     </div>
-    <div className={styles.grid} data-guide-comparison>
-     {colors.slice(0,2).map((color,i)=><div key={color.hex+i} className={styles.card}>
-      <div className={styles.name}><i className={styles.swatch} style={{background:color.hex}}/>{color.label}</div>
-      <strong>{!comparison?"Waiting for a steady view":comparison.blended===null?"Similar brightness gap":comparison.blended===i?"Blends more in brightness":"Stronger brightness contrast"}</strong>
-      <div className={styles.track} aria-hidden><i style={{width:`${comparison?.gaps[i]??0}%`}}/></div>
-      <small>{comparison?`Light/dark gap: ${comparison.gaps[i]} / 100 · not a match score`:"No comparison yet"}</small>
-     </div>)}
-    </div>
-    <p className={styles.interpretation}>Less brightness contrast gives a more blended effect. More contrast stands out. Neither is automatically more flattering.</p>
-    <button type="button" className={styles.refresh} disabled={phase!=="running"} onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}}>Refresh comparison</button>
-    <details className={styles.explain}>
-     <summary>What are we measuring?</summary>
-     <p>1 is the forehead; 2 and 3 are cheek areas. Both swatches are compared on the same steady frame. Only the comparison values are held in memory, not a photo. Refresh after changing light or position.</p>
-     <p>The last reading stays still through brief hand movement. Missing faces or invalid image areas clear it; sustained unstable conditions also clear it. Lighting, makeup and camera settings affect the estimate.</p>
-     <p>This is not an undertone, redness, attractiveness or expert-validated season score. On-screen cloth does not physically change your face.</p>
-    </details>
-    <button type="button" className={styles.off} onClick={()=>{setEnabled(false);clearMeasurements();}}>Turn guide off &amp; clear measurements</button>
-    <small>On-device only · no photo files · no measurement analytics</small>
-   </>}
+   </div>
+   {children}
+   <details className={styles.explain} data-guide-help>
+    <summary>How to use Live Guide</summary>
+    <p><b>1.</b> Tap <b>Live Guide</b> directly above the camera. Keep your phone comfortable; your face does not need to fit the outline.</p>
+    <p><b>2.</b> The guide checks forehead and cheek areas, then compares both swatches against the same steady frame. Read the two cards above the camera.</p>
+    <p><b>3.</b> <b>Comparison held</b> keeps that reading still. Tap <b>Refresh comparison</b> for a new reading after changing light or position.</p>
+    <p>Less brightness contrast looks more blended; more contrast stands out. Neither is automatically more flattering. Choose only when your preference is clear, or use <b>Honestly can&apos;t tell</b>.</p>
+    {enabled&&<div className={styles.numbers}>
+     {colors.slice(0,2).map((color,i)=><p key={color.hex+i}>{color.label}: {comparison?`Light/dark gap: ${comparison.gaps[i]} / 100 · not a match score`:"No comparison yet"}</p>)}
+    </div>}
+    <p>The guide locates facial areas, not identity or a color season. Lighting, makeup and camera settings affect these estimates. It does not measure undertone, redness improvement, attractiveness or an expert-validated match.</p>
+    <p>No photo is held: only comparison values stay in memory. Turning Live Guide off clears them without stopping your camera. Pausing, leaving the page, missing faces and sustained poor conditions clear them too. No measurement analytics are sent.</p>
+   </details>
   </section>
  </>;
 }

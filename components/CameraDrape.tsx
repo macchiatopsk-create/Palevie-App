@@ -69,7 +69,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
    <div className="camera-drape-band" style={{background:current?.hex}}/>
   </div>
   <h3>See the color on you</h3>
-  <p>Compare shades beside your face. You can enable the on-device Live Guide once the camera is on.</p>
+  <p>Turn on the camera, then tap Live Guide directly above the preview. It checks the view and explains brightness contrast; you still choose your answer.</p>
   <div className="camera-drape-mini-tips" aria-hidden><span>☀ Neutral light</span><span>◌ Face centered</span><span>⊘ No filters</span></div>
   {status==="error"&&<p className="camera-drape-error">{errorText}</p>}
   <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>{status==="starting"?"Starting camera…":"Turn on front camera"}</button>
@@ -82,6 +82,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
    <div className={`camera-drape-switch ${styles.controls}`} role="group" aria-label="Draping colors">
     {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}><i style={{background:color.hex}}/><span>{color.label}</span></button>)}
    </div>
+  <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors}>
   <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}>
    <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted
     onPlaying={()=>setCameraPlaying(true)} onPause={()=>setCameraPlaying(false)} aria-label="Live front camera preview"/>
@@ -94,8 +95,8 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
 
    <div className="camera-drape-cloth" style={{background:current.hex}}><div className="camera-drape-cloth-folds" aria-hidden/><span>{current.label}</span></div>
   </div>
-  <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors}/>
-  <p className="camera-drape-prompt"><b>Compare the effect, not a right answer.</b><br/>The guide explains brightness contrast. Choose only when your preference is clear; otherwise use Honestly can&apos;t tell.</p>
+  </DrapeLiveGuide>
+  <p className="camera-drape-prompt"><b>Compare the effect, not a right answer.</b><br/>Tap Live Guide above the camera for contrast help. Its held comparison stays still while you read. Choose only when your preference is clear; otherwise use Honestly can&apos;t tell.</p>
   <div className="qz-actions camera-drape-actions">
    <button type="button" className="dr-pick camera-drape-pick" onClick={onPick}>{MARK.check} This looks better</button>
    <button type="button" className="qz-skip dr-skip" onClick={onCant}>Honestly can&apos;t tell</button>

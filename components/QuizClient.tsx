@@ -99,7 +99,7 @@ export default function QuizClient(){
    {q.help&&<p className="qz-help">{q.id==="confirm"
      ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`
      : drapeMode==="camera"&&q.kind==="drape"
-       ? "Compare both colors on the live preview. The optional Live Guide explains brightness contrast, not a right or wrong answer."
+       ? "Tap Live Guide above the camera for light and brightness-contrast help. Read the held comparison, or tap Refresh comparison. It does not choose an answer for you."
        : q.help}</p>}
 
    {q.kind==="drape" ? (()=>{const opts=q.id==="confirm"?confirmDrape(answers).options:q.options;const sw=opts.filter(o=>o.hex);const cur=sw[side]??sw[0];const curIdx=opts.indexOf(cur);
@@ -156,13 +156,13 @@ function DrapeGuide({onSelect}:{onSelect:(mode:"camera"|"mirror")=>void}){
    <div className="dg-head">
     <span className="qz-act">Step 2 of 3 · Draping</span>
     <h2 id="dg-title">Choose how you want to drape</h2>
-    <p>Compare colors next to your face. The front camera is the easiest option when you do not have a mirror nearby.</p>
+    <p>Compare colors next to your face. With the front camera, tap Live Guide above the preview for on-device light and brightness-contrast help.</p>
    </div>
 
    <div className="dg-methods">
     <button type="button" className="dg-method dg-method-primary" onClick={()=>onSelect("camera")}>
      <span className="dg-method-icon" aria-hidden>◎</span>
-     <span><b>Use front camera</b><small>Recommended · no mirror needed</small></span>
+     <span><b>Use front camera</b><small>Optional Live Guide · no mirror needed</small></span>
      <i>{MARK.chevron}</i>
     </button>
     <button type="button" className="dg-method" onClick={()=>onSelect("mirror")}>
@@ -177,6 +177,8 @@ function DrapeGuide({onSelect}:{onSelect:(mode:"camera"|"mirror")=>void}){
     <span>◌ <b>Face centered</b></span>
     <span>⊘ <b>No beauty filters</b></span>
    </div>
+
+   <p className="dg-privacy" data-guide-instructions><b>How to use Live Guide:</b> Turn on the camera → tap <b>Live Guide</b> above it → wait for <b>Comparison held</b>. The two color cards stay still so you can read them. Tap <b>Refresh comparison</b> to check again. This is contrast help, not an automatic tone result; <b>Honestly can&apos;t tell</b> is always available.</p>
 
    <p className="dg-privacy">Your camera preview stays on your device. The optional Live Guide processes frames only in memory. Palevie does not save or upload images or guide measurements.</p>
   </section>
