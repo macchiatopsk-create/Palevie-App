@@ -7,3 +7,4 @@ node_modules
 *.log
 .quiztest
 .skintest
+/public/drape-tools/vendor/

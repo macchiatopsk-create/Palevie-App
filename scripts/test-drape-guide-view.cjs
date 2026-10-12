@@ -1,0 +1,21 @@
+// Pure timing + rendered-coordinate tests. No images, devices or network.
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
+const moduleStub={exports:{}};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/drapeGuideView.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText,{exports:moduleStub.exports,module:moduleStub});
+const {advanceGuideView:advance,emptyGuideView:empty,mapGuidePoint,patchObstructed}=moduleStub.exports;
+const c={gaps:[10,40],blended:0};
+const ready=()=>advance(empty('a'),{pair:'a',status:'ready',comparison:c,now:0});
+let n=0;const test=(name,f)=>{f();n++;console.log('PASS '+name)};
+const input=(status,now,pair='a')=>({pair,status,comparison:null,now});
+test('wide sensor fits without cover crop; markers follow contain center-top mirror',()=>{const l={width:300,height:400,vw:640,vh:480,clothTop:270},p=mapGuidePoint({x:.25,y:.5,r:.05},l);assert.equal(p.x,225);assert.equal(p.y,112.5);assert.equal(p.r,15);assert.equal(patchObstructed([p],l),false)});
+test('portrait mapping keeps original aspect ratio',()=>{const p=mapGuidePoint({x:.25,y:.5,r:.05},{width:300,height:400,vw:720,vh:960,clothTop:270});assert.equal(p.x,225);assert.equal(p.y,200);assert.equal(p.r,15)});
+test('held values never chase small valid frame changes',()=>{let s=ready();for(let t=300;t<12000;t+=300)s=advance(s,{pair:'a',status:'ready',comparison:{gaps:[50,10],blended:1},now:t});assert.equal(s.held.comparison.gaps[0],10);assert.equal(s.status,'held');assert.equal(s.held.measuredAt,0)});
+test('brief hand movement and settling do not rewrite explanation',()=>{let s=ready();s=advance(s,input('changed',300));s=advance(s,input('settling',1000));s=advance(s,input('settling',2500));assert.ok(s.held);assert.equal(s.status,'held');s=advance(s,{pair:'a',status:'ready',comparison:c,now:2600});assert.ok(s.held)});
+test('continuous movement cannot keep stale data forever',()=>{let s=ready();s=advance(s,input('changed',300));s=advance(s,input('settling',1600));s=advance(s,input('changed',3400));assert.equal(s.held,null)});
+test('sustained pose/light warnings clear readings after 1.2s',()=>{for(const status of ['pose','uneven']){let s=advance(ready(),input(status,100));s=advance(s,input(status,1300));assert.equal(s.held,null);assert.equal(s.status,status)}});
+test('brief notices are debounced rather than flashing',()=>{let s=empty('a');s=advance(s,input('pose',0));assert.equal(s.status,'settling');s=advance(s,input('changed',300));assert.equal(s.status,'settling');s=advance(s,input('pose',600));assert.equal(s.status,'settling')});
+test('face loss, multiple faces, invalid areas and stale stream clear immediately',()=>{for(const status of ['no-face','multiple','cropped','clipped','obstructed','expired'])assert.equal(advance(ready(),input(status,100)).held,null)});
+test('new color pair or refresh epoch cannot reuse old comparison',()=>{assert.equal(advance(ready(),input('settling',100,'b')).held,null);assert.equal(advance(ready(),input('settling',100,'a:refresh')).held,null)});
+test('held comparison is copied, not a mutable worker buffer',()=>{const s=ready();c.gaps[0]=99;assert.equal(s.held.comparison.gaps[0],10);c.gaps[0]=10});
+test('actual off/pause lifecycle empties held data',()=>{assert.equal(empty('a').held,null);const text=fs.readFileSync('components/DrapeLiveGuide.tsx','utf8');assert.ok(text.includes('if(!visible||!playing)'));assert.ok(text.includes('data.pair===pairRef.current'));assert.ok(text.includes('clearMeasurements();setEpoch'));assert.ok(!/localStorage|sessionStorage|indexedDB|\btrack\(/.test(text))});
+console.log(`${n} comfort/presentation tests passed.`);
