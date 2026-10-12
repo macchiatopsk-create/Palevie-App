@@ -30,7 +30,7 @@ async function session(browser,{viewport={width:390,height:844},denied=false,del
    const make=async()=>{
     const img=new Image();img.src='/__fixture.jpg';await img.decode();
     const c=document.createElement('canvas');c.width=720;c.height=960;const ctx=c.getContext('2d');
-    const draw=()=>{ctx.fillStyle='#b8b1a4';ctx.fillRect(0,0,720,960);if(window.fixtureMode==='face')ctx.drawImage(img,150,70,520,650,0,0,720,900);};
+    const draw=()=>{ctx.fillStyle='#b8b1a4';ctx.fillRect(0,0,720,960);if(window.fixtureMode!=='blank'){const close=window.fixtureMode==='close',jitter=window.fixtureMode==='jitter'?Math.sin(Date.now()/70)*14:0;ctx.drawImage(img,close?210:150,close?40:70,close?400:520,close?520:650,jitter,0,720,900);}};
     draw();window.fixtureTimer=setInterval(draw,250);
     const stream=c.captureStream(4);window.fixtureStream=stream;return stream;
    };
@@ -46,7 +46,7 @@ async function session(browser,{viewport={width:390,height:844},denied=false,del
 async function live(page){await page.getByRole('button',{name:'Turn on front camera',exact:true}).click();await page.waitForFunction(()=>{const v=document.querySelector('.camera-drape-video');return v&&v.readyState>=2&&!v.paused;});}
 function panel(page){return page.getByRole('region',{name:'Palevie live comparison guide'});}
 async function enabled(page){await page.getByRole('button',{name:'Enable on-device guide',exact:true}).click();}
-async function steady(page){await panel(page).getByText('Frame is steady',{exact:true}).waitFor({timeout:30000});}
+async function steady(page){try{await panel(page).getByText('Comparison held',{exact:true}).waitFor({timeout:15000});}catch(e){console.error('GUIDE',await panel(page).innerText());await page.screenshot({path:'/tmp/comfort-failure.png',fullPage:true});throw e;}}
 async function stopped(page){await page.waitForFunction(()=>window.fixtureStream?.getTracks().every(t=>t.readyState==='ended'));}
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
@@ -67,6 +67,32 @@ async function stopped(page){await page.waitForFunction(()=>window.fixtureStream
   assert.ok(requests.filter(r=>r.url.includes('/drape-tools/')).every(r=>r.method==='GET'&&new URL(r.url).origin===new URL(base).origin&&!new URL(r.url).search));
   assert.ok(!requests.slice(optinRequestIndex).some(r=>new URL(r.url).origin!==new URL(base).origin));
   ok('actual landmark inference, three registered patches, two measured swatches, no guide storage/uploads/vendor requests');
+  const geometry=await page.evaluate(()=>{
+   const stage=document.querySelector('.camera-drape-stage'),guide=document.querySelector('.camera-drape-guide'),video=document.querySelector('video'),controls=document.querySelector('.camera-drape-switch');
+   const s=stage.getBoundingClientRect(),g=guide.getBoundingClientRect(),c=controls.getBoundingClientRect();
+   return {widthRatio:g.width/s.width,fit:getComputedStyle(video).objectFit,position:getComputedStyle(video).objectPosition,clearControls:c.bottom<=s.top+1};
+  });
+  assert.ok(geometry.widthRatio>=.76);assert.equal(geometry.fit,'contain');assert.ok(['50% 0px','50% 0%'].includes(geometry.position));assert.ok(geometry.clearControls);
+  ok('larger loose outline and uncropped view; color controls no longer obscure forehead');
+  const comparisonText=await page.locator('[data-guide-comparison]').innerText();
+  const gridBefore=await page.locator('[data-guide-comparison]').boundingBox();
+  await page.evaluate(()=>{window.fixtureMode='jitter';});await page.waitForTimeout(800);
+  assert.equal(await page.locator('[data-guide-comparison]').innerText(),comparisonText);
+  assert.equal(await panel(page).getByText('Comparison held',{exact:true}).count(),1);
+  await page.evaluate(()=>{window.fixtureMode='face';});await page.waitForTimeout(1600);
+  assert.equal(await page.locator('[data-guide-comparison]').innerText(),comparisonText);
+  const gridAfter=await page.locator('[data-guide-comparison]').boundingBox();assert.ok(Math.abs(gridAfter.y-gridBefore.y)<1);assert.equal(gridAfter.height,gridBefore.height);
+  ok('brief synthetic hand jitter leaves explanation, values and panel geometry fixed');
+  await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();
+  assert.equal(await panel(page).getByText(/Light\/dark gap:/).count(),0);
+  const waitingGrid=await page.locator('[data-guide-comparison]').boundingBox();assert.equal(waitingGrid.height,gridBefore.height);assert.ok(Math.abs(waitingGrid.y-gridBefore.y)<1);
+  await steady(page);ok('explicit refresh clears old data and remeasures without layout jump');
+  await page.evaluate(()=>{window.fixtureMode='close';});
+  await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await steady(page);
+  assert.equal(await page.locator('.camera-drape-stage svg circle').count(),3);
+  ok('closer/larger synthetic face is accepted with unchanged image-quality thresholds');
+  await page.evaluate(()=>{window.fixtureMode='face';});await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await steady(page);
+
   await page.getByRole('button',{name:'Try another color pair',exact:true}).click();await steady(page);
   await panel(page).getByText('Navy',{exact:true}).waitFor();await panel(page).getByText('Cream',{exact:true}).waitFor();
   ok('changing pairs clears old comparison and recomputes both swatches');

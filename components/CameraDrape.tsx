@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import {track} from "@/lib/analytics";
 import {MARK} from "@/components/icons";
 import DrapeLiveGuide from "./DrapeLiveGuide";
+import styles from "./CameraDrape.module.css";
 
 type Color={label:string;hex:string};
 export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror,telemetry=true}:{
@@ -77,7 +78,11 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
  </div>;
  return <div className="camera-drape camera-drape-live">
   <div className="camera-drape-livebar"><span><b>Live Draping</b><small>Compare on your face</small></span><em>On-device</em></div>
-  <div className="camera-drape-stage" ref={stageRef}>
+  <p className={styles.comfort}>Hold your phone comfortably. Your face does not need to fit the outline.</p>
+   <div className={`camera-drape-switch ${styles.controls}`} role="group" aria-label="Draping colors">
+    {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}><i style={{background:color.hex}}/><span>{color.label}</span></button>)}
+   </div>
+  <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}>
    <video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted
     onPlaying={()=>setCameraPlaying(true)} onPause={()=>setCameraPlaying(false)} aria-label="Live front camera preview"/>
    {!cameraPlaying&&<button type="button" className="camera-drape-resume" onClick={()=>{
@@ -86,9 +91,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
     void video.play().then(()=>{if(mountedRef.current)setCameraPlaying(true);}).catch(()=>{if(mountedRef.current)setCameraPlaying(false);});
    }}>Tap to show camera</button>}
    <div className="camera-drape-vignette" aria-hidden/><div className="camera-drape-guide" aria-hidden/>
-   <div className="camera-drape-switch" role="group" aria-label="Draping colors">
-    {colors.map((color,i)=><button type="button" key={color.label} className={i===side?"on":""} onClick={()=>chooseSide(i)}><i style={{background:color.hex}}/><span>{color.label}</span></button>)}
-   </div>
+
    <div className="camera-drape-cloth" style={{background:current.hex}}><div className="camera-drape-cloth-folds" aria-hidden/><span>{current.label}</span></div>
   </div>
   <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors}/>

@@ -1,0 +1,6 @@
+/* A loose framing cue, not a face-size target. Preserve the existing drape size. */
+.stage :global(.camera-drape-video){object-fit:contain;object-position:50% 0}
+.stage :global(.camera-drape-guide){width:78%;max-width:440px;height:60%;top:3%;border-style:dashed;border-color:rgba(255,255,255,.38);box-shadow:none}
+.stage :global(.camera-drape-guide)::before,.stage :global(.camera-drape-guide)::after{display:none}
+.controls:global(.camera-drape-switch){position:static;inset:auto;margin:8px 0 10px;backdrop-filter:none}
+.comfort{margin:6px 2px 0;color:#776970;font-size:11px;line-height:1.5;text-align:center}

@@ -9,3 +9,14 @@
 .explain{border-top:1px solid #e4dcd1;margin-top:12px;padding-top:8px}.explain summary{cursor:pointer;font-size:11px;font-weight:650;min-height:32px;display:flex;align-items:center}.explain p{font-size:11px}
 .overlay{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}.ring{fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.85);stroke-width:1.25;stroke-dasharray:3 3}.label{font:600 10px system-ui;fill:#fff;paint-order:stroke;stroke:#312820;stroke-width:2px}
 @media(prefers-reduced-motion:reduce){.panel *{transition:none!important}}
+/* Keep explanations and controls still as raw tracking status changes. */
+.notice{min-height:112px}
+.notice p{margin-bottom:0}
+.card{min-height:158px}
+.name{min-height:30px}
+.card strong{min-height:50px}
+.card small{min-height:30px}
+.interpretation{min-height:76px}
+.refresh{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #b9aa96;background:transparent;border-radius:12px;color:#594c42;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.refresh:focus-visible{outline:3px solid #a776c8;outline-offset:3px}
+.refresh:disabled{opacity:.5;cursor:default}
