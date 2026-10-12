@@ -12,7 +12,8 @@ const assets=[
  ['vision_wasm_internal.wasm',npm+'wasm/vision_wasm_internal.wasm','6a5c64584c2ab61c763b6e204afbdbc7ce1caf7f5216187322bca8df94f646bc'],
  ['vision_wasm_nosimd_internal.js',npm+'wasm/vision_wasm_nosimd_internal.js','438d1fe8ff7f4d946025bc211c291543c037d8a3785ed4eee60f1f521b236296'],
  ['vision_wasm_nosimd_internal.wasm',npm+'wasm/vision_wasm_nosimd_internal.wasm','8a3092d34c79d3f57e6ba8592105e8a90f6b07c27891ffecd14cca428bfd3e31'],
- ['face_landmarker.task','https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task','64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff']
+ ['face_landmarker.task','https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task','64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff'],
+ ['LICENSE-mediapipe.txt','https://raw.githubusercontent.com/google-ai-edge/mediapipe/v0.10.35/LICENSE','8707eef0533987efc5b155d64761eeb6e20793f50b9bd1a68dad1cf4719d0ed8']
 ];
 const hash=b=>createHash('sha256').update(b).digest('hex');
 const dest=path.join(root,'public/drape-tools/vendor');await mkdir(dest,{recursive:true});
