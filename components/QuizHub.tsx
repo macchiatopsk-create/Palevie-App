@@ -61,10 +61,9 @@ export default function QuizHub() {
   const h = HEADINGS[tab];
   const season = calendarSeason();
 
-  if (fromBackwardsAd) {
-    // Do not mount QuizClient until they click. quiz_started now means a real CTA start.
-    // Keep hero and tabs out of the way after starting so Q1 stays near the top.
-    return <div className="qh">{adQuizStarted ? <QuizClient /> : <QuizAdWelcome onStart={() => setAdQuizStarted(true)} />}</div>;
+  if (fromBackwardsAd && !adQuizStarted) {
+    // One discrete fullscreen entry BEFORE the quiz; quiz page resumes its normal layout after CTA.
+    return <QuizAdWelcome onStart={() => setAdQuizStarted(true)} />;
   }
 
   return (

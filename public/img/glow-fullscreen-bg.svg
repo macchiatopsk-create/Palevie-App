@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 932" preserveAspectRatio="none">
+<title>Bright pink, lilac and periwinkle palette on an airy floral background</title>
+<defs>
+ <linearGradient id="wall" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffdfd"/><stop offset=".43" stop-color="#fff9fc"/><stop offset=".72" stop-color="#fff1fa"/><stop offset="1" stop-color="#f8f1ff"/></linearGradient>
+ <radialGradient id="glowPink"><stop stop-color="#ffbddb" stop-opacity=".55"/><stop offset="1" stop-color="#ffbddb" stop-opacity="0"/></radialGradient>
+ <radialGradient id="glowLilac"><stop stop-color="#d9bfff" stop-opacity=".6"/><stop offset="1" stop-color="#e0c8fa" stop-opacity="0"/></radialGradient>
+ <radialGradient id="crystal"><stop stop-color="#fff" stop-opacity=".96"/><stop offset=".38" stop-color="#f3ebff" stop-opacity=".22"/><stop offset=".84" stop-color="#debde9" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity=".65"/></radialGradient>
+ <filter id="blurSoft"><feGaussianBlur stdDeviation="22"/></filter>
+ <g id="petal"><path d="M0 0C-25-33-63-23-63-2C-62 18-23 18 0 0Z" fill="#ffd0e4"/><path d="M0 0C-10-32 11-57 34-40C55-18 22 8 0 0Z" fill="#ffe1ec"/><path d="M0 0C20-25 65-13 58 13C51 32 20 19 0 0Z" fill="#f6b3d9"/></g>
+</defs>
+<rect width="430" height="932" fill="url(#wall)"/>
+<ellipse cx="45" cy="315" rx="175" ry="260" fill="url(#glowPink)"/>
+<ellipse cx="410" cy="535" rx="200" ry="360" fill="url(#glowLilac)"/>
+<ellipse cx="210" cy="836" rx="290" ry="180" fill="url(#glowPink)" opacity=".4"/>
+<g opacity=".55" filter="url(#blurSoft)"><circle cx="0" cy="385" r="46" fill="#ffb5d7"/><circle cx="430" cy="705" r="50" fill="#e2beff"/></g>
+<g opacity=".72" transform="translate(27 435) rotate(-20) scale(1.04)"><use href="#petal"/></g>
+<g opacity=".35" transform="translate(418 734) rotate(67) scale(.83)"><use href="#petal"/></g>
+<circle cx="22" cy="514" r="51" fill="url(#crystal)" stroke="#fff" stroke-opacity=".8" stroke-width="4"/>
+<path d="M0 502C19 467 43 464 64 484" stroke="#fff" stroke-opacity=".8" stroke-width="6" fill="none" stroke-linecap="round"/>
+<circle cx="402" cy="418" r="27" fill="url(#crystal)" stroke="#fff" stroke-opacity=".65" stroke-width="3"/>
+<g transform="translate(-1 344)">
+<svg x="0" y="0" width="432" height="357" viewBox="0 0 430 356" preserveAspectRatio="xMidYMid meet">
+
+
+<defs>
+ <linearGradient id="rosy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9ABF"/><stop offset=".52" stop-color="#EE679F"/><stop offset="1" stop-color="#D94E88"/></linearGradient>
+ <linearGradient id="candy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFC5E4"/><stop offset=".5" stop-color="#FF9BCB"/><stop offset="1" stop-color="#F77CB6"/></linearGradient>
+ <linearGradient id="blush" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFE8F0"/><stop offset=".5" stop-color="#FFC4D8"/><stop offset="1" stop-color="#F7AFCB"/></linearGradient>
+ <linearGradient id="lilac" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F1DAFF"/><stop offset=".5" stop-color="#DDB7FC"/><stop offset="1" stop-color="#C994EE"/></linearGradient>
+ <linearGradient id="lavender" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#D9C9FF"/><stop offset=".54" stop-color="#B9A1EE"/><stop offset="1" stop-color="#A48FE7"/></linearGradient>
+ <linearGradient id="periwinkle" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#D1D9FF"/><stop offset=".54" stop-color="#B2C5FF"/><stop offset="1" stop-color="#90A5EC"/></linearGradient>
+ <linearGradient id="shine" x1=".05" y1="0" x2=".95" y2=".88"><stop stop-color="#FFF" stop-opacity=".55"/><stop offset=".22" stop-color="#FFF" stop-opacity=".04"/><stop offset=".62" stop-color="#FFF" stop-opacity=".17"/><stop offset="1" stop-color="#FFF" stop-opacity="0"/></linearGradient>
+ <radialGradient id="halo"><stop stop-color="#FAC8ED" stop-opacity=".78"/><stop offset="1" stop-color="#FAC8ED" stop-opacity="0"/></radialGradient>
+ <filter id="shadow" x="-40%" y="-35%" width="180%" height="190%"><feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="#955B87" flood-opacity=".21"/></filter>
+ <filter id="petalBlur"><feGaussianBlur stdDeviation="4"/></filter>
+ <g id="petals"><path d="M0 0C-19-16-43-28-49-10C-52 8-25 18 0 0Z" fill="#FFB6D3"/><path d="M0 0C-4-32 11-45 24-27C35-10 17 6 0 0Z" fill="#FFE0EA"/><path d="M0 0C14-18 39-15 39 5C35 23 13 18 0 0Z" fill="#FFB0D0"/><path d="M0 0C-2 12 2 32 20 31C36 27 25 9 0 0Z" fill="#F7CCEC"/></g>
+</defs>
+<ellipse cx="214" cy="166" rx="205" ry="137" fill="url(#halo)"/>
+<g opacity=".65" transform="translate(37 125) rotate(-26)" filter="url(#petalBlur)"><use href="#petals"/></g>
+<g opacity=".5" transform="translate(399 203) rotate(30)" filter="url(#petalBlur)"><use href="#petals"/></g>
+<g opacity=".75" transform="translate(69 293) rotate(12) scale(.86)"><use href="#petals"/></g>
+<g opacity=".45" transform="translate(363 284) rotate(-17) scale(.7)"><use href="#petals"/></g>
+<circle cx="34" cy="229" r="32" fill="#FFF" opacity=".12" stroke="#FFF" stroke-width="5"/>
+<circle cx="380" cy="67" r="27" fill="#FFF" opacity=".2" stroke="#EDC1F7" stroke-width="3"/>
+<path d="M380 45c-19 10-20 34 0 43" stroke="#FFF" stroke-opacity=".7" stroke-width="7" stroke-linecap="round"/>
+<g filter="url(#shadow)">
+ <g transform="translate(112 52) rotate(-24 35 140)">
+  <rect x="0" y="0" width="78" height="265" rx="18" fill="url(#rosy)" stroke="#FFF" stroke-opacity=".76" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="257" rx="15" fill="url(#shine)"/>
+  <text x="39" y="46" font-size="9" fill="#793B61" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.4">ROSY</text><text x="39" y="60" font-size="9" fill="#793B61" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.4">PINK</text>
+  <path d="M30 72h18" stroke="#F6D6E5" stroke-opacity=".9"/>
+ </g>
+ <g transform="translate(151 38) rotate(-14 35 140)">
+  <rect x="0" y="0" width="78" height="267" rx="18" fill="url(#candy)" stroke="#FFF" stroke-opacity=".76" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="259" rx="15" fill="url(#shine)"/>
+  <text x="39" y="46" font-size="9" fill="#863D6D" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.2">CANDY</text><text x="39" y="60" font-size="9" fill="#863D6D" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.2">PINK</text>
+  <path d="M30 72h18" stroke="#FFF" stroke-opacity=".75"/>
+ </g>
+ <g transform="translate(194 31) rotate(-5 35 140)">
+  <rect x="0" y="0" width="78" height="267" rx="18" fill="url(#blush)" stroke="#FFF" stroke-opacity=".86" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="259" rx="15" fill="url(#shine)"/>
+  <text x="39" y="47" font-size="10" fill="#A15C7C" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.2">BLUSH</text><path d="M29 59h20" stroke="#FFF" stroke-opacity=".9"/>
+ </g>
+ <g transform="translate(235 35) rotate(7 35 140)">
+  <rect x="0" y="0" width="78" height="267" rx="18" fill="url(#lilac)" stroke="#FFF" stroke-opacity=".88" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="259" rx="15" fill="url(#shine)"/>
+  <text x="39" y="47" font-size="10" fill="#81549D" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1.2">LILAC</text><path d="M29 59h20" stroke="#FFF" stroke-opacity=".8"/>
+ </g>
+ <g transform="translate(273 52) rotate(17 35 140)">
+  <rect x="0" y="0" width="78" height="263" rx="18" fill="url(#lavender)" stroke="#FFF" stroke-opacity=".85" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="255" rx="15" fill="url(#shine)"/>
+  <text x="39" y="47" font-size="8" fill="#6C5296" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing=".8">LAVENDER</text><path d="M28 59h22" stroke="#FFF" stroke-opacity=".8"/>
+ </g>
+ <g transform="translate(302 72) rotate(28 35 140)">
+  <rect x="0" y="0" width="78" height="254" rx="18" fill="url(#periwinkle)" stroke="#FFF" stroke-opacity=".8" stroke-width="2"/>
+  <rect x="3" y="3" width="72" height="246" rx="15" fill="url(#shine)"/>
+  <text x="39" y="47" font-size="8" fill="#5B5F9A" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" letter-spacing=".6">PERIWINKLE</text><path d="M28 59h22" stroke="#FFF" stroke-opacity=".8"/>
+ </g>
+</g>
+<g fill="#FFF" stroke="#FFF" stroke-linecap="round" opacity=".8"><path d="M64 83v18M55 92h18" stroke-width="2"/><path d="M368 111v12M362 117h12" stroke-width="1.5"/><circle cx="349" cy="42" r="2"/></g>
+
+</svg>
+</g>
+<g stroke="#fff" stroke-linecap="round" stroke-opacity=".65"><path d="M40 340v16M32 348h16" stroke-width="2.5"/><path d="M393 715v18M384 724h18" stroke-width="2"/></g>
+</svg>
