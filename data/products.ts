@@ -1,7 +1,7 @@
 import { CatalogProduct } from "@/lib/types";
 
 /**
- * Seed catalog: real branded retail products only; shade hexes are approximated from brand swatches.
+ * Seed catalog: real branded retail products only; shade hexes are approximate displayed swatch/product-image colors, not worn results.
  * Seed entries may include Amazon search URLs, but the live catalog below exposes only manually verified direct product pages.
  */
 const seedCatalogProducts: CatalogProduct[] = [
@@ -47,8 +47,8 @@ const seedCatalogProducts: CatalogProduct[] = [
   },
   {
     id: "mbl-matte-lover", brand: "Maybelline", name: "SuperStay Matte Ink · Lover", category: "makeup", subcategory: "lip",
-    description: "Transfer-proof mauve-pink matte.", colorHex: "#B85C77", tags: ["k-beauty"],
-    offers: [{ id: "of-mbl-matte-lover", retailer: "amazon", url: "https://www.amazon.com/s?k=maybelline+superstay+matte+ink+lover", priceLabel: "$10", currency: "USD", affiliateReady: true }],
+    description: "Matte Ink lip color in 15 Lover. Displayed shade is approximate.", colorHex: "#C25170", tags: ["k-beauty"],
+    offers: [{ id: "of-mbl-matte-lover", retailer: "amazon", url: "https://www.amazon.com/dp/B06XF16MWM", priceLabel: "$10", currency: "USD", affiliateReady: true }],
   },
   {
     id: "elf-lipoil-rose", brand: "e.l.f.", name: "Glow Reviver Lip Oil · Rose Envy", category: "makeup", subcategory: "lip",
@@ -57,8 +57,8 @@ const seedCatalogProducts: CatalogProduct[] = [
   },
   {
     id: "nyx-smlc-istanbul", brand: "NYX", name: "Soft Matte Lip Cream · Istanbul", category: "makeup", subcategory: "lip",
-    description: "Airy cool-pink whipped matte.", colorHex: "#E56A8C", tags: ["k-beauty"],
-    offers: [{ id: "of-nyx-smlc-istanbul", retailer: "amazon", url: "https://www.amazon.com/s?k=nyx+soft+matte+lip+cream+istanbul", priceLabel: "$7", currency: "USD", affiliateReady: true }],
+    description: "Lip cream in Istanbul. Displayed shade is approximate; color on skin varies.", colorHex: "#CB6D74", tags: ["k-beauty"],
+    offers: [{ id: "of-nyx-smlc-istanbul", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXJOBI", priceLabel: "$7", currency: "USD", affiliateReady: true }],
   },
   {
     id: "lng-balm-berry", brand: "Laneige", name: "Lip Glowy Balm · Berry", category: "makeup", subcategory: "lip",
@@ -78,7 +78,7 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "elf-putty-tahiti", brand: "e.l.f.", name: "Putty Blush · Tahiti", category: "makeup", subcategory: "blush",
     description: "Creamy dusty-rose putty blush.", colorHex: "#C87684", tags: ["k-beauty"],
-    offers: [{ id: "of-elf-putty-tahiti", retailer: "amazon", url: "https://www.amazon.com/s?k=elf+putty+blush+tahiti", priceLabel: "$7", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-elf-putty-tahiti", retailer: "amazon", url: "https://www.amazon.com/dp/B0947CYBHW", priceLabel: "$7", currency: "USD", affiliateReady: true }],
   },
   {
     id: "rare-pinch-joy", brand: "Rare Beauty", name: "Soft Pinch Liquid Blush · Joy", category: "makeup", subcategory: "blush",
@@ -227,11 +227,183 @@ const seedCatalogProducts: CatalogProduct[] = [
     tags: ["soft-matte", "lightweight"],
     offers: [{ id: "of-thesaem-stick", retailer: "amazon", url: "https://www.amazon.com/s?k=the+saem+cover+perfection+concealer+stick", priceLabel: "$9", currency: "USD", affiliateReady: true }],
   },
+  {
+    id: "nyx-soft-matte-zurich", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Zurich", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Zurich. Displayed shade is approximate; color on skin varies.", colorHex: "#BE5C5B", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-zurich", retailer: "amazon", url: "https://www.amazon.com/dp/B00IAJZZO4", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-budapest", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Budapest", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Budapest. Displayed shade is approximate; color on skin varies.", colorHex: "#9D4952", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-budapest", retailer: "amazon", url: "https://www.amazon.com/dp/B019YUECNC", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-london", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - London", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - London. Displayed shade is approximate; color on skin varies.", colorHex: "#AC7864", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-london", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXHEX8", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-cannes", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Cannes", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Cannes. Displayed shade is approximate; color on skin varies.", colorHex: "#B14A40", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-cannes", retailer: "amazon", url: "https://www.amazon.com/dp/B00IAKBG82", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-stockholm", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Stockholm", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Stockholm. Displayed shade is approximate; color on skin varies.", colorHex: "#CC8876", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-stockholm", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXJO68", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-abu-dhabi", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Abu Dhabi", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Abu Dhabi. Displayed shade is approximate; color on skin varies.", colorHex: "#B6715E", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-abu-dhabi", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXJOEK", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-milan", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - MILAN", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - MILAN. Displayed shade is approximate; color on skin varies.", colorHex: "#DA627C", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-milan", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXHF4Q", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-monte-carlo", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Monte Carlo", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Monte Carlo. Displayed shade is approximate; color on skin varies.", colorHex: "#733641", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-monte-carlo", retailer: "amazon", url: "https://www.amazon.com/dp/B004LXKVQU", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "maybelline-super-stay-matte-ink-mover", brand: "Maybelline", name: "Super Stay Matte Ink - 160 Mover", category: "makeup", subcategory: "lip",
+    description: "Super Stay Matte Ink - 160 Mover. Displayed shade is approximate; color on skin varies.", colorHex: "#993F47", tags: [],
+    offers: [{ id: "of-maybelline-super-stay-matte-ink-mover", retailer: "amazon", url: "https://www.amazon.com/dp/B07W59CNXQ", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "maybelline-super-stay-matte-ink-seductress", brand: "Maybelline", name: "Super Stay Matte Ink - 65 Seductress", category: "makeup", subcategory: "lip",
+    description: "Super Stay Matte Ink - 65 Seductress. Displayed shade is approximate; color on skin varies.", colorHex: "#B96055", tags: [],
+    offers: [{ id: "of-maybelline-super-stay-matte-ink-seductress", retailer: "amazon", url: "https://www.amazon.com/dp/B074VFRLPF", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "maybelline-super-stay-matte-ink-pioneer", brand: "Maybelline", name: "Super Stay Matte Ink - 20 Pioneer", category: "makeup", subcategory: "lip",
+    description: "Super Stay Matte Ink - 20 Pioneer. Displayed shade is approximate; color on skin varies.", colorHex: "#95031F", tags: [],
+    offers: [{ id: "of-maybelline-super-stay-matte-ink-pioneer", retailer: "amazon", url: "https://www.amazon.com/dp/B06XDZFGWY", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-bahamas", brand: "e.l.f.", name: "Putty Blush — Bahamas", category: "makeup", subcategory: "blush",
+    description: "Blush in Bahamas. Displayed shade is approximate; color on skin varies.", colorHex: "#EF8768", tags: [],
+    offers: [{ id: "of-elf-bahamas", retailer: "amazon", url: "https://www.amazon.com/dp/B08T79Q8VF", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-bora-bora", brand: "e.l.f.", name: "Putty Blush — Bora Bora", category: "makeup", subcategory: "blush",
+    description: "Blush in Bora Bora. Displayed shade is approximate; color on skin varies.", colorHex: "#FE7FA8", tags: [],
+    offers: [{ id: "of-elf-bora-bora", retailer: "amazon", url: "https://www.amazon.com/dp/B08T7CY6JC", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-caribbean", brand: "e.l.f.", name: "Putty Blush — Caribbean", category: "makeup", subcategory: "blush",
+    description: "Blush in Caribbean. Displayed shade is approximate; color on skin varies.", colorHex: "#BF4659", tags: [],
+    offers: [{ id: "of-elf-caribbean", retailer: "amazon", url: "https://www.amazon.com/dp/B0985MMG9N", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-bali", brand: "e.l.f.", name: "Putty Blush — Bali", category: "makeup", subcategory: "blush",
+    description: "Blush in Bali. Displayed shade is approximate; color on skin varies.", colorHex: "#CB6B61", tags: [],
+    offers: [{ id: "of-elf-bali", retailer: "amazon", url: "https://www.amazon.com/dp/B08T7FGVXD", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-turks-and-caicos", brand: "e.l.f.", name: "Putty Blush — Turks and Caicos", category: "makeup", subcategory: "blush",
+    description: "Blush in Turks and Caicos. Displayed shade is approximate; color on skin varies.", colorHex: "#FE7E6A", tags: [],
+    offers: [{ id: "of-elf-turks-and-caicos", retailer: "amazon", url: "https://www.amazon.com/dp/B08T7CQ45X", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-fiji", brand: "e.l.f.", name: "Putty Blush — Fiji", category: "makeup", subcategory: "blush",
+    description: "Blush in Fiji. Displayed shade is approximate; color on skin varies.", colorHex: "#EC574E", tags: [],
+    offers: [{ id: "of-elf-fiji", retailer: "amazon", url: "https://www.amazon.com/dp/B096N5YZ3H", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-maldives", brand: "e.l.f.", name: "Putty Blush — Maldives", category: "makeup", subcategory: "blush",
+    description: "Blush in Maldives. Displayed shade is approximate; color on skin varies.", colorHex: "#A45953", tags: [],
+    offers: [{ id: "of-elf-maldives", retailer: "amazon", url: "https://www.amazon.com/dp/B08T7D159C", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-dusty-rose", brand: "e.l.f.", name: "Camo Liquid Blush — Dusty Rosé", category: "makeup", subcategory: "blush",
+    description: "Blush in Dusty Rosé. Displayed shade is approximate; color on skin varies.", colorHex: "#C86F61", tags: [],
+    offers: [{ id: "of-elf-dusty-rose", retailer: "amazon", url: "https://www.amazon.com/dp/B0CPFYGNR7", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-suave-mauve", brand: "e.l.f.", name: "Camo Liquid Blush — Suave Mauve", category: "makeup", subcategory: "blush",
+    description: "Blush in Suave Mauve. Displayed shade is approximate; color on skin varies.", colorHex: "#BD595B", tags: [],
+    offers: [{ id: "of-elf-suave-mauve", retailer: "amazon", url: "https://www.amazon.com/dp/B0CPFWZN2Y", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-cheeky-lychee", brand: "e.l.f.", name: "Camo Liquid Blush — Cheeky Lychee", category: "makeup", subcategory: "blush",
+    description: "Blush in Cheeky Lychee. Displayed shade is approximate; color on skin varies.", colorHex: "#E36362", tags: [],
+    offers: [{ id: "of-elf-cheeky-lychee", retailer: "amazon", url: "https://www.amazon.com/dp/B0DFMX5LDT", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-peach-perfect", brand: "e.l.f.", name: "Camo Liquid Blush — Peach Perfect", category: "makeup", subcategory: "blush",
+    description: "Blush in Peach Perfect. Displayed shade is approximate; color on skin varies.", colorHex: "#EF906F", tags: [],
+    offers: [{ id: "of-elf-peach-perfect", retailer: "amazon", url: "https://www.amazon.com/dp/B0CPFXYL97", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-soft-matte-copenhagen", brand: "NYX Professional Makeup", name: "Soft Matte Lip Cream - Copenhagen", category: "makeup", subcategory: "lip",
+    description: "Soft Matte Lip Cream - Copenhagen. Displayed shade is approximate; color on skin varies.", colorHex: "#7F1230", tags: [],
+    offers: [{ id: "of-nyx-soft-matte-copenhagen", retailer: "amazon", url: "https://www.amazon.com/dp/B07B4QVRCH", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-lip-lingerie-xxl-pink-hit", brand: "NYX Professional Makeup", name: "Lip Lingerie XXL Matte Liquid Lipstick - 19 Pink Hit", category: "makeup", subcategory: "lip",
+    description: "Lip Lingerie XXL Matte Liquid Lipstick - 19 Pink Hit. Displayed shade is approximate; color on skin varies.", colorHex: "#C2296B", tags: [],
+    offers: [{ id: "of-nyx-lip-lingerie-xxl-pink-hit", retailer: "amazon", url: "https://www.amazon.com/dp/B08WBMCQHS", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-liquid-suede-run-the-world", brand: "NYX Professional Makeup", name: "Liquid Suede Cream Lipstick - Run the World", category: "makeup", subcategory: "lip",
+    description: "Liquid Suede Cream Lipstick - Run the World. Displayed shade is approximate; color on skin varies.", colorHex: "#6B2C8D", tags: [],
+    offers: [{ id: "of-nyx-liquid-suede-run-the-world", retailer: "amazon", url: "https://www.amazon.com/dp/B01GBVACC2", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-powder-puff-will-power", brand: "NYX Professional Makeup", name: "Powder Puff Lippie Lip Cream - Will Power", category: "makeup", subcategory: "lip",
+    description: "Powder Puff Lippie Lip Cream - Will Power. Displayed shade is approximate; color on skin varies.", colorHex: "#C491AB", tags: [],
+    offers: [{ id: "of-nyx-powder-puff-will-power", retailer: "amazon", url: "https://www.amazon.com/dp/B07KBJWMNW", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "nyx-shout-loud-emotion", brand: "NYX Professional Makeup", name: "Shout Loud Satin Lipstick - Emotion", category: "makeup", subcategory: "lip",
+    description: "Shout Loud Satin Lipstick - Emotion. Displayed shade is approximate; color on skin varies.", colorHex: "#7B1A68", tags: [],
+    offers: [{ id: "of-nyx-shout-loud-emotion", retailer: "amazon", url: "https://www.amazon.com/dp/B0861NKXM5", currency: "USD", affiliateReady: true }],
+  },
+  {
+    id: "elf-camo-bold-faced-lilac", brand: "e.l.f.", name: "Camo Liquid Blush · Bold-Faced Lilac", category: "makeup", subcategory: "blush",
+    description: "Blush in Bold-Faced Lilac. Displayed shade is approximate; color on skin varies.", colorHex: "#D17B98", tags: [],
+    offers: [{ id: "of-elf-camo-bold-faced-lilac", retailer: "amazon", url: "https://www.amazon.com/dp/B0DFMXLWN2", currency: "USD", affiliateReady: true }],
+  },
 ];
 
 const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
+  "elf-camo-bold-faced-lilac",
+  "elf-putty-tahiti",
+  "nyx-smlc-istanbul",
+  "nyx-soft-matte-copenhagen",
+  "nyx-lip-lingerie-xxl-pink-hit",
+  "nyx-liquid-suede-run-the-world",
+  "nyx-powder-puff-will-power",
+  "nyx-shout-loud-emotion",
+
+  "mbl-matte-lover",
+  "nyx-soft-matte-zurich",
+  "nyx-soft-matte-budapest",
+  "nyx-soft-matte-london",
+  "nyx-soft-matte-cannes",
+  "nyx-soft-matte-stockholm",
+  "nyx-soft-matte-abu-dhabi",
+  "nyx-soft-matte-milan",
+  "nyx-soft-matte-monte-carlo",
+  "maybelline-super-stay-matte-ink-mover",
+  "maybelline-super-stay-matte-ink-seductress",
+  "maybelline-super-stay-matte-ink-pioneer",
+  "elf-bahamas",
+  "elf-bora-bora",
+  "elf-caribbean",
+  "elf-bali",
+  "elf-turks-and-caicos",
+  "elf-fiji",
+  "elf-maldives",
+  "elf-dusty-rose",
+  "elf-suave-mauve",
+  "elf-cheeky-lychee",
+  "elf-peach-perfect",
+
   "rmd-jlt-06",
-  "rmd-jlt-25",
   "elf-lipoil-rose",
   "lng-balm-berry",
   "mln-baked-lum",
