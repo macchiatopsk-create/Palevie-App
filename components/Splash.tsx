@@ -11,6 +11,9 @@ export default function Splash() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
+    // The ad landing page is itself a welcome screen; never cover its CTA with splash.
+    const q = new URLSearchParams(window.location.search);
+    if (window.location.pathname === "/quiz" && q.get("utm_source") === "ig" && q.get("utm_medium") === "paid" && q.get("utm_campaign") === "makeup_backwards") return;
     if (sessionStorage.getItem("palevie-splash-shown")) return;
     sessionStorage.setItem("palevie-splash-shown", "1");
 
