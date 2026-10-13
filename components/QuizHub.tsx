@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import QuizClient from "@/components/QuizClient";
+import QuizAdWelcome from "@/components/QuizAdWelcome";
 import MakeupPrefsClient from "@/components/MakeupPrefsClient";
 import StyleClient from "@/components/StyleClient";
 import SkinProfileClient from "@/components/SkinProfileClient";
@@ -35,6 +36,9 @@ export default function QuizHub() {
 
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
+  const [adQuizStarted, setAdQuizStarted] = useState(false);
+  // Scoped experiment: the running BACKWARDS ad is the only campaign that sees this welcome.
+  const fromBackwardsAd = tab === "color" && params.get("utm_source") === "ig" && params.get("utm_medium") === "paid" && params.get("utm_campaign") === "makeup_backwards";
 
   useEffect(() => {
     document.body.classList.add("h2-clean");
@@ -51,6 +55,12 @@ export default function QuizHub() {
 
   const h = HEADINGS[tab];
   const season = calendarSeason();
+
+  if (fromBackwardsAd) {
+    // Do not mount QuizClient until they click. quiz_started now means a real CTA start.
+    // Keep hero and tabs out of the way after starting so Q1 stays near the top.
+    return <div className="qh">{adQuizStarted ? <QuizClient /> : <QuizAdWelcome onStart={() => setAdQuizStarted(true)} />}</div>;
+  }
 
   return (
     <div className="qh">
