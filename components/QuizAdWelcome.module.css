@@ -1,0 +1,26 @@
+.welcome{box-sizing:border-box;isolation:isolate;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:min(715px,calc(100svh - 48px));border:1px solid #F5E3EF;border-radius:27px;padding:22px 16px 22px;background:radial-gradient(ellipse 83% 33% at 97% 75%,#F4DFFF 0%,transparent 95%),radial-gradient(ellipse 76% 43% at 1% 58%,#FFE2F2 0%,transparent 96%),linear-gradient(160deg,#FFFEFD,#FFFAFD 56%,#FCF4FF);box-shadow:0 16px 45px rgba(132,79,128,.075);color:#242036;text-align:center}
+.welcome:before{content:"";pointer-events:none;position:absolute;inset:-30%;z-index:0;background:radial-gradient(ellipse at 25% 18%,#FFE4F0 0%,transparent 31%),radial-gradient(ellipse at 84% 31%,#F5E9FF 0%,transparent 32%);opacity:.65}
+.topline{display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1;color:#3E324C;white-space:nowrap}
+.brand{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.05em;font-size:26px}
+.slash{font-size:15px;color:#978596}
+.topLabel{font-size:9px;letter-spacing:.16em;font-weight:800;color:#54475B}
+.intro{margin:clamp(20px,4svh,37px) auto 0;max-width:350px;position:relative;z-index:1}
+.eyebrow{font-size:10px;letter-spacing:.16em;font-weight:600;color:#806A89}
+.intro h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(39px,11vw,57px);font-weight:400;line-height:1.02;letter-spacing:-.05em;margin:17px 0 18px;color:#242036}
+.intro h1 em{font-weight:400;color:#DF5D94}
+.intro p{font-size:12.5px;line-height:1.6;color:#67586E;max-width:308px;margin:0 auto}
+.art{position:relative;display:flex;align-items:center;justify-content:center;min-height:clamp(220px,33svh,310px);margin:0 -16px;flex:1;overflow:hidden}
+.fan{position:relative;width:min(100%,420px);height:auto;max-height:350px;object-fit:contain;filter:drop-shadow(0 15px 15px rgba(146,90,149,.08));z-index:2}
+.orb{position:absolute;top:13%;left:2%;width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 28% 24%,#fff 0%,#F6ECFF 9%,transparent 50%),radial-gradient(circle at 68% 77%,#F7CCE9,transparent 58%);border:2px solid rgba(255,255,255,.8);box-shadow:inset -5px -4px 9px #F0D1EE,0 9px 23px rgba(213,154,211,.19);opacity:.68;z-index:1}
+.petalA,.petalB{position:absolute;pointer-events:none;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#FFE8F0,#F9AAC7);filter:blur(6px);opacity:.6}
+.petalA{width:72px;height:36px;top:9%;left:-8%;transform:rotate(25deg)}.petalB{width:80px;height:46px;right:-6%;bottom:9%;transform:rotate(-25deg)}
+.scribble{position:absolute;right:5%;bottom:4%;z-index:3;color:#B576B0;transform:rotate(-9deg);font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:12px;line-height:1.3;text-align:right;opacity:.9}
+.scribble span{display:block;font-size:19px;color:#CD80AB}
+.action{position:relative;z-index:4;margin-top:auto}
+.button{width:100%;min-height:56px;border:1px solid #EA9DBD;border-radius:999px;background:linear-gradient(100deg,#D98DB7 0%,#DE69A2 50%,#D85893 100%);color:#fff;font:inherit;font-size:15px;font-weight:750;letter-spacing:.015em;box-shadow:0 8px 20px rgba(211,94,151,.26),inset 0 2px rgba(255,255,255,.36);display:flex;align-items:center;justify-content:center;gap:16px;cursor:pointer}
+.button:active{transform:scale(.985)}.button:focus-visible{outline:3px solid #6B3850;outline-offset:3px}.button span{font-size:22px;font-weight:400}
+.action p{font-size:10.7px;font-weight:700;color:#5E516A;margin:13px 0 6px}.action p span{font-size:18px;color:#CD75A4;vertical-align:middle;padding-right:3px}
+.action small{display:block;font-size:9.5px;color:#93839E;line-height:1.45}
+@media(max-width:370px){.welcome{padding:18px 12px 19px}.brand{font-size:23px}.topLabel{font-size:8px}.intro{margin-top:16px}.intro h1{font-size:41px;margin:12px 0}.intro p{font-size:12px}.art{margin:0 -12px;min-height:209px}.scribble{font-size:10px}}
+@media(max-height:680px){.welcome{min-height:520px;padding-top:13px;padding-bottom:16px}.intro{margin-top:12px}.intro h1{font-size:40px;margin:9px 0}.intro p{font-size:11px}.art{min-height:205px}.action p{margin-top:9px}.fan{max-height:260px}}
+@media(prefers-reduced-motion:reduce){.button{transition:none}}
