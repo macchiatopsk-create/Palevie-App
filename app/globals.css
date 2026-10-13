@@ -1630,3 +1630,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .ios-install-gotit{width:100%;min-height:46px;border:0;border-radius:999px;background:#F18AA6;color:#fff;font-size:12px;font-weight:800;box-shadow:0 7px 18px rgba(241,138,166,.24)}
 .ios-install-later{display:block;margin:9px auto 0;border:0;background:transparent;color:#9C8790;font-size:11px;text-decoration:underline;text-underline-offset:3px}
 @media(min-width:700px){.ios-install-backdrop{place-items:center}.ios-install-card{padding-bottom:20px}}
+
+/* Dedicated paid-ad welcome keeps visitors focused on a single start action. */
+body.glow-ad-entry .mobile-nav,body.glow-ad-entry .site-footer{display:none}
+body.glow-ad-entry .h2-wrap{padding-bottom:20px}
