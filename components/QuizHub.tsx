@@ -39,6 +39,11 @@ export default function QuizHub() {
   const [adQuizStarted, setAdQuizStarted] = useState(false);
   // Scoped experiment: the running BACKWARDS ad is the only campaign that sees this welcome.
   const fromBackwardsAd = tab === "color" && params.get("utm_source") === "ig" && params.get("utm_medium") === "paid" && params.get("utm_campaign") === "makeup_backwards";
+  useEffect(() => {
+    const active = fromBackwardsAd && !adQuizStarted;
+    document.body.classList.toggle("glow-ad-entry", active);
+    return () => document.body.classList.remove("glow-ad-entry");
+  }, [fromBackwardsAd, adQuizStarted]);
 
   useEffect(() => {
     document.body.classList.add("h2-clean");
