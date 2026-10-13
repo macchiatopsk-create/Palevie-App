@@ -1631,9 +1631,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .ios-install-later{display:block;margin:9px auto 0;border:0;background:transparent;color:#9C8790;font-size:11px;text-decoration:underline;text-underline-offset:3px}
 @media(min-width:700px){.ios-install-backdrop{place-items:center}.ios-install-card{padding-bottom:20px}}
 
-/* Dedicated paid-ad welcome keeps visitors focused on a single start action. */
-body.glow-ad-entry .mobile-nav,body.glow-ad-entry .site-footer{display:none}
-body.glow-ad-entry .h2-wrap{padding-bottom:20px}
-
-/* While paid ad intro is active, prevent accidental scrolling behind the full-screen screen. */
-body.glow-ad-entry{overflow:hidden}
+/* Only the active Color Quiz intro fills the viewport. The website launch never shows it. */
+body.quiz-intro-entry{overflow:hidden}
+body.quiz-intro-entry .mobile-nav,body.quiz-intro-entry .site-footer,body.quiz-intro-entry .site-header{display:none}
+body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
