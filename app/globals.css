@@ -1634,3 +1634,6 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 /* Dedicated paid-ad welcome keeps visitors focused on a single start action. */
 body.glow-ad-entry .mobile-nav,body.glow-ad-entry .site-footer{display:none}
 body.glow-ad-entry .h2-wrap{padding-bottom:20px}
+
+/* While paid ad intro is active, prevent accidental scrolling behind the full-screen screen. */
+body.glow-ad-entry{overflow:hidden}
