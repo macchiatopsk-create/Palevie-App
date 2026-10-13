@@ -36,14 +36,30 @@ export default function QuizHub() {
 
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
-  const [adQuizStarted, setAdQuizStarted] = useState(false);
-  // Scoped experiment: the running BACKWARDS ad is the only campaign that sees this welcome.
-  const fromBackwardsAd = tab === "color" && params.get("utm_source") === "ig" && params.get("utm_medium") === "paid" && params.get("utm_campaign") === "makeup_backwards";
+  // The intro belongs to the Color Quiz flow, never the site launch.
+  // Decide after mount to avoid mounting QuizClient (and firing quiz_started) before CTA.
+  const [introState, setIntroState] = useState<"checking"|"show"|"started">("checking");
+  const fromBackwardsAd = params.get("utm_source") === "ig" && params.get("utm_medium") === "paid" && params.get("utm_campaign") === "makeup_backwards";
   useEffect(() => {
-    const active = fromBackwardsAd && !adQuizStarted;
-    document.body.classList.toggle("glow-ad-entry", active);
-    return () => document.body.classList.remove("glow-ad-entry");
-  }, [fromBackwardsAd, adQuizStarted]);
+    if(tab !== "color")return;
+    try {
+      const seen = sessionStorage.getItem("palevie-quiz-intro-started-v1") === "1";
+      const raw = localStorage.getItem("palevie-quiz-state-v1");
+      const saved = raw ? JSON.parse(raw) as {step?:number;answers?:(number|null)[];cantTell?:number[]} : null;
+      const progress = !!saved && ((saved.step??0)>0 || saved.answers?.some(a=>a!==null) || (saved.cantTell?.length??0)>0);
+      setIntroState(seen||progress?"started":"show");
+    }catch {setIntroState("show");}
+  },[tab]);
+  useEffect(()=>{
+    const active = tab==="color" && introState==="show";
+    document.body.classList.toggle("quiz-intro-entry",active);
+    if(active)window.scrollTo({top:0,behavior:"instant"});
+    return()=>document.body.classList.remove("quiz-intro-entry");
+  },[tab,introState]);
+  function beginQuiz(){
+    try{sessionStorage.setItem("palevie-quiz-intro-started-v1","1");}catch{}
+    setIntroState("started");
+  }
 
   useEffect(() => {
     document.body.classList.add("h2-clean");
@@ -61,9 +77,10 @@ export default function QuizHub() {
   const h = HEADINGS[tab];
   const season = calendarSeason();
 
-  if (fromBackwardsAd && !adQuizStarted) {
-    // One discrete fullscreen entry BEFORE the quiz; quiz page resumes its normal layout after CTA.
-    return <QuizAdWelcome onStart={() => setAdQuizStarted(true)} />;
+  if(tab==="color" && introState!=="started") {
+    // This is a quiz-only first step, not a site-wide opening screen or fixed popup.
+    return introState==="checking" ? <div className="qh" /> :
+      <QuizAdWelcome onStart={beginQuiz} campaign={fromBackwardsAd?"makeup_backwards":undefined}/>;
   }
 
   return (
