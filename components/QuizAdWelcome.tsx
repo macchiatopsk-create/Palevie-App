@@ -4,14 +4,18 @@ import {track} from "@/lib/analytics";
 import styles from "./QuizAdWelcome.module.css";
 
 /** Single-screen ad intro, not part of the questionnaire or its score. */
-export default function QuizAdWelcome({onStart}:{onStart:()=>void}){
- useEffect(()=>{track("ad_welcome_shown",{campaign:"makeup_backwards",variant:"glow_fullscreen_v3"})},[]);
+export default function QuizAdWelcome({onStart,campaign}:{onStart:()=>void;campaign?:string}){
+ useEffect(()=>{
+  track("quiz_intro_shown",{variant:"glow_quiz_v4",...(campaign?{campaign}:{})});
+  if(campaign)track("ad_welcome_shown",{campaign,variant:"glow_quiz_v4"});
+ },[campaign]);
  function begin(){
-  track("ad_welcome_started",{campaign:"makeup_backwards",variant:"glow_fullscreen_v3"});
+  track("quiz_intro_started",{variant:"glow_quiz_v4",...(campaign?{campaign}:{})});
+  if(campaign)track("ad_welcome_started",{campaign,variant:"glow_quiz_v4"});
   onStart();
   window.scrollTo({top:0,behavior:"instant"});
  }
- return <section className={styles.overlay} aria-label="Personal color quiz welcome" data-ad-welcome="glow_fullscreen_v3">
+ return <section className={styles.overlay} aria-label="Personal color quiz welcome" data-ad-welcome="glow_quiz_v4">
   <div className={styles.screen}>
    <img className={styles.background} src="/img/glow-fullscreen-bg.svg" alt="" aria-hidden="true" width="430" height="932" fetchPriority="high"/>
    <div className={styles.topline}><span className={styles.brand}>palévie</span><span className={styles.slash}>/</span><span className={styles.topLabel}>PERSONAL COLOR QUIZ</span></div>
