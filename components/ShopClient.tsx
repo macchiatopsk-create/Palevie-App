@@ -15,6 +15,7 @@ import { loadInterest, INTEREST_EVENT, type Interest } from "@/lib/interest";
 import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 import VirtualMakeupTryOn from "@/components/VirtualMakeupTryOn";
+import { featuredShopOrder } from "@/lib/shopRanking";
 
 function hueOf(hex:string){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,l:(mx+mn)/2}}
 const BASE_HUE:Record<string,number>={"/img/lip3.webp":348,"/img/blush3.webp":8,"/img/shadow3.webp":18,"/img/highlight3.webp":28,"/img/cushion3.webp":30,"/img/shimmer3.webp":345};
@@ -38,7 +39,7 @@ export default function ShopClient() {
   const [brandFilter, setBrandFilter] = useState("");
   const [tryonProduct, setTryonProduct] = useState<string|null>(null);
   const brands=useMemo(()=>Array.from(new Set(catalogProducts.map(p=>p.brand))).sort((a,b)=>a.localeCompare(b)),[]);
-  const [sort, setSort] = useState<"match"|"brand"|"category">("match");
+  const [sort, setSort] = useState<"featured"|"match"|"brand"|"category">("featured");
   const [cols, setCols] = useState<1|2|3>(2);
   const [menu, setMenu] = useState(false);
     const [ready, setReady] = useState(false);
@@ -86,10 +87,10 @@ export default function ShopClient() {
     .map(p => {
       let match: number | undefined;
       let reason = "";
-      if (p.category === "makeup" && p.colorHex && profile) {
+      if (p.category === "makeup" && p.colorHex && profile && p.tags.includes("brand-digital-swatch")) {
         const scored = scoreColor(hexToRgb(p.colorHex), profile);
         match = scored.colorFit;
-        reason = `${profile.name} illustrative color match`;
+        reason = `${profile.name} estimated digital shade fit`;
         if (makeupPrefs?.brands?.includes(p.brand)) {
           match = Math.min(99, match + 8);
           reason = `Your brand pick · ${reason}`;
@@ -126,13 +127,15 @@ export default function ShopClient() {
       }
       return { ...p, match, reason, held };
     })
-    .sort((a,b)=>(b.match || 0) - (a.match || 0));
+    ;
   const heldBack = items.filter(p => p.held);
   const items2 = items.filter(p => !p.held);
   // We do not rank by stale prices: Amazon permits live pricing only through approved tools.
-  const shown = sort==="match" ? items2 : [...items2].sort((a,b)=>
-    sort==="brand" ? a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name)
-    : a.subcategory.localeCompare(b.subcategory) || a.name.localeCompare(b.name));
+  const shown = sort==="featured" ? featuredShopOrder(items2)
+    : [...items2].sort((a,b)=>sort==="match"
+      ? (b.match??-1)-(a.match??-1) || a.brand.localeCompare(b.brand)
+      : sort==="brand" ? a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name)
+      : a.subcategory.localeCompare(b.subcategory) || a.name.localeCompare(b.name));
 
   // Compare a shade against the person's own palette, not an empty screen.
   const drapeProduct = draping ? items2.find(p => p.id === draping) : null;
@@ -197,14 +200,15 @@ export default function ShopClient() {
         <ul>{heldBack.slice(0, 4).map(p => <li key={p.id}><span>{p.brand} {p.name}</span><small>{p.held}</small></li>)}</ul>
       </div>
     )}
+    {tab!=="clothes" && <p style={{fontSize:11,color:"#896579",margin:"0 0 10px"}}>Korean beauty brands appear first, then international brands. This is a curated browsing order, not a sales ranking. Estimated color fit uses only brand digital swatch references.</p>}
     <div className="sh-tools">
       <span className="sh-count">{shown.length} item{shown.length===1?"":"s"}</span>
       <div className="sh-dd">
-        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>Sort: {sort==="match"?"Best Match":sort==="brand"?"Brand":"Category"} <em>▾</em></button>
+        <button className="sh-dd-btn" onPointerDown={()=>setMenu(m=>!m)}>Sort: {sort==="featured"?"K-Beauty first":sort==="match"?"Color fit":sort==="brand"?"Brand":"Category"} <em>▾</em></button>
         {menu && <div className="sh-dd-menu">
-          {(["match","brand","category"] as const).map(k=>
+          {(["featured","match","brand","category"] as const).map(k=>
             <button key={k} className={sort===k?"on":""} onPointerDown={()=>{setSort(k);setMenu(false)}}>
-              {k==="match"?"Best match":k==="brand"?"Brand A–Z":"Category"}
+              {k==="featured"?"K-Beauty first":k==="match"?"Estimated color fit":k==="brand"?"Brand A–Z":"Category"}
             </button>)}
         </div>}
       </div>
@@ -268,7 +272,7 @@ export default function ShopClient() {
     <div className={`shop-grid ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p => <article className="shop-card" key={p.id}>
       <div className="shop-art" style={{background:p.colorHex?`linear-gradient(145deg,#fff,${p.colorHex}44)`:undefined}}>
         {(()=>{const a=artFor(p.id,p.subcategory,p.category,p.colorHex);return <img src={a.src} alt="" loading="lazy" style={a.filter?{filter:a.filter}:undefined}/>})()}
-        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={wl.some(w=>w.id===productKey(p.id))} type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();heart(p.id,p.name)}}><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden><path d="M12 20.4S3.6 15.2 3.6 9.9A4.3 4.3 0 0 1 12 8.1a4.3 4.3 0 0 1 8.4 1.8c0 5.3-8.4 10.5-8.4 10.5z"/></svg></button>{p.sponsored ? <b className="sponsored-badge">Sponsored</b> : p.match !== undefined && p.match >= 85 ? <b className="sh-badge">Best</b> : null}
+        <button className={`shop-heart${wl.some(w=>w.id===productKey(p.id))?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={wl.some(w=>w.id===productKey(p.id))} type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();heart(p.id,p.name)}}><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden><path d="M12 20.4S3.6 15.2 3.6 9.9A4.3 4.3 0 0 1 12 8.1a4.3 4.3 0 0 1 8.4 1.8c0 5.3-8.4 10.5-8.4 10.5z"/></svg></button>{p.sponsored ? <b className="sponsored-badge">Sponsored</b> : p.category==="makeup" && p.match !== undefined && p.match >= 85 ? <b className="sh-badge">Palette pick</b> : null}
       </div>
       <div className="sh-meta">
         <b className="sh-brand">{p.brand}</b>
@@ -294,7 +298,7 @@ export default function ShopClient() {
            >{p.offers[0].affiliateReady ? "Verified link · Amazon ↗" : "Find shade on Amazon ↗"}</a>}
           {p.category==="makeup" && p.colorHex && ["lip","gloss","blush","eyeshadow"].includes(p.subcategory) && <button type="button" className="sh-try" onClick={()=>setTryonProduct(p.id)}>Try Live Makeup ✦</button>}
           {p.colorHex && <button type="button" className="sh-try" onClick={()=>setDraping(p.id)}>Compare color</button>}
-          {p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ${p.match}%` : `${p.match}% match`}</small>}
+          {p.category==="makeup" && p.match !== undefined && <small className="sh-match"><i style={{background:p.colorHex ?? "#A776C8"}}/>{profile ? `${profile.name} · ~${p.match}% estimated fit` : `~${p.match}% estimated fit`}</small>}
         </div>
       </div>
     </article>)}</div>

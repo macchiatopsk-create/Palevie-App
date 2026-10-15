@@ -1,0 +1,16 @@
+const fs=require('fs'),ts=require('typescript'),vm=require('vm'),assert=require('assert/strict');
+const source=fs.readFileSync('lib/shopRanking.ts','utf8');
+const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+const exportsObj={};
+vm.runInNewContext(compiled,{exports:exportsObj,Map,Boolean,Number});
+const {featuredShopOrder}=exportsObj;
+const p=(id,brand,verified=false)=>({id,brand,category:'makeup',offers:[{affiliateReady:verified}]});
+const products=[p('r1','rom&nd'),p('r2','rom&nd'),p('e2','e.l.f.'),p('m1','Maybelline'),p('e1','e.l.f.',true),p('n1','NYX'),p('n2','NYX')];
+const sorted=featuredShopOrder(products);
+assert.deepEqual(Array.from(sorted.map(p=>p.id)), ['r1','r2','e1','m1','n1','e2','n2']);
+assert.equal(sorted.length,products.length);
+assert.equal(new Set(sorted.map(p=>p.id)).size,products.length);
+const koreanMix=[p('r1','rom&nd'),p('r2','rom&nd'),p('l1','Laneige'),p('t1','TIRTIR'),p('e1','e.l.f.'),p('p1','Peripera')];
+assert.deepEqual(Array.from(featuredShopOrder(koreanMix).map(p=>p.id)),['l1','t1','r1','p1','r2','e1']);
+assert.deepEqual(Array.from(featuredShopOrder([])),[]);
+console.log('PASS Korean brands first; rotate brands; no unsupported best-seller claim');
