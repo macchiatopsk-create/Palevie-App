@@ -30,6 +30,7 @@ function overLimit(request: Request, visitor: string): boolean {
 const allowed = new Set([
   "page_view",
   "quiz_started","quiz_answered","quiz_completed",
+  "quiz_quick_answered","quiz_quick_completed","quiz_quick_restarted","quiz_detailed_started",
   "ai_scan_started","ai_scan_completed","ai_scan_failed",
   "product_check_started","product_check_completed",
   "skincare_profile_completed","shop_viewed",
