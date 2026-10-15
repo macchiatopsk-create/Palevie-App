@@ -17,10 +17,10 @@ import IosInstallPrompt from "@/components/IosInstallPrompt";
 import CameraDrape from "@/components/CameraDrape";
 import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
-type SavedState={answers:(number|null)[];step:number;cantTell?:number[]};
+type SavedState={answers:(number|null)[];step:number;cantTell?:number[];fromQuick?:boolean};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
- const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);const [autoAdvancing,setAutoAdvancing]=useState(false);const [drapeMode,setDrapeMode]=useState<"camera"|"mirror"|null>(null);
+ const [answers,setAnswers]=useState<(number|null)[]>(QUIZ_QUESTIONS.map(()=>null));const [step,setStep]=useState(0);const [hydrated,setHydrated]=useState(false);const [result,setResult]=useState<QuizResult|null>(null);const [pending,setPending]=useState<QuizResult|null>(null);const [side,setSide]=useState(0);const [full,setFull]=useState(false);const [cantTell,setCantTell]=useState<number[]>([]);const [queue,setQueue]=useState<number[]|null>(null);const [gated,setGated]=useState(false);const [actSeen,setActSeen]=useState<ActId[]>([1]);const [autoAdvancing,setAutoAdvancing]=useState(false);const [drapeMode,setDrapeMode]=useState<"camera"|"mirror"|null>(null);const [resumeFromQuick,setResumeFromQuick]=useState(false);
  useEffect(()=>{setSide(0);setFull(false);setAutoAdvancing(false)},[step]);
  // The result screen is its own page — the quiz hero and tabs step aside.
  useEffect(()=>{const on=Boolean(result||pending);document.body.classList.toggle("quiz-focus",on);
@@ -30,15 +30,18 @@ export default function QuizClient(){
  useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;
   const y=el.getBoundingClientRect().top+window.scrollY-8;
   window.scrollTo({top:Math.max(0,y),behavior:"auto"})},[step]);
- useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setHydrated(true);track("quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell}))},[answers,step,cantTell,hydrated]);
+ useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setResumeFromQuick(!!s.fromQuick);setHydrated(true);track(s.fromQuick?"quiz_detailed_started":"quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell,fromQuick:resumeFromQuick}))},[answers,step,cantTell,hydrated,resumeFromQuick]);
  const q=QUIZ_QUESTIONS[step];
  const prevAct=step>0?QUIZ_QUESTIONS[step-1].act:null;
- const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
+ const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;
+ const showDrapeGuide=!queue&&!actSeen.includes(2)&&((actOpens&&q.id==="jewelry")||(resumeFromQuick&&q.act===2&&q.kind==="drape"));
+ const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function advance(na:(number|null)[],ct:number[]){
   if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
    if(rest.length){setStep(rest[0]);return}
    finish(na,ct);return}
+  if(resumeFromQuick){const next=na.findIndex((a,i)=>i>step&&a===null);if(next>=0)setStep(next);else finish(na,ct);return;}
   if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1); else finish(na,ct);
  }
  function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);const ct=cantTell.filter(i=>i!==step);setCantTell(ct);track("quiz_answered",{question:q.id,step:step+1});advance(na,ct)}
@@ -60,7 +63,7 @@ export default function QuizClient(){
  function finish(finalAnswers:(number|null)[],ct:number[]=cantTell){const r=scoreQuiz(finalAnswers,{cantTell:ct});
   if(!r.sufficient){setGated(true);setResult(r);localStorage.removeItem(STATE_KEY);return}
   setGated(false);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});localStorage.removeItem(STATE_KEY)}
- function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setStep(0);setResult(null);localStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+ function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setResumeFromQuick(false);setStep(0);setResult(null);localStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
  if(gated&&result)return <div className="qz"><div className="h2-card qz-gate">
    <span className="rs-eyebrow">{MARK.flower} Not enough to call it</span>
    <h2>You skipped {result.skipped.length} of {result.totalCount}</h2>
@@ -71,7 +74,7 @@ export default function QuizClient(){
  if(result)return <QuizResultView result={result} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
-  {actOpens&&!actSeen.includes(q.act)&&q.id==="jewelry"&&(
+  {showDrapeGuide&&(
    <DrapeGuide onSelect={(mode)=>{
     track("drape_guide_continued",{step:step+1,mode});
     track("drape_mode_selected",{mode,step:step+1});
@@ -79,7 +82,7 @@ export default function QuizClient(){
     setActSeen(a=>[...a,q.act]);
    }}/>
   )}
-  {actOpens&&!actSeen.includes(q.act)&&q.id!=="jewelry"&&(
+  {actOpens&&!actSeen.includes(q.act)&&q.id!=="jewelry"&&!showDrapeGuide&&(
    <div className="qz-inter">
     <div className="qz-inter-card">
      <span className="rs-eyebrow">{MARK.flower} Step {q.act} of 3</span>
@@ -94,7 +97,7 @@ export default function QuizClient(){
    </div>
 
    <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
-   {step===0&&<p className="qz-start-note">21 quick questions · No filters, no signup · Tap an answer to start.</p>}
+   {resumeFromQuick?<p className="qz-start-note">Your quick answers are saved. A few more checks refine your result.</p>:step===0?<p className="qz-start-note">21 detailed questions · No filters, no signup · Tap an answer to start.</p>:null}
    <h2 className="qz-q">{q.text}</h2>
    {q.help&&<p className="qz-help">{q.id==="confirm"
      ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`

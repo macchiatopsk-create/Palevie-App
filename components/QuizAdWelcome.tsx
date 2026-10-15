@@ -26,8 +26,8 @@ export default function QuizAdWelcome({onStart,campaign}:{onStart:()=>void;campa
    </div>
    <div className={styles.action}>
     <button className={styles.button} type="button" onClick={begin}>Find My Colors <span aria-hidden="true">→</span></button>
-    <p className={styles.notes}>✧ &nbsp;Free · 21 quick questions · No signup</p>
-    <p className={styles.footnote}>Optional live color comparison · No photo needed to start</p>
+    <p className={styles.notes}>✧ &nbsp;Free · 7 quick questions · No signup</p>
+    <p className={styles.footnote}>Get a color preview first · Go deeper only if you want</p>
    </div>
   </div>
  </section>;

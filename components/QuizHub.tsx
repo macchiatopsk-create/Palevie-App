@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import QuizClient from "@/components/QuizClient";
+import QuickQuizClient from "@/components/QuickQuizClient";
 import QuizAdWelcome from "@/components/QuizAdWelcome";
 import MakeupPrefsClient from "@/components/MakeupPrefsClient";
 import StyleClient from "@/components/StyleClient";
@@ -33,6 +34,7 @@ export default function QuizHub() {
   const params = useSearchParams();
   const raw = params.get("tab");
   const tab: TabId = TABS.some(t => t.id === raw) ? (raw as TabId) : "color";
+  const detailed = params.get("mode") === "detailed";
 
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
@@ -112,7 +114,7 @@ export default function QuizHub() {
         ))}
       </nav>
 
-      {tab === "color" && <QuizClient />}
+      {tab === "color" && (detailed ? <QuizClient /> : <QuickQuizClient />)}
       {tab === "makeup" && <MakeupPrefsClient />}
       {tab === "style" && <StyleClient />}
       {tab === "skin" && <SkinProfileClient />}
