@@ -36,39 +36,71 @@ function drawLip(ctx:CanvasRenderingContext2D, pts:Point[], w:number,h:number,he
   ctx.beginPath();if(paintPolygon(ctx,pts,contourInner,w,h))ctx.fill();
   ctx.restore();
 }
+/** Soft cheek placement follows face geometry instead of a fixed circular stamp. */
 function drawBlush(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
-  if(!pts[205]||!pts[425]||!pts[234]||!pts[454]||!pts[168]||!pts[152])return;
-  const [r,g,b]=rgb(hex); const width=Math.abs(pts[454].x-pts[234].x)*w;const height=Math.abs(pts[152].y-pts[168].y)*h;
-  for(const idx of [205,425]){
-    const p=pts[idx];const x=p.x*w,y=p.y*h;
-    ctx.save();ctx.translate(x,y);ctx.rotate(idx===205?-0.20:0.20);ctx.scale(1,0.70);
-    const radius=Math.max(12,width*0.21);
-    const grad=ctx.createRadialGradient(0,0,radius*0.06,0,0,radius);
-    grad.addColorStop(0,`rgba(${r},${g},${b},${(0.36*intensity).toFixed(3)})`);
-    grad.addColorStop(0.55,`rgba(${r},${g},${b},${(0.18*intensity).toFixed(3)})`);
-    grad.addColorStop(1,`rgba(${r},${g},${b},0)`);
-    ctx.fillStyle=grad;ctx.beginPath();ctx.ellipse(0,0,radius,Math.max(radius*0.75,height*0.085),0,0,2*Math.PI);ctx.fill();ctx.restore();
-  }
-}
-function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
-  // Lid-only polygons, bounded above by the socket and below by the upper lash line.
-  const shapes=[[33,160,158,133,105,66,107],[362,385,387,263,334,296,336]];
+  if([205,425,234,454,168,152,93,323].some(i=>!pts[i]))return;
   const [r,g,b]=rgb(hex);
-  for(const shape of shapes){
-    ctx.beginPath();if(!paintPolygon(ctx,pts,shape,w,h))continue;
-    ctx.fillStyle=`rgba(${r},${g},${b},${(intensity*0.27).toFixed(3)})`;ctx.fill();
+  const faceWidth=Math.abs(pts[454].x-pts[234].x)*w;
+  const faceHeight=Math.abs(pts[152].y-pts[168].y)*h;
+  const blur=Math.max(5,Math.min(22,faceWidth*0.035));
+  for(const cheek of [{idx:205,edge:234,sign:-1},{idx:425,edge:454,sign:1}]){
+    const base=pts[cheek.idx],edge=pts[cheek.edge];
+    const x=(base.x*0.73+edge.x*0.27)*w;
+    const y=base.y*h-faceHeight*0.055;
+    const rx=Math.max(8,faceWidth*0.175),ry=Math.max(6,faceHeight*0.080);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(cheek.sign*-0.22);
+    ctx.filter=`blur(${blur}px)`;
+    // Radial alpha ensures cheek edges fade into the natural skin texture.
+    ctx.scale(1,ry/rx);
+    const grd=ctx.createRadialGradient(0,0,rx*0.04,0,0,rx);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(0.25*intensity).toFixed(3)})`);
+    grd.addColorStop(0.46,`rgba(${r},${g},${b},${(0.13*intensity).toFixed(3)})`);
+    grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=grd;ctx.beginPath();ctx.arc(0,0,rx,0,2*Math.PI);ctx.fill();ctx.restore();
   }
 }
-function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number) {
+/** Lid shadows follow each upper lash arc; feathered edges avoid polygon stickers. */
+function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
+  const [r,g,b]=rgb(hex);
+  // Upper eyelid/crease anchors. Skip frames with missing or collapsed geometry.
+  for(const eye of [
+    {outer:33,inner:133,lashes:[33,160,158,133],arch:[33,246,161,160,159,158,157,173,133]},
+    {outer:263,inner:362,lashes:[263,387,385,362],arch:[263,466,388,387,386,385,384,398,362]},
+  ]){
+    if([...eye.lashes,...eye.arch].some(i=>!pts[i]))continue;
+    const outer=pts[eye.outer],inner=pts[eye.inner];
+    const span=Math.hypot((outer.x-inner.x)*w,(outer.y-inner.y)*h);
+    if(span<10)continue;
+    const cx=(outer.x+inner.x)*w/2,cy=(outer.y+inner.y)*h/2;
+    const topY=Math.min(...eye.arch.map(i=>pts[i].y*h));
+    const lift=Math.max(2,Math.min(span*.15,(cy-topY)*.8));
+    const blur=Math.max(2,Math.min(12,span*.12));
+    const rx=span*.42, ry=Math.max(3,lift*.87);
+    ctx.save();
+    ctx.translate(cx,cy-lift*.70);
+    ctx.rotate(Math.atan2((inner.y-outer.y)*h,(inner.x-outer.x)*w));
+    ctx.filter=`blur(${blur}px)`;
+    ctx.scale(1,ry/rx);
+    const grd=ctx.createRadialGradient(0,0,rx*.08,0,0,rx);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(.21*intensity).toFixed(3)})`);
+    grd.addColorStop(.56,`rgba(${r},${g},${b},${(.11*intensity).toFixed(3)})`);
+    grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=grd;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+}
+function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number,presetStrength:number) {
   ctx.clearRect(0,0,w,h);
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
-  if(blush)drawBlush(ctx,pts,w,h,blush,intensity);
-  if(eye)drawEye(ctx,pts,w,h,eye,intensity);
+  if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.3,intensity*presetStrength*.88));
+  if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.3,intensity*presetStrength*.78));
   if(lip && !selected.lip?.name.toLowerCase().includes("crystal clear")) {
     // Gloss/oil tints are substantially more transparent than lipstick.
     const sheer=selected.lip?.subcategory==="gloss";
     const pearl=selected.lip?.name.endsWith(" · Pearl") || selected.lip?.name.endsWith(" · Ice");
-    drawLip(ctx,pts,w,h,lip,intensity*(pearl?0.30:sheer?0.65:1));
+    drawLip(ctx,pts,w,h,lip,Math.min(1.3,intensity*presetStrength)*(pearl?0.30:sheer?0.65:1));
   }
 }
 
@@ -81,6 +113,7 @@ export default function VirtualMakeupTryOn({
   const [status,setStatus]=useState<"idle"|"loading"|"live"|"error">("idle");
   const [message,setMessage]=useState("");
   const [strength,setStrength]=useState(65);
+  const [preset,setPreset]=useState<"soft"|"natural"|"bold">("natural");
   const [before,setBefore]=useState(false);
   const [filter,setFilter]=useState("");
   const [detected,setDetected]=useState(false);
@@ -93,11 +126,13 @@ export default function VirtualMakeupTryOn({
   const selectedRef=useRef(selected);
   const strengthRef=useRef(strength/100);
   const beforeRef=useRef(before);
+  const presetRef=useRef(1);
   const visibleRef=useRef(true);
   const lastVideoTime=useRef(-1);
   useEffect(()=>{selectedRef.current=selected;},[selected]);
   useEffect(()=>{strengthRef.current=strength/100;},[strength]);
   useEffect(()=>{beforeRef.current=before;},[before]);
+  useEffect(()=>{presetRef.current=preset==="soft"?.70:preset==="bold"?1.25:1;},[preset]);
   useEffect(()=>{document.body.classList.add("ms-open"); track("virtual_tryon_opened",{product:initialProduct.id,area:initialArea}); return()=>document.body.classList.remove("ms-open");},[initialProduct.id,initialArea]);
 
   const stop=useCallback(()=>{
@@ -123,7 +158,7 @@ export default function VirtualMakeupTryOn({
             const result=detector.detectForVideo(video,performance.now());
             const face=result.faceLandmarks?.[0];
             ctx.clearRect(0,0,width,height);
-            if(face&&!beforeRef.current)renderFace(ctx,face,width,height,selectedRef.current,strengthRef.current);
+            if(face&&!beforeRef.current)renderFace(ctx,face,width,height,selectedRef.current,strengthRef.current,presetRef.current);
             setDetected(Boolean(face));
           }catch{ /* transient background/video frame; keep camera working */ }
         }
@@ -199,6 +234,9 @@ export default function VirtualMakeupTryOn({
         <div className={styles.selected}>
           <div className={styles.currentSwatch} style={{background:current?.colorHex??"#e5c9d5"}}/>
           <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong><small>{current ? colorSource : "Only shades with a recorded color reference can be previewed."}</small></div>
+        </div>
+        <div className={styles.presets} role="group" aria-label="Makeup strength">
+          {(["soft","natural","bold"] as const).map(p=><button key={p} type="button" aria-pressed={preset===p} className={preset===p?styles.presetActive:styles.preset} onClick={()=>setPreset(p)}>{p==="soft"?"Soft":p==="natural"?"Natural":"Bold"}</button>)}
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="15" max="95" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>

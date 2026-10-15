@@ -37,3 +37,7 @@
 .retailNote{font-size:10px;line-height:1.4;color:#84697a;text-align:center}
 @media(min-width:650px){.inner{border-radius:22px;overflow:hidden;margin:25px auto;min-height:0}.camera{height:420px}}
 @media(max-height:630px){.camera{height:42dvh;min-height:230px}}
+
+.presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.preset,.presetActive{border:1px solid #e7cfda;background:#fff;color:#6c4a60;border-radius:14px;padding:10px 8px;font-size:12px;font-weight:700;cursor:pointer}
+.presetActive{background:#7d4768;color:#fff;border-color:#7d4768}
