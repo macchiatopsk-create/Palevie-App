@@ -272,6 +272,13 @@ export default function ShopClient() {
       </div>
       <div className="sh-meta">
         <b className="sh-brand">{p.brand}</b>
+        {p.tags.includes("brand-digital-swatch")
+          ? <small className="sh-shade-status">Official digital shade reference</small>
+          : p.tags.includes("shade-unverified")
+          ? <small className="sh-shade-status">Color preview pending verification</small>
+          : p.colorHex
+          ? <small className="sh-shade-status">Illustrative color only</small>
+          : null}
         <h3>{p.name}</h3>
         <div className="sh-line">
 

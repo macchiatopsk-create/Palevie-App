@@ -64,7 +64,12 @@ function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
   if(blush)drawBlush(ctx,pts,w,h,blush,intensity);
   if(eye)drawEye(ctx,pts,w,h,eye,intensity);
-  if(lip)drawLip(ctx,pts,w,h,lip,intensity);
+  if(lip && !selected.lip?.name.toLowerCase().includes("crystal clear")) {
+    // Gloss/oil tints are substantially more transparent than lipstick.
+    const sheer=selected.lip?.subcategory==="gloss";
+    const pearl=selected.lip?.name.endsWith(" · Pearl") || selected.lip?.name.endsWith(" · Ice");
+    drawLip(ctx,pts,w,h,lip,intensity*(pearl?0.30:sheer?0.65:1));
+  }
 }
 
 export default function VirtualMakeupTryOn({
@@ -165,8 +170,11 @@ export default function VirtualMakeupTryOn({
     return()=>document.removeEventListener("visibilitychange",visibility);
   },[]);
 
-  const options=useMemo(()=>products.filter(p=>isArea(p)===active).filter(p=>!filter || [p.brand,p.name].some(v=>v.toLowerCase().includes(filter.toLowerCase()))),[active,filter,products]);
+  const options=useMemo(()=>products.filter(p=>isArea(p)===active && Boolean(p.colorHex)).filter(p=>!filter || [p.brand,p.name].some(v=>v.toLowerCase().includes(filter.toLowerCase()))),[active,filter,products]);
   const current=selected[active];
+  const colorSource=current?.tags.includes("brand-digital-swatch")
+    ? "Brand digital swatch reference (screen RGB, not measured skin color)."
+    : "Approximate illustrative preview — product swatch not yet verified.";
   const buy=current?.offers[0];
   const direct=Boolean(buy?.affiliateReady && buy.url.includes("/dp/"));
   return <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Palevie virtual makeup">
@@ -190,7 +198,7 @@ export default function VirtualMakeupTryOn({
         <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
         <div className={styles.selected}>
           <div className={styles.currentSwatch} style={{background:current?.colorHex??"#e5c9d5"}}/>
-          <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong><small>Shade color is illustrative; finish and lighting affect results.</small></div>
+          <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong><small>{current ? colorSource : "Only shades with a recorded color reference can be previewed."}</small></div>
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="15" max="95" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>

@@ -1,3 +1,4 @@
+import { verifiedShadeColors } from "./verifiedShadeColors";
 import type { CatalogProduct } from "@/lib/types";
 
 /**
@@ -17,26 +18,24 @@ const collections:Collection[]=[
   {id:"nyx-ultimate",brand:"NYX",family:"Ultimate Color Palette",kind:"eyeshadow",source:"https://www.nyxcosmetics.com/ultimate-shadow-palette/800897182755.html",shades:"Warm Neutrals|Cool Neutrals|Smokey & Highlight|Phoenix|Ultimate Utopia|Ultimate Queen"},
   {id:"rare-bouncy",brand:"Rare Beauty",family:"Soft Pinch Matte Bouncy Blush",kind:"blush",source:"https://www.rarebeauty.com/collections/soft-pinch-collection-1",shades:"Hope|Happy|Spirited|Divine|Worth|Alive|Grateful|Thriving|Truth|Soulful"}
 ];
-const colorBases:Record<Collection["kind"],string[]> = {
-  lip:["#A34F6B","#BF6073","#D1797E","#B3585C","#C98683","#974955"],
-  gloss:["#B87A85","#CF9098","#AD627E","#C27C72","#995A73","#DB9888","#CE767E","#A86761"],
-  blush:["#EBA69B","#D98F9C","#D87D8B","#C6868F","#F2B6A4","#CB737E","#C48E82","#E9A4AD"],
-  eyeshadow:["#B59AA8","#AB858E","#C0A5A2","#92717C"]
-};
 const search = (query:string) => "https://www.amazon.com/s?k=" + encodeURIComponent(query);
 
 /** Browseable, brand-documented shades; availability and exact Amazon variant NOT validated. */
 export const expandedShades:CatalogProduct[] = collections.flatMap(collection=>
   collection.shades.split("|").map((shade,index)=>{
     const key = collection.id+"-"+String(index+1).padStart(2,"0");
-    const colorHex = shade==="Crystal Clear" || shade==="Ice" || shade==="Pearl" ? "#E8C8D2"
-      : colorBases[collection.kind][index%colorBases[collection.kind].length];
+    const ref = verifiedShadeColors[key];
+    // Never manufacture different product shades from a rotating palette.
+    // No digital reference means no shade overlay until sourced and validated.
+    const colorHex = ref?.hex;
     return {
       id:key, brand:collection.brand, name:collection.family+" · "+shade,category:"makeup" as const,
       subcategory:collection.kind==="gloss"?"gloss":collection.kind,
-      description: "Brand-listed shade. Live preview is approximate; confirm the exact shade at the retailer.",
+      description: ref
+        ? "Brand digital shade reference; camera color is an approximate visualization, not exact skin payoff."
+        : "Brand-listed shade; digital color reference not verified yet.",
       colorHex,
-      tags:["shade-range","approximate-preview","brand-shade-source:"+collection.source],
+      tags:["shade-range", ...(ref ? ["brand-digital-swatch", "shade-source:"+ref.source] : ["shade-unverified"]), "brand-shade-source:"+collection.source],
       offers:[{id:"of-"+key,retailer:"amazon" as const,url:search(collection.brand+" "+collection.family+" "+shade),affiliateReady:false,currency:"USD" as const}],
     };
   })
