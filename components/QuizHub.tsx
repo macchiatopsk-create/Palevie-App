@@ -97,22 +97,22 @@ export default function QuizHub() {
         </div>
       </div>
 
-      <section className="qh-hero">
+      {(tab !== "color" || detailed) && <section className="qh-hero">
         <div className="qh-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${season}-${heroLight(tod)}.webp')` }} />
         <div className="qh-hero-tx">
           <span className="qh-eyebrow">{h.eyebrow} {MARK.flower}</span>
           <h1>{h.title}</h1>
           <p>{h.sub}</p>
         </div>
-      </section>
+      </section>}
 
-      <nav className="qh-tabs" aria-label="Quiz sections">
+      {(tab !== "color" || detailed) && <nav className="qh-tabs" aria-label="Quiz sections">
         {TABS.map(t => (
           <button key={t.id} className={`qh-tab${tab === t.id ? " on" : ""}`} onClick={() => select(t.id)}>
             <span className="qh-tab-ic">{t.icon}</span>{t.label}
           </button>
         ))}
-      </nav>
+      </nav>}
 
       {tab === "color" && (detailed ? <QuizClient /> : <QuickQuizClient />)}
       {tab === "makeup" && <MakeupPrefsClient />}
