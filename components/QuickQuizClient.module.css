@@ -8,17 +8,17 @@
 @media(max-width:400px){.paletteGroups{grid-template-columns:1fr}.groupSwatches{height:44px}}
 
 
-/* Editorial-style upgrade: luxury neutral tones, not a saturated purple promo banner. */
+/* Palevie blush-pink draping CTA, aligned with the site’s soft pink visual identity. */
 .drapeCallout{
   position:relative;
   overflow:hidden;
   margin:25px -8px 18px;
   padding:34px 24px 25px;
-  border:1px solid #D9CABD;
+  border:1px solid #E7D2DC;
   border-radius:19px;
-  background:linear-gradient(155deg,#FAF7F2 0%,#F0E9E1 100%);
-  box-shadow:0 11px 30px rgba(49,39,37,.08);
-  color:#29282B;
+  background:linear-gradient(155deg,#FCF4F7 0%,#F8EDF3 100%);
+  box-shadow:0 11px 30px rgba(89,57,78,.065);
+  color:#3F313B;
   text-align:center;
 }
 .drapeCallout::before{
@@ -27,12 +27,12 @@
   width:48px;
   height:2px;
   margin:0 auto 17px;
-  background:#BDA38D;
+  background:#CBA4B8;
 }
 .drapeEyebrow{
   display:block;
   margin-bottom:14px;
-  color:#806B5B;
+  color:#9A6F84;
   font-size:10px;
   font-weight:700;
   letter-spacing:.19em;
@@ -45,12 +45,12 @@
   font-weight:400;
   letter-spacing:-.035em;
   line-height:1.16;
-  color:#29282B;
+  color:#3F313B;
 }
 .drapeCallout p{
   max-width:390px;
   margin:0 auto 22px;
-  color:#655C58;
+  color:#6E5C67;
   font-size:14px;
   line-height:1.65;
 }
@@ -62,9 +62,9 @@
   min-height:60px;
   width:100%;
   padding:13px 18px;
-  border:1px solid #29282B;
+  border:1px solid #7E596D;
   border-radius:9px;
-  background:#29282B;
+  background:#7E596D;
   color:#FFFFFF!important;
   font-size:13px;
   font-weight:700;
@@ -72,12 +72,12 @@
   text-decoration:none;
   transition:background .18s ease,transform .18s ease;
 }
-.drapeButton:hover{background:#4B403B;transform:translateY(-1px)}
-.drapeButton:focus-visible{outline:3px solid #B8A38E;outline-offset:3px}
+.drapeButton:hover{background:#6F4C60;transform:translateY(-1px)}
+.drapeButton:focus-visible{outline:3px solid #B88AA2;outline-offset:3px}
 .drapeCallout small{
   display:block;
   margin-top:15px;
-  color:#7B706A;
+  color:#8B7481;
   font-size:11px;
   line-height:1.5;
 }

@@ -82,8 +82,8 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
     <p className={styles.hint}>These are examples to experiment with, not personalized diagnoses. Lighting, product finish and your preferences all change how a shade appears.</p>
     <div className={styles.drapeCallout}>
       <span className={styles.drapeEyebrow}>A MORE REFINED COLOR EXPERIENCE</span>
-      <h3>Want a more professional-style color session?</h3>
-      <p>Try guided draping to compare colors beside your face with your camera or a mirror — just like a hands-on color session.</p>
+      <h3>Want a more refined color check?</h3>
+      <p>Go beyond the quick quiz with guided draping. Compare shades beside your face with your camera or a mirror.</p>
       <Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"detailed_palette"})}>BEGIN GUIDED DRAPING <span aria-hidden="true">→</span></Link>
       <small>Free to try · Camera optional · Not a certified color analysis</small>
     </div>
@@ -103,7 +103,7 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
     <p className={styles.hint}>A starting point, not a Winter/Summer/Spring/Autumn diagnosis. Dark or light skin can have different undertones.</p>
     <div className={styles.drapeCallout}>
       <span className={styles.drapeEyebrow}>A MORE REFINED COLOR EXPERIENCE</span>
-      <h3>Want a more professional-style color session?</h3>
+      <h3>Want a more refined color check?</h3>
       <p>Go beyond the quick quiz with guided draping. Compare shades beside your face with your camera or a mirror.</p>
       <Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_result"})}>BEGIN GUIDED DRAPING <span aria-hidden="true">→</span></Link>
       <small>Free to try · Camera optional · No photos stored or uploaded</small>
