@@ -38,8 +38,8 @@ export default function ColorDrapingClient() {
   function goBack() { if(step>0){setStep(v=>v-1);setSide(0);} }
   if (finished) return <section className={styles.card} aria-label="Color comparison summary">
     <span className={styles.eyebrow}>PALEVIE · YOUR DRAPING NOTES</span>
-    <h2>Colors worth trying again.</h2>
-    <p>These are the shades you chose during your comparisons. They're your visual preferences, not an automatically verified personal color season.</p>
+    <h2>Your color session, revisited.</h2>
+    <p>A curated recap of the colors you chose. Consider these a starting point for your next makeup look, not a confirmed seasonal diagnosis.</p>
     <div className={styles.chips}>
       {picks.map((pick, i) => <div className={styles.chip} key={i}>
         {pick ? <><span style={{background:pick.hex}} aria-hidden="true" /><b>{pick.label}</b></> : <><span className={styles.unsure} aria-hidden="true" /><b>Pair {i+1}: not sure</b></>}
@@ -52,8 +52,8 @@ export default function ColorDrapingClient() {
   </section>;
   return <section className={styles.card} aria-label="Live color draping">
     <span className={styles.eyebrow}>PALEVIE · OPTIONAL COLOR COMPARISON</span>
-    <h2>Go deeper with draping.</h2>
-    <p>Compare shades beside your face, one pair at a time. There's no need to know your undertone first.</p>
+    <h2>Your guided color session.</h2>
+    <p>Take a closer look at your colors, one comparison at a time. Choose the front camera or a mirror — no prior color knowledge needed.</p>
     <div className={styles.progress} aria-label={`Comparison ${step+1} of ${PAIRS.length}`}>
       <div style={{width:`${(step/PAIRS.length)*100}%`}} />
     </div>
@@ -61,8 +61,8 @@ export default function ColorDrapingClient() {
     <h3>{pair.title}</h3>
     <p className={styles.note}>{pair.note}</p>
     {mode === "choose" && <div className={styles.method}>
-      <button className={styles.action} type="button" onClick={()=>chooseMode("camera")}>Compare with front camera →</button>
-      <button className={styles.secondary} type="button" onClick={()=>chooseMode("mirror")}>Compare using a mirror</button>
+      <button className={styles.action} type="button" onClick={()=>chooseMode("camera")}>Continue with camera →</button>
+      <button className={styles.secondary} type="button" onClick={()=>chooseMode("mirror")}>Continue with mirror</button>
       <p className={styles.disclaimer}>Camera is optional and requires your permission. Video stays on your device; no photos are stored or uploaded.</p>
     </div>}
     {mode === "camera" && <CameraDrape
@@ -84,7 +84,7 @@ export default function ColorDrapingClient() {
       <button className={styles.otherMethod} type="button" onClick={()=>chooseMode("camera")}>Switch to front camera</button>
       {step>0&&<button className={styles.otherMethod} type="button" onClick={goBack}>Previous comparison</button>}
     </div>}
-    <p className={styles.disclaimer}>Color comparisons are for exploration, not a confirmed 16-tone diagnosis or a statistically validated accuracy upgrade.</p>
+    <p className={styles.disclaimer}>Guided color comparisons are exploratory, not a certified professional diagnosis or validated accuracy upgrade.</p>
     <Link className={styles.backLink} href="/quiz">Back to Quick Quiz</Link>
   </section>;
 }

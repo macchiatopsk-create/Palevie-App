@@ -7,12 +7,81 @@
 .groupSwatches span{flex:1;min-width:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
 @media(max-width:400px){.paletteGroups{grid-template-columns:1fr}.groupSwatches{height:44px}}
 
-.drapeCallout{margin:22px -9px 18px;padding:28px 21px 22px;text-align:center;background:linear-gradient(145deg,#70445f 0%,#452d51 100%);border:1px solid rgba(255,255,255,.15);border-radius:23px;box-shadow:0 14px 26px rgba(55,32,57,.16);color:white}
-.drapeEyebrow{display:block;font-size:11px;letter-spacing:.17em;font-weight:800;color:#f9cfe1;margin-bottom:10px}
-.drapeCallout h3{font-size:clamp(26px,5.3vw,36px);line-height:1.1;letter-spacing:-.035em;font-weight:750;margin:0 0 12px;color:white}
-.drapeCallout p{font-size:14px;line-height:1.5;color:#f9eaf2;margin:0 auto 18px;max-width:365px}
-.drapeButton{display:flex;align-items:center;justify-content:center;gap:11px;min-height:60px;width:100%;padding:12px 14px;border-radius:13px;background:#fff6fa;color:#52334e!important;font-size:16px;font-weight:850;text-decoration:none;letter-spacing:.018em;box-shadow:0 5px 14px rgba(16,9,20,.12)}
-.drapeButton:hover{background:#ffe5f1}
-.drapeButton:focus-visible{outline:3px solid #ffe6a5;outline-offset:3px}
-.drapeCallout small{display:block;color:#f1d5e3;font-size:11px;line-height:1.45;margin-top:13px}
-@media(max-width:440px){.drapeCallout{margin:18px -5px 14px;padding:24px 14px 20px}}
+
+/* Editorial-style upgrade: luxury neutral tones, not a saturated purple promo banner. */
+.drapeCallout{
+  position:relative;
+  overflow:hidden;
+  margin:25px -8px 18px;
+  padding:34px 24px 25px;
+  border:1px solid #D9CABD;
+  border-radius:19px;
+  background:linear-gradient(155deg,#FAF7F2 0%,#F0E9E1 100%);
+  box-shadow:0 11px 30px rgba(49,39,37,.08);
+  color:#29282B;
+  text-align:center;
+}
+.drapeCallout::before{
+  content:"";
+  display:block;
+  width:48px;
+  height:2px;
+  margin:0 auto 17px;
+  background:#BDA38D;
+}
+.drapeEyebrow{
+  display:block;
+  margin-bottom:14px;
+  color:#806B5B;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.19em;
+}
+.drapeCallout h3{
+  max-width:425px;
+  margin:0 auto 16px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(29px,5.2vw,39px);
+  font-weight:400;
+  letter-spacing:-.035em;
+  line-height:1.16;
+  color:#29282B;
+}
+.drapeCallout p{
+  max-width:390px;
+  margin:0 auto 22px;
+  color:#655C58;
+  font-size:14px;
+  line-height:1.65;
+}
+.drapeButton{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  min-height:60px;
+  width:100%;
+  padding:13px 18px;
+  border:1px solid #29282B;
+  border-radius:9px;
+  background:#29282B;
+  color:#FFFFFF!important;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.11em;
+  text-decoration:none;
+  transition:background .18s ease,transform .18s ease;
+}
+.drapeButton:hover{background:#4B403B;transform:translateY(-1px)}
+.drapeButton:focus-visible{outline:3px solid #B8A38E;outline-offset:3px}
+.drapeCallout small{
+  display:block;
+  margin-top:15px;
+  color:#7B706A;
+  font-size:11px;
+  line-height:1.5;
+}
+@media(max-width:440px){
+  .drapeCallout{margin:20px -4px 16px;padding:28px 17px 23px}
+  .drapeButton{font-size:12px;letter-spacing:.09em}
+}
