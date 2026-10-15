@@ -64,30 +64,43 @@ function drawBlush(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,he
 /** Lid shadows follow each upper lash arc; feathered edges avoid polygon stickers. */
 function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
   const [r,g,b]=rgb(hex);
-  // Upper eyelid/crease anchors. Skip frames with missing or collapsed geometry.
-  for(const eye of [
-    {outer:33,inner:133,lashes:[33,160,158,133],arch:[33,246,161,160,159,158,157,173,133]},
-    {outer:263,inner:362,lashes:[263,387,385,362],arch:[263,466,388,387,386,385,384,398,362]},
-  ]){
-    if([...eye.lashes,...eye.arch].some(i=>!pts[i]))continue;
-    const outer=pts[eye.outer],inner=pts[eye.inner];
-    const span=Math.hypot((outer.x-inner.x)*w,(outer.y-inner.y)*h);
-    if(span<10)continue;
-    const cx=(outer.x+inner.x)*w/2,cy=(outer.y+inner.y)*h/2;
-    const topY=Math.min(...eye.arch.map(i=>pts[i].y*h));
-    const lift=Math.max(2,Math.min(span*.15,(cy-topY)*.8));
-    const blur=Math.max(1.5,Math.min(7,span*.065));
-    const rx=span*.47, ry=Math.max(4,lift*1.20);
+  // Draw only on the skin ABOVE the upper lash line, never across the eye.
+  // Upper lid mesh arcs and brow landmarks follow face rotation and expression.
+  const eyes=[
+    {lid:[33,160,159,158,133],brow:[70,63,105,66,107]},
+    {lid:[263,387,386,385,362],brow:[300,293,334,296,336]},
+  ];
+  for(const eye of eyes){
+    if([...eye.lid,...eye.brow].some(i=>!pts[i]))continue;
+    const lid=eye.lid.map(i=>({x:pts[i].x*w,y:pts[i].y*h}));
+    const brows=eye.brow.map(i=>({x:pts[i].x*w,y:pts[i].y*h}));
+    const span=Math.hypot(lid[4].x-lid[0].x,lid[4].y-lid[0].y);
+    if(span<12)continue;
+    const lashY=lid.reduce((v,p)=>v+p.y,0)/lid.length;
+    const browY=brows.reduce((v,p)=>v+p.y,0)/brows.length;
+    // In image coordinates smaller y is higher. Invalid/turned faces skip paint.
+    const actualGap=lashY-browY;
+    if(actualGap<span*.09)continue;
+    const gap=Math.min(actualGap,span*.60);
+    const rise=gap*.56;
+    const edge=gap*.14;
+    const top=lid.map(p=>({x:p.x,y:p.y-rise}));
+    const bottom=lid.map(p=>({x:p.x,y:p.y-edge}));
+    const feather=Math.max(.8,Math.min(3,span*.025));
     ctx.save();
-    ctx.translate(cx,cy-lift*.70);
-    ctx.rotate(Math.atan2((inner.y-outer.y)*h,(inner.x-outer.x)*w));
-    ctx.filter=`blur(${blur}px)`;
-    ctx.scale(1,ry/rx);
-    const grd=ctx.createRadialGradient(0,0,rx*.08,0,0,rx);
-    grd.addColorStop(0,`rgba(${r},${g},${b},${(.64*intensity).toFixed(3)})`);
-    grd.addColorStop(.56,`rgba(${r},${g},${b},${(.36*intensity).toFixed(3)})`);
-    grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
-    ctx.fillStyle=grd;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();
+    ctx.filter=`blur(${feather}px)`;
+    ctx.beginPath();
+    bottom.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    [...top].reverse().forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.closePath();
+    // Feather sideways while keeping the pigment above the eyelashes.
+    const gradient=ctx.createLinearGradient(0,lashY-rise,0,lashY);
+    gradient.addColorStop(0,`rgba(${r},${g},${b},0)`);
+    gradient.addColorStop(.38,`rgba(${r},${g},${b},${(.60*intensity).toFixed(3)})`);
+    gradient.addColorStop(.72,`rgba(${r},${g},${b},${(.48*intensity).toFixed(3)})`);
+    gradient.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=gradient;
+    ctx.fill();
     ctx.restore();
   }
 }
