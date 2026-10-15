@@ -17,6 +17,7 @@ import IosInstallPrompt from "@/components/IosInstallPrompt";
 import CameraDrape from "@/components/CameraDrape";
 import { CAT_ICON, MARK } from "@/components/icons";
 const STATE_KEY="palevie-quiz-state-v1";
+const DETAIL_STEPS=[9,10,20] as const;
 type SavedState={answers:(number|null)[];step:number;cantTell?:number[];fromQuick?:boolean};
 function loadState():SavedState{if(typeof window!=="undefined"){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const p=JSON.parse(raw);if(Array.isArray(p.answers)&&p.answers.length===QUIZ_QUESTIONS.length)return p}}catch{}}return{answers:QUIZ_QUESTIONS.map(()=>null),step:0,cantTell:[]}}
 export default function QuizClient(){
@@ -30,18 +31,18 @@ export default function QuizClient(){
  useEffect(()=>{const el=document.getElementById("qz-card");if(!el)return;
   const y=el.getBoundingClientRect().top+window.scrollY-8;
   window.scrollTo({top:Math.max(0,y),behavior:"auto"})},[step]);
- useEffect(()=>{const s=loadState();setAnswers(s.answers);setStep(s.step);setCantTell(s.cantTell??[]);setResumeFromQuick(!!s.fromQuick);setHydrated(true);track(s.fromQuick?"quiz_detailed_started":"quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell,fromQuick:resumeFromQuick}))},[answers,step,cantTell,hydrated,resumeFromQuick]);
+ useEffect(()=>{const s=loadState();setAnswers(s.answers);if(!s.fromQuick){window.location.replace("/quiz");return;}setStep(DETAIL_STEPS.includes(s.step as 9|10|20)?s.step:9);setCantTell(s.cantTell??[]);setResumeFromQuick(true);setHydrated(true);track(s.fromQuick?"quiz_detailed_started":"quiz_started")},[]);useEffect(()=>{if(hydrated)localStorage.setItem(STATE_KEY,JSON.stringify({answers,step,cantTell,fromQuick:resumeFromQuick}))},[answers,step,cantTell,hydrated,resumeFromQuick]);
  const q=QUIZ_QUESTIONS[step];
  const prevAct=step>0?QUIZ_QUESTIONS[step-1].act:null;
- const actOpens=!queue&&prevAct!==null&&prevAct!==q.act;
- const showDrapeGuide=!queue&&!actSeen.includes(2)&&((actOpens&&q.id==="jewelry")||(resumeFromQuick&&q.act===2&&q.kind==="drape"));
- const selected=answers[step];const progress=Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
+ const actOpens=!resumeFromQuick&&!queue&&prevAct!==null&&prevAct!==q.act;
+ const showDrapeGuide=!resumeFromQuick&&!queue&&!actSeen.includes(2)&&actOpens&&q.id==="jewelry";
+ const selected=answers[step];const progress=resumeFromQuick?Math.round((DETAIL_STEPS.indexOf(step as 9|10|20)/DETAIL_STEPS.length)*100):Math.round(((step+(selected!==null?1:0))/QUIZ_QUESTIONS.length)*100);const quickAdvance=q.kind!=="drape";
  function choose(idx:number){const next=[...answers];next[step]=idx;setAnswers(next);track("quiz_answered",{question:q.id,step:step+1})}
  function advance(na:(number|null)[],ct:number[]){
   if(queue){const rest=queue.filter(i=>i!==step);setQueue(rest.length?rest:null);
    if(rest.length){setStep(rest[0]);return}
    finish(na,ct);return}
-  if(resumeFromQuick){const next=na.findIndex((a,i)=>i>step&&a===null);if(next>=0)setStep(next);else finish(na,ct);return;}
+  if(resumeFromQuick){const next=DETAIL_STEPS.find(i=>i>step);if(next!==undefined)setStep(next);else finish(na,ct);return;}
   if(step<QUIZ_QUESTIONS.length-1)setStep(v=>v+1); else finish(na,ct);
  }
  function chooseAndNext(idx:number){const na=[...answers];na[step]=idx;setAnswers(na);const ct=cantTell.filter(i=>i!==step);setCantTell(ct);track("quiz_answered",{question:q.id,step:step+1});advance(na,ct)}
@@ -60,10 +61,11 @@ export default function QuizClient(){
  function cannotTell(){const na=[...answers];na[step]=null;setAnswers(na);const ct=cantTell.includes(step)?cantTell:[...cantTell,step];setCantTell(ct);advance(na,ct)}
  /** Re-ask only the skipped questions, then re-score. */
  function fillGaps(list:number[]){if(!list.length)return;setResult(null);setGated(false);setQueue([...list]);setStep(list[0])}
- function finish(finalAnswers:(number|null)[],ct:number[]=cantTell){const r=scoreQuiz(finalAnswers,{cantTell:ct});
+ function finish(finalAnswers:(number|null)[],ct:number[]=cantTell){const r=scoreQuiz(finalAnswers,{cantTell:ct,minAnswers:resumeFromQuick?7:undefined});
   if(!r.sufficient){setGated(true);setResult(r);localStorage.removeItem(STATE_KEY);return}
   setGated(false);setPending(r);const profile={primaryType:r.ranked[0].id,secondaryType:r.ranked[1].id,ranked:r.ranked,scores:r.axes,confidence:r.confidence,source:"quiz" as const,createdAt:new Date().toISOString()};saveProfile(profile);void syncColorProfileToCloud(profile);void saveQuizResultToCloud(r);track("quiz_completed",{profile:r.ranked[0].id,confidence:r.confidence});localStorage.removeItem(STATE_KEY)}
- function restart(){setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setResumeFromQuick(false);setStep(0);setResult(null);localStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+ function restart(){if(resumeFromQuick){try{localStorage.removeItem("palevie-quick-quiz-v2");localStorage.removeItem(STATE_KEY)}catch{}window.location.assign("/quiz");return;}setAnswers(QUIZ_QUESTIONS.map(()=>null));setCantTell([]);setQueue(null);setGated(false);setResumeFromQuick(false);setStep(0);setResult(null);localStorage.removeItem(STATE_KEY);track("quiz_started",{restart:true})}
+ if(gated&&result&&resumeFromQuick)return <div className="qz"><div className="h2-card qz-gate"><span className="rs-eyebrow">Need a few more observations</span><h2>Not enough information yet</h2><p>We need at least seven observations before suggesting a color direction. You never need to guess which colors suit you.</p><Link className="rs-cta" href="/quiz">Return to Quick Quiz</Link></div></div>;
  if(gated&&result)return <div className="qz"><div className="h2-card qz-gate">
    <span className="rs-eyebrow">{MARK.flower} Not enough to call it</span>
    <h2>You skipped {result.skipped.length} of {result.totalCount}</h2>
@@ -71,7 +73,7 @@ export default function QuizClient(){
    <button className="rs-cta" onClick={()=>fillGaps(result.skipped)}>Answer the {result.skipped.length} I skipped {MARK.chevron}</button>
    <button className="rs-cta2" onClick={restart}>Start over</button>
   </div></div>;
- if(result)return <QuizResultView result={result} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
+ if(result)return <QuizResultView result={result} fromQuick={resumeFromQuick} onRestart={restart} onFillGaps={()=>fillGaps(result.skipped)}/>;
  if(pending)return <AnalyzingView onDone={()=>{setResult(pending);setPending(null)}}/>;
  return <div className="qz">
   {showDrapeGuide&&(
@@ -96,8 +98,8 @@ export default function QuizClient(){
     <div className="qz-bar" role="progressbar" aria-label="Quiz progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{width:`${progress}%`}}/></div>
    </div>
 
-   <span className="qz-act">Step {q.act} of 3 · {ACTS[q.act].label}</span>
-   {resumeFromQuick?<p className="qz-start-note">Your quick answers are saved. A few more checks refine your result.</p>:step===0?<p className="qz-start-note">21 detailed questions · No filters, no signup · Tap an answer to start.</p>:null}
+   <span className="qz-act">{resumeFromQuick?`More about you · ${DETAIL_STEPS.indexOf(step as 9|10|20)+1} of ${DETAIL_STEPS.length}`:`Step ${q.act} of 3 · ${ACTS[q.act].label}`}</span>
+   {resumeFromQuick?<p className="qz-start-note">Your 7 quick answers are saved. Just 3 more questions — none asks what suits you.</p>:step===0?<p className="qz-start-note">21 detailed questions · No filters, no signup · Tap an answer to start.</p>:null}
    <h2 className="qz-q">{q.text}</h2>
    {q.help&&<p className="qz-help">{q.id==="confirm"
      ? `Your answers put ${confirmDrape(answers).options[0].label} and ${confirmDrape(answers).options[1].label} neck and neck. This drape settles it.`
@@ -188,7 +190,7 @@ function DrapeGuide({onSelect}:{onSelect:(mode:"camera"|"mirror")=>void}){
  </div>;
 }
 
-function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onRestart:()=>void;onFillGaps:()=>void}){
+function QuizResultView({result,onRestart,onFillGaps,fromQuick=false}:{result:QuizResult;onRestart:()=>void;onFillGaps:()=>void;fromQuick?:boolean}){
  const id=result.ranked[0].id;
  const primary=useMemo(()=>getToneProfile(id),[id]);
  const detail=useMemo(()=>getToneDetail(id),[id]);
@@ -222,12 +224,13 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
    <div className="rs-hero-art" aria-hidden style={{backgroundImage:`url('${heroArt(season,tod)}')`}}/>
    <div className="rs-hero-tx">
     <span className="rs-eyebrow">{MARK.flower} Quiz Result</span>
-    <p className="rs-lead">You&apos;re a</p>
+    <p className="rs-lead">{fromQuick?"An exploratory 16-tone direction":"You\u0027re a"}</p>
     <h1>{primary.name}</h1>
    </div>
   </section>
 
-  {(result.unresolvedAxes.length>0||result.skipped.length>0)&&(
+  {fromQuick&&<div className="h2-card rs-gaps"><b>A starting point, not a confirmed color season</b><p>Your natural features help us suggest colors to explore, but they cannot determine your undertone or an exact 16-tone season. Try shades in different lighting and keep what you enjoy.</p></div>}
+  {!fromQuick&&(result.unresolvedAxes.length>0||result.skipped.length>0)&&(
    <div className="h2-card rs-gaps">
     <b>{result.unresolvedAxes.length>0?result.headline:`Based on ${result.answeredCount} of ${result.totalCount} answers`}</b>
     <p>{result.unresolvedAxes.length>0
@@ -249,8 +252,8 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
    <div className="rs-amazon-head">
     <div>
      <span className="rs-eyebrow">{MARK.flower} Shop your result</span>
-     <h2>Your best Amazon matches</h2>
-     <p>Exact products picked from your {primary.name} palette.</p>
+     <h2>Makeup shades to explore</h2>
+     <p>Palette-inspired product ideas to compare, not guaranteed shade matches.</p>
     </div>
    </div>
    <div className="rs-amazon-grid">
@@ -263,7 +266,7 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
       <div className="rs-amazon-copy">
        <small>{p.brand} · {p.subcategory}</small>
        <b>{p.name}</b>
-       <p>{p.fit}% color match</p>
+       <p>Palette-inspired suggestion</p>
       </div>
       <a href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
        onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"quiz_result",rank:i+1,tone:id})}>
@@ -277,13 +280,13 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
 
   <div className="rs-duo">
    <div className="h2-card rs-names">
-    <div className="h2-cardhead"><b>Best colors</b></div>
+    <div className="h2-cardhead"><b>Colors to try</b></div>
     <div className="rs-names-row">{detail.best.map(c=>
       <span key={c.hex+c.name}><i style={{background:c.hex}}/><small>{c.name}</small></span>)}
     </div>
    </div>
    <div className="h2-card rs-names">
-    <div className="h2-cardhead"><b>Avoid</b></div>
+    <div className="h2-cardhead"><b>Compare with</b></div>
     <div className="rs-names-row">{detail.avoid.map(c=>
       <span key={c.hex+c.name}><i style={{background:c.hex}}/><small>{c.name}</small></span>)}
     </div>
@@ -309,13 +312,13 @@ function QuizResultView({result,onRestart,onFillGaps}:{result:QuizResult;onResta
   </div>
 
   <div className="h2-card rs-rank">
-   <div className="h2-cardhead"><b>Closest matches</b></div>
-   {result.ranked.slice(0,3).map((r,i)=><div key={r.id} className="rs-rank-row"><span><u>{i+1}</u>{r.name}</span><b>{r.pct}%</b></div>)}
+   <div className="h2-cardhead"><b>Nearby palette directions</b></div>
+   {result.ranked.slice(0,3).map((r,i)=><div key={r.id} className="rs-rank-row"><span><u>{i+1}</u>{r.name}</span><b>Explore</b></div>)}
   </div>
 
   <div className="rs-foot">
    <button className="rs-retake" onClick={onRestart}>{MARK.retake} Retake the quiz</button>
-   <p className="rs-note">This quiz is style guidance, not a scientific determination. Use it as a shopping starting point.</p>
+   <p className="rs-note">These are exploratory styling suggestions, not a validated undertone or seasonal diagnosis. Choose shades that you enjoy.</p>
   </div>
  </div>}
 
