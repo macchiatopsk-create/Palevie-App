@@ -1,8 +1,10 @@
+import { expandedShades } from "./expandedShades";
 import { CatalogProduct } from "@/lib/types";
 
 /**
- * Seed catalog: real branded retail products only; shade hexes are approximated from brand swatches.
- * Seed entries may include Amazon search URLs, but the live catalog below exposes only manually verified direct product pages.
+ * Seed catalog: real branded retail products only; shades are illustrative,
+ * not measured swatches. Exact verified Amazon pages are distinguished from
+ * unverified shade-search links in the shop, rather than concealing variety.
  */
 const seedCatalogProducts: CatalogProduct[] = [
   {
@@ -247,12 +249,23 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
 ]);
 
 /**
- * Until PA-API is approved, only surface products whose exact Amazon product page
- * has been manually verified. Search-result URLs are intentionally excluded from
- * the live recommendation catalog.
+ * Without PA-API approval, manually verified product pages have a separate
+ * direct-link badge. Search results remain browseable, without false claims
+ * that a particular shade is currently in stock at a specific listing.
  */
-export const catalogProducts: CatalogProduct[] = seedCatalogProducts.filter(
-  product => VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
-);
+// Keep every seed item browseable, but reserve the verified badge and direct-buy
+// wording for exact Amazon product URLs vetted separately.
+export const catalogProducts: CatalogProduct[] = [
+  ...seedCatalogProducts.map(product => ({
+    ...product,
+    offers: product.offers.map(offer => ({
+      ...offer,
+      affiliateReady: VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
+        && new URL(offer.url).pathname.startsWith("/dp/"),
+      priceLabel: VERIFIED_AMAZON_PRODUCT_IDS.has(product.id) ? offer.priceLabel : undefined,
+    })),
+  })),
+  ...expandedShades,
+];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));

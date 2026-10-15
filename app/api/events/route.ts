@@ -39,6 +39,7 @@ const allowed = new Set([
   "bio_consent_given",
   "member_setup_shown","member_setup_done","member_profile_updated",
   "shade_drape_opened","shade_drape_shop_click",
+  "virtual_tryon_opened","virtual_tryon_camera_started","virtual_tryon_error","virtual_tryon_shade_selected","virtual_tryon_shop_click",
   "welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed",
   "ad_welcome_shown","ad_welcome_started",
   "quiz_intro_shown","quiz_intro_started",
