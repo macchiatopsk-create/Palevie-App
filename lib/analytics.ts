@@ -8,6 +8,7 @@ export type AnalyticsEventName =
   | "bio_consent_given"
   | "member_setup_shown" | "member_setup_done" | "member_profile_updated"
   | "shade_drape_opened" | "shade_drape_shop_click"
+  | "virtual_tryon_opened" | "virtual_tryon_camera_started" | "virtual_tryon_error" | "virtual_tryon_shade_selected" | "virtual_tryon_shop_click"
   | "product_check_started" | "product_check_completed"
   | "skincare_profile_completed" | "shop_viewed"
   | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed"

@@ -12,6 +12,7 @@
     "test:drape-guide": "node scripts/test-drape-guide.cjs"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "0.10.32",
     "@supabase/supabase-js": "2.110.2",
     "next": "^16.3.0",
     "postcss": "^8.5.12",
@@ -25,5 +26,9 @@
     "@types/react-dom": "^19.1.0",
     "typescript": "^5.9.0"
   },
-  "overrides": {"next": {"postcss": "8.5.10"}}
+  "overrides": {
+    "next": {
+      "postcss": "8.5.10"
+    }
+  }
 }
