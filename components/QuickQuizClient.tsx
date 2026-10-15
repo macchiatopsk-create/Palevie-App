@@ -1,17 +1,23 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { QUIZ_QUESTIONS, computeAxes, rankTones } from "@/lib/quiz";
-import { getToneProfile } from "@/lib/palettes";
+import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import { track } from "@/lib/analytics";
 import styles from "./QuickQuizClient.module.css";
 
-const QUICK_INDEXES = [0, 1, 2, 3, 8, 17, 18] as const;
-const QUICK_KEY = "palevie-quick-quiz-v2";
-const DETAIL_KEY = "palevie-quiz-state-v1";
+const QUICK_INDEXES = [0, 1, 2, 10, 17, 18, 20] as const;
+const QUICK_KEY = "palevie-quick-quiz-v3";
+
 type QuickState = { picks: (number | null)[]; cursor: number; completed: boolean };
 const initial = (): QuickState => ({ picks: Array(QUICK_INDEXES.length).fill(null), cursor: 0, completed: false });
-export default function QuickQuizClient() {
+const COLOR_GROUPS = [
+  { label: "Warm & golden", description: "Peach, coral, honey and earth shades.", colors: ["#F2A65A","#F28C6F","#C3842C","#B96532","#68753F"] },
+  { label: "Cool & rosy", description: "Rose, mauve, berry and blue-based shades.", colors: ["#E7C7D7","#B36B8C","#C51F5D","#9381B5","#7189B8"] },
+  { label: "Soft & muted", description: "Dusty rose, taupe, beige and softened green.", colors: ["#B08699","#A8896C","#C9A099","#8D8197","#78918C"] },
+  { label: "Bright & vivid", description: "Clear pink, coral, teal and saturated colors.", colors: ["#FF4F91","#FF6B5E","#00A7A5","#3AAED8","#FFB000"] }
+] as const;
+
+export default function QuickQuizClient({ detail = false }: { detail?: boolean }) {
   const [quiz, setQuiz] = useState<QuickState>(initial);
   const [ready, setReady] = useState(false);
 
@@ -34,23 +40,6 @@ export default function QuickQuizClient() {
     }
   }, [quiz, ready]);
 
-  const answerData = useMemo(() => {
-    const answers: (number | null)[] = QUIZ_QUESTIONS.map(() => null);
-    const cantTell: number[] = [];
-    QUICK_INDEXES.forEach((globalIndex, idx) => {
-      const choice = quiz.picks[idx];
-      if (choice === null || choice < 0) return;
-      const option = QUIZ_QUESTIONS[globalIndex].options[choice];
-      if (!option) return;
-      if (option.label === "Honestly can't tell") cantTell.push(globalIndex);
-      else answers[globalIndex] = choice;
-    });
-    return { answers, cantTell, answered: answers.filter(a => a !== null).length };
-  }, [quiz.picks]);
-
-  const profile = useMemo(() => getToneProfile(rankTones(computeAxes(answerData.answers, { cantTell: answerData.cantTell }))[0].id), [answerData]);
-  const enough = answerData.answered >= 5;
-
   function pick(choice: number) {
     if (quiz.completed) return;
     const picks = [...quiz.picks];
@@ -61,48 +50,52 @@ export default function QuickQuizClient() {
       setQuiz({ picks, cursor: quiz.cursor + 1, completed: false });
       return;
     }
-    // Reuse observed features in the optional follow-up; no subjective color-picking questions.
-    const full: (number | null)[] = QUIZ_QUESTIONS.map(() => null);
-    const cantTell: number[] = [];
-    QUICK_INDEXES.forEach((index, i) => {
-      const value = picks[i];
-      if (value === null || value < 0) return;
-      const option = QUIZ_QUESTIONS[index].options[value];
-      if (option?.label === "Honestly can't tell") cantTell.push(index);
-      else full[index] = value;
-    });
-    try {
-      localStorage.setItem(DETAIL_KEY, JSON.stringify({
-        answers: full, step: 9, cantTell, fromQuick: true
-      }));
-    } catch {}
     setQuiz({ picks, cursor: quiz.cursor, completed: true });
-    track("quiz_quick_completed", { questions: QUICK_INDEXES.length, answered: full.filter(a => a !== null).length, result_type: "preliminary" });
+    track("quiz_quick_completed", { questions: QUICK_INDEXES.length, answered: picks.filter(a => a !== null && a >= 0).length, result_type: "palette_explorer" });
   }
 
   function restart() {
     setQuiz(initial());
-    try { localStorage.removeItem(DETAIL_KEY); } catch {}
+
     track("quiz_quick_restarted");
   }
 
   if (!ready) return <div className={styles.loading} aria-label="Loading quick quiz" />;
+  if (detail && !quiz.completed) return <section className={styles.result}>
+    <h2 className={styles.resultHeading}>Start with the quick quiz</h2>
+    <p className={styles.desc}>Finish the short introduction before exploring shade comparisons.</p>
+    <Link className={styles.primary} href="/quiz">Start Quick Quiz →</Link>
+  </section>;
+  if (detail) return <section className={styles.result} aria-label="Detailed shade explorer">
+    <p className={styles.eyebrow}>PALEVIE · EXPLORE YOUR COLOR OPTIONS</p>
+    <h2 className={styles.resultHeading}>Compare colors, don't guess a season.</h2>
+    <p className={styles.desc}>Your eye color, hair color and skin depth cannot reliably establish a warm or cool season. Compare these different makeup moods before choosing what to try.</p>
+    <div className={styles.paletteGroups}>
+      {COLOR_GROUPS.map(group => <div className={styles.paletteGroup} key={group.label}>
+        <h3>{group.label}</h3>
+        <p>{group.description}</p>
+        <div className={styles.groupSwatches} aria-label={group.label + " shade examples"}>
+          {group.colors.map(color => <span key={color} style={{backgroundColor:color}} />)}
+        </div>
+      </div>)}
+    </div>
+    <p className={styles.hint}>These are examples to experiment with, not personalized diagnoses. Lighting, product finish and your preferences all change how a shade appears.</p>
+    <Link className={styles.primary} href="/shop">Explore makeup products →</Link>
+    <Link className={styles.secondary} href="/quiz">Back to My Quick Results</Link>
+  </section>;
   if (quiz.completed) return <section className={styles.result} aria-label="Quick color quiz result">
-    <p className={styles.eyebrow}>PALEVIE · YOUR COLOR PREVIEW</p>
-    {enough ? <>
-      <h2 className={styles.resultHeading}>Explore <em>{profile.season}</em> colors.</h2>
-      <p className={styles.desc}>An exploratory palette inspired by the features you described. Hair, eyes and skin tone alone cannot establish your season or undertone.</p>
-      <div className={styles.palette} aria-label={"Suggested " + profile.season + " color palette"}>
-        {profile.colors.slice(0, 6).map((color, idx) => <span key={color + idx} style={{ backgroundColor: color }} />)}
-      </div>
-      <p className={styles.hint}>These colors are a starting point. Lighting and personal taste matter, too.</p>
-    </> : <>
-      <h2 className={styles.resultHeading}>A few more clues will help.</h2>
-      <p className={styles.desc}>There isn't enough information to suggest a direction responsibly. You can add more observations, or start again.</p>
-    </>}
-    <Link className={styles.primary} href="/quiz?mode=detailed">Refine My Colors <span aria-hidden>→</span></Link>
-    <p className={styles.small}>Three optional follow-up questions · no camera or color-matching guesses</p>
-    <Link className={styles.secondary} href="/shop">Browse makeup shades</Link>
+    <p className={styles.eyebrow}>PALEVIE · YOUR COLOR STARTING POINT</p>
+    <h2 className={styles.resultHeading}>Let's explore <em>your colors.</em></h2>
+    <p className={styles.desc}>You told us about your features and makeup style. Those details help plan what to explore, but cannot determine your seasonal color type.</p>
+    <div className={styles.paletteGroups}>
+      {COLOR_GROUPS.slice(0,2).map(group => <div className={styles.paletteGroup} key={group.label}>
+        <h3>{group.label}</h3>
+        <div className={styles.groupSwatches} aria-label={group.label+" makeup shade examples"}>{group.colors.map(color=><span key={color} style={{backgroundColor:color}} />)}</div>
+      </div>)}
+    </div>
+    <p className={styles.hint}>A starting point, not a Winter/Summer/Spring/Autumn diagnosis. Dark or light skin can have different undertones.</p>
+    <Link className={styles.primary} href="/quiz?mode=detailed">Compare More Color Palettes →</Link>
+    <Link className={styles.secondary} href="/shop">Explore makeup shades</Link>
     <button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
 
@@ -110,13 +103,13 @@ export default function QuickQuizClient() {
   const question = QUIZ_QUESTIONS[globalIndex];
   const progress = Math.round((quiz.cursor / QUICK_INDEXES.length) * 100);
   return <section className={styles.quiz} aria-label="Quick personal color quiz">
-    <p className={styles.eyebrow}>QUICK COLOR QUIZ · YOUR NATURAL FEATURES</p>
+    <p className={styles.eyebrow}>QUICK COLOR EXPLORER · YOUR FEATURES & STYLE</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}>
       <span style={{ width: progress + "%" }} />
     </div>
     <div className={styles.counter}>{quiz.cursor + 1} / {QUICK_INDEXES.length}</div>
     <h2 className={styles.question}>{question.text}</h2>
-    <p className={styles.tip}>No need to know which colors suit you — that is what you came to explore.</p>
+    <p className={styles.tip}>You do not need to know your undertone or color season to answer.</p>
     <div className={styles.options}>
       {question.options.map((option, idx) => <button type="button" className={styles.option} key={option.label} onClick={() => pick(idx)}>
         {(option.hex || option.tone) && <span className={styles.swatch} style={{ backgroundColor: option.hex || option.tone }} aria-hidden="true" />}

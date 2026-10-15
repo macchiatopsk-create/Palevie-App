@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import QuizClient from "@/components/QuizClient";
 import QuickQuizClient from "@/components/QuickQuizClient";
 import QuizAdWelcome from "@/components/QuizAdWelcome";
 import MakeupPrefsClient from "@/components/MakeupPrefsClient";
@@ -114,7 +113,7 @@ export default function QuizHub() {
         ))}
       </nav>}
 
-      {tab === "color" && (detailed ? <QuizClient /> : <QuickQuizClient />)}
+      {tab === "color" && <QuickQuizClient detail={detailed} />}
       {tab === "makeup" && <MakeupPrefsClient />}
       {tab === "style" && <StyleClient />}
       {tab === "skin" && <SkinProfileClient />}
