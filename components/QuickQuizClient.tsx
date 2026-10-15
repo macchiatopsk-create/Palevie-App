@@ -80,6 +80,13 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
       </div>)}
     </div>
     <p className={styles.hint}>These are examples to experiment with, not personalized diagnoses. Lighting, product finish and your preferences all change how a shade appears.</p>
+    <div className={styles.drapeCallout}>
+      <span className={styles.drapeEyebrow}>WANT A CLOSER COLOR CHECK?</span>
+      <h3>Go deeper with live draping.</h3>
+      <p>Compare shades beside your face on camera or with a mirror. No need to know your undertone first.</p>
+      <Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"detailed_palette"})}>START LIVE DRAPING <span aria-hidden="true">→</span></Link>
+      <small>Free · Camera optional · Not a guaranteed diagnosis</small>
+    </div>
     <Link className={styles.primary} href="/shop">Explore makeup products →</Link>
     <Link className={styles.secondary} href="/quiz">Back to My Quick Results</Link>
   </section>;
@@ -94,7 +101,14 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
       </div>)}
     </div>
     <p className={styles.hint}>A starting point, not a Winter/Summer/Spring/Autumn diagnosis. Dark or light skin can have different undertones.</p>
-    <Link className={styles.primary} href="/quiz?mode=detailed">Compare More Color Palettes →</Link>
+    <div className={styles.drapeCallout}>
+      <span className={styles.drapeEyebrow}>WANT TO GO DEEPER?</span>
+      <h3>See the colors next to your face.</h3>
+      <p>Try live color draping with your front camera or a mirror. Compare shades instead of guessing your season.</p>
+      <Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_result"})}>START LIVE DRAPING <span aria-hidden="true">→</span></Link>
+      <small>Free · Camera optional · No photos saved or uploaded</small>
+    </div>
+    <Link className={styles.secondary} href="/quiz?mode=detailed">Compare more palettes instead →</Link>
     <Link className={styles.secondary} href="/shop">Explore makeup shades</Link>
     <button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;

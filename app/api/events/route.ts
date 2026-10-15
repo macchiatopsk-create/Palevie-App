@@ -44,6 +44,7 @@ const allowed = new Set([
   "welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed",
   "ad_welcome_shown","ad_welcome_started",
   "quiz_intro_shown","quiz_intro_started",
+  "drape_cta_clicked","drape_session_started","drape_pair_answered","drape_session_completed",
   "drape_guide_shown","drape_guide_continued",
   "drape_mode_selected","drape_camera_started","drape_camera_error","drape_camera_color_switched",
 ]);

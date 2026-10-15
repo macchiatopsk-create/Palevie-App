@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import QuickQuizClient from "@/components/QuickQuizClient";
+import ColorDrapingClient from "@/components/ColorDrapingClient";
 import QuizAdWelcome from "@/components/QuizAdWelcome";
 import MakeupPrefsClient from "@/components/MakeupPrefsClient";
 import StyleClient from "@/components/StyleClient";
@@ -34,6 +35,7 @@ export default function QuizHub() {
   const raw = params.get("tab");
   const tab: TabId = TABS.some(t => t.id === raw) ? (raw as TabId) : "color";
   const detailed = params.get("mode") === "detailed";
+  const draping = params.get("mode") === "draping";
 
   const [wl, setWl] = useState<SavedItem[]>([]);
   const [tod, setTod] = useState<TimeOfDay>("day");
@@ -43,6 +45,7 @@ export default function QuizHub() {
   const fromBackwardsAd = params.get("utm_source") === "ig" && params.get("utm_medium") === "paid" && params.get("utm_campaign") === "makeup_backwards";
   useEffect(() => {
     if(tab !== "color")return;
+    if(draping){setIntroState("started");return;}
     try {
       const seen = sessionStorage.getItem("palevie-quiz-intro-started-v1") === "1";
       const raw = localStorage.getItem("palevie-quiz-state-v1");
@@ -50,7 +53,7 @@ export default function QuizHub() {
       const progress = !!saved && ((saved.step??0)>0 || saved.answers?.some(a=>a!==null) || (saved.cantTell?.length??0)>0);
       setIntroState(seen||progress?"started":"show");
     }catch {setIntroState("show");}
-  },[tab]);
+  },[tab,draping]);
   useEffect(()=>{
     const active = tab==="color" && introState==="show";
     document.body.classList.toggle("quiz-intro-entry",active);
@@ -96,7 +99,7 @@ export default function QuizHub() {
         </div>
       </div>
 
-      {(tab !== "color" || detailed) && <section className="qh-hero">
+      {(tab !== "color" || detailed) && !draping && <section className="qh-hero">
         <div className="qh-hero-art" aria-hidden style={{ backgroundImage: `url('/img/hero-${season}-${heroLight(tod)}.webp')` }} />
         <div className="qh-hero-tx">
           <span className="qh-eyebrow">{h.eyebrow} {MARK.flower}</span>
@@ -105,7 +108,7 @@ export default function QuizHub() {
         </div>
       </section>}
 
-      {(tab !== "color" || detailed) && <nav className="qh-tabs" aria-label="Quiz sections">
+      {(tab !== "color" || detailed) && !draping && <nav className="qh-tabs" aria-label="Quiz sections">
         {TABS.map(t => (
           <button key={t.id} className={`qh-tab${tab === t.id ? " on" : ""}`} onClick={() => select(t.id)}>
             <span className="qh-tab-ic">{t.icon}</span>{t.label}
@@ -113,7 +116,7 @@ export default function QuizHub() {
         ))}
       </nav>}
 
-      {tab === "color" && <QuickQuizClient detail={detailed} />}
+      {tab === "color" && (draping ? <ColorDrapingClient /> : <QuickQuizClient detail={detailed} />)}
       {tab === "makeup" && <MakeupPrefsClient />}
       {tab === "style" && <StyleClient />}
       {tab === "skin" && <SkinProfileClient />}
