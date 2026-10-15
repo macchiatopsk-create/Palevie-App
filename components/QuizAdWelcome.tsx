@@ -22,12 +22,12 @@ export default function QuizAdWelcome({onStart,campaign}:{onStart:()=>void;campa
    <div className={styles.intro}>
     <p className={styles.eyebrow}>A little color magic, made for you</p>
     <h1>Find your<br/>kind of <em>glow.</em></h1>
-    <p className={styles.description}>Discover a color palette inspired by your natural features — and explore shades for makeup and style.</p>
+    <p className={styles.description}>Explore warm, cool and vivid color palettes, then compare shades for makeup and style. No guessing your season.</p>
    </div>
    <div className={styles.action}>
     <button className={styles.button} type="button" onClick={begin}>Find My Colors <span aria-hidden="true">→</span></button>
-    <p className={styles.notes}>✧ &nbsp;Free · 21 quick questions · No signup</p>
-    <p className={styles.footnote}>Optional live color comparison · No photo needed to start</p>
+    <p className={styles.notes}>✧ &nbsp;Free · 7 quick questions · No signup</p>
+    <p className={styles.footnote}>Get a color preview first · Go deeper only if you want</p>
    </div>
   </div>
  </section>;

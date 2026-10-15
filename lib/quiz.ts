@@ -60,6 +60,8 @@ export type AxisCoverage = {
 };
 
 export type ScoreOptions = {
+  /** Minimum observations required for the optional factual-only follow-up. */
+  minAnswers?: number;
   /** Question ids to leave out — used for the provisional read behind the confirm drape. */
   ignore?: string[];
   /**
@@ -175,11 +177,12 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "I tan easily and rarely burn", t: 1, v: -1 },
       { label: "I usually get a deep tan", t: 1, v: -1.5 },
     ]},
-  { id: "black", act: 1, text: "How does black look near your face?",
+  { id: "brows", act: 1, text: "What is your natural eyebrow color?",
     options: [
-      { label: "It makes my face look clear and strong", k: 1.5, v: -1 },
-      { label: "It makes me look tired or pale", k: -1.5, v: 1 },
-      { label: "It looks normal — neither good nor bad" },
+      { label: "Black or very dark brown", k: 1.5, v: -1 },
+      { label: "Medium brown", k: 0, v: 0 },
+      { label: "Light brown or blonde", k: -1.5, v: 1 },
+      { label: "Not sure" },
     ]},
 
   // Act 2 resumes: the six that separate the families.
@@ -227,18 +230,18 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     ]},
 
   // Act 3: contrast, a targeted confirmation, and overall impression.
-  { id: "eyeContrast", act: 3, text: "How much do your eyes stand out from your skin?",
-    help: "Look without makeup if you can. Do your eyes look very different from your skin, or do they blend in?",
+  { id: "eyeContrast", act: 3, text: "How much light-dark contrast is there between your eyes and skin?",
+    help: "Compare their natural lightness in a mirror, not whether they look good together.",
     options: [
-      { label: "They stand out a lot", k: 2 },
-      { label: "They stand out a little", k: 0.5 },
-      { label: "They blend in softly", k: -2 },
+      { label: "A strong light-dark difference", k: 2 },
+      { label: "Some difference", k: 0.5 },
+      { label: "Very little difference", k: -2 },
     ]},
-  { id: "hairContrast", act: 3, text: "Does your hair look very different from your skin?",
+  { id: "hairContrast", act: 3, text: "How much light-dark contrast is there between your hair and skin?",
     options: [
-      { label: "Yes — there is a clear difference", k: 1.5, v: -0.5 },
-      { label: "A little", k: 0 },
-      { label: "No — they blend together softly", k: -1.5, v: 0.5 },
+      { label: "A strong light-dark difference", k: 1.5, v: -0.5 },
+      { label: "Some difference", k: 0 },
+      { label: "Very little difference", k: -1.5, v: 0.5 },
     ]},
   { id: "confirm", act: 3, kind: "drape", text: "Last drape — which one looks better on you?",
     help: "We picked these two from your answers. Choose the one that makes your face look better.",
@@ -247,12 +250,13 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { label: "Clearer", hex: "#D2437E", c: 1.5 },
       { label: "Honestly can't tell" },
     ]},
-  { id: "impression", act: 3, text: "Which sounds most like your overall look?",
+  { id: "impression", act: 3, text: "Which makeup style would you like to explore?",
+    help: "This is only your style preference — it does not determine your color season.",
     options: [
-      { label: "Soft and gentle", c: -1.5, k: -1 },
-      { label: "Bright and noticeable", c: 1.5, k: 1 },
-      { label: "Somewhere in the middle" },
-      { label: "I honestly don't know" },
+      { label: "Soft everyday shades" },
+      { label: "Bright colorful makeup" },
+      { label: "Deep dramatic looks" },
+      { label: "I am open to anything" },
     ]},
 ];
 
@@ -458,7 +462,7 @@ export function scoreQuiz(answers: QuizAnswer[], options: ScoreOptions = {}): Qu
     cantTellCount: options.cantTell?.length ?? 0,
     unresolvedAxes,
     headline,
-    sufficient: answeredCount >= Math.min(MIN_ANSWERS, Math.ceil(QUIZ_QUESTIONS.length / 2)),
+    sufficient: answeredCount >= (options.minAnswers ?? Math.min(MIN_ANSWERS, Math.ceil(QUIZ_QUESTIONS.length / 2))),
   };
 }
 

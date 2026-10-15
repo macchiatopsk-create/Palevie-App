@@ -4,6 +4,7 @@ import { loadAttribution } from "./attribution";
 export type AnalyticsEventName =
   | "page_view"
   | "quiz_started" | "quiz_answered" | "quiz_completed"
+  | "quiz_quick_answered" | "quiz_quick_completed" | "quiz_quick_restarted" | "quiz_detailed_started"
   | "ai_scan_started" | "ai_scan_completed" | "ai_scan_failed"
   | "bio_consent_given"
   | "member_setup_shown" | "member_setup_done" | "member_profile_updated"
@@ -15,6 +16,7 @@ export type AnalyticsEventName =
   | "welcome_quiz_popup_shown" | "welcome_quiz_popup_cta" | "welcome_quiz_popup_dismissed"
   | "ad_welcome_shown" | "ad_welcome_started"
   | "quiz_intro_shown" | "quiz_intro_started"
+  | "drape_cta_clicked" | "drape_session_started" | "drape_pair_answered" | "drape_session_completed"
   | "drape_guide_shown" | "drape_guide_continued"
   | "drape_mode_selected" | "drape_camera_started" | "drape_camera_error" | "drape_camera_color_switched";
 
