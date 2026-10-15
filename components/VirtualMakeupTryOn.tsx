@@ -42,12 +42,12 @@ function drawBlush(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,he
   const [r,g,b]=rgb(hex);
   const faceWidth=Math.abs(pts[454].x-pts[234].x)*w;
   const faceHeight=Math.abs(pts[152].y-pts[168].y)*h;
-  const blur=Math.max(5,Math.min(22,faceWidth*0.035));
+  const blur=Math.max(3,Math.min(12,faceWidth*0.018));
   for(const cheek of [{idx:205,edge:234,sign:-1},{idx:425,edge:454,sign:1}]){
     const base=pts[cheek.idx],edge=pts[cheek.edge];
     const x=(base.x*0.73+edge.x*0.27)*w;
     const y=base.y*h-faceHeight*0.055;
-    const rx=Math.max(8,faceWidth*0.175),ry=Math.max(6,faceHeight*0.080);
+    const rx=Math.max(9,faceWidth*0.195),ry=Math.max(7,faceHeight*0.090);
     ctx.save();
     ctx.translate(x,y);
     ctx.rotate(cheek.sign*-0.22);
@@ -55,8 +55,8 @@ function drawBlush(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,he
     // Radial alpha ensures cheek edges fade into the natural skin texture.
     ctx.scale(1,ry/rx);
     const grd=ctx.createRadialGradient(0,0,rx*0.04,0,0,rx);
-    grd.addColorStop(0,`rgba(${r},${g},${b},${(0.25*intensity).toFixed(3)})`);
-    grd.addColorStop(0.46,`rgba(${r},${g},${b},${(0.13*intensity).toFixed(3)})`);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(0.72*intensity).toFixed(3)})`);
+    grd.addColorStop(0.46,`rgba(${r},${g},${b},${(0.39*intensity).toFixed(3)})`);
     grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
     ctx.fillStyle=grd;ctx.beginPath();ctx.arc(0,0,rx,0,2*Math.PI);ctx.fill();ctx.restore();
   }
@@ -76,16 +76,16 @@ function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:
     const cx=(outer.x+inner.x)*w/2,cy=(outer.y+inner.y)*h/2;
     const topY=Math.min(...eye.arch.map(i=>pts[i].y*h));
     const lift=Math.max(2,Math.min(span*.15,(cy-topY)*.8));
-    const blur=Math.max(2,Math.min(12,span*.12));
-    const rx=span*.42, ry=Math.max(3,lift*.87);
+    const blur=Math.max(1.5,Math.min(7,span*.065));
+    const rx=span*.47, ry=Math.max(4,lift*1.20);
     ctx.save();
     ctx.translate(cx,cy-lift*.70);
     ctx.rotate(Math.atan2((inner.y-outer.y)*h,(inner.x-outer.x)*w));
     ctx.filter=`blur(${blur}px)`;
     ctx.scale(1,ry/rx);
     const grd=ctx.createRadialGradient(0,0,rx*.08,0,0,rx);
-    grd.addColorStop(0,`rgba(${r},${g},${b},${(.21*intensity).toFixed(3)})`);
-    grd.addColorStop(.56,`rgba(${r},${g},${b},${(.11*intensity).toFixed(3)})`);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(.64*intensity).toFixed(3)})`);
+    grd.addColorStop(.56,`rgba(${r},${g},${b},${(.36*intensity).toFixed(3)})`);
     grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
     ctx.fillStyle=grd;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();
     ctx.restore();
@@ -94,8 +94,8 @@ function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:
 function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number,presetStrength:number) {
   ctx.clearRect(0,0,w,h);
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
-  if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.3,intensity*presetStrength*.88));
-  if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.3,intensity*presetStrength*.78));
+  if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.5,intensity*presetStrength));
+  if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.5,intensity*presetStrength));
   if(lip && !selected.lip?.name.toLowerCase().includes("crystal clear")) {
     // Gloss/oil tints are substantially more transparent than lipstick.
     const sheer=selected.lip?.subcategory==="gloss";
@@ -112,7 +112,7 @@ export default function VirtualMakeupTryOn({
   const [selected,setSelected]=useState<Selected>({[initialArea]:initialProduct});
   const [status,setStatus]=useState<"idle"|"loading"|"live"|"error">("idle");
   const [message,setMessage]=useState("");
-  const [strength,setStrength]=useState(65);
+  const [strength,setStrength]=useState(85);
   const [preset,setPreset]=useState<"soft"|"natural"|"bold">("natural");
   const [before,setBefore]=useState(false);
   const [filter,setFilter]=useState("");
@@ -132,7 +132,7 @@ export default function VirtualMakeupTryOn({
   useEffect(()=>{selectedRef.current=selected;},[selected]);
   useEffect(()=>{strengthRef.current=strength/100;},[strength]);
   useEffect(()=>{beforeRef.current=before;},[before]);
-  useEffect(()=>{presetRef.current=preset==="soft"?.70:preset==="bold"?1.25:1;},[preset]);
+  useEffect(()=>{presetRef.current=preset==="soft"?.45:preset==="bold"?1.35:1;},[preset]);
   useEffect(()=>{document.body.classList.add("ms-open"); track("virtual_tryon_opened",{product:initialProduct.id,area:initialArea}); return()=>document.body.classList.remove("ms-open");},[initialProduct.id,initialArea]);
 
   const stop=useCallback(()=>{
@@ -238,7 +238,7 @@ export default function VirtualMakeupTryOn({
         <div className={styles.presets} role="group" aria-label="Makeup strength">
           {(["soft","natural","bold"] as const).map(p=><button key={p} type="button" aria-pressed={preset===p} className={preset===p?styles.presetActive:styles.preset} onClick={()=>setPreset(p)}>{p==="soft"?"Soft":p==="natural"?"Natural":"Bold"}</button>)}
         </div>
-        <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="15" max="95" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
+        <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="20" max="100" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
         <div className={styles.shades} aria-label="Available makeup shades">{options.slice(0,100).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
         {current&&buy&&<a className={styles.buy} href={`/go/${buy.id}?v=${encodeURIComponent(getVisitorId())}&utm_source=virtual_makeup&utm_medium=affiliate`} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={()=>track("virtual_tryon_shop_click",{product:current.id,direct})}>{direct?"View exact product on Amazon ↗":"Find this shade on Amazon ↗"}</a>}
