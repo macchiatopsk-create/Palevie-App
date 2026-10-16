@@ -189,7 +189,7 @@ const seedCatalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-cosrx-reti", retailer: "amazon", url: "https://www.amazon.com/s?k=cosrx+the+retinol+0.1+cream", priceLabel: "$26", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "sk-goodal-vitc", brand: "goodal", name: "Green Tangerine Vita C Dark Spot Serum", category: "skincare", subcategory: "serum",
+    id: "sk-goodal-vitc", brand: "goodal", name: "Green Tangerine Vitamin C Dark Spot Serum · 30ml (Exosome)", category: "skincare", subcategory: "serum",
     description: "Vitamin C serum aimed at post-acne marks.", tags: ["vitamin-c", "brightening", "lightweight"],
     offers: [{ id: "of-goodal-vitc", retailer: "amazon", url: "https://www.amazon.com/s?k=goodal+green+tangerine+vita+c+serum", priceLabel: "$25", currency: "USD", affiliateReady: true }],
   },
@@ -260,6 +260,7 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "rmd-jlt-12",
   "rmd-jlt-25",
   "mbl-vinyl-peachy",
+  "sk-goodal-vitc",
   "sk-cosrx-reti",
   "rmd-btp-fog",
   "rmd-veil",

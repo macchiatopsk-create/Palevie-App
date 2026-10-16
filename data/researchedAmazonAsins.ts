@@ -138,4 +138,7 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "rmd-veil": "B08MQP8977", // rom&nd See-Through Veilighter Hanbok Edition 01 Sun Kissed Veil
   "sk-cosrx-reti": "B0B5DKJ8TS", // COSRX The Retinol 0.1 Cream, single 0.67 fl oz US listing
   "mbl-vinyl-peachy": "B09QH7SS43", // Maybelline Super Stay Vinyl Ink Peachy 0.14 fl oz single
+  "nyx-bg-38": "B0CYKQGWYW", // NYX Butter Gloss Bling Shimmer Down, US product title
+  "rare-pinch-04": "B0CZXWGFL5", // Rare Beauty Soft Pinch Liquid Blush Happy MINI 0.11 fl oz
+  "sk-goodal-vitc": "B0GGGCV238", // GOODAL Green Tangerine Vita C Dark Spot Brightening Serum, single 30ml
 };
