@@ -29,7 +29,11 @@ export const expandedShades:CatalogProduct[] = collections.flatMap(collection=>
     // No digital reference means no shade overlay until sourced and validated.
     const colorHex = ref?.hex;
     return {
-      id:key, brand:collection.brand, name:collection.family+" · "+shade,category:"makeup" as const,
+      id:key, brand:collection.brand,
+      name: key==="nyx-bg-38" ? "Butter Gloss Bling · Shimmer Down"
+        : key==="rare-pinch-04" ? "Soft Pinch Liquid Blush · Happy (Mini 0.11 fl oz)"
+        : collection.family+" · "+shade,
+      category:"makeup" as const,
       subcategory:collection.kind==="gloss"?"gloss":collection.kind,
       description: ref
         ? "Brand digital shade reference; camera color is an approximate visualization, not exact skin payoff."

@@ -1,3 +1,17 @@
+# Eighth ASIN review — 2026-10-15 (latest)
+
+**Catalog: 168 visible; 132 specific US Amazon direct-detail-page candidates; 36 pending exact match.** The old sections below are chronological audit snapshots, not the current count.
+
+| Palevie ID | Exact Amazon single item / shade | ASIN | Evidence |
+|---|---|---|---|
+| `nyx-bg-38` | NYX Butter Gloss **Bling**, Shimmer Down | `B0CYKQGWYW` | https://www.amazon.com/dp/B0CYKQGWYW |
+| `rare-pinch-04` | Rare Beauty Soft Pinch Liquid Blush **Happy, Mini 0.11 fl oz** (not standard-size) | `B0CZXWGFL5` | https://www.amazon.com/dp/B0CZXWGFL5 |
+| `sk-goodal-vitc` | GOODAL Green Tangerine Vitamin C Dark Spot Serum, **30ml single Exosome/5% niacinamide version** (not a refill set) | `B0GGGCV238` | https://www.amazon.com/dp/B0GGGCV238 |
+
+Data accuracy notes: the expanded shade names now explicitly distinguish NYX **Bling** and Rare Beauty **Mini** variants; Goodal name notes the updated single-bottle formula. Product-page identity does not establish current stock, seller approval or price. No Amazon images or manually copied prices. The **36 unresolved** entries remain labeled as shade-search fallbacks rather than fabricated ASIN URLs; do not call them unavailable without stock evidence.
+
+---
+
 # Seventh Amazon item verification — 2026-10-15
 
 **129 / 168 direct detail-page candidates; 39 still unverified.**
