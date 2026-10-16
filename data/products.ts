@@ -26,7 +26,7 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "rmd-jlt-25", brand: "rom&nd", name: "Juicy Lasting Tint · 25 Bare Grape", category: "makeup", subcategory: "lip",
     description: "Muted grape-mauve everyday shade.", colorHex: "#A05A6B", tags: ["k-beauty"],
-    offers: [{ id: "of-rmd-jlt-25", retailer: "amazon", url: "https://www.amazon.com/dp/B09242GH8Q", priceLabel: "$11", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-rmd-jlt-25", retailer: "amazon", url: "https://www.amazon.com/s?k=romand+juicy+lasting+tint+25+bare+grape", priceLabel: "$11", currency: "USD", affiliateReady: true }],
   },
   {
     id: "ppr-ink-17", brand: "Peripera", name: "Ink the Velvet · 17 Rosy Nude", category: "makeup", subcategory: "lip",
@@ -196,7 +196,7 @@ const seedCatalogProducts: CatalogProduct[] = [
   {
     id: "sk-mediheal-bp", brand: "Mediheal", name: "Phyto-Enzyme Blemish Spot Treatment", category: "skincare", subcategory: "serum",
     description: "Benzoyl-peroxide spot treatment for active breakouts.", tags: ["benzoyl-peroxide", "smoother-looking", "lightweight"],
-    offers: [{ id: "of-mediheal-bp", retailer: "amazon", url: "https://www.amazon.com/s?k=benzoyl+peroxide+spot+treatment+korean", priceLabel: "$14", currency: "USD", affiliateReady: true }],
+    offers: [{ id: "of-mediheal-bp", retailer: "amazon", url: "https://www.amazon.com/s?k=mediheal+phyto+enzyme+blemish+spot+treatment", priceLabel: "$14", currency: "USD", affiliateReady: true }],
   },
   {
     id: "sk-round-panthe", brand: "Round Lab", name: "1025 Dokdo Cream", category: "skincare", subcategory: "moisturizer",
@@ -248,6 +248,15 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "sk-cosrx-patch",
   "mk-laneige-balm",
   "sk-cosrx-bha",
+  "rmd-jlt-09",
+  "ppr-ink-17",
+  "ppr-ink-08",
+  "elf-halo-fair",
+  "tirtir-21n",
+  "lng-sleep",
+  "sk-some-aha",
+  "sk-round-panthe",
+  "clio-pro-02",
   "nyx-smlc-istanbul",
   "rare-pinch-joy",
   "mbl-matte-lover",

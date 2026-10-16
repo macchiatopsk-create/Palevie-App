@@ -112,4 +112,19 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "nyx-smlc-istanbul": "B004LXJOBI", // NYX Soft Matte Lip Cream Istanbul — Amazon variation 1 Count (Pack of 1)
   "mbl-matte-lover": "B06XF16MWM",
   "sk-cosrx-bha": "B00OZEJ8R8",
+  // US Amazon exact individual listing/variation spot-check, Oct 2026
+  "rmd-jlt-09": "B087BHZQQV", // Juicy Lasting Tint 09 Litchi Coral
+  "ppr-ink-17": "B0F242ZPX5", // Ink the Velvet 17 Rosy Nude
+  "ppr-ink-08": "B0FB1FMPHZ", // Ink the Velvet 08 Sellout Red
+  "elf-halo-fair": "B0B5MG15B2", // Halo Glow Liquid Filter 1 Fair
+  "tirtir-21n": "B09LCMQM44", // Mask Fit Red Cushion 21N Ivory, 0.63 fl oz single
+  "lng-sleep": "B0F7ZJQP4K", // Water Sleeping Mask
+  "sk-some-aha": "B07BYJF7L7", // SOME BY MI AHA BHA PHA Toner single 150 ml
+  "sk-round-panthe": "B08FM81QBZ", // ROUND LAB 1025 Dokdo Cream 2.71 fl oz single
+  "elf-bite-09": "B085P2NG1C", // Bite-Size Eyeshadow Truffles
+  "nyx-ultimate-05": "B08GPT8N32", // Ultimate Shadow Palette Utopia
+  "nyx-ultimate-06": "B09QMH2DKM", // Ultimate Shadow Palette Ultimate Queen
+  "nyx-ultimate-01": "B01IW02HX2", // Ultimate Shadow Palette Warm Neutrals
+  "clio-pro-02": "B09NRBYPNW", // Pro Eye Palette 002 Brown Choux
+  "cp-shock-01": "B0DZ1D8DRZ", // Super Shock Shadow DGAF single
 };
