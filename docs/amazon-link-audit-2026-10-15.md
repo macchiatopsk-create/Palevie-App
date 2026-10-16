@@ -1,3 +1,19 @@
+# Fifth Amazon shade-verification batch (October 2026)
+
+**123 direct Amazon item pages of 168 catalog entries, 45 unresolved.**
+
+Additional **Rare Beauty Soft Pinch Matte Bouncy Blush** individual full-size shade detail pages verified on Amazon US. This is different from Soft Pinch Liquid Blush and mini products:
+
+| Palevie ID | Exact shade and size | ASIN | US Amazon detail page |
+|---|---|---|---|
+| rare-bouncy-05 | Worth (True Rose) 0.22oz / 6.4g | B0F44B5G87 | https://www.amazon.com/dp/B0F44B5G87 |
+| rare-bouncy-07 | Grateful (Soft Red) 0.22oz / 6.4g | B0F44CF9F6 | https://www.amazon.com/dp/B0F44CF9F6 |
+| rare-bouncy-09 | Truth (Soft Plum) 0.22oz / 6.4g | B0F44BK3V2 | https://www.amazon.com/dp/B0F44BK3V2 |
+
+The three detail pages currently report no featured offer in some sessions. These are matching Amazon product-detail destinations, **not proof that a buyer can purchase today**. Seller, price, selected shade and stock must be checked on Amazon. Do not substitute liquid blushes, minis or multipacks.
+
+---
+
 # Amazon link verification — follow-up batch (October 2026)
 
 **14 additional shade/product direct ASINs found from US Amazon product pages or original variation maps.**

@@ -127,4 +127,8 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "nyx-ultimate-01": "B01IW02HX2", // Ultimate Shadow Palette Warm Neutrals
   "clio-pro-02": "B09NRBYPNW", // Pro Eye Palette 002 Brown Choux
   "cp-shock-01": "B0DZ1D8DRZ", // Super Shock Shadow DGAF single
+  // Rare Beauty Matte Bouncy Blush: full-size US Amazon pages checked Oct 2026
+  "rare-bouncy-05": "B0F44B5G87", // Worth (True Rose) 0.22oz / 6.4g
+  "rare-bouncy-07": "B0F44CF9F6", // Grateful (Soft Red) 0.22oz / 6.4g
+  "rare-bouncy-09": "B0F44BK3V2", // Truth (Soft Plum) 0.22oz / 6.4g
 };
