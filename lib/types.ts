@@ -47,8 +47,6 @@ export type ProductOffer = {
   priceCents?: number;
   currency?: "USD";
   affiliateReady?: boolean;
-  /** Explicit disclosure for direct links to a DIFFERENT item, not the selected product. */
-  alternativeLabel?: string;
   inStock?: boolean;
   lastCheckedAt?: string;
 };

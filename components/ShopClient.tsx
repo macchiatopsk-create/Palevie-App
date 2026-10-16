@@ -16,14 +16,16 @@ import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 import VirtualMakeupTryOn from "@/components/VirtualMakeupTryOn";
 import { featuredShopOrder } from "@/lib/shopRanking";
-import { verifiedAmazonOffer } from "@/lib/shopEligibility";
+import { verifiedAmazonOffer, visibleAmazonProducts } from "@/lib/shopEligibility";
 
 export default function ShopClient() {
+  // Public Shop: only exact, separately-reviewed Amazon item links. Do not mislabel substitutions.
+  const shopProducts = useMemo(() => visibleAmazonProducts(catalogProducts), []);
   const [tab, setTab] = useState<"all"|"lip"|"gloss"|"eyeshadow"|"blush"|"highlighter"|"cushion"|"skincare"|"clothes">("all");
   const [qtext, setQtext] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [tryonProduct, setTryonProduct] = useState<string|null>(null);
-  const brands=useMemo(()=>Array.from(new Set(catalogProducts.map(p=>p.brand))).sort((a,b)=>a.localeCompare(b)),[]);
+  const brands=useMemo(()=>Array.from(new Set(shopProducts.map(p=>p.brand))).sort((a,b)=>a.localeCompare(b)),[]);
   const [sort, setSort] = useState<"featured"|"match"|"brand"|"category">("featured");
   const [cols, setCols] = useState<1|2|3>(2);
   const [menu, setMenu] = useState(false);
@@ -67,7 +69,7 @@ export default function ShopClient() {
     track(saved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "shop" });
   }
 
-  const items = catalogProducts
+  const items = shopProducts
     .filter(p => tab==="all" || (tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
     .filter(p => !brandFilter || p.brand === brandFilter)
     .filter(p => !qtext || p.name.toLowerCase().includes(qtext.toLowerCase()) || p.brand.toLowerCase().includes(qtext.toLowerCase()))
@@ -131,9 +133,9 @@ export default function ShopClient() {
        ...(profile?.colors ?? []).slice(0, 3).map((hex, i) => ({ label: `Your ${["best","2nd","3rd"][i]}`, hex }))]
     : [];
 
-  const chosenTryonProduct=tryonProduct?catalogProducts.find(p=>p.id===tryonProduct):null;
+  const chosenTryonProduct=tryonProduct?shopProducts.find(p=>p.id===tryonProduct):null;
   return <>
-    {chosenTryonProduct && <VirtualMakeupTryOn initialProduct={chosenTryonProduct} products={catalogProducts.filter(p=>p.category==="makeup")} onClose={()=>setTryonProduct(null)}/>}
+    {chosenTryonProduct && <VirtualMakeupTryOn initialProduct={chosenTryonProduct} products={shopProducts.filter(p=>p.category==="makeup")} onClose={()=>setTryonProduct(null)}/>}
     {drapeProduct && drapeProduct.colorHex && (
       <ShadeDrape
         title={`${drapeProduct.brand} · ${drapeProduct.name}`}
@@ -171,7 +173,7 @@ export default function ShopClient() {
         <option value="">All brands ({brands.length})</option>{brands.map(b=><option value={b} key={b}>{b}</option>)}
       </select>
     </div>}
-    {tab!=="clothes"&&<p className="sh-shop-explainer">All 168 shades stay visible. Exact-item Amazon links are marked. When a precise shade is unconfirmed, a separately labeled alternative (different color or product) links directly to Amazon; you can still search for the original shade.</p>}
+    {tab!=="clothes"&&<p className="sh-shop-explainer">Shop displays only products with reviewed Amazon item-page links. Different or unverified shades are not listed here. Amazon confirms current stock and price.</p>}
     {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Explore shades freely. Color swatches are illustrative, not personal-color diagnoses.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
@@ -258,28 +260,19 @@ export default function ShopClient() {
     ) : (
     <div className={`shop-grid shop-grid-compact ${cols===3?"c3":cols===1?"c1":""}`}>
       {shown.map(p => {
-        const directOffer=verifiedAmazonOffer(p);
-        const originalOffer=p.offers.find(o=>o.retailer==="amazon" && !o.alternativeLabel);
-        const alternativeOffer=p.offers.find(o=>o.retailer==="amazon" && Boolean(o.alternativeLabel));
-        const offer=directOffer ?? alternativeOffer ?? originalOffer;
+        const offer=verifiedAmazonOffer(p);
         if(!offer)return null;
         const href=`/go/${offer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id??"")}&utm_source=shop&utm_medium=affiliate`;
-        const direct=Boolean(directOffer);
-        const alternative=Boolean(offer.alternativeLabel);
-        const searchHref=alternative && originalOffer
-          ? `/go/${originalOffer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id??"")}&utm_source=shop&utm_medium=affiliate&utm_campaign=original_shade_search`
-          : null;
-        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:direct?"shop_direct":alternative?"shop_alternative":"shop_search",alternativeProduct:offer.alternativeLabel??undefined});
+        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_direct"});
         const saved=wl.some(w=>w.id===productKey(p.id));
         return <article className="shop-card" key={p.id}>
           <div className="shop-art shop-square">
             <a className="sh-card-image-link" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
-              onClick={go} aria-label={alternative ? `View a DIFFERENT alternative on Amazon: ${offer.alternativeLabel}, not ${p.name}` : `View ${p.brand} ${p.name} on Amazon`}>
+              onClick={go} aria-label={`View ${p.brand} ${p.name} on Amazon`}>
               <span className="sh-placeholder" aria-hidden="true">
                 <span className="sh-placeholder-mark" style={{background:p.colorHex??"#EEDDE5"}}/>
                 <span className="sh-placeholder-caption">{p.colorHex?"Shade preview":p.category==="skincare"?"Skincare":"Beauty"}</span>
               </span>
-              {alternative && <span className="sh-alternative-badge">Similar item</span>}
             </a>
             <button className={`shop-heart${saved?" on":""}`} type="button"
               aria-label={`Save ${p.name}`} aria-pressed={saved} onClick={()=>heart(p.id,p.name)}>
@@ -289,14 +282,8 @@ export default function ShopClient() {
           </div>
           <div className="sh-meta">
             <b className="sh-brand">{p.brand}</b>
-            {alternative
-              ? <span className="sh-product-name">{p.name}</span>
-              : <a className="sh-product-name" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{p.name}</a>}
-            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{alternative?"Shop similar item · Amazon ↗":direct?"View exact item · Amazon ↗":"Find shade on Amazon ↗"}</a>
-            {alternative && <>
-              <span className="sh-alternative-label" title={offer.alternativeLabel}>Different item: {offer.alternativeLabel}</span>
-              {searchHref && <a className="sh-original-search" href={searchHref} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_original_shade_search"})}>Search original shade ↗</a>}
-            </>}
+            <a className="sh-product-name" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{p.name}</a>
+            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>View item on Amazon ↗</a>
             <div className="sh-card-mini-actions">
               {p.category==="makeup"&&p.colorHex&&["lip","gloss","blush","eyeshadow"].includes(p.subcategory)&&<button type="button" onClick={()=>setTryonProduct(p.id)}>Try on</button>}
               {p.colorHex&&<button type="button" onClick={()=>setDraping(p.id)}>Compare shade</button>}
