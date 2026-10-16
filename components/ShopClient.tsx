@@ -171,7 +171,7 @@ export default function ShopClient() {
         <option value="">All brands ({brands.length})</option>{brands.map(b=><option value={b} key={b}>{b}</option>)}
       </select>
     </div>}
-    {tab!=="clothes"&&<p className="sh-shop-explainer">All catalog shades are visible again. Verified direct links open the exact Amazon item; other links temporarily open Amazon shade search while their ASINs are checked.</p>}
+    {tab!=="clothes"&&<p className="sh-shop-explainer">All 168 shades stay visible. Exact-item Amazon links are marked. When a precise shade is unconfirmed, a separately labeled alternative (different color or product) links directly to Amazon; you can still search for the original shade.</p>}
     {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Explore shades freely. Color swatches are illustrative, not personal-color diagnoses.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
@@ -259,20 +259,27 @@ export default function ShopClient() {
     <div className={`shop-grid shop-grid-compact ${cols===3?"c3":cols===1?"c1":""}`}>
       {shown.map(p => {
         const directOffer=verifiedAmazonOffer(p);
-        const offer=directOffer ?? p.offers.find(o=>o.retailer==="amazon");
+        const originalOffer=p.offers.find(o=>o.retailer==="amazon" && !o.alternativeLabel);
+        const alternativeOffer=p.offers.find(o=>o.retailer==="amazon" && Boolean(o.alternativeLabel));
+        const offer=directOffer ?? alternativeOffer ?? originalOffer;
         if(!offer)return null;
         const href=`/go/${offer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id??"")}&utm_source=shop&utm_medium=affiliate`;
         const direct=Boolean(directOffer);
-        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:direct?"shop_direct":"shop_search"});
+        const alternative=Boolean(offer.alternativeLabel);
+        const searchHref=alternative && originalOffer
+          ? `/go/${originalOffer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id??"")}&utm_source=shop&utm_medium=affiliate&utm_campaign=original_shade_search`
+          : null;
+        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:direct?"shop_direct":alternative?"shop_alternative":"shop_search",alternativeProduct:offer.alternativeLabel??undefined});
         const saved=wl.some(w=>w.id===productKey(p.id));
         return <article className="shop-card" key={p.id}>
           <div className="shop-art shop-square">
             <a className="sh-card-image-link" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer"
-              onClick={go} aria-label={`View ${p.brand} ${p.name} on Amazon`}>
+              onClick={go} aria-label={alternative ? `View a DIFFERENT alternative on Amazon: ${offer.alternativeLabel}, not ${p.name}` : `View ${p.brand} ${p.name} on Amazon`}>
               <span className="sh-placeholder" aria-hidden="true">
                 <span className="sh-placeholder-mark" style={{background:p.colorHex??"#EEDDE5"}}/>
                 <span className="sh-placeholder-caption">{p.colorHex?"Shade preview":p.category==="skincare"?"Skincare":"Beauty"}</span>
               </span>
+              {alternative && <span className="sh-alternative-badge">Similar item</span>}
             </a>
             <button className={`shop-heart${saved?" on":""}`} type="button"
               aria-label={`Save ${p.name}`} aria-pressed={saved} onClick={()=>heart(p.id,p.name)}>
@@ -282,8 +289,14 @@ export default function ShopClient() {
           </div>
           <div className="sh-meta">
             <b className="sh-brand">{p.brand}</b>
-            <a className="sh-product-name" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{p.name}</a>
-            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{direct?"View exact item · Amazon ↗":"Find shade on Amazon ↗"}</a>
+            {alternative
+              ? <span className="sh-product-name">{p.name}</span>
+              : <a className="sh-product-name" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{p.name}</a>}
+            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{alternative?"Shop similar item · Amazon ↗":direct?"View exact item · Amazon ↗":"Find shade on Amazon ↗"}</a>
+            {alternative && <>
+              <span className="sh-alternative-label" title={offer.alternativeLabel}>Different item: {offer.alternativeLabel}</span>
+              {searchHref && <a className="sh-original-search" href={searchHref} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_original_shade_search"})}>Search original shade ↗</a>}
+            </>}
             <div className="sh-card-mini-actions">
               {p.category==="makeup"&&p.colorHex&&["lip","gloss","blush","eyeshadow"].includes(p.subcategory)&&<button type="button" onClick={()=>setTryonProduct(p.id)}>Try on</button>}
               {p.colorHex&&<button type="button" onClick={()=>setDraping(p.id)}>Compare shade</button>}
