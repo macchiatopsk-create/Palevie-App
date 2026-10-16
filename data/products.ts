@@ -248,6 +248,9 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "sk-cosrx-patch",
   "mk-laneige-balm",
   "sk-cosrx-bha",
+  "rare-pinch-joy",
+  "mbl-matte-lover",
+  "elf-putty-tahiti",
 ]);
 
 /**
