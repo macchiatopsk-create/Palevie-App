@@ -28,7 +28,7 @@ function overLimit(request: Request, visitor: string): boolean {
 }
 
 const allowed = new Set([
-  "page_view",
+  "page_view","visitor_interacted",
   "quiz_started","quiz_answered","quiz_completed",
   "quiz_quick_answered","quiz_quick_completed","quiz_quick_restarted","quiz_detailed_started",
   "ai_scan_started","ai_scan_completed","ai_scan_failed",
@@ -61,6 +61,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     if (!allowed.has(body?.name)) return NextResponse.json({ ok: false }, { status: 400 });
     const visitor = (request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
+    // Known robots and anonymous scripted requests cannot qualify as engaged visitors.
+    if (body.name === "visitor_interacted") {
+      const ua = request.headers.get("user-agent") || "";
+      if (visitor === "server" || visitor === "anonymous" || /(?:bot|crawler|spider|headless|playwright|puppeteer|curl|wget)/i.test(ua)) {
+        return NextResponse.json({ ok: true, ignored: true });
+      }
+    }
     if (overLimit(request, visitor)) return NextResponse.json({ ok: false }, { status: 429 });
     const db = getSupabaseAdmin();
     if (db) {

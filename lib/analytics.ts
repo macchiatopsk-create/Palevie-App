@@ -2,7 +2,7 @@
 import { loadAttribution } from "./attribution";
 
 export type AnalyticsEventName =
-  | "page_view"
+  | "page_view" | "visitor_interacted"
   | "quiz_started" | "quiz_answered" | "quiz_completed"
   | "quiz_quick_answered" | "quiz_quick_completed" | "quiz_quick_restarted" | "quiz_detailed_started"
   | "ai_scan_started" | "ai_scan_completed" | "ai_scan_failed"
