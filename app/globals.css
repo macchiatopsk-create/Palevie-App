@@ -1676,8 +1676,3 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 .sh-shop-curation{margin-bottom:10px}
 .sh-empty-state{grid-column:1/-1;color:#795F70;line-height:1.6;padding:30px 18px;background:#FFF7FB;border:1px solid #F1E0E9;border-radius:16px;font-size:13px}
 @media(max-width:380px){.shop-grid.shop-grid-compact{gap:9px}.shop-grid.shop-grid-compact.c3{gap:5px}.shop-grid.shop-grid-compact.c3 .shop-heart{width:25px;height:25px;right:5px;top:5px}}
-
-/* Alternative Amazon listing is not the selected product or shade. */
-.shop-grid.shop-grid-compact .sh-alternative-badge{position:absolute;bottom:9px;left:9px;background:#fff;color:#783550;border:1px solid #DDA9C2;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800;line-height:1.2}
-.shop-grid.shop-grid-compact .sh-alternative-label{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:10px;line-height:1.35;color:#794C63;margin:-6px 0 5px;overflow-wrap:anywhere}
-.shop-grid.shop-grid-compact .sh-original-search{display:block;font-size:10px;line-height:1.45;color:#765969;text-decoration:underline;text-underline-offset:2px;margin:0 0 9px}
