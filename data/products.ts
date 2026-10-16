@@ -1,5 +1,7 @@
 import { expandedShades } from "./expandedShades";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
+import { amazonAlternativeProductIds } from "./amazonAlternativeProducts";
+import { verifiedAmazonOffer } from "@/lib/shopEligibility";
 import { CatalogProduct } from "@/lib/types";
 
 /**
@@ -283,7 +285,7 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
  */
 // Keep every seed item browseable, but reserve the verified badge and direct-buy
 // wording for exact Amazon product URLs vetted separately.
-export const catalogProducts: CatalogProduct[] = [
+const exactCatalog: CatalogProduct[] = [
   ...seedCatalogProducts.map(product => ({
     ...product,
     offers: product.offers.map(offer => {
@@ -303,5 +305,34 @@ export const catalogProducts: CatalogProduct[] = [
     };
   }),
 ];
+
+/**
+ * Preserve the original exact shade/search destination as the first offer.
+ * If no exact Amazon ASIN is known, attach an additional clearly marked
+ * product-level alternative sourced from an existing catalog direct link.
+ * It must NOT be marked affiliateReady (reserved for the actual shade).
+ */
+export const catalogProducts: CatalogProduct[] = exactCatalog.map(product => {
+  if (verifiedAmazonOffer(product)) return product;
+  const alternativeId = amazonAlternativeProductIds[product.id];
+  if (!alternativeId) return product;
+  const other = exactCatalog.find(candidate => candidate.id === alternativeId);
+  const directOther = other ? verifiedAmazonOffer(other) : undefined;
+  if (!other || !directOther) return product;
+  return {
+    ...product,
+    offers: [
+      ...product.offers,
+      {
+        id: `of-alt-${product.id}`,
+        retailer: "amazon",
+        url: directOther.url,
+        currency: "USD",
+        affiliateReady: false,
+        alternativeLabel: `${other.brand} · ${other.name}`,
+      },
+    ],
+  };
+});
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
