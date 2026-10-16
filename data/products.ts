@@ -39,9 +39,11 @@ const seedCatalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-ppr-ink-08", retailer: "amazon", url: "https://www.amazon.com/s?k=peripera+ink+the+velvet+08+sellout+red", priceLabel: "$9", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "ppr-ink-33", brand: "Peripera", name: "Ink the Velvet · 33 Pure Peach", category: "makeup", subcategory: "lip",
-    description: "Milky peach with a blurred edge.", colorHex: "#E58A78", tags: ["k-beauty"],
-    offers: [{ id: "of-ppr-ink-33", retailer: "amazon", url: "https://www.amazon.com/s?k=peripera+ink+the+velvet+33+pure+peach", priceLabel: "$9", currency: "USD", affiliateReady: true }],
+    // Preserve the legacy ID for wishlists: original Peri's Ink Velvet Pure Peach was #12, not #33.
+    // Current Ink Velvet #33 is Pure Red; do not substitute the wrong shade/line.
+    id: "ppr-ink-33", brand: "Peripera", name: "Peri's Ink the Velvet · 12 Pure Peach (Legacy)", category: "makeup", subcategory: "lip",
+    description: "Legacy peach shade; exact US Amazon item and present availability are unverified.", colorHex: "#E58A78", tags: ["k-beauty", "shade-unverified"],
+    offers: [{ id: "of-ppr-ink-33", retailer: "amazon", url: "https://www.amazon.com/s?k=peripera+peri%27s+ink+the+velvet+12+pure+peach", currency: "USD", affiliateReady: false }],
   },
   {
     id: "mbl-vinyl-peachy", brand: "Maybelline", name: "SuperStay Vinyl Ink · Peachy", category: "makeup", subcategory: "lip",
@@ -195,9 +197,11 @@ const seedCatalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-goodal-vitc", retailer: "amazon", url: "https://www.amazon.com/s?k=goodal+green+tangerine+vita+c+serum", priceLabel: "$25", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "sk-mediheal-bp", brand: "Mediheal", name: "Phyto-Enzyme Blemish Spot Treatment", category: "skincare", subcategory: "serum",
-    description: "Benzoyl-peroxide spot treatment for active breakouts.", tags: ["benzoyl-peroxide", "smoother-looking", "lightweight"],
-    offers: [{ id: "of-mediheal-bp", retailer: "amazon", url: "https://www.amazon.com/s?k=mediheal+phyto+enzyme+blemish+spot+treatment", priceLabel: "$14", currency: "USD", affiliateReady: true }],
+    // Mediheal's documented Phyto-Enzyme item is a peeling pad, not a verified
+    // benzoyl-peroxide spot treatment. Keep this catalog ID pending identity review.
+    id: "sk-mediheal-bp", brand: "Mediheal", name: "Phyto-Enzyme Blemish Spot Treatment (Unverified)", category: "skincare", subcategory: "serum",
+    description: "Product identity and active ingredients are unverified. Do not treat as a benzoyl-peroxide product.", tags: ["identity-unverified"],
+    offers: [{ id: "of-mediheal-bp", retailer: "amazon", url: "https://www.amazon.com/s?k=mediheal+phyto+enzyme+blemish+spot+treatment", currency: "USD", affiliateReady: false }],
   },
   {
     id: "sk-round-panthe", brand: "Round Lab", name: "1025 Dokdo Cream", category: "skincare", subcategory: "moisturizer",
