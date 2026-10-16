@@ -52,14 +52,16 @@ export default function ColorDrapingClient() {
   </section>;
   return <section className={styles.card} aria-label="Live color draping">
     <span className={styles.eyebrow}>PALEVIE · OPTIONAL COLOR COMPARISON</span>
-    <h2>Your guided color session.</h2>
-    <p>Take a closer look at your colors, one comparison at a time. Choose the front camera or a mirror — no prior color knowledge needed.</p>
+    {mode!=="camera"&&<>
+      <h2>Your guided color session.</h2>
+      <p>Compare shades one pair at a time using your camera or a mirror.</p>
+    </>}
     <div className={styles.progress} aria-label={`Comparison ${step+1} of ${PAIRS.length}`}>
       <div style={{width:`${(step/PAIRS.length)*100}%`}} />
     </div>
     <p className={styles.count}>PAIR {step+1} OF {PAIRS.length}</p>
     <h3>{pair.title}</h3>
-    <p className={styles.note}>{pair.note}</p>
+    {mode!=="camera"&&<p className={styles.note}>{pair.note}</p>}
     {mode === "choose" && <div className={styles.method}>
       <button className={styles.action} type="button" onClick={()=>chooseMode("camera")}>Continue with camera →</button>
       <button className={styles.secondary} type="button" onClick={()=>chooseMode("mirror")}>Continue with mirror</button>
