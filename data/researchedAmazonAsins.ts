@@ -137,4 +137,5 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "rmd-btp-fog": "B08ZJPFXZG", // rom&nd Better Than Palette Dusty Fog Garden (single palette)
   "rmd-veil": "B08MQP8977", // rom&nd See-Through Veilighter Hanbok Edition 01 Sun Kissed Veil
   "sk-cosrx-reti": "B0B5DKJ8TS", // COSRX The Retinol 0.1 Cream, single 0.67 fl oz US listing
+  "mbl-vinyl-peachy": "B09QH7SS43", // Maybelline Super Stay Vinyl Ink Peachy 0.14 fl oz single
 };

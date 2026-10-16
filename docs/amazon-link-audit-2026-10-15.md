@@ -1,3 +1,12 @@
+# Seventh Amazon item verification — 2026-10-15
+
+**129 / 168 direct detail-page candidates; 39 still unverified.**
+
+- `mbl-vinyl-peachy`: Maybelline SuperStay Vinyl Ink Longwear Lipcolor **Peachy**, single **0.14 fl oz**, US Amazon ASIN `B09QH7SS43`.
+- Evidence: https://www.amazon.com/dp/B09QH7SS43 — named shade, package size and item count in current US listing. No live price or stock guarantee.
+
+---
+
 # Sixth U.S. Amazon detail-page verification pass — October 15, 2026
 
 Five additional catalog records have exact U.S. Amazon item and shade/title cross-checks. **128 direct product-link candidates / 168 listed; 40 records remain pending**.
