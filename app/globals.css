@@ -1640,3 +1640,39 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 .sh-shade-status{display:block;color:#897180;font-size:9.5px;line-height:1.45;margin-top:3px;overflow-wrap:anywhere}
 .shop-card .sh-line{min-width:0}
 .shop-card .sh-buy{align-self:stretch;overflow-wrap:anywhere;word-break:normal;text-align:center}
+
+
+/* Shop vNext: concise product discovery; keep selectable 1/2/3 column layouts. */
+.shop-grid.shop-grid-compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+.shop-grid.shop-grid-compact.c1{grid-template-columns:minmax(0,1fr)}
+.shop-grid.shop-grid-compact.c3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.shop-grid.shop-grid-compact .shop-card{background:#fff;border:1px solid #F0E0E7;border-radius:15px;box-shadow:0 4px 15px rgba(79,43,70,.045);min-width:0}
+.shop-grid.shop-grid-compact .shop-art,.shop-grid.shop-grid-compact.c1 .shop-art{aspect-ratio:1/1;height:auto;min-height:0;border-radius:14px 14px 0 0;background:#FFF6FA}
+.sh-card-image-link{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.sh-card-image-link:focus-visible{outline:3px solid #C78EAB;outline-offset:-3px;border-radius:14px}
+.sh-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;height:100%;background:radial-gradient(circle at 50% 40%,#fff 0%,#FFF5F8 85%);padding:9px}
+.sh-placeholder-mark{display:block;width:min(50%,125px);aspect-ratio:1/1;border-radius:50%;box-shadow:inset 9px 10px 20px rgba(255,255,255,.42),inset -10px -14px 18px rgba(58,24,43,.14),0 5px 13px rgba(96,56,85,.085);border:1px solid rgba(85,56,79,.08)}
+.sh-placeholder-caption{display:block;color:#906C7E;font-size:9px;font-weight:700;letter-spacing:.025em;text-align:center}
+.shop-grid.shop-grid-compact .sh-meta{padding:11px 10px 12px;min-width:0}
+.shop-grid.shop-grid-compact .sh-brand{display:block;font-size:10px;font-weight:800;line-height:1.3;color:#725063;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-grid.shop-grid-compact .sh-product-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:37px;font-size:12px;line-height:1.5;color:#3E3040;font-weight:600;margin:4px 0 8px;text-decoration:none;overflow-wrap:anywhere}
+.shop-grid.shop-grid-compact .sh-product-name:hover{text-decoration:underline}
+.shop-grid.shop-grid-compact .sh-card-price{display:block;font-size:11px;line-height:1.4;font-weight:750;color:#964F74;text-decoration:none;margin:0 0 10px}
+.shop-grid.shop-grid-compact .sh-card-price:hover{text-decoration:underline}
+.shop-grid.shop-grid-compact .sh-card-mini-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.shop-grid.shop-grid-compact .sh-card-mini-actions button{border:1px solid #EDD6E3;border-radius:999px;background:#FFF9FC;color:#77586C;font-size:10px;line-height:1.1;min-height:29px;padding:6px 8px;font-weight:700;cursor:pointer}
+.shop-grid.shop-grid-compact .sh-card-mini-actions button:hover{border-color:#C995AF;background:#FDECF4}
+.shop-grid.shop-grid-compact .shop-heart{width:30px;height:30px;top:8px;right:8px}
+.shop-grid.shop-grid-compact.c3 .sh-meta{padding:8px 6px 10px}
+.shop-grid.shop-grid-compact.c3 .sh-brand{font-size:9px}
+.shop-grid.shop-grid-compact.c3 .sh-product-name{font-size:10px;min-height:46px}
+.shop-grid.shop-grid-compact.c3 .sh-card-price{font-size:9px}
+.shop-grid.shop-grid-compact.c3 .sh-card-mini-actions button{padding:5px 6px;font-size:9px}
+.shop-grid.shop-grid-compact.c3 .sh-placeholder-caption{font-size:8px}
+.shop-grid.shop-grid-compact.c1 .sh-placeholder-mark{width:min(40%,180px)}
+.shop-grid.shop-grid-compact.c1 .sh-meta{padding:15px 16px}
+.shop-grid.shop-grid-compact.c1 .sh-product-name{font-size:15px;min-height:0}
+.sh-shop-explainer,.sh-shop-curation{font-size:11px;color:#8F6F80;line-height:1.6;margin:0 0 12px}
+.sh-shop-curation{margin-bottom:10px}
+.sh-empty-state{grid-column:1/-1;color:#795F70;line-height:1.6;padding:30px 18px;background:#FFF7FB;border:1px solid #F1E0E9;border-radius:16px;font-size:13px}
+@media(max-width:380px){.shop-grid.shop-grid-compact{gap:9px}.shop-grid.shop-grid-compact.c3{gap:5px}.shop-grid.shop-grid-compact.c3 .shop-heart{width:25px;height:25px;right:5px;top:5px}}
