@@ -74,9 +74,10 @@ const seedCatalogProducts: CatalogProduct[] = [
     offers: [{ id: "of-rmd-cheek-peach", retailer: "amazon", url: "https://www.amazon.com/s?k=romand+better+than+cheek+peach+whip", priceLabel: "$13", currency: "USD", affiliateReady: true }],
   },
   {
-    id: "ppr-sun-rose", brand: "Peripera", name: "Pure Blushed Sunshine · 07 Dried Rose", category: "makeup", subcategory: "blush",
-    description: "Muted rose flush, soft-matte.", colorHex: "#C97E85", tags: ["k-beauty"],
-    offers: [{ id: "of-ppr-sun-rose", retailer: "amazon", url: "https://www.amazon.com/s?k=peripera+pure+blushed+sunshine+cheek+dried+rose", priceLabel: "$8", currency: "USD", affiliateReady: true }],
+    // The stable ID is retained for wishlists/analytics; public product identity is 07 Milky Peach, NOT Dried Rose.
+    id: "ppr-sun-rose", brand: "Peripera", name: "Pure Blushed Sunshine Cheek · 07 Milky Peach", category: "makeup", subcategory: "blush",
+    description: "Pale, milky peach powder blush. Digital shade reference pending verification.", tags: ["k-beauty", "shade-unverified"],
+    offers: [{ id: "of-ppr-sun-rose", retailer: "amazon", url: "https://www.amazon.com/s?k=peripera+pure+blushed+sunshine+cheek+07+milky+peach", currency: "USD", affiliateReady: false }],
   },
   {
     id: "elf-putty-tahiti", brand: "e.l.f.", name: "Putty Blush · Tahiti", category: "makeup", subcategory: "blush",
@@ -260,6 +261,7 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "rmd-jlt-12",
   "rmd-jlt-25",
   "mbl-vinyl-peachy",
+  "sk-round-sun",
   "sk-goodal-vitc",
   "sk-cosrx-reti",
   "rmd-btp-fog",
