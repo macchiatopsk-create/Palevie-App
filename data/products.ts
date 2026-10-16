@@ -1,4 +1,5 @@
 import { expandedShades } from "./expandedShades";
+import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import { CatalogProduct } from "@/lib/types";
 
 /**
@@ -246,6 +247,7 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "sk-illiyoon-cream",
   "sk-cosrx-patch",
   "mk-laneige-balm",
+  "sk-cosrx-bha",
 ]);
 
 /**
@@ -258,14 +260,22 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
 export const catalogProducts: CatalogProduct[] = [
   ...seedCatalogProducts.map(product => ({
     ...product,
-    offers: product.offers.map(offer => ({
-      ...offer,
-      affiliateReady: VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
-        && new URL(offer.url).pathname.startsWith("/dp/"),
-      priceLabel: VERIFIED_AMAZON_PRODUCT_IDS.has(product.id) ? offer.priceLabel : undefined,
-    })),
+    offers: product.offers.map(offer => {
+      const asin=researchedAmazonAsins[product.id];
+      const url=asin ? `https://www.amazon.com/dp/${asin}` : offer.url;
+      const direct=VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
+        && /^https:\/\/(?:www\.)?amazon\.com\/dp\/[A-Z0-9]{10}\/??$/i.test(url);
+      return { ...offer, url, affiliateReady:direct, priceLabel:undefined };
+    }),
   })),
-  ...expandedShades,
+  ...expandedShades.map(product => {
+    const asin=researchedAmazonAsins[product.id];
+    if(!asin)return product;
+    return {
+      ...product,
+      offers:product.offers.map(offer=>({...offer,url:`https://www.amazon.com/dp/${asin}`,affiliateReady:true,priceLabel:undefined})),
+    };
+  }),
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
