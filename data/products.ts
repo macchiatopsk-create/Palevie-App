@@ -233,7 +233,7 @@ const seedCatalogProducts: CatalogProduct[] = [
 
 const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "rmd-jlt-06",
-  "rmd-jlt-25",
+  // Bare Grape ASIN B09242GH8Q currently resolves to a different shade; do not list it as verified.
   "elf-lipoil-rose",
   "lng-balm-berry",
   "mln-baked-lum",
