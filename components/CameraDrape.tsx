@@ -56,7 +56,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
    if(!mountedRef.current||request!==requestRef.current)return;
    const name=err instanceof DOMException?err.name:"camera_error";
    setStatus("error");setErrorText(name==="NotAllowedError"
-    ?"Camera access was blocked. You can allow it in your browser settings or use the mirror method."
+    ?"Camera access is blocked. Allow the camera for this site in your browser settings, then retry — or continue with a mirror."
     :"We could not start the camera. You can still use the mirror method.");
    if(telemetry)track("drape_camera_error",{reason:name});
   }
@@ -64,17 +64,16 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
  function chooseSide(next:number){onSide(next);if(telemetry)track("drape_camera_color_switched",{from:side,to:next});}
  if(status!=="live")return <div className="camera-drape camera-drape-setup">
   <div className="camera-drape-kicker"><span>Live Draping</span><small>Private camera preview</small></div>
-  <div className="camera-drape-setup-art" aria-hidden>
-   <div className="camera-drape-setup-glow"/><div className="camera-drape-face"/>
-   <div className="camera-drape-band" style={{background:current?.hex}}/>
-  </div>
-  <h3>See the color on you</h3>
-  <p>Turn on the camera, then tap Live Guide directly above the preview. Choose a Soft or Bold look; the guide scores that effect. Switch shades using the buttons inside the camera. Use even daylight, not colored light or filters.</p>
-  <div className="camera-drape-mini-tips" aria-hidden><span>☀ Neutral light</span><span>◌ Face centered</span><span>⊘ No filters</span></div>
-  {status==="error"&&<p className="camera-drape-error">{errorText}</p>}
-  <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>{status==="starting"?"Starting camera…":"Turn on front camera"}</button>
-  <button type="button" className="camera-drape-link" onClick={onUseMirror}>Use a mirror instead</button>
-  <small>On-device preview · no photos saved or uploaded</small>
+  <button type="button" className={styles.cameraLaunch} disabled={status==="starting"} onClick={startCamera} aria-label="Turn on front camera to compare colors">
+    <span className={styles.launchIcon} aria-hidden="true">◎</span>
+    <span className={styles.launchTitle}>{status==="starting"?"Starting camera…":"Turn on front camera"}</span>
+    <span className={styles.launchSub}>See shades next to your face</span>
+    <span className={styles.launchSwatches} aria-hidden="true"><i style={{background:colors[0]?.hex}}/><i style={{background:colors[1]?.hex}}/></span>
+  </button>
+  {status==="error"&&<p className={styles.permissionNotice} role="alert">{errorText}</p>}
+  <button type="button" className={styles.mirrorAction} onClick={onUseMirror}>Use a mirror instead →</button>
+  <p className={styles.setupHint}>Use natural light · No beauty filters</p>
+  <small>Private on-device preview · no photos stored or uploaded</small>
  </div>;
  return <div className="camera-drape camera-drape-live">
   <div className="camera-drape-livebar"><span><b>Live Draping</b><small>Compare on your face</small></span><em>On-device</em></div>
