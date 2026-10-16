@@ -141,4 +141,5 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "nyx-bg-38": "B0CYKQGWYW", // NYX Butter Gloss Bling Shimmer Down, US product title
   "rare-pinch-04": "B0CZXWGFL5", // Rare Beauty Soft Pinch Liquid Blush Happy MINI 0.11 fl oz
   "sk-goodal-vitc": "B0GGGCV238", // GOODAL Green Tangerine Vita C Dark Spot Brightening Serum, single 30ml
+  "sk-round-sun": "B09DGPRM22", // ROUND LAB Birch Juice Moisturizing Sun Cream SPF50+ PA++++ 50ml, single; US marketplace indexed (see audit caveat)
 };

@@ -1,3 +1,20 @@
+# Ninth catalog integrity and Amazon ASIN check — October 2026
+
+**133 of 168 catalog records have specific Amazon detail-page ASIN candidates; 35 remain with clearly marked search fallbacks.** The 133 figure is the number of configured direct-detail-page destinations, **not a claim of 133 currently purchasable in-stock listings**.
+
+### Added ASIN candidate
+- `sk-round-sun`: **ROUND LAB Birch Juice Moisturizing Sun Cream SPF50+ PA++++, 50ml / 1.69 fl oz, Pack of 1**, ASIN `B09DGPRM22`. Evidence: the Amazon product listing under https://www.amazon.com.mx/Round-Lab-Birch-Moisturizing-Sunscreen/dp/B09DGPRM22 and UPC/EAN catalog entry https://www.barcodespider.com/8809782551814 listing ASIN `B09DGPRM22`, size and “Amazon US” availability. A currently working US Amazon Buy Box / seller has **not** been checked. If Amazon US redirects to an unrelated item, disable this mapping immediately.
+
+### Critical shade-data correction (no ASIN)
+- `ppr-sun-rose` previously showed **Peripera Pure Blushed Sunshine #07 Dried Rose**, a nonexistent name/number pairing. The published shade #07 is **Milky Peach**, corroborated by https://www.stylekorean.com/product/peripera-new-pure-blushed-sunshine-cheek-9-colors/1616483874 and https://www.hwahae.com/en/products/peripera-Pure-Blushed-Sunshine-Cheek-7-Milky-Peach/1920411 .
+- Kept the historical internal ID `ppr-sun-rose` for wishlist and click tracking stability; corrected public name and Amazon search query, removed the incorrect rose-colored approximate swatch, and retained a clearly labeled search fallback until an accurate US Amazon detail-page ASIN is found.
+- We did **not** claim 07 Milky Peach is the same product as 07 Dried Rose, and did not invent a substitute ASIN.
+
+### Remaining
+35 US Amazon ASINs still unverified, including discontinued shades, region-specific cosmetic products, and ambiguous bundles. Keep them visible, clearly marked as search results. No unlicensed photos, Amazon scraped prices, false shade matches or bundles.
+
+---
+
 # Eighth ASIN review — 2026-10-15 (latest)
 
 **Catalog: 168 visible; 132 specific US Amazon direct-detail-page candidates; 36 pending exact match.** The old sections below are chronological audit snapshots, not the current count.
