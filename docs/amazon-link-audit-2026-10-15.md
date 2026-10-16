@@ -1,3 +1,18 @@
+## Second exact-shade ASIN review (same day)
+
+Additional Amazon-indexed shade detail pages checked and added to `data/researchedAmazonAsins.ts`. No bundle page was used for an individual shade.
+
+- +12 direct ASIN mappings in the second pass.
+- **40 direct-item candidates total** (13 original + 27 new mapped).
+- **128 still requiring shade-specific ASIN research**. All 168 catalogue entries remain visible; those without a confirmed ASIN retain a clearly labeled temporary Amazon search link.
+- None of these entries guarantees current availability, an authorized seller, or the displayed/selected variation at checkout.
+
+New mappings: `may-lifter-05` Moon, `may-lifter-06` Stone, `may-lifter-07` Petal, `elf-oil-04` Coral Fixation, `elf-oil-05` Red Delicious, `elf-oil-06` Jam Session, `elf-oil-09` It's Giving Guava, `rare-pinch-09` Joy, `rare-pinch-14` Encourage, `rare-pinch-15` Believe, `cp-shock-04` Frog, `cp-shock-08` Ritz.
+
+Amazon source identities: B085S94V2K, B085S96KS4, B085S8SRF8, B0CLRMVBVM, B0CLRPWT11, B0CMJXGCFQ, B0DFMX8YWJ, B08KFPVVXY, B09T3W9L5D, B09T3W1M3D, B0799P831X, B0784D39L9.
+
+---
+
 # Amazon catalogue link status — 2026-10-15 update
 
 **All 168 catalog entries are visible again.** The previous 13-only Shop gate was reversed: an ASIN being unverified does **not** mean Amazon lacks that product.

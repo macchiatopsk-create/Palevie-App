@@ -19,4 +19,16 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "rare-pinch-01": "B09T418D54", // Liquid Blush Hope
   "rare-bouncy-01": "B0DY6PVJKW", // Matte Bouncy Blush Hope
   "sk-cosrx-bha": "B00OZEJ8R8", // COSRX BHA Blackhead Power Liquid
+  "may-lifter-05": "B085S94V2K", // Maybelline Lifter Gloss Moon
+  "may-lifter-06": "B085S96KS4", // Maybelline Lifter Gloss Stone
+  "may-lifter-07": "B085S8SRF8", // Maybelline Lifter Gloss Petal
+  "elf-oil-04": "B0CLRMVBVM", // e.l.f. Glow Reviver Coral Fixation
+  "elf-oil-05": "B0CLRPWT11", // e.l.f. Glow Reviver Red Delicious
+  "elf-oil-06": "B0CMJXGCFQ", // e.l.f. Glow Reviver Jam Session
+  "elf-oil-09": "B0DFMX8YWJ", // e.l.f. Glow Reviver It's Giving Guava
+  "rare-pinch-09": "B08KFPVVXY", // Rare Beauty liquid blush Joy
+  "rare-pinch-14": "B09T3W9L5D", // Rare Beauty liquid blush Encourage
+  "rare-pinch-15": "B09T3W1M3D", // Rare Beauty liquid blush Believe
+  "cp-shock-04": "B0799P831X", // ColourPop Super Shock Frog
+  "cp-shock-08": "B0784D39L9", // ColourPop Super Shock Ritz
 };
