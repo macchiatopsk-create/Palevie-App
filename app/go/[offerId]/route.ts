@@ -29,12 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ offe
       // Which season was looking. Turns a click count into demand evidence:
       // "N Soft Summer shoppers clicked this shade".
       tone_id: (url.searchParams.get("tone") || "").slice(0, 40) || null,
-      attribution: {
-        ...attributionFrom(url),
-        ...(offer.alternativeLabel
-          ? { offer_kind: "alternative", destination_product: offer.alternativeLabel.slice(0, 120) }
-          : {}),
-      },
+      attribution: attributionFrom(url),
     });
   }
   return NextResponse.redirect(resolveOfferUrl(offer), 302);
