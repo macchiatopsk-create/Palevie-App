@@ -1,3 +1,86 @@
+# Pass 3 — Shade-specific Amazon links (2026-10-15)
+
+**CURRENT SHOP STATUS: 168 visible, 105 Amazon direct-detail-page link candidates, 63 exact shade links still unverified (clearly labeled search fallback).**
+
+### Verification method
+
+- US Amazon detail page variation data corroborated the named colors and their corresponding single-item ASINs for NYX Butter Gloss (39 of 40 catalog colors), Maybelline Lifter Gloss (20 of 20), e.l.f. Glow Reviver Lip Oil (10 of 10), Rare Beauty Liquid Blush (some options), e.l.f. Bite-Size Eyeshadow (some options), and several individual items.
+- Main source pages (Amazon US): https://www.amazon.com/dp/B09F4MFNWY ; https://www.amazon.com/dp/B085S9HD3L ; https://www.amazon.com/dp/B0CL8W1HZQ ; https://www.amazon.com/dp/B09T418D54 ; https://www.amazon.com/dp/B085P2FL8B .
+- Previous incorrect color ASIN corrected: NYX Butter Gloss Peaches And Cream (`nyx-bg-06`) now `B00BKH59G2`, replacing `B01BJLP5E4`.
+- Duplicate catalog entries Rare Beauty Soft Pinch Liquid Blush Joy (`rare-pinch-joy` and `rare-pinch-09`) share verified ASIN `B08KFPVVXY`.
+- **No unsupported ASIN guessing, no bundle substitution, no guarantees of current price, stock, shade selection or seller.** All prices are checked on Amazon; unlicensed photographs are not reproduced.
+- Not finding a US ASIN does not prove the product is unavailable. Some catalog shade names may be discontinued or not sold on US Amazon.
+
+### Remaining items requiring exact US ASIN verification (63)
+
+| Palevie ID | Brand | Product |
+|---|---|---|
+| rmd-jlt-09 | rom&nd | Juicy Lasting Tint · 09 Litchi Coral |
+| rmd-jlt-12 | rom&nd | Juicy Lasting Tint · 12 Cherry Bomb |
+| rmd-jlt-25 | rom&nd | Juicy Lasting Tint · 25 Bare Grape |
+| ppr-ink-17 | Peripera | Ink the Velvet · 17 Rosy Nude |
+| ppr-ink-08 | Peripera | Ink the Velvet · 08 Sellout Red |
+| ppr-ink-33 | Peripera | Ink the Velvet · 33 Pure Peach |
+| mbl-vinyl-peachy | Maybelline | SuperStay Vinyl Ink · Peachy |
+| nyx-smlc-istanbul | NYX | Soft Matte Lip Cream · Istanbul |
+| rmd-cheek-peach | rom&nd | Better Than Cheek · P01 Peach Whip |
+| ppr-sun-rose | Peripera | Pure Blushed Sunshine · 07 Dried Rose |
+| clio-pro-01 | CLIO | Pro Eye Palette · 01 Simply Pink |
+| clio-pro-02 | CLIO | Pro Eye Palette · 02 Brown Choux |
+| rmd-btp-fog | rom&nd | Better Than Palette · Dusty Fog Garden |
+| etude-wine | Etude | Play Color Eyes · Wine Party |
+| ppr-mood-02 | Peripera | All Take Mood Palette · 02 |
+| rmd-veil | rom&nd | See-Through Veilighter |
+| elf-halo-fair | e.l.f. | Halo Glow Liquid Filter · Fair |
+| tirtir-21n | TIRTIR | Mask Fit Red Cushion · 21N |
+| boj-sun | Beauty of Joseon | Relief Sun SPF50+ |
+| lng-sleep | Laneige | Water Sleeping Mask |
+| sk-some-aha | Some By Mi | AHA BHA PHA 30 Days Miracle Toner |
+| sk-cosrx-reti | COSRX | The Retinol 0.1 Cream |
+| sk-goodal-vitc | goodal | Green Tangerine Vita C Dark Spot Serum |
+| sk-mediheal-bp | Mediheal | Phyto-Enzyme Blemish Spot Treatment |
+| sk-round-panthe | Round Lab | 1025 Dokdo Cream |
+| sk-round-sun | Round Lab | Birch Juice Moisturizing Sun Cream |
+| mk-thesaem-stick | the SAEM | Cover Perfection Concealer Stick |
+| nyx-bg-38 | NYX | Butter Gloss · Shimmer Down |
+| rare-pinch-02 | Rare Beauty | Soft Pinch Liquid Blush · Bliss |
+| rare-pinch-03 | Rare Beauty | Soft Pinch Liquid Blush · Adore |
+| rare-pinch-04 | Rare Beauty | Soft Pinch Liquid Blush · Happy |
+| rare-pinch-05 | Rare Beauty | Soft Pinch Liquid Blush · Worth |
+| rare-pinch-08 | Rare Beauty | Soft Pinch Liquid Blush · Resilience |
+| rare-pinch-11 | Rare Beauty | Soft Pinch Liquid Blush · Lucky |
+| rare-pinch-12 | Rare Beauty | Soft Pinch Liquid Blush · Spirited |
+| rare-pinch-13 | Rare Beauty | Soft Pinch Liquid Blush · Grace |
+| rare-pinch-16 | Rare Beauty | Soft Pinch Liquid Blush · Faith |
+| elf-bite-01 | e.l.f. | Bite-Size Eyeshadow · Orange Dreamsicle |
+| elf-bite-09 | e.l.f. | Bite-Size Eyeshadow · Truffles |
+| elf-bite-11 | e.l.f. | Bite-Size Eyeshadow · Take Your Pink |
+| elf-bite-12 | e.l.f. | Bite-Size Eyeshadow · Total Smokeshow |
+| elf-bite-13 | e.l.f. | Bite-Size Eyeshadow · Cold Brew |
+| cp-shock-01 | ColourPop | Super Shock Shadow · DGAF |
+| cp-shock-02 | ColourPop | Super Shock Shadow · Sequin |
+| cp-shock-03 | ColourPop | Super Shock Shadow · Drift |
+| cp-shock-05 | ColourPop | Super Shock Shadow · Bae |
+| cp-shock-06 | ColourPop | Super Shock Shadow · Moonwalk |
+| cp-shock-07 | ColourPop | Super Shock Shadow · So Quiche |
+| cp-shock-09 | ColourPop | Super Shock Shadow · Ladybird |
+| nyx-ultimate-01 | NYX | Ultimate Color Palette · Warm Neutrals |
+| nyx-ultimate-02 | NYX | Ultimate Color Palette · Cool Neutrals |
+| nyx-ultimate-03 | NYX | Ultimate Color Palette · Smokey & Highlight |
+| nyx-ultimate-04 | NYX | Ultimate Color Palette · Phoenix |
+| nyx-ultimate-05 | NYX | Ultimate Color Palette · Ultimate Utopia |
+| nyx-ultimate-06 | NYX | Ultimate Color Palette · Ultimate Queen |
+| rare-bouncy-03 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Spirited |
+| rare-bouncy-04 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Divine |
+| rare-bouncy-05 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Worth |
+| rare-bouncy-06 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Alive |
+| rare-bouncy-07 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Grateful |
+| rare-bouncy-08 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Thriving |
+| rare-bouncy-09 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Truth |
+| rare-bouncy-10 | Rare Beauty | Soft Pinch Matte Bouncy Blush · Soulful |
+
+---
+
 ## Second exact-shade ASIN review (same day)
 
 Additional Amazon-indexed shade detail pages checked and added to `data/researchedAmazonAsins.ts`. No bundle page was used for an individual shade.
