@@ -1,6 +1,6 @@
 # Sixth U.S. Amazon detail-page verification pass — October 15, 2026
 
-Four additional catalog records have exact U.S. Amazon item and shade/title cross-checks. **127 direct product-link candidates / 168 listed; 41 records remain pending**.
+Five additional catalog records have exact U.S. Amazon item and shade/title cross-checks. **128 direct product-link candidates / 168 listed; 40 records remain pending**.
 
 | Palevie ID | Matched product/shade | ASIN | Evidence |
 |---|---|---|---|
@@ -8,10 +8,11 @@ Four additional catalog records have exact U.S. Amazon item and shade/title cros
 | rmd-jlt-25 | rom&nd beauty Juicy Lasting Tint 25 Bare Grape (updated 12HR listing) | B0DXFH4F21 | https://www.amazon.com/dp/B0DXFH4F21 |
 | rmd-btp-fog | rom&nd Better Than Palette Dusty Fog Garden (single palette) | B08ZJPFXZG | https://www.amazon.com/dp/B08ZJPFXZG |
 | rmd-veil | rom&nd See-Through Veilighter Hanbok Edition 01 Sun Kissed Veil | B08MQP8977 | https://www.amazon.com/dp/B08MQP8977 |
+| sk-cosrx-reti | COSRX The Retinol 0.1 Cream 0.67 fl oz | B0B5DKJ8TS | https://www.amazon.com/dp/B0B5DKJ8TS |
 
 For `rmd-veil`, the formerly nonspecific product listing was renamed to the precise `01 Sun Kissed Veil` shade because the Amazon direct page selects that variant. Bare Grape links to the U.S. `B0DXFH4F21` variant, **not** the older overseas ASIN `B09242GH8Q`. This is product identity evidence, **not confirmation of current stock, seller or buy-box**. No photos, prices or bundles were copied.
 
-Remaining 41 are left clearly labeled as search fallbacks until direct color/variant ASINs can be established; the existence of a fallback does not imply the product is unavailable.
+Remaining 40 are left clearly labeled as search fallbacks until direct color/variant ASINs can be established; the existence of a fallback does not imply the product is unavailable.
 
 ---
 

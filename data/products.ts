@@ -259,6 +259,7 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "clio-pro-02",
   "rmd-jlt-12",
   "rmd-jlt-25",
+  "sk-cosrx-reti",
   "rmd-btp-fog",
   "rmd-veil",
   "nyx-smlc-istanbul",

@@ -136,4 +136,5 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "rmd-jlt-25": "B0DXFH4F21", // rom&nd beauty Juicy Lasting Tint 25 Bare Grape (updated 12HR listing)
   "rmd-btp-fog": "B08ZJPFXZG", // rom&nd Better Than Palette Dusty Fog Garden (single palette)
   "rmd-veil": "B08MQP8977", // rom&nd See-Through Veilighter Hanbok Edition 01 Sun Kissed Veil
+  "sk-cosrx-reti": "B0B5DKJ8TS", // COSRX The Retinol 0.1 Cream, single 0.67 fl oz US listing
 };
