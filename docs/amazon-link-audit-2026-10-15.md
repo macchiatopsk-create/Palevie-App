@@ -1,3 +1,18 @@
+# Eleventh Amazon ASIN research — October 16, 2026
+
+**Configured exact product/detail ASIN destinations: 137 / 168; 31 remain as clearly labeled Amazon search fallbacks.** This figure means an ASIN URL is configured, **not** that Amazon currently offers or delivers the item. For the two new records below, the exact original U.S. Amazon product-detail links have been documented, but the current Amazon.com pages returned crawler cache-miss errors; active inventory, redirects and listing titles remain **unconfirmed**. Do not report them as currently purchasable or as live-Amazon-verified.
+
+| Palevie ID | Product and shade | Historic Amazon.com exact item link | Cross-check |
+|---|---|---|---|
+| `cp-shock-02` | ColourPop Super Shock Metallic Eyeshadow **Sequin** (single; UPC 851951001987) | https://www.amazon.com/dp/B01FML3RK6 | [Dealmoon original US Amazon direct-link](https://www.dealmoon.com/guide/737); [GoSupps product and UPC](https://www.gosupps.com/colourpop-super-shock-metallic-eyeshadow-sequin.html) |
+| `cp-shock-03` | ColourPop Super Shock Shadow **Drift, Pearlized** (single; UPC 748616840640) | https://www.amazon.com/dp/B01AZSZFQA | [Dealmoon original US Amazon direct-link](https://www.dealmoon.com/guide/737); [Desertcart product and UPC](https://www.desertcart.in/products/49055292-colourpop-super-shock-shadow-drift-pearlized) |
+
+**Important:** Both Amazon.com target URLs failed to load through the research crawler, so this is archived identity corroboration only; **not a successful current U.S. listing or checkout test**. The Shop's existing external retailer redirect remains the same. Neither an image nor a manual price was added.
+
+Additional rejected/pending leads: NYX Ultimate Smokey & Highlight legacy ASIN `B01IW02I4U` opens on Amazon.com with displayed product title **Brights**, so must not be linked as Smokey & Highlight. NYX Ultimate Cool Neutrals `B01M3P9PZY` appears in historical U.S. marketplace index but live U.S. Amazon detail-page retrieval failed. Beauty of Joseon Relief Sun `B09JVNZVH3` matched a barcode catalog but the U.S. Amazon page could not be inspected. None added.
+
+---
+
 # Tenth Amazon US product page review — October 16, 2026
 
 **Current: 135 Amazon direct detail-page destinations out of 168, 33 still without exact US ASINs.** Product detail links are not guarantees of in-stock purchasability.
