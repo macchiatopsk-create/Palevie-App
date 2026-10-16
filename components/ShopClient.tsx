@@ -16,14 +16,14 @@ import { pushWishlistItem, removeWishlistItem } from "@/lib/cloudWishlist";
 import ShadeDrape, { type DrapeShade } from "@/components/ShadeDrape";
 import VirtualMakeupTryOn from "@/components/VirtualMakeupTryOn";
 import { featuredShopOrder } from "@/lib/shopRanking";
-import { verifiedAmazonOffer, visibleAmazonProducts } from "@/lib/shopEligibility";
+import { verifiedAmazonOffer } from "@/lib/shopEligibility";
 
 export default function ShopClient() {
   const [tab, setTab] = useState<"all"|"lip"|"gloss"|"eyeshadow"|"blush"|"highlighter"|"cushion"|"skincare"|"clothes">("all");
   const [qtext, setQtext] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [tryonProduct, setTryonProduct] = useState<string|null>(null);
-  const brands=useMemo(()=>Array.from(new Set(visibleAmazonProducts(catalogProducts).map(p=>p.brand))).sort((a,b)=>a.localeCompare(b)),[]);
+  const brands=useMemo(()=>Array.from(new Set(catalogProducts.map(p=>p.brand))).sort((a,b)=>a.localeCompare(b)),[]);
   const [sort, setSort] = useState<"featured"|"match"|"brand"|"category">("featured");
   const [cols, setCols] = useState<1|2|3>(2);
   const [menu, setMenu] = useState(false);
@@ -67,7 +67,7 @@ export default function ShopClient() {
     track(saved ? "wishlist_added" : "wishlist_removed", { label: name, surface: "shop" });
   }
 
-  const items = visibleAmazonProducts(catalogProducts)
+  const items = catalogProducts
     .filter(p => tab==="all" || (tab==="skincare" ? p.category==="skincare" : p.subcategory===tab))
     .filter(p => !brandFilter || p.brand === brandFilter)
     .filter(p => !qtext || p.name.toLowerCase().includes(qtext.toLowerCase()) || p.brand.toLowerCase().includes(qtext.toLowerCase()))
@@ -171,7 +171,7 @@ export default function ShopClient() {
         <option value="">All brands ({brands.length})</option>{brands.map(b=><option value={b} key={b}>{b}</option>)}
       </select>
     </div>}
-    {tab!=="clothes"&&<p className="sh-shop-explainer">Only shades with a reviewed Amazon product-page link appear here. Items needing exact shade verification are temporarily hidden. Tap a product to see its price and availability on Amazon.</p>}
+    {tab!=="clothes"&&<p className="sh-shop-explainer">All catalog shades are visible again. Verified direct links open the exact Amazon item; other links temporarily open Amazon shade search while their ASINs are checked.</p>}
     {!profile && tab !== "skincare" && tab !== "clothes" && <div className="notice inline-notice">Explore shades freely. Color swatches are illustrative, not personal-color diagnoses.</div>}
     {!skin && tab === "skincare" && <div className="notice inline-notice">Build a skin preference profile to rank skincare products.</div>}
 
@@ -258,10 +258,12 @@ export default function ShopClient() {
     ) : (
     <div className={`shop-grid shop-grid-compact ${cols===3?"c3":cols===1?"c1":""}`}>
       {shown.map(p => {
-        const offer=verifiedAmazonOffer(p);
+        const directOffer=verifiedAmazonOffer(p);
+        const offer=directOffer ?? p.offers.find(o=>o.retailer==="amazon");
         if(!offer)return null;
         const href=`/go/${offer.id}?v=${encodeURIComponent(getVisitorId())}&tone=${encodeURIComponent(profile?.id??"")}&utm_source=shop&utm_medium=affiliate`;
-        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_direct"});
+        const direct=Boolean(directOffer);
+        const go=()=>track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:direct?"shop_direct":"shop_search"});
         const saved=wl.some(w=>w.id===productKey(p.id));
         return <article className="shop-card" key={p.id}>
           <div className="shop-art shop-square">
@@ -281,7 +283,7 @@ export default function ShopClient() {
           <div className="sh-meta">
             <b className="sh-brand">{p.brand}</b>
             <a className="sh-product-name" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{p.name}</a>
-            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>Check price on Amazon ↗</a>
+            <a className="sh-card-price" href={href} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={go}>{direct?"View exact item · Amazon ↗":"Find shade on Amazon ↗"}</a>
             <div className="sh-card-mini-actions">
               {p.category==="makeup"&&p.colorHex&&["lip","gloss","blush","eyeshadow"].includes(p.subcategory)&&<button type="button" onClick={()=>setTryonProduct(p.id)}>Try on</button>}
               {p.colorHex&&<button type="button" onClick={()=>setDraping(p.id)}>Compare shade</button>}
@@ -289,10 +291,10 @@ export default function ShopClient() {
           </div>
         </article>;
       })}
-      {shown.length===0&&<p className="sh-empty-state">No verified Amazon product-page links match these filters yet. Try another brand or category.</p>}
+      {shown.length===0&&<p className="sh-empty-state">No products match these filters. Try another brand or category.</p>}
     </div>
     )}
 
-    <p className="affiliate-disclosure"><strong>Disclosure:</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Product prices and availability are provided by Amazon on its website; Palevie does not display a stored or estimated Amazon price. Colors are illustrative, not product photographs. Exact shade selection should be checked before purchase.</p>
+    <p className="affiliate-disclosure"><strong>Disclosure:</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Product prices and availability are provided by Amazon. Until precise ASIN verification is finished, some shades open Amazon search; these are clearly labeled. No stored or estimated Amazon prices are displayed. Colors are illustrative, not product photographs.</p>
   </>;
 }

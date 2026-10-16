@@ -1,3 +1,39 @@
+# Amazon catalogue link status — 2026-10-15 update
+
+**All 168 catalog entries are visible again.** The previous 13-only Shop gate was reversed: an ASIN being unverified does **not** mean Amazon lacks that product.
+
+- 13 previously reviewed exact-detail-page records.
+- 15 additional ASIN mappings discovered from indexed Amazon product pages, matched to the named product + shade.
+- **28 direct-product-page candidates**, pending real-browser checkout/seller/variant regression checks.
+- **140 entries still using temporary Amazon shade-search links**; clearly labeled, not advertised as direct links.
+- Do not use a bundle/multipack ASIN for a single-shade product.
+- New ASINs are documented in `data/researchedAmazonAsins.ts`; these are search-backed product-level identities, not a guarantee of current stock, Buy Box or seller.
+- No scraped price/photo is added. Amazon price and availability remain on Amazon.
+
+## New ASIN mappings
+
+| Palevie item | Amazon ASIN | Note |
+|---|---|---|
+| nyx-bg-01 | B00BKH3Q58 | NYX Butter Gloss Éclair |
+| nyx-bg-02 | B00BKH7ZDC | NYX Butter Gloss Merengue |
+| nyx-bg-03 | B00BKH9HRE | NYX Butter Gloss Crème Brulee |
+| nyx-bg-04 | B00BKHDF9A | NYX Butter Gloss Tiramisu |
+| nyx-bg-06 | B01BJLP5E4 | NYX Butter Gloss Peaches And Cream |
+| nyx-bg-07 | B00ICS9JN6 | NYX Butter Gloss Fortune Cookie |
+| nyx-bg-09 | B00ICTZ3YE | NYX Butter Gloss Angel Food Cake |
+| nyx-bg-10 | B00ICU1JIC | NYX Butter Gloss Praline |
+| nyx-bg-11 | B00ICU2UZS | NYX Butter Gloss Ginger Snap |
+| nyx-bg-13 | B00ICUJ8S0 | NYX Butter Gloss Red Velvet |
+| may-lifter-01 | B085S9HD3L | Maybelline Lifter Gloss Pearl |
+| elf-oil-02 | B0CMJZVT5P | e.l.f. Glow Reviver Lip Oil Honey Talks |
+| rare-pinch-01 | B09T418D54 | Rare Beauty Soft Pinch Liquid Blush Hope |
+| rare-bouncy-01 | B0DY6PVJKW | Rare Beauty Soft Pinch Matte Bouncy Blush Hope |
+| sk-cosrx-bha | B00OZEJ8R8 | COSRX BHA Blackhead Power Liquid |
+
+**Research caveat:** Amazon search results are not equivalent to placing the item in a cart and checking its currently selected size/shade. Further verification can add more mappings or invalidate a mapping. Exact shade variants must not silently point to an unrelated shade.
+
+## Historical pre-change audit
+
 # Palevie Amazon direct-link audit — 2026-10-15
 
 This report records the shop visibility gate. **Not displayed does not mean unavailable on Amazon.** Only independently catalog-vetted direct-detail-page ASIN links are eligible for the Shop until more products/shades are verified. Search results are not direct product purchase links.
