@@ -1,3 +1,10 @@
+# Fourth verification pass — direct Amazon shade link
+
+- **106 exact-item Amazon detail page candidates / 168 visible**, **62 still unverified**.
+- `nyx-smlc-istanbul` — **NYX Soft Matte Lip Cream Istanbul**, ASIN `B004LXJOBI`. Source US Amazon product variation table: https://www.amazon.com/dp/B015QNBKJK (Istanbul, “1 Count (Pack of 1)”, not a multi-shade bundle). Availability is not guaranteed.
+
+---
+
 # Pass 3 — Shade-specific Amazon links (2026-10-15)
 
 **CURRENT SHOP STATUS: 168 visible, 105 Amazon direct-detail-page link candidates, 63 exact shade links still unverified (clearly labeled search fallback).**
