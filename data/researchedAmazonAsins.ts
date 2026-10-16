@@ -131,4 +131,10 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "rare-bouncy-05": "B0F44B5G87", // Worth (True Rose) 0.22oz / 6.4g
   "rare-bouncy-07": "B0F44CF9F6", // Grateful (Soft Red) 0.22oz / 6.4g
   "rare-bouncy-09": "B0F44BK3V2", // Truth (Soft Plum) 0.22oz / 6.4g
+  // U.S. Amazon product title, color and product form cross-checked 2026-10-15.
+  "rmd-jlt-12": "B07ZKC767Z", // rom&nd Juicy Lasting Tint 12 Cherry Bomb
+  "rmd-jlt-25": "B0DXFH4F21", // rom&nd beauty Juicy Lasting Tint 25 Bare Grape (updated 12HR listing)
+  "rmd-btp-fog": "B08ZJPFXZG", // rom&nd Better Than Palette Dusty Fog Garden (single palette)
+  "rmd-veil": "B08MQP8977", // rom&nd See-Through Veilighter Hanbok Edition 01 Sun Kissed Veil
+  "sk-cosrx-reti": "B0B5DKJ8TS", // COSRX The Retinol 0.1 Cream, single 0.67 fl oz US listing
 };
