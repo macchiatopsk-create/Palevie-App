@@ -104,6 +104,11 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   // Rare Beauty Matte Bouncy Blush
   "rare-bouncy-01": "B0DY6PVJKW",
   "rare-bouncy-02": "B0F44C7R7B",
+  // Historic US Amazon single-item detail listings, corroborated by exact title and UPC,
+  // verified against archived amazon.com product links (2026-10-16 research).
+  // Current live Amazon page response, stock, and buy box could not be confirmed.
+  "cp-shock-02": "B01FML3RK6", // ColourPop Super Shock Metallic Shadow Sequin, UPC 851951001987
+  "cp-shock-03": "B01AZSZFQA", // ColourPop Super Shock Shadow Drift Pearlized, UPC 748616840640
   // Other verified options
   "cp-shock-04": "B0799P831X",
   "cp-shock-08": "B0784D39L9",
