@@ -1,3 +1,32 @@
+# Amazon link verification — follow-up batch (October 2026)
+
+**14 additional shade/product direct ASINs found from US Amazon product pages or original variation maps.**
+These are exact product/family/shade matches (with size verified where relevant); not live price/stock guarantees. 
+**120 direct detail page candidates of 168**, leaving **48 items without verified US Amazon direct detail links**. Search fallback is marked and not misrepresented as a direct product link.
+
+**Catalog data fixes:** old Bare Grape B09242GH8Q is from an Amazon Japan listing and does not reliably identify the selected US Amazon shade. Replaced the unsafe `/dp/` redirect with a clearly labeled shade-search fallback; its shade remains unverified in the US. Corrected Mediheal's unrelated benzoyl peroxide search to an exact-brand/product keyword query.
+
+| Palevie ID | Amazon ASIN | Match | Evidence page |
+|---|---|---|---|
+| rmd-jlt-09 | B087BHZQQV | Juicy Lasting Tint 09 Litchi Coral | https://www.amazon.com/dp/B087BHZQQV |
+| ppr-ink-17 | B0F242ZPX5 | Ink the Velvet 17 Rosy Nude | https://www.amazon.com/dp/B0F242ZPX5 |
+| ppr-ink-08 | B0FB1FMPHZ | Ink the Velvet 08 Sellout Red | https://www.amazon.com/dp/B0F242ZPX5 |
+| elf-halo-fair | B0B5MG15B2 | Halo Glow Liquid Filter 1 Fair | https://www.amazon.com/dp/B0B5MG15B2 |
+| tirtir-21n | B09LCMQM44 | Mask Fit Red Cushion 21N Ivory, 0.63 fl oz single | https://www.amazon.com/dp/B0D2L4WM8K |
+| lng-sleep | B0F7ZJQP4K | Water Sleeping Mask | https://www.amazon.com/dp/B0F7ZJQP4K |
+| sk-some-aha | B07BYJF7L7 | SOME BY MI AHA BHA PHA Toner single 150 ml | https://www.amazon.com/dp/B07BYJF7L7 |
+| sk-round-panthe | B08FM81QBZ | ROUND LAB 1025 Dokdo Cream 2.71 fl oz single | https://www.amazon.com/dp/B08FM81QBZ |
+| elf-bite-09 | B085P2NG1C | Bite-Size Eyeshadow Truffles | https://www.amazon.com/dp/B085P2NG1C |
+| nyx-ultimate-05 | B08GPT8N32 | Ultimate Shadow Palette Utopia | https://www.amazon.com/dp/B08GPT8N32 |
+| nyx-ultimate-06 | B09QMH2DKM | Ultimate Shadow Palette Ultimate Queen | https://www.amazon.com/dp/B08GPT8N32 |
+| nyx-ultimate-01 | B01IW02HX2 | Ultimate Shadow Palette Warm Neutrals | https://www.amazon.com/dp/B08GPT8N32 |
+| clio-pro-02 | B09NRBYPNW | Pro Eye Palette 002 Brown Choux | https://www.amazon.com/dp/B09NRBYPNW |
+| cp-shock-01 | B0DZ1D8DRZ | Super Shock Shadow DGAF single | https://www.amazon.com/clp/B0DZ1D8DRZ |
+
+**Important distinction:** some Amazon ASINs can stop being sold, change selected variant, or redirect in certain sessions. No automatic Amazon price/image scraping; use the product link to view the current information on Amazon. Bundles are not used to stand in for single products.
+
+---
+
 # Fourth verification pass — direct Amazon shade link
 
 - **106 exact-item Amazon detail page candidates / 168 visible**, **62 still unverified**.
