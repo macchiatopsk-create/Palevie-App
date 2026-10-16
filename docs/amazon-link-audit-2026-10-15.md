@@ -1,3 +1,25 @@
+# Tenth Amazon US product page review — October 16, 2026
+
+**Current: 135 Amazon direct detail-page destinations out of 168, 33 still without exact US ASINs.** Product detail links are not guarantees of in-stock purchasability.
+
+Exact Amazon.com pages checked by loading /dp/ASIN and matching displayed `productTitle` and page `data-csa-c-asin`:
+
+| Palevie ID | Exact verified Amazon US title | ASIN | Direct link |
+|---|---|---|---|
+| `rare-pinch-02` | Rare Beauty by Selena Gomez Soft Pinch Liquid Blush **Bliss** | `B08KFQ6S52` | https://www.amazon.com/dp/B08KFQ6S52 |
+| `rare-pinch-13` | Rare Beauty Soft Pinch **Matte** Liquid Blush **Grace** | `B08KFMXXJS` | https://www.amazon.com/dp/B08KFMXXJS |
+
+**Rejected despite superficially suitable search snippets:**
+- `B0DV95CK39` (search snippet says ColourPop Ladybird) actually opens **ColourPop Berry Pop two-piece duo**, ASIN B0GPR68LSJ. Do not use for a Ladybird single shadow.
+- `B0CYJPXP3V` (search snippet says ColourPop Moonwalk) also opens the unrelated Berry Pop **two-piece duo**. Do not use.
+- `B09NR9ZRQ9` indexed under CLIO palettes actually opens **008 Into Lace**, not catalog's 01 Simply Pink. Do not use for that shade.
+- `B0DR89V51J` and `B0DR896KLG` are Peripera shades **026 Soft Berry** and **027 Strawberry Pink**, respectively, not 07 Milky Peach. Do not use.
+- `B08KFQ6S52` verified from the US listing, not merely mirrored overseas ASIN.
+
+The 33 unresolved items retain explicitly labeled Amazon search fallbacks until exact US item/shade/format is validated. No replacement item, inaccurate ASIN, product image, price or unauthorized Amazon data reuse was added.
+
+---
+
 # Ninth catalog integrity and Amazon ASIN check — October 2026
 
 **133 of 168 catalog records have specific Amazon detail-page ASIN candidates; 35 remain with clearly marked search fallbacks.** The 133 figure is the number of configured direct-detail-page destinations, **not a claim of 133 currently purchasable in-stock listings**.
