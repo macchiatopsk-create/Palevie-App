@@ -109,6 +109,7 @@ export const researchedAmazonAsins: Readonly<Record<string,string>> = {
   "cp-shock-08": "B0784D39L9",
   "elf-putty-tahiti": "B0947CYBHW",
   "rare-pinch-joy": "B08KFPVVXY", // Same Soft Pinch Liquid Blush Joy as rare-pinch-09
+  "nyx-smlc-istanbul": "B004LXJOBI", // NYX Soft Matte Lip Cream Istanbul — Amazon variation 1 Count (Pack of 1)
   "mbl-matte-lover": "B06XF16MWM",
   "sk-cosrx-bha": "B00OZEJ8R8",
 };
