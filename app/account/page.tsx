@@ -1,2 +1,3 @@
 import AccountClient from "@/components/AccountClient";
-export default function AccountPage(){return <div className="app-wrap narrow h2-wrap"><AccountClient/></div>}
+import PasswordSafetyNotice from "@/components/PasswordSafetyNotice";
+export default function AccountPage(){return <div className="app-wrap narrow h2-wrap"><AccountClient/><PasswordSafetyNotice/></div>;}
