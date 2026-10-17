@@ -6,7 +6,7 @@ import {MARK} from "./icons";
 import DrapeLiveGuide from "./DrapeLiveGuide";
 import styles from "./CameraDrape.module.css";
 type Color={label:string;hex:string};
-export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,onPrev,onUseMirror,telemetry=true,hideGuide=false}:{colors:Color[];side:number;onSide:(next:number)=>void;onPick:()=>void;onWorse?:()=>void;onCant:()=>void;onPrev?:()=>void;onUseMirror:()=>void;telemetry?:boolean;hideGuide?:boolean}){
+export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,onPrev,onUseMirror,telemetry=true,hideGuide=false,canPick=true}:{colors:Color[];side:number;onSide:(next:number)=>void;onPick:()=>void;onWorse?:()=>void;onCant:()=>void;onPrev?:()=>void;onUseMirror:()=>void;telemetry?:boolean;hideGuide?:boolean;canPick?:boolean}){
   const videoRef=useRef<HTMLVideoElement>(null),stageRef=useRef<HTMLDivElement>(null),streamRef=useRef<MediaStream|null>(null);
   const mounted=useRef(false),generation=useRef(0),startedStream=useRef<string|null>(null),requesting=useRef(false);
   const permissionTimer=useRef<ReturnType<typeof setTimeout>|null>(null),playTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -97,6 +97,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
 
     <p className="camera-drape-prompt"><b>Compare the effect on your face, not which color you prefer.</b><br/>{hideGuide?"Switch colors above the preview. Look for smoother-looking skin and fewer shadows; the camera does not automatically diagnose your undertone.":"Switch shades in the preview. Live Guide describes a Soft or Bold effect, not a personal-color diagnosis."}</p>
     {!cameraPlaying&&<p role="status">The preview must be playing before you rate a color.</p>}
-    <div className="qz-actions camera-drape-actions"><button type="button" disabled={!cameraPlaying} className="dr-pick camera-drape-pick" onClick={()=>rate(onPick)}>{MARK.check} Looks better</button>{onWorse&&<button type="button" disabled={!cameraPlaying} className="camera-drape-link" onClick={()=>rate(onWorse)}>Looks worse</button>}<button type="button" disabled={!cameraPlaying} className="qz-skip dr-skip" onClick={()=>rate(onCant)}>Honestly can't tell</button><div className="camera-drape-subactions"><button type="button" className="camera-drape-link" onClick={useMirror}>Switch to mirror</button>{onPrev&&<button type="button" className="camera-drape-link" onClick={onPrev}>Previous comparison</button>}</div></div>
+    {hideGuide&&!canPick&&<p role="status">Switch A → B → A using the color buttons above the preview before rating.</p>}
+    <div className="qz-actions camera-drape-actions"><button type="button" disabled={!cameraPlaying||!canPick} className="dr-pick camera-drape-pick" onClick={()=>{if(canPick)rate(onPick);}}>{MARK.check} Looks better</button>{onWorse&&<button type="button" disabled={!cameraPlaying} className="camera-drape-link" onClick={()=>rate(onWorse)}>Looks worse</button>}<button type="button" disabled={!cameraPlaying} className="qz-skip dr-skip" onClick={()=>rate(onCant)}>Honestly can't tell</button><div className="camera-drape-subactions"><button type="button" className="camera-drape-link" onClick={useMirror}>Switch to mirror</button>{onPrev&&<button type="button" className="camera-drape-link" onClick={onPrev}>Previous comparison</button>}</div></div>
   </div>;
 }
