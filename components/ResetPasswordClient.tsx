@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
 import { NEW_PASSWORD_HELP, newPasswordError } from "@/lib/passwordPolicy";
 
+const SAVE_ERROR = "We could not confirm the password change. Please check your connection and try again, or request a fresh reset link.";
 export default function ResetPasswordClient() {
   const [ready, setReady] = useState(false), [ok, setOk] = useState(false);
   const [pw, setPw] = useState(""), [pw2, setPw2] = useState("");
@@ -14,7 +15,7 @@ export default function ResetPasswordClient() {
     let active = true;
     const supabase = getSupabaseBrowser();
     if (!supabase) { setReady(true); setStatus("Account service is unavailable. Please try again later."); return () => { mounted.current = false; }; }
-    // getSession waits for the SDK's recovery-link initialization. Do not exchange a code twice.
+    // The SDK initializes recovery links once; do not exchange the same code twice.
     const timeout = setTimeout(() => {
       if (active) { setReady(true); setStatus("The sign-in service is taking longer than expected. Try reloading or request a new link."); }
     }, 10000);
@@ -22,6 +23,7 @@ export default function ResetPasswordClient() {
       if (!active) return;
       clearTimeout(timeout); setOk(!error && !!data.session); setReady(true);
       if (error) setStatus("We could not verify this reset link. Please request a new one.");
+      else if (data.session) setStatus("");
     }).catch(() => {
       if (active) { clearTimeout(timeout); setOk(false); setReady(true); setStatus("The account connection failed. Please reload or request a new reset link."); }
     });
@@ -41,10 +43,11 @@ export default function ResetPasswordClient() {
     try {
       const { error } = await supabase.auth.updateUser({ password: pw });
       if (!mounted.current) return;
-      if (error) { setStatus(error.message); return; }
+      // Provider network errors can serialize as an empty object. Show a useful retry path.
+      if (error) { setStatus(SAVE_ERROR); return; }
       setPw(""); setPw2(""); setSaved(true); setStatus("Your new password is saved.");
     } catch {
-      if (mounted.current) setStatus("We could not confirm the password change. Check your connection and try again.");
+      if (mounted.current) setStatus(SAVE_ERROR);
     } finally { pending.current = false; if (mounted.current) setBusy(false); }
   }
   if (!ready) return <div className="beauty-card"><p role="status">Checking your reset link…</p></div>;

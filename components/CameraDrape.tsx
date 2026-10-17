@@ -33,7 +33,8 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
     const video=videoRef.current,request=generation.current;
     if(!video||!streamRef.current)return;
     watchPlayback();
-    void video.play().catch(()=>{if(mounted.current&&request===generation.current)fail("play_failed","Your browser could not play the preview. Try again or use a mirror.");});
+    // An already-playing element may not emit a second playing event after track unmute.
+    void video.play().then(()=>{if(mounted.current&&request===generation.current)playing();}).catch(()=>{if(mounted.current&&request===generation.current)fail("play_failed","Your browser could not play the preview. Try again or use a mirror.");});
   }
   useEffect(()=>{
     mounted.current=true;
