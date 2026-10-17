@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const {runtime}=require('./free-service-test-runtime.cjs');
+const r=runtime(),{newPasswordError}=r.load('lib/passwordPolicy.ts'),{cameraCanBeRated}=r.load('lib/cameraReadiness.ts');
+let n=0;
+function check(name,fn){fn();console.log('MOBILE_SAFETY_PASS '+name);n++;}
+check('new-password-minimum',()=>assert(newPasswordError('short')));
+check('obvious-common-pattern',()=>assert(newPasswordError('Password123456!')));
+check('repeated-pattern',()=>assert(newPasswordError('abcdabcdabcd')));
+check('unique-passphrase',()=>assert.equal(newPasswordError('Orchid picnic beneath 7 stars'),null));
+const track={readyState:'live',muted:false},stream={getVideoTracks:()=>[track]};
+const video={srcObject:stream,paused:false,ended:false,readyState:2,videoWidth:240,videoHeight:320};
+check('currently-playing-video',()=>assert.equal(cameraCanBeRated(video,stream),true));
+check('no-video',()=>assert.equal(cameraCanBeRated(null,stream),false));
+check('paused-video',()=>assert.equal(cameraCanBeRated({...video,paused:true},stream),false));
+check('buffering-video',()=>assert.equal(cameraCanBeRated({...video,readyState:1},stream),false));
+check('no-frame-dimensions',()=>assert.equal(cameraCanBeRated({...video,videoWidth:0},stream),false));
+check('stale-stream',()=>assert.equal(cameraCanBeRated({...video,srcObject:null},stream),false));
+check('muted-track',()=>{track.muted=true;assert.equal(cameraCanBeRated(video,stream),false);track.muted=false;});
+check('ended-track',()=>{track.readyState='ended';assert.equal(cameraCanBeRated(video,stream),false);});
+console.log('MOBILE_SAFETY_TOTAL '+n);

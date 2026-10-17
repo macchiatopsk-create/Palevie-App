@@ -1,49 +1,63 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabaseBrowser";
+import { NEW_PASSWORD_HELP, newPasswordError } from "@/lib/passwordPolicy";
 
 export default function ResetPasswordClient() {
-  const [ready, setReady] = useState(false);
-  const [ok, setOk] = useState(false);
-  const [pw, setPw] = useState("");
-  const [pw2, setPw2] = useState("");
-  const [status, setStatus] = useState("");
-
+  const [ready, setReady] = useState(false), [ok, setOk] = useState(false);
+  const [pw, setPw] = useState(""), [pw2, setPw2] = useState("");
+  const [status, setStatus] = useState(""), [busy, setBusy] = useState(false), [saved, setSaved] = useState(false);
+  const pending = useRef(false), mounted = useRef(false);
   useEffect(() => {
+    mounted.current = true;
+    let active = true;
     const supabase = getSupabaseBrowser();
-    if (!supabase) { setReady(true); return; }
-    // The recovery link lands here; detectSessionInUrl picks up the token.
-    supabase.auth.getSession().then(({ data }) => { setOk(!!data.session); setReady(true); });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setOk(!!session));
-    return () => sub.subscription.unsubscribe();
+    if (!supabase) { setReady(true); setStatus("Account service is unavailable. Please try again later."); return () => { mounted.current = false; }; }
+    // getSession waits for the SDK's recovery-link initialization. Do not exchange a code twice.
+    const timeout = setTimeout(() => {
+      if (active) { setReady(true); setStatus("The sign-in service is taking longer than expected. Try reloading or request a new link."); }
+    }, 10000);
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!active) return;
+      clearTimeout(timeout); setOk(!error && !!data.session); setReady(true);
+      if (error) setStatus("We could not verify this reset link. Please request a new one.");
+    }).catch(() => {
+      if (active) { clearTimeout(timeout); setOk(false); setReady(true); setStatus("The account connection failed. Please reload or request a new reset link."); }
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) { clearTimeout(timeout); setOk(!!session); setReady(true); }
+    });
+    return () => { active = false; mounted.current = false; clearTimeout(timeout); sub.subscription.unsubscribe(); };
   }, []);
-
   async function save() {
-    const supabase = getSupabaseBrowser();
-    if (!supabase) return;
-    if (pw.length < 8) return setStatus("Password needs at least 8 characters.");
+    if (pending.current || saved || !ok) return;
+    const invalid = newPasswordError(pw);
+    if (invalid) return setStatus(invalid);
     if (pw !== pw2) return setStatus("Passwords don't match.");
-    setStatus("Saving…");
-    const { error } = await supabase.auth.updateUser({ password: pw });
-    if (error) return setStatus(error.message);
-    setStatus("Done! Your new password is set.");
-    setTimeout(() => { window.location.href = "/account"; }, 1200);
+    const supabase = getSupabaseBrowser();
+    if (!supabase) return setStatus("Account service is unavailable. Please try again later.");
+    pending.current = true; setBusy(true); setStatus("Saving…");
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pw });
+      if (!mounted.current) return;
+      if (error) { setStatus(error.message); return; }
+      setPw(""); setPw2(""); setSaved(true); setStatus("Your new password is saved.");
+    } catch {
+      if (mounted.current) setStatus("We could not confirm the password change. Check your connection and try again.");
+    } finally { pending.current = false; if (mounted.current) setBusy(false); }
   }
-
-  if (!ready) return null;
-  if (!ok) return (
-    <div className="beauty-card" style={{ textAlign: "center" }}>
-      <p className="lede-small">This reset link has expired or was already used. Request a new one from the sign-in screen.</p>
-      <a className="button rose" href="/account">Back to sign in</a>
-    </div>
-  );
-
-  return (
-    <div className="beauty-card account-card">
-      <label className="skin-field"><span>New password</span><input type="password" autoComplete="new-password" value={pw} onChange={e=>setPw(e.target.value)} placeholder="At least 8 characters" /></label>
-      <label className="skin-field"><span>Confirm password</span><input type="password" autoComplete="new-password" value={pw2} onChange={e=>setPw2(e.target.value)} placeholder="Same again" /></label>
-      <button className="button rose" onClick={save}>Save new password ✦</button>
-      {status && <p className="soft-note">{status}</p>}
-    </div>
-  );
+  if (!ready) return <div className="beauty-card"><p role="status">Checking your reset link…</p></div>;
+  if (!ok) return <div className="beauty-card" style={{ textAlign: "center" }}>
+    <p className="lede-small">This reset link is unavailable, expired or already used. Request a new one from sign in.</p>
+    {status && <p role="status">{status}</p>}<Link className="button rose" href="/account">Back to sign in</Link>
+  </div>;
+  if (saved) return <div className="beauty-card"><p role="status">{status}</p><Link className="button rose" href="/account">Continue to account</Link></div>;
+  return <form className="beauty-card account-card" onSubmit={event => { event.preventDefault(); void save(); }}>
+    <p id="password-help" className="microcopy">{NEW_PASSWORD_HELP} This form check is not a full leaked-password check.</p>
+    <label className="skin-field"><span>New password</span><input type="password" autoComplete="new-password" aria-describedby="password-help" value={pw} disabled={busy} onChange={e => setPw(e.target.value)} placeholder="At least 12 characters" required /></label>
+    <label className="skin-field"><span>Confirm password</span><input type="password" autoComplete="new-password" value={pw2} disabled={busy} onChange={e => setPw2(e.target.value)} placeholder="Same again" required /></label>
+    <button type="submit" className="button rose" disabled={busy}>{busy ? "Saving…" : "Save new password"}</button>
+    {status && <p role="status" className="soft-note">{status}</p>}
+  </form>;
 }
