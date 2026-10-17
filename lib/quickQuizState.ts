@@ -1,6 +1,8 @@
 import { QUIZ_QUESTIONS } from "./quiz";
 export const QUICK_INDEXES=[0,1,2,10,17,18,20] as const;
 export const QUICK_KEY="palevie-quick-quiz-v3";
+/** Completed results are stored separately so /quiz can always open Q1. */
+export const QUICK_RESULT_KEY="palevie-quick-quiz-last-result-v1";
 export type QuickState={picks:(number|null)[];cursor:number;completed:boolean};
 export const initialQuickState=():QuickState=>({picks:Array(QUICK_INDEXES.length).fill(null),cursor:0,completed:false});
 export function normalizeQuickState(value:unknown):QuickState{
