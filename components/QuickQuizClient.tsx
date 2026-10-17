@@ -6,7 +6,7 @@ import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import { track } from "@/lib/analytics";
 import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDiscovery";
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
-import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState } from "@/lib/quickQuizState";
+import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState,quickRouteState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
 import VerifiedShadePicks from "./VerifiedShadePicks";
 import styles from "./QuickQuizClient.module.css";
@@ -31,10 +31,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       safeStorage.removeItem(QUICK_KEY);
       if(prefs.source==="mood")clearDiscoveryPreferences();
       setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
-    }else if(showResult&&saved.completed){
-      setQuiz(saved);setChosenMood(prefs.mood);setFeedback(prefs.feedback);
     }else{
-      setQuiz(existing.completed?initialQuickState():existing);
+      setQuiz(quickRouteState(existing,saved,showResult,false));
       setChosenMood(prefs.mood);setFeedback(prefs.feedback);
     }
     setReady(true);
