@@ -51,15 +51,24 @@ self.onmessage=async({data})=>{
   if(canvas){canvas.width=0;canvas.height=0;}context=null;canvas=null;self.close();return;
  }
  if(data.type!=='frame')return;
- const bitmap=data.bitmap;
+ const bitmap=data.bitmap||null,payload=data.pixels||null;
  try{
-  if(!model||!bitmap)throw new Error('Not ready');
-  if(!canvas){canvas=new OffscreenCanvas(bitmap.width,bitmap.height);context=canvas.getContext('2d',{willReadFrequently:true});}
+  if(!model||(!bitmap&&!payload))throw new Error('Not ready');
+  // Camera-frame fallbacks must stay small and strictly on-device.
+  const width=bitmap?bitmap.width:payload.width,height=bitmap?bitmap.height:payload.height;
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1||width>720||height>720)throw new Error('Invalid frame size');
+  if(!canvas){canvas=new OffscreenCanvas(width,height);context=canvas.getContext('2d',{willReadFrequently:true});}
   if(!context)throw new Error('No 2D context');
-  if(canvas.width!==bitmap.width||canvas.height!==bitmap.height){canvas.width=bitmap.width;canvas.height=bitmap.height;previous=null;}
-  const faces=model.detectForVideo(bitmap,data.timestamp).faceLandmarks;
-  context.drawImage(bitmap,0,0);
-  const pixels=context.getImageData(0,0,canvas.width,canvas.height);
+  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;previous=null;}
+  if(bitmap){
+    context.drawImage(bitmap,0,0);
+  }else{
+    const bytes=payload.data;
+    if(!(bytes instanceof Uint8ClampedArray)||bytes.length!==width*height*4)throw new Error('Invalid local pixels');
+    context.putImageData(new ImageData(bytes,width,height),0,0);
+  }
+  const faces=model.detectForVideo(bitmap||canvas,data.timestamp).faceLandmarks;
+  const pixels=context.getImageData(0,0,width,height);
   const value=self.PalevieDrapeMeasure.inspect(pixels,faces,previous);
   previous=value.next||null;
   const comparison=value.rgb?self.PalevieDrapeMeasure.compare(value.rgb,data.colors):null;
