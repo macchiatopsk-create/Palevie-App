@@ -23,3 +23,12 @@ export function answerQuickState(state:QuickState,choice:number):QuickState{
 export function previousQuickState(state:QuickState):QuickState{
   const cursor=Math.max(0,state.cursor-1);return {picks:state.picks.map((p,i)=>i<cursor?p:null),cursor,completed:false};
 }
+
+/** The main Quiz entry is for questions, NOT a silent redirect to saved results.
+ * A previous result is shown only when explicitly requested.
+ */
+export function quickRouteState(current:QuickState,previous:QuickState,showResult:boolean,retake:boolean):QuickState{
+  if(retake)return initialQuickState();
+  if(showResult)return current.completed?current:previous.completed?previous:current;
+  return current.completed?initialQuickState():current;
+}
