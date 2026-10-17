@@ -3,8 +3,8 @@ import QuizHub from "@/components/QuizHub";
 import { pageMetadata } from "@/lib/pageMetadata";
 
 export const metadata = pageMetadata({
-  title: "Personal Color Quiz — Guided Face-Side Draping",
-  description: "Compare seven pairs of warm/cool, light/deep and clear/soft colors beside your face in a mirror or on-device camera. See a provisional seasonal direction where observations agree.",
+  title: "7-Question Color Quiz & Camera Draping — Palevie",
+  description: "Take a quick seven-question color quiz, then optionally compare colors beside your face using the on-device Live Guide, mirror, or deeper draping comparisons.",
   path: "/quiz",
 });
 export default function QuizPage(){
