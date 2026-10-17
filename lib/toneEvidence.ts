@@ -24,7 +24,7 @@ export const DRAPE_QUESTIONS = [
    colors:[{label:"Light mist blue",hex:"#BDD3DF"},{label:"Deep muted blue",hex:"#405C77"}]},
   {id:"chroma_teal",axis:"chroma",title:"Clear or softened teal?",
    note:"A second brightness test in a different color family. Watch for the cloth stealing attention from your face.",
-   colors:[{label:"Clear teal",hex:"#167F7B"},{label:"Softened teal",hex:"#738E88"}]},
+   colors:[{label:"Clear teal",hex:"#167F7B"},{label:"Softened teal",hex:"#547772"}]},
   {id:"temp_green",axis:"temperature",title:"Yellow-green or blue-green?",
    note:"Final undertone check in the green family. If both make the face look similarly even, choose Can't tell.",
    colors:[{label:"Yellow-green (warm)",hex:"#79A45C"},{label:"Blue-green (cool)",hex:"#4AAB9A"}]},
@@ -66,7 +66,12 @@ export function assessEvidence(answers:readonly EvidenceChoice[]):EvidenceResult
   const t=axes.temperature.state,v=axes.value.state,c=axes.chroma.state;
   let candidate:EvidenceResult["candidate"]=null;
   if((t==="first"||t==="second")&&(v==="first"||v==="second")&&(c==="first"||c==="second")){
-    candidate=t==="first"?(c==="first"?"spring":"autumn"):(c==="first"?"winter":"summer");
+    // The classical four-season directions also have characteristic depth.
+    // Conflicting depth is not forced into a named season.
+    if(t==="first"&&c==="first"&&v==="first")candidate="spring";
+    if(t==="first"&&c==="second"&&v==="second")candidate="autumn";
+    if(t==="second"&&c==="second"&&v==="first")candidate="summer";
+    if(t==="second"&&c==="first"&&v==="second")candidate="winter";
   }
   const likedColors=DRAPE_QUESTIONS.flatMap((q,i)=>answers[i]===0||answers[i]===1?[q.colors[answers[i]].hex]:[]);
   return {axes,candidate,likedColors,answered:answers.filter(a=>a===0||a===1).length,uncertain:answers.filter(a=>a===-1).length};
