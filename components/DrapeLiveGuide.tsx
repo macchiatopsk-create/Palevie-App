@@ -134,6 +134,13 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
  const comparison=active&&phase==="running"&&view.pair===pair&&!obstructed?view.held?.comparison:null;
  const message=MESSAGES[view.pair===pair?view.status:"settling"]||MESSAGES.settling;
  const lookScore=scoreDrapeLook(comparison,goal);
+ // Give a trustworthy indication of what the scanner actually checked,
+ // instead of drawing numbered skin sampling dots on the user's face.
+ const regionStatus=lookScore&&view.status==="held"
+  ? "✓ Three regions checked: forehead and both cheeks"
+  : active&&phase==="running"&&sample?.points?.length===3
+   ? "Face detected · checking light and skin-area visibility"
+   : active&&phase==="running"?"Looking for one clearly visible face":null;
  return <>
   {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
   {/* Face landmark rings (including the forehead marker) are hidden from users.
@@ -165,6 +172,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       </div>
 
      </div>
+     {regionStatus&&<p className={styles.regionStatus} role="status">{regionStatus}</p>}
      {phase==="error"&&<p className={styles.scanError} role="alert">{scanError}</p>}
      <div className={styles.recommendation} data-guide-comparison data-look-recommendation>
       <strong>{!lookScore?"Check your camera view first":lookScore.preferred===null?"Too close to choose":`Try ${colors[lookScore.preferred].label} first`}</strong>
