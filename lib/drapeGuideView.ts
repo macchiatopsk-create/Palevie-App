@@ -11,10 +11,17 @@ export const GUIDE_MOTION_GRACE_MS=3000;
 export function emptyGuideView(pair:string):GuideView {
  return {pair,status:"settling",pending:"",pendingSince:0,badSince:null,held:null};
 }
-/** Same transform as video CSS: contain, center top, horizontal selfie mirror. */
+/** Coordinates MUST match the actual camera CSS:
+ * .camera-drape-video {object-fit:cover;object-position:50% 44%;transform:scaleX(-1)}
+ * The old "contain" mapping incorrectly drew cheek readings on eyebrows/hat
+ * and could falsely gate a clear face as covered by the color band.
+ */
 export function mapGuidePoint(p:GuidePoint,l:GuideLayout):GuidePoint {
- const scale=l.vw&&l.vh?Math.min(l.width/l.vw,l.height/l.vh):0;
- return {x:l.width-(p.x*l.vw*scale+(l.width-l.vw*scale)/2),y:p.y*l.vh*scale,r:p.r*l.vw*scale};
+ if(!l.vw||!l.vh||!l.width||!l.height)return {x:0,y:0,r:0};
+ const scale=Math.max(l.width/l.vw,l.height/l.vh);
+ const xOffset=(l.width-l.vw*scale)*0.5;
+ const yOffset=(l.height-l.vh*scale)*0.44;
+ return {x:l.width-(p.x*l.vw*scale+xOffset),y:p.y*l.vh*scale+yOffset,r:p.r*l.vw*scale};
 }
 export function patchObstructed(points:GuidePoint[],l:GuideLayout):boolean {
  return points.some(p=>p.x-p.r<0||p.x+p.r>l.width||p.y-p.r<0||p.y+p.r>=l.clothTop-4);
