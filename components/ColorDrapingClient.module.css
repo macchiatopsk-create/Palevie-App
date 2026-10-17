@@ -47,3 +47,16 @@
 .action{background:#FF5C8A;color:#fff!important;border-radius:14px}
 .action:hover{background:#E95180}
 @media(max-width:440px){.mirrorColor{height:105px}.mirrorOptions{gap:8px}}
+
+/* Scan versus mirror must be the first obvious action, not small controls buried under instructions. */
+.headlineIntro{font-size:13px!important;line-height:1.45!important;margin:4px 0 14px!important;color:#76516a!important}
+.methodCards{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:14px 0 10px}
+.cameraCard,.mirrorCard{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-height:115px;border:1px solid #d57ca6;border-radius:17px;padding:15px;text-align:left;cursor:pointer;font-family:inherit}
+.cameraCard{background:linear-gradient(140deg,#d04e86,#9e386d);color:white;box-shadow:0 9px 22px #8d31693b}
+.mirrorCard{background:#fff0f7;color:#6b3855;border-color:#dfb4cc}
+.cameraCard strong,.mirrorCard strong{font-size:14px;letter-spacing:.015em;line-height:1.4;display:flex;width:100%;justify-content:space-between}
+.cameraCard small,.mirrorCard small{font-size:11px;line-height:1.4;opacity:.92}
+.cameraCard:focus-visible,.mirrorCard:focus-visible{outline:3px solid #8b4473;outline-offset:3px}
+.comparisonHead{margin:7px 0}
+.comparisonHead .note{margin:4px 0 12px}
+@media(max-width:390px){.methodCards{gap:8px}.cameraCard,.mirrorCard{padding:12px;min-height:106px}.cameraCard strong,.mirrorCard strong{font-size:12px}}
