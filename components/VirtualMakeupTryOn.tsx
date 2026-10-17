@@ -2,18 +2,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker, NormalizedLandmark } from "@mediapipe/tasks-vision";
 import type { CatalogProduct } from "@/lib/types";
+import {makeupTryOnArea,type MakeupTryOnArea} from "@/lib/tryOnEligibility";
+import {verifiedAmazonOffer} from "@/lib/shopEligibility";
 import { getVisitorId, track } from "@/lib/analytics";
 import styles from "./VirtualMakeupTryOn.module.css";
 
-type Area = "lip" | "blush" | "eyeshadow";
+type Area = MakeupTryOnArea;
 type Selected = Partial<Record<Area, CatalogProduct>>;
 type Point = Pick<NormalizedLandmark, "x"|"y">;
-const labels:Record<Area,string>={lip:"Lips",blush:"Cheeks",eyeshadow:"Eyes"};
-const areas:Area[]=["lip","blush","eyeshadow"];
-const isArea=(p:CatalogProduct):Area|null =>
-  p.subcategory==="lip"||p.subcategory==="gloss"?"lip":
-  p.subcategory==="blush"?"blush":
-  p.subcategory==="eyeshadow"?"eyeshadow":null;
+const labels:Record<Area,string>={lip:"Lips",blush:"Cheeks",eyeshadow:"Eyes",highlighter:"Glow",cushion:"Base"};
+const areas:Area[]=["lip","blush","eyeshadow","highlighter","cushion"];
+const isArea=makeupTryOnArea;
 const contourOuter=[61,40,37,0,267,270,291,321,314,17,84,91];
 const contourInner=[78,95,88,178,87,14,317,402,318,324,308,415,310,311,312,13,82,81,80,191];
 function rgb(hex:string) {
@@ -104,11 +103,52 @@ function drawEye(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:
     ctx.restore();
   }
 }
+/** A restrained illustrated complexion tint — not a foundation shade match.
+ * Soft patches avoid painting the eyes, hair or mouth with a solid face oval.
+ */
+function drawComplexion(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
+  if([10,152,234,454,205,425,168].some(i=>!pts[i]))return;
+  const [r,g,b]=rgb(hex);
+  const faceWidth=Math.abs(pts[454].x-pts[234].x)*w;
+  const faceHeight=Math.abs(pts[152].y-pts[10].y)*h;
+  if(faceWidth<20||faceHeight<20)return;
+  const paint=(x:number,y:number,rx:number,ry:number,opacity:number)=>{
+    ctx.save();ctx.translate(x,y);ctx.scale(1,ry/rx);
+    const gradient=ctx.createRadialGradient(0,0,0,0,0,rx);
+    gradient.addColorStop(0,`rgba(${r},${g},${b},${(opacity*intensity).toFixed(3)})`);
+    gradient.addColorStop(.6,`rgba(${r},${g},${b},${(opacity*.54*intensity).toFixed(3)})`);
+    gradient.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();ctx.restore();
+  };
+  for(const i of [205,425])paint(pts[i].x*w,pts[i].y*h,faceWidth*.22,faceHeight*.16,.23);
+  paint(pts[168].x*w,(pts[10].y*.58+pts[168].y*.42)*h,faceWidth*.26,faceHeight*.13,.13);
+}
+function drawHighlight(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
+  if([205,425,168,234,454,10,152].some(i=>!pts[i]))return;
+  const [r,g,b]=rgb(hex);
+  const faceWidth=Math.abs(pts[454].x-pts[234].x)*w;
+  const faceHeight=Math.abs(pts[152].y-pts[10].y)*h;
+  if(faceWidth<20||faceHeight<20)return;
+  const glow=(x:number,y:number,rx:number,ry:number)=>{
+    ctx.save();ctx.translate(x,y);ctx.scale(1,ry/rx);
+    const gradient=ctx.createRadialGradient(0,0,0,0,0,rx);
+    gradient.addColorStop(0,`rgba(${r},${g},${b},${(.36*intensity).toFixed(3)})`);
+    gradient.addColorStop(.35,`rgba(${r},${g},${b},${(.19*intensity).toFixed(3)})`);
+    gradient.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();ctx.restore();
+  };
+  for(const i of [205,425])glow(pts[i].x*w,pts[i].y*h-faceHeight*.05,faceWidth*.19,faceHeight*.065);
+  glow(pts[168].x*w,pts[168].y*h,faceWidth*.042,faceHeight*.12);
+}
+
 function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number,presetStrength:number) {
   ctx.clearRect(0,0,w,h);
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
+  const highlight=selected.highlighter?.colorHex,base=selected.cushion?.colorHex;
+  if(base)drawComplexion(ctx,pts,w,h,base,Math.min(1,intensity*presetStrength));
   if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.5,intensity*presetStrength));
   if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.5,intensity*presetStrength));
+  if(highlight)drawHighlight(ctx,pts,w,h,highlight,Math.min(1.5,intensity*presetStrength));
   if(lip && !selected.lip?.name.toLowerCase().includes("crystal clear")) {
     // Gloss/oil tints are substantially more transparent than lipstick.
     const sheer=selected.lip?.subcategory==="gloss";
@@ -223,8 +263,8 @@ export default function VirtualMakeupTryOn({
   const colorSource=current?.tags.includes("brand-digital-swatch")
     ? "Brand digital swatch reference (screen RGB, not measured skin color)."
     : "Approximate illustrative preview — product swatch not yet verified.";
-  const buy=current?.offers[0];
-  const direct=Boolean(buy?.affiliateReady && buy.url.includes("/dp/"));
+  const buy=current?verifiedAmazonOffer(current):undefined;
+  const direct=Boolean(buy);
   return <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Palevie virtual makeup">
     <div className={styles.inner}>
       <header className={styles.header}><div><strong>Virtual Makeup Studio</strong><small>Try real shade names on your face</small></div><button onClick={onClose} aria-label="Close makeup studio" className={styles.close}>×</button></header>
@@ -232,7 +272,7 @@ export default function VirtualMakeupTryOn({
         <video ref={videoRef} autoPlay muted playsInline className={styles.video}/>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden/>
         {status!=="live"&&<div className={styles.center}>
-          <span className={styles.camIcon}>✦</span><b>Your personal makeup mirror</b><p>Apply lipstick, blush, and eyeshadow in one live camera view.</p>
+          <span className={styles.camIcon}>✦</span><b>Your personal makeup mirror</b><p>Preview lips, cheeks, eyes, glow, and base color in a private live camera view.</p>
           <button disabled={status==="loading"} onClick={start} className={styles.start}>{status==="loading"?"Preparing camera & face tracker…":"Enable camera & try on"}</button>
           {status==="error"&&<p role="alert">{message}</p>}
         </div>}
@@ -240,7 +280,7 @@ export default function VirtualMakeupTryOn({
           <span>{detected?"Face tracked · Preview":"Move into the frame"}</span>
           <button onClick={()=>setBefore(b=>!b)}>{before?"Show makeup":"Before / After"}</button>
         </div>}
-        <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Approximate shades, not exact cosmetic results.</p>
+        <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Illustrative digital tint only, not a real foundation match or exact product finish.</p>
       </div>
       <div className={styles.controls}>
         <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
