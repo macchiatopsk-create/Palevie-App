@@ -159,3 +159,34 @@
 /* Previous results are always optional: the Quiz tab opens actual questions. */
 .savedResultLink{display:flex;width:100%;max-width:100%;min-height:47px;align-items:center;justify-content:center;padding:10px 12px;margin-top:11px;border:1px solid #e6bfd2;border-radius:12px;background:#fff;color:#7c4363;font-weight:750;font-size:12px;line-height:1.4;text-decoration:none;text-align:center;overflow-wrap:break-word}
 .savedResultLink:focus-visible{outline:3px solid #bd76a0;outline-offset:3px}
+
+/* Camera entry belongs ABOVE the quiz, not below answer controls.
+   Keep it one thumb-friendly line/short wrap without covering Q1. */
+.quiz>.scanEntry{
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:0 0 18px;
+  min-height:56px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:1px solid #c75183;
+  border-radius:14px;
+  background:#d35e91;
+  color:#fff;
+  box-shadow:0 5px 15px rgba(160,59,112,.16);
+  text-align:center;
+  text-decoration:none;
+  font-size:14px;
+  line-height:1.45;
+  font-weight:800;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.quiz>.scanEntry>span{flex:none}
+.quiz>.scanEntry:focus-visible{outline:3px solid #71334d;outline-offset:3px}
+@media(max-width:420px){.quiz>.scanEntry{font-size:13px;padding:12px 10px;min-height:54px}}
