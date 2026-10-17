@@ -41,3 +41,9 @@
 .presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .preset,.presetActive{border:1px solid #e7cfda;background:#fff;color:#6c4a60;border-radius:14px;padding:10px 8px;font-size:12px;font-weight:700;cursor:pointer}
 .presetActive{background:#7d4768;color:#fff;border-color:#7d4768}
+
+/* Five genuinely renderable cosmetic preview areas. Never substitute skincare Try On. */
+.tabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.tabs button{min-width:0;padding:11px 5px;font-size:11px;line-height:1.3;white-space:normal;overflow-wrap:break-word;min-height:47px}
+.selected{min-width:0}.selected>div:last-child{flex:1;min-width:0;overflow-wrap:anywhere}
+@media(max-width:365px){.tabs{gap:3px}.tabs button{font-size:10px;padding:9px 3px}}
