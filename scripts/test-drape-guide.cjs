@@ -21,6 +21,15 @@ test('strong left/right image difference is gated',()=>{const im=image([100,100,
 test('head tilt and turn are gated',()=>{let l=landmarks();l[263].y=.55;assert.equal(M.inspect(image(),[l],null).status,'pose');l=landmarks();l[1].x=.65;assert.equal(M.inspect(image(),[l],null).status,'pose');});
 test('camera color shift discards comparison',()=>{const s=steady([140,140,140]);const x=M.inspect(image([170,140,140]),[landmarks()],s.next);assert.equal(x.status,'changed');assert.equal(x.rgb,null);});
 test('cover mapping matches mirrored, cropped video',()=>{const p=M.coverPoint({x:.25,y:.5,r:.05},640,480,300,400,true);assert.ok(Math.abs(p.x-283.333333)<.001);assert.equal(p.y,200);assert.ok(p.r>26&&p.r<27);});
+test('face landmarks measure privately without drawing a forehead marker on preview',()=>{
+ const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
+ assert(src.includes('patchObstructed(mapped,layout)'), 'measurement geometry must remain');
+ assert(!src.includes('className={styles.overlay}'), 'no numbered forehead/cheek scan rings');
+ assert(!src.includes('<circle className={styles.ring}'), 'no forehead tracking dot');
+ assert(!src.includes('<text className={styles.label}'), 'no facial point numbers');
+ const camera=src.indexOf('   {children}'),dock=src.indexOf('   <div className={styles.dock}');
+ assert(camera>=0&&dock>camera, 'scan controls/status must render after camera, not over face');
+});
 test('guide component has no storage or analytics calls',()=>{const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');assert.ok(!/localStorage|sessionStorage|indexedDB|\btrack\(|\/api\//.test(src));assert.ok(src.includes('worker?.terminate()'));assert.ok(src.includes('bitmap?.close()')||src.includes('bitmap.close()'));assert.ok(src.includes('visibilitychange'));});
 (async()=>{
  const calls=[],messages=[];let closed=false,bitmapClosed=false;
