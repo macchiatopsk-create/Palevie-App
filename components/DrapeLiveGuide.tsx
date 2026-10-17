@@ -23,7 +23,8 @@ const MESSAGES:Record<string,[string,string]>={
  changed:["Let the camera settle","Rest your elbow and hold comfortably for a moment. We will wait for a steady comparison."],
  settling:["Checking your view","Hold comfortably for a moment. The comparison will stay still once it is ready."],
  held:["Comparison held","This is your last steady comparison, not a changing live score. Read at your pace, or refresh for a new reading."],
- obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."]
+ obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."],
+ "forehead-covered":["Forehead may be covered or shadowed","Move your hat or hair away from your forehead and avoid strong shadow. The scan will not score this view."]
 };
 export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide}:{
  videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;
