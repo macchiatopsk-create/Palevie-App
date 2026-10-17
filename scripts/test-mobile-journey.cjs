@@ -1,5 +1,5 @@
-/* Real Chromium/WebKit against a local production build. Auth, camera input and
- * third-party destinations are simulated. Never calls a live customer API. */
+/* Actual Chromium/WebKit on a local production build. Auth and camera inputs
+ * are simulated. Inspect local redirect headers without following Amazon. */
 const assert=require('node:assert/strict');
 const {chromium,webkit,devices}=require('playwright');
 const BASE='http://127.0.0.1:3100',AUTH='https://palevie-regression.invalid',summary=[];
@@ -10,10 +10,26 @@ async function runCase(browser,engine,name,fn,options={}){
  await context.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url());
   const json=(body,status=200)=>route.fulfill({status,contentType:'application/json',headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET,POST,PUT,DELETE,OPTIONS'},body:JSON.stringify(body)});
-  if(url.origin===BASE){if(url.pathname==='/api/events'){events.push(req.postDataJSON());return json({ok:true});}if(url.pathname==='/api/explain')return json({mode:'deterministic',summary:null});if(url.pathname==='/api/diagnose')throw Error('No paid/photo requests allowed');return route.continue();}
+  if(url.origin===BASE){
+   if(url.pathname==='/api/events'){events.push(req.postDataJSON());return json({ok:true});}
+   if(url.pathname==='/api/explain')return json({mode:'deterministic',summary:null});
+   if(url.pathname==='/api/diagnose'){errors.push('Unexpected optional photo request');return json({error:'Blocked test request'},503);}
+   if(url.pathname.startsWith('/go/')){
+    // Browser routing can apply to only the initial request in a redirect chain.
+    // Fetch the LOCAL handler with redirects disabled; never continue to Amazon.
+    const response=await route.fetch({maxRedirects:0});
+    const location=response.headers().location;
+    if(![302,307].includes(response.status())||!location){errors.push('Missing retailer redirect');return json({error:'Missing redirect'},502);}
+    const target=new URL(location,BASE);
+    if(target.protocol!=='https:'||!['amazon.com','www.amazon.com'].includes(target.hostname)||!/^\/dp\/[A-Z0-9]{10}\/?$/i.test(target.pathname))errors.push('Redirect is not an exact Amazon item page');
+    destinations.push(target.href);
+    return route.fulfill({status:200,contentType:'text/html',body:'<p>Local retailer redirect verified. External listing and checkout were not loaded.</p>'});
+   }
+   return route.continue();
+  }
   if(url.origin===AUTH){
    if(req.method()==='OPTIONS')return json({});
-   // Store path/method only; never log passwords, auth bodies or tokens.
+   // Path/method only. Never record password payloads or tokens.
    authCalls.push({path:url.pathname,method:req.method()});
    if(url.pathname.endsWith('/token'))return json({error:'invalid_grant',error_description:'Invalid login credentials'},400);
    if(url.pathname.endsWith('/signup'))return json({user:session.user,session:null});
@@ -21,14 +37,14 @@ async function runCase(browser,engine,name,fn,options={}){
    if(url.pathname.includes('/rest/'))return json(url.pathname.endsWith('/profiles')?null:[]);
    return json({});
   }
-  if(/(^|\.)amazon\.com$/.test(url.hostname)){destinations.push(url.href);return route.fulfill({status:200,contentType:'text/html',body:'<p>Intercepted test destination. No live Amazon listing or checkout.</p>'});}
+  if(/(^|\.)amazon\.com$/.test(url.hostname))errors.push('Test unexpectedly attempted an external Amazon request');
   return route.abort();
  });
  if(options.signedIn)await context.addInitScript(({session})=>localStorage.setItem('sb-palevie-regression-auth-token',JSON.stringify(session)),{session});
  if(options.blockStorage)await context.addInitScript(()=>{for(const method of ['getItem','setItem','removeItem'])Object.defineProperty(Storage.prototype,method,{value(){throw new DOMException('Test blocked storage','SecurityError');}});});
  const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));
  try{await fn({page,context,events,authCalls,destinations,session});assert.deepEqual(errors,[],engine+' '+name+' browser errors');summary.push({engine,name,status:'PASS'});console.log('BROWSER_PASS '+engine+' '+name);}
- catch(error){console.error('BROWSER_FAIL '+engine+' '+name+' '+error.message);console.error('PAGE_STATE '+(await page.locator('body').innerText().catch(()=>'' )).slice(0,2200));throw error;}
+ catch(error){summary.push({engine,name,status:'FAIL'});console.error('BROWSER_FAIL '+engine+' '+name+' '+error.message);console.error('BROWSER_ERRORS '+JSON.stringify(errors));console.error('PAGE_STATE '+(await page.locator('body').innerText().catch(()=>'' )).slice(0,2200));}
  finally{await context.close();}
 }
 async function completeQuiz(page){
@@ -69,5 +85,8 @@ async function cameraStub(context,mode){
    }
   }finally{await browser.close();}
  }
- console.log('MOBILE_JOURNEY_PASS '+JSON.stringify({cases:summary.length,results:summary,scope:'local production build; mobile emulation; auth/camera/Amazon simulated; no production events'}));
+ const failed=summary.filter(s=>s.status==='FAIL');
+ console.log('MOBILE_JOURNEY_RESULT '+JSON.stringify({cases:summary.length,failed:failed.length,results:summary,scope:'local production build; mobile emulation; auth/camera simulated; retailer Location checked without following; no production events'}));
+ assert.equal(failed.length,0,'All mobile journeys must pass');
+ console.log('MOBILE_JOURNEY_PASS '+summary.length);
 })().catch(error=>{console.error(error.stack||error);process.exitCode=1;});

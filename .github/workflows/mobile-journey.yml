@@ -32,7 +32,8 @@ jobs:
       - name: Install isolated browser tools
         run: |
           npm install --prefix "$RUNNER_TEMP/palevie-playwright" --no-audit --no-fund --ignore-scripts playwright@1.56.1
-          node "$RUNNER_TEMP/palevie-playwright/node_modules/playwright/cli.js" install --with-deps chromium webkit
+          node "$RUNNER_TEMP/palevie-playwright/node_modules/playwright/cli.js" install --with-deps chromium webkit > "$RUNNER_TEMP/browser-install.log" 2>&1 || { tail -80 "$RUNNER_TEMP/browser-install.log"; exit 1; }
+          echo "Chromium and WebKit installed."
       - name: Test local mobile journeys without customer traffic
         run: |
           npm run start -- --hostname 127.0.0.1 --port 3100 > "$RUNNER_TEMP/palevie-server.log" 2>&1 &
