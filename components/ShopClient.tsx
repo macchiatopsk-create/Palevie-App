@@ -75,7 +75,7 @@ export default function ShopClient(){
     {tab!=="clothes"&&<><div style={{display:"flex",alignItems:"center",gap:10,margin:"9px 0 14px"}}><label htmlFor="brand-filter" style={{fontSize:12}}>Brand</label><select id="brand-filter" value={brandFilter} onChange={e=>setBrandFilter(e.target.value)} style={{minWidth:0,width:"100%",border:"1px solid #ebccd8",borderRadius:12,background:"#fff",color:"#5A254B",padding:"11px 12px"}}><option value="">All brands ({brands.length})</option>{brands.map(b=><option value={b} key={b}>{b}</option>)}</select></div><p className="sh-shop-explainer">Each listed product has its own reviewed Amazon item link. Current shade selection, stock and price must be confirmed on Amazon.</p></>}
     {tab!=="clothes"&&<div className={styles.tryOnFilterRow}>
       <button type="button" className={tryOnOnly?styles.filterActive:styles.filterButton} aria-pressed={tryOnOnly}
-        onClick={()=>{setTryOnOnly(v=>!v);track("shop_tryon_filter_toggled",{enabled:!tryOnOnly});}}>
+        onClick={()=>setTryOnOnly(v=>!v)}>
         ◎ {tryOnOnly?"Showing Try On items":"Only Try On items"} <span>→</span>
       </button>
       <span>Live previews: lips, cheeks, eyes, glow & base</span>
