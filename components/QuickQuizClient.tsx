@@ -138,7 +138,7 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
       {paletteFeedback === "unsure" && <small>Seeing colors near your face may help. You can also go directly to Shop.</small>}
       {paletteFeedback === "yes" && <small>Great. Explore visually similar makeup swatches below.</small>}
     </div>
-    <VerifiedShadePicks referenceHex={palette.colors[1]} surface="quick_result" />
+    {paletteFeedback !== "no" && <VerifiedShadePicks referenceHex={palette.colors[1]} surface="quick_result" />}
     <div className={styles.drapeCallout}>
       <span className={styles.drapeEyebrow}>OPTIONAL · CAMERA OR MIRROR</span>
       <h3>See colors beside your face.</h3>
