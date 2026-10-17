@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import CameraDrape from "./CameraDrape";
 import VerifiedShadePicks from "./VerifiedShadePicks";
-import {getVisitorId,track} from "@/lib/analytics";
+import {track} from "@/lib/analytics";
 import {readStoredJson,safeStorage} from "@/lib/safeStorage";
 import {saveDiscoveryPreferences} from "@/lib/discoveryPreferences";
 import {DRAPE_QUESTIONS,EVIDENCE_COUNT,EVIDENCE_KEY,initialEvidence,normalizeEvidence,recordEvidence,backEvidence,assessEvidence,type Axis,type EvidenceState} from "@/lib/toneEvidence";
@@ -24,7 +24,7 @@ const SEASONS={
 export default function ToneEvidenceQuiz(){
   const [quiz,setQuiz]=useState<EvidenceState>(initialEvidence),[ready,setReady]=useState(false),[method,setMethod]=useState<"mirror"|"camera">("mirror"),[side,setSide]=useState(0),[prepared,setPrepared]=useState(false);
   const lock=useRef(0);
-  useEffect(()=>{setQuiz(normalizeEvidence(readStoredJson(EVIDENCE_KEY)));setReady(true);},[]);
+  useEffect(()=>{setQuiz(normalizeEvidence(readStoredJson(EVIDENCE_KEY)));setReady(true);track("quiz_intro_shown",{variant:"face_drape_7"});},[]);
   useEffect(()=>{if(ready)safeStorage.setItem(EVIDENCE_KEY,JSON.stringify(quiz));},[ready,quiz]);
   function choose(value:0|1|-1){
     const now=Date.now();if(!ready||!prepared||quiz.completed||now-lock.current<250)return;
@@ -72,7 +72,7 @@ export default function ToneEvidenceQuiz(){
       <p>Professional color consultations compare drapes near the face under stable lighting. This seven-pair at-home version tests <b>warm/cool, light/deep and clear/soft</b> using screen color examples.</p>
       <div className={styles.prepNotes}><p><b>1.</b> Face a window with even indirect daylight. Avoid direct sun, colorful lamps and beauty filters.</p><p><b>2.</b> Remove strongly colored makeup and keep hair and clothes away from the cheek area if possible.</p><p><b>3.</b> Use a mirror with the screen held beside your face or a front-camera preview. Compare each shade at the same distance, ideally A → B → A.</p><p><b>4.</b> Look for less shadow, more even skin and a face that stays prominent. If you cannot see a difference, choose Can't tell.</p></div>
       <p className={styles.caveat}>A phone screen is not calibrated professional fabric. The result reflects your observations, and can remain inconclusive; we do not promise a verified 12- or 16-season diagnosis.</p>
-      <button type="button" className={styles.primary} onClick={()=>{setPrepared(true);track("quiz_intro_started",{variant:"face_drape_7"});}}>Start face-side comparisons →</button>
+      <button type="button" className={styles.primary} onClick={()=>{setPrepared(true);track("quiz_intro_started",{variant:"face_drape_7"});track("tone_evidence_started",{version:1,method:"self_observed_draping"});}}>Start face-side comparisons →</button>
     </div>:<>
       <div className={styles.progress}><span style={{width:`${quiz.step/EVIDENCE_COUNT*100}%`}}/></div>
       <p className={styles.counter}>{quiz.step+1} / {EVIDENCE_COUNT} · {AXIS_NAMES[question.axis][2]} comparison</p>
