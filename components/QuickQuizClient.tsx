@@ -114,6 +114,10 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
   return <section className={styles.quiz} aria-label="Quick color explorer">
+    <Link className={styles.scanEntry} href="/quiz?mode=draping&method=camera"
+      onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
+      <span aria-hidden="true">◎</span> Camera color scan & live guide <span aria-hidden="true">→</span>
+    </Link>
     <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 className={styles.question}>{question.text}</h2>
@@ -121,7 +125,6 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
     <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
     {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{setQuiz(previousQuickState(quiz));lastAction.current=Date.now();}}>← Previous question</button>}
-    <Link className={styles.scanEntry} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan"})}>◎ Prefer a camera color check? Open Live Guide →</Link>
     {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
     <p className={styles.footer}>Free · 7 questions · No signup</p>
   </section>;

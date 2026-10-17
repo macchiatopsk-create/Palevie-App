@@ -32,4 +32,15 @@ assert(quick.includes("Loading seven-question color quiz"));
 assert(page.includes('export const dynamic="force-dynamic"'));
 assert(page.includes("QUIZ_QUESTIONS[QUICK_INDEXES[0]]"));
 assert(!page.includes("fallback={null}"));
+const card=quick.indexOf('return <section className={styles.quiz} aria-label="Quick color explorer">');
+const camera=quick.indexOf('href="/quiz?mode=draping&method=camera"',card);
+const question=quick.indexOf('YOUR 7-QUESTION COLOR QUIZ',card);
+const progress=quick.indexOf('className={styles.progress}',card);
+assert(card>=0 && camera>card && camera<question && question<progress,
+  "Camera scan button must be directly above the seven-question UI, not after question choices.");
+assert(quick.includes('source:"quick_quest_scan_top"'),
+  "Camera CTA must preserve attribution after being moved.");
+assert.equal((quick.slice(card).match(/className=\{styles.scanEntry\}/g)||[]).length,1,
+  "Camera CTA must not be duplicated under the questions.");
+
 console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; 9 route/render invariants; Q1 by default, previous result optional.");
