@@ -35,7 +35,7 @@ export function advanceGuideView(previous:GuideView,input:{pair:string;status:st
   return {...s,status:"held",pending:"",pendingSince:0,badSince:null,
    held:s.held||{comparison:{gaps:[...input.comparison.gaps],blended:input.comparison.blended},measuredAt:now}};
  }
- if(["no-face","multiple","cropped","clipped","obstructed","expired"].includes(status)){
+ if(["no-face","multiple","cropped","clipped","obstructed","forehead-covered","expired"].includes(status)){
   return {...emptyGuideView(input.pair),status:status==="expired"?"settling":status};
  }
  const pending=s.pending===status?s.pending:status;
