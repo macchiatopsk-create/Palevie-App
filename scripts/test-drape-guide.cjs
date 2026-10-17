@@ -26,7 +26,7 @@ test('guide component has no storage or analytics calls',()=>{const src=fs.readF
  const calls=[],messages=[];let closed=false,bitmapClosed=false;
  const self={location:{href:'https://palevie.test/drape-tools/guide-worker.js',origin:'https://palevie.test'},fetch:async(url,opts)=>{calls.push({url,opts});return new Response('ok');},postMessage:m=>messages.push(m),close:()=>{closed=true;}};
  self.importScripts=(url)=>{if(url.endsWith('measure.js'))self.PalevieDrapeMeasure=M;else if(url.endsWith('vision_bundle.js'))self.exports={FilesetResolver:{forVisionTasks:async()=>({})},FaceLandmarker:{createFromOptions:async()=>({detectForVideo:()=>({faceLandmarks:[landmarks()]}),close:()=>{}})}};};
- const ctx={self,URL,Request,OffscreenCanvas:class{constructor(w,h){this.width=w;this.height=h;}getContext(){return {drawImage(){},getImageData(){return image();},clearRect(){}};}}};
+ const ctx={self,URL,Request,Uint8ClampedArray,ImageData:class{constructor(data,width,height){this.data=data;this.width=width;this.height=height;}},OffscreenCanvas:class{constructor(w,h){this.width=w;this.height=h;}getContext(){return {drawImage(){},putImageData(){},getImageData(){return image();},clearRect(){}};}}};
  // Worker globals are normally properties of self.
  Object.defineProperty(ctx,'importScripts',{get:()=>self.importScripts});
  vm.runInNewContext(fs.readFileSync(path.join(root,'public/drape-tools/guide-worker.js'),'utf8'),ctx);
@@ -43,6 +43,12 @@ test('guide component has no storage or analytics calls',()=>{const src=fs.readF
  const output=messages.at(-1);assert.equal(output.type,'measurement');assert.equal(output.status,'ready');assert.ok(output.comparison);assert.equal(bitmapClosed,true);
  assert.deepEqual(Object.keys(output).sort(),['comparison','pair','points','status','type']);
  console.log('PASS no image, full mesh, face color or identifiers in UI message');passed++;
+ // Android/WebView canvas path sends local RGBA instead of a video ImageBitmap.
+ for(let i=0;i<6;i++)await self.onmessage({data:{type:'frame',timestamp:3000+i*300,colors:[{hex:'#888888'},{hex:'#ffffff'}],pair:'mobile-pixels',pixels:{width:320,height:320,data:new Uint8ClampedArray(320*320*4)}}}});
+ const transferred=messages.at(-1);
+ assert.equal(transferred.type,'measurement');assert.equal(transferred.status,'ready');
+ assert.ok(transferred.comparison);assert.deepEqual(Object.keys(transferred).sort(),['comparison','pair','points','status','type']);
+ console.log('PASS worker processes Android canvas pixels without publishing camera frames');passed++;
  await self.onmessage({data:{type:'close'}});assert.equal(closed,true);
  console.log('PASS model/worker close');passed++;
  console.log(`${passed} Live Guide tests passed; no external data written.`);
