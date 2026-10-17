@@ -6,8 +6,8 @@ import DrapeLiveGuide from "./DrapeLiveGuide";
 import styles from "./CameraDrape.module.css";
 
 type Color={label:string;hex:string};
-export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onUseMirror,telemetry=true}:{
- colors:Color[];side:number;onSide:(next:number)=>void;onPick:()=>void;onCant:()=>void;
+export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,onPrev,onUseMirror,telemetry=true}:{
+ colors:Color[];side:number;onSide:(next:number)=>void;onPick:()=>void;onWorse?:()=>void;onCant:()=>void;
  onPrev?:()=>void;onUseMirror:()=>void;telemetry?:boolean;
 }){
  const videoRef=useRef<HTMLVideoElement>(null);
@@ -95,7 +95,8 @@ export default function CameraDrape({colors,side,onSide,onPick,onCant,onPrev,onU
   </DrapeLiveGuide>
   <p className="camera-drape-prompt"><b>Compare the effect, not a right answer.</b><br/>Switch shades on the camera itself. Live Guide suggests which to try for a Soft or Bold look; its scores are not a personal-color diagnosis. Use even daylight. Choose Honestly can&apos;t tell when unsure.</p>
   <div className="qz-actions camera-drape-actions">
-   <button type="button" className="dr-pick camera-drape-pick" onClick={onPick}>{MARK.check} This looks better</button>
+   <button type="button" className="dr-pick camera-drape-pick" onClick={onPick}>{MARK.check} Looks better</button>
+   {onWorse && <button type="button" className="camera-drape-link" onClick={onWorse}>Looks worse</button>}
    <button type="button" className="qz-skip dr-skip" onClick={onCant}>Honestly can&apos;t tell</button>
    <div className="camera-drape-subactions"><button type="button" className="camera-drape-link" onClick={onUseMirror}>Switch to mirror</button>{onPrev&&<button type="button" className="camera-drape-link" onClick={onPrev}>Previous question</button>}</div>
   </div>
