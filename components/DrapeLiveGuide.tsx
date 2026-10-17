@@ -135,10 +135,9 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
  const lookScore=scoreDrapeLook(comparison,goal);
  return <>
   {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
-  {active&&stage&&mapped.length===3&&!obstructed&&createPortal(
-   <svg className={styles.overlay} viewBox={`0 0 ${layout.width} ${layout.height}`} aria-hidden>
-    {mapped.map((p,i)=><g key={i}><circle className={styles.ring} cx={p.x} cy={p.y} r={p.r}/><text className={styles.label} x={p.x+p.r+4} y={p.y+3}>{i+1}</text></g>)}
-   </svg>,stage)}
+  {/* Face landmark rings (including the forehead marker) are hidden from users.
+       The worker still measures the same areas and applies all quality checks.
+       Scan status and recommendations are displayed in the panel below. */}
   <section className={styles.panel} aria-label="Palevie live comparison guide">
    <div className={styles.dock} data-guide-dock>
     <div className={styles.header}>
