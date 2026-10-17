@@ -1,6 +1,4 @@
-/* Minimal deterministic hook/DOM simulation for executing our component handlers.
- * Not React DOM, Safari, real camera hardware, or browser E2E.
- */
+/* Deterministic hook/DOM simulation. Not React DOM or physical-device E2E. */
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
 const root=path.resolve(__dirname,'..');
 function target(extra={}){const listeners=new Map();return {...extra,addEventListener(k,fn){const a=listeners.get(k)||[];a.push(fn);listeners.set(k,a);},removeEventListener(k,fn){listeners.set(k,(listeners.get(k)||[]).filter(x=>x!==fn));},emit(k){for(const fn of [...(listeners.get(k)||[])])fn({type:k});}};}
@@ -35,13 +33,14 @@ function harness(file,props={},options={}){
   vm.runInContext('(function(require,module,exports){'+code+'\n})',context,{filename:absolute})(req,module,module.exports);return module.exports;
  }
  const Component=load(file).default;
- function nodes(value=tree,result=[]){if(Array.isArray(value)){value.forEach(x=>nodes(x,result));return result;}if(!value||typeof value!=='object'||!value.props)return result;result.push(value);nodes(value.props.children,result);return result;}
+ // Undefined children are leaves, not a request to traverse the root again.
+ function nodes(value,result=[]){if(Array.isArray(value)){value.forEach(x=>nodes(x,result));return result;}if(!value||typeof value!=='object'||!value.props)return result;result.push(value);nodes(value.props.children,result);return result;}
  function text(value){if(Array.isArray(value))return value.map(text).join(' ');if(value==null||typeof value==='boolean')return '';return typeof value==='object'?text(value.props?.children):String(value);}
- function flush(){if(unmounted)return;let n=0;do{if(++n>30)throw Error('Unexpected render loop');dirty=false;cursor=0;tree=Component(props);for(const node of nodes())if(node.props.ref)node.props.ref.current=node.type==='video'?video:{};while(effects.length)effects.shift()();}while(dirty);return tree;}
+ function flush(){if(unmounted)return;let n=0;do{if(++n>30)throw Error('Unexpected render loop');dirty=false;cursor=0;tree=Component(props);for(const node of nodes(tree))if(node.props.ref)node.props.ref.current=node.type==='video'?video:{};while(effects.length)effects.shift()();}while(dirty);return tree;}
  async function settle(){for(let i=0;i<12;i++){await Promise.resolve();if(dirty)flush();}return tree;}
- function find(type,contains=''){const node=nodes().find(n=>n.type===type&&text(n.props.children).includes(contains));if(!node)throw Error('Missing '+type+' '+contains+' in '+text(tree));return node;}
+ function find(type,contains=''){const node=nodes(tree).find(n=>n.type===type&&text(n.props.children).includes(contains));if(!node)throw Error('Missing '+type+' '+contains+' in '+text(tree));return node;}
  function unmount(){unmounted=true;for(const slot of slots)slot?.cleanup?.();}
  function tick(ms){for(const [id,timer] of [...timers])if(timer.ms<=ms){timers.delete(id);timer.fn();}if(dirty)flush();}
- flush();return {flush,settle,find,nodes:()=>nodes(),text:()=>text(tree),video,doc,win,events,timers,tick,unmount};
+ flush();return {flush,settle,find,nodes:()=>nodes(tree),text:()=>text(tree),video,doc,win,events,timers,tick,unmount};
 }
 module.exports={harness,deferred,cameraStream};
