@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/pageMetadata";
 
 export const metadata = pageMetadata({
   title: "Palevie — Personal Color, Beauty & Shopping",
-  description: "Explore your personal color direction with seven guided face-side shade comparisons, optional on-device camera draping and reviewed Amazon beauty product links.",
+  description: "Start with a seven-question color quiz, then check shades beside your face by private live camera guide or mirror. Browse reviewed Amazon beauty product links.",
   path: "/",
 });
 

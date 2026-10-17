@@ -175,9 +175,9 @@ export default function HomeClient() {
               <img src="/img/popup-hero.svg" alt="" />
             </div>
             <div className="qp-body">
-              <span className="qp-kicker">7 face-side color comparisons</span>
-              <h2 id="qp-title">Which shades actually flatter your face?</h2>
-              <p>Compare warm/cool, light/deep and clear/soft colors beside your face. Your observations, not your favorite shade, guide the result.</p>
+              <span className="qp-kicker">7-question color quiz · Optional camera</span>
+              <h2 id="qp-title">Start with your colors.</h2>
+              <p>Answer seven quick questions, then compare shades with the camera or a mirror.</p>
               <Link className="qp-cta" href="/quiz" onClick={startQuizFromPopup}>Start the free quiz <b>›</b></Link>
               <button className="qp-later" type="button" onClick={() => dismissQuizPopup("later")}>Maybe later</button>
               <label className="qp-hide">

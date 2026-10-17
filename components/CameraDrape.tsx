@@ -78,15 +78,15 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
   if(status!=="live")return <div className="camera-drape camera-drape-setup"><div className="camera-drape-kicker"><span>Live Draping</span><small>On-device preview</small></div><h3>See colors beside your face</h3><p>Use even daylight. Camera video stays on this device; the mirror option is always available.</p>{embedded&&<p className="microcopy">Inside Instagram or Facebook? If the camera is blocked, open palevie.com in Safari or Chrome, or continue with a mirror here.</p>}{status==="error"&&<p className="camera-drape-error" role="alert">{errorText}</p>}<button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>{status==="starting"?"Waiting for camera permission…":"Turn on front camera"}</button><button type="button" className="camera-drape-link" onClick={useMirror}>Use a mirror instead</button><small>No photos saved or uploaded by this live preview</small></div>;
   return <div className="camera-drape camera-drape-live"><div className="camera-drape-livebar"><span><b>Live Draping</b><small>Compare colors beside your face</small></span><em>On-device</em></div><p className={styles.comfort}>Hold the phone comfortably. Your face does not need to fit the outline.</p>
     {hideGuide ? <>
-      <div className="camera-drape-switch" role="group" aria-label="Choose color to compare">
-        {colors.slice(0,2).map((c,i)=><button key={c.hex} type="button" onClick={()=>chooseSide(i)}
-          aria-pressed={side===i} style={{background:side===i?"#ffe4f0":"#fff",color:"#57374b",border:"1px solid #d5a1b9",borderRadius:12,minHeight:44,padding:"10px 14px",margin:5,fontWeight:700}}>
-          {c.label}{side===i?" ✓":""}
-        </button>)}
-      </div>
       <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}><video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted onPlaying={playing} onTimeUpdate={playing} onPause={()=>setCameraPlaying(false)} onWaiting={()=>setCameraPlaying(false)} onStalled={()=>setCameraPlaying(false)} onEmptied={()=>setCameraPlaying(false)} onError={()=>fail("video_error","The preview could not be displayed. Try again or use a mirror.")} aria-label="Live front-camera preview"/>
         {!cameraPlaying&&<button type="button" className="camera-drape-resume" onClick={resume}>Tap to show camera</button>}
         <div className="camera-drape-vignette" aria-hidden="true"/><div className="camera-drape-guide" aria-hidden="true"/><div className="camera-drape-cloth" style={{background:current.hex}}><div className="camera-drape-cloth-folds" aria-hidden="true"/><span>{current.label}</span></div>
+        <div className={`camera-drape-switch ${styles.scanSwitch}`} role="group" aria-label="Choose color to compare">
+        {colors.slice(0,2).map((c,i)=><button key={c.hex} type="button" onClick={()=>chooseSide(i)}
+          aria-pressed={side===i} style={{background:side===i?"#ffe4f0":"#fff"}}>
+          {c.label}{side===i?" ✓":""}
+        </button>)}
+      </div>
       </div>
     </> : <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors} side={side} onSide={chooseSide}>
       <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}><video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted onPlaying={playing} onTimeUpdate={playing} onPause={()=>setCameraPlaying(false)} onWaiting={()=>setCameraPlaying(false)} onStalled={()=>setCameraPlaying(false)} onEmptied={()=>setCameraPlaying(false)} onError={()=>fail("video_error","The preview could not be displayed. Try again or use a mirror.")} aria-label="Live front-camera preview"/>

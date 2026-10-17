@@ -64,5 +64,22 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
  await test('quiz-draping-Shop preference handoff persists without fabricating a color diagnosis',()=>{
   const {browser}=require('./free-service-test-runtime.cjs'),w=browser(),r=runtime({window:w}),q=r.load('lib/quickQuizState.ts'),p=r.load('lib/discoveryPreferences.ts'),d=r.load('lib/drapingState.ts');let state=q.initialQuickState();for(let i=0;i<7;i++)state=q.answerQuickState(state,i===6?2:0);assert.equal(state.completed,true);p.saveDiscoveryPreferences({mood:'deep',source:'mood'});let drape=d.answerDrapeState(d.initialDrapeState(),{index:1,assessment:'better'});p.saveDiscoveryPreferences({source:'drape',likedColors:d.drapeColors(drape,'better')});const next=runtime({window:w}).load('lib/discoveryPreferences.ts');assert.deepEqual(JSON.parse(JSON.stringify(next.preferredDiscoveryColors(next.loadDiscoveryPreferences()))),['#CA6D9A']);
  });
+ await test('UI invariant: quick seven-question quiz is default, advanced draping is optional',()=>{
+  const hub=source('components/QuizHub.tsx'),quick=source('components/QuickQuizClient.tsx');
+  assert(hub.includes('expert?<ToneEvidenceQuiz/>:<QuickQuizClient detail={detailed}/>'));
+  assert(quick.includes('Camera scan & live color guide'));
+  assert(quick.includes('/quiz?mode=draping&method=camera'));
+  assert(quick.includes('Advanced 7-color face comparison'));
+ });
+ await test('UI invariant: prominent top method cards, scan guide and thumb-reachable shade switching',()=>{
+  const drape=source('components/ColorDrapingClient.tsx'),camera=source('components/CameraDrape.tsx');
+  const style=source('components/CameraDrape.module.css'),guide=source('components/DrapeLiveGuide.tsx');
+  assert(drape.indexOf('className={styles.methodCards}')<drape.indexOf('className={styles.comparisonHead}'));
+  assert(drape.includes('CAMERA SCAN')&&drape.includes('USE A MIRROR'));
+  assert(camera.includes('styles.scanSwitch')&&camera.indexOf('styles.scanSwitch')>camera.indexOf('camera-drape-cloth'));
+  assert(style.includes('object-fit:cover')&&!style.includes('object-fit:contain'));
+  assert(style.includes('bottom:10px'));
+  assert(guide.includes('Live color scan')&&guide.includes('Start scan'));
+ });
  console.log('MOBILE_PASSWORD_REGRESSION_PASS tests='+count+' browser=simulated physical_device=false');
 })().catch(error=>{console.error('MOBILE_PASSWORD_REGRESSION_FAILED',error.stack||error);process.exitCode=1;});

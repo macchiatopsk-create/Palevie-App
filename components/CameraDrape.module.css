@@ -1,6 +1,16 @@
 /* A loose framing cue, not a face-size target. Preserve the existing drape size. */
-.stage :global(.camera-drape-video){object-fit:contain;object-position:50% 0}
+.stage :global(.camera-drape-video){object-fit:cover;object-position:50% 44%}
+.stage:global(.camera-drape-stage){background:#ffffff;border-color:rgba(120,79,102,.12)}
+.stage :global(.camera-drape-vignette){background:none}
+.stage :global(.camera-drape-cloth){bottom:0;left:0;right:0;height:38%;border-radius:16% 16% 0 0/7% 7% 0 0;box-shadow:none}
+.stage :global(.camera-drape-cloth)::before{opacity:.28}
+.stage :global(.camera-drape-cloth-folds){opacity:.18}
 .stage :global(.camera-drape-guide){width:78%;max-width:440px;height:60%;top:3%;border-style:dashed;border-color:rgba(255,255,255,.38);box-shadow:none}
 .stage :global(.camera-drape-guide)::before,.stage :global(.camera-drape-guide)::after{display:none}
 .controls:global(.camera-drape-switch){position:static;inset:auto;margin:8px 0 10px;backdrop-filter:none}
 .comfort{margin:6px 2px 0;color:#776970;font-size:11px;line-height:1.5;text-align:center}
+
+/* Put scan-mode shade switching within thumb reach, on the draping band. */
+.scanSwitch:global(.camera-drape-switch){position:absolute;top:auto;bottom:10px;left:10px;right:10px;z-index:8;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:6px;border-radius:15px;background:rgba(255,251,253,.94);backdrop-filter:blur(8px);box-shadow:0 5px 20px rgba(38,21,31,.2)}
+.scanSwitch:global(.camera-drape-switch) button{font-size:12px;font-weight:800;min-height:51px;padding:10px 5px;margin:0;white-space:normal;border-radius:11px}
+@media(max-width:440px){.scanSwitch:global(.camera-drape-switch) button{min-height:48px;font-size:11px}}

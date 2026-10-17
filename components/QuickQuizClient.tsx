@@ -52,7 +52,14 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
   if(quiz.completed)return <section className={styles.result} aria-label="Quick color quiz result">
     <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
     <h2 className={styles.resultHeading}>Let's explore <em>{palette.label}.</em></h2>
-    <p className={styles.desc}>{suggested?"We started from the makeup style you picked in question 7. This is your stated preference, not an analysis of which colors suit your skin.":"No specific makeup style was selected. Choose whichever mood you would like to explore; the initial palette is not a personal diagnosis."}</p>
+    <p className={styles.desc}>A quick starting palette from your answers. For a more meaningful face-side comparison, use the camera or mirror below.</p>
+    <div className={styles.scanFirst}>
+      <p>Want to check colors directly beside your face?</p>
+      <Link className={styles.scanPrimary} href="/quiz?mode=draping&method=camera"
+        onClick={()=>track("drape_cta_clicked",{source:"quick_result_scan_top"})}>◎ Camera scan & live color guide →</Link>
+      <Link className={styles.scanMirror} href="/quiz?mode=draping&method=mirror"
+        onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_top"})}>Use a mirror instead</Link>
+    </div>
     <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">{MOODS.map(key=><button key={key} type="button" className={active===key?styles.moodActive:styles.moodTab} aria-pressed={active===key} onClick={()=>changeMood(key)}>{COLOR_MOODS[key].label}</button>)}</div>
     <div className={styles.chosenPalette}><h3>{palette.label}</h3><p>{palette.description}</p><div className={styles.bigSwatches} aria-label="Illustrative palette">{palette.colors.map(hex=><span key={hex} style={{backgroundColor:hex}}/>)}</div><small>Style inspiration, not a measured color match or undertone diagnosis.</small></div>
     <div className={styles.feedback} role="group" aria-label="Palette feedback"><p>Do these colors feel right to explore?</p><div className={styles.feedbackOptions}>{([["yes","Yes 💗"],["no","Not really"],["unsure","Not sure yet"]] as const).map(([value,label])=><button key={value} type="button" className={feedback===value?styles.feedbackSelected:""} aria-pressed={feedback===value} onClick={()=>vote(value)}>{label}</button>)}</div>
@@ -61,6 +68,7 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
     {feedback!=="no"&&<VerifiedShadePicks referenceHex={palette.colors[1]} surface="quick_result"/>}
     <div className={styles.drapeCallout}><span className={styles.drapeEyebrow}>OPTIONAL · CAMERA OR MIRROR</span><h3>See colors beside your face.</h3><p>Compare shade pairs in even light and choose what you prefer.</p><Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_result",mood:active})}>BEGIN GUIDED DRAPING →</Link><small>Camera optional · No certified seasonal diagnosis</small></div>
     <details className={styles.chosenPalette}><summary>Your feature notes</summary><p>Questions 1–6 are descriptive notes. They are not used to assign a color season.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><p key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><br/>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</p>)}</details>
+    <Link className={styles.secondary} href="/quiz?mode=expert">Advanced 7-color face comparison →</Link>
     <Link className={styles.secondary} href="/quiz?mode=detailed">Explore all color moods</Link><Link className={styles.secondary} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"quick_result",mood:active})}>Browse the full Shop →</Link><button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
@@ -68,10 +76,11 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
     <p className={styles.eyebrow}>YOUR FEATURES & MAKEUP PREFERENCES</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 className={styles.question}>{question.text}</h2>
-    <p className={styles.tip}>No need to know your undertone. Feature answers are notes; your preferred makeup style sets the starting palette.</p>
+    <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
     <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
     <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
     {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{setQuiz(previousQuickState(quiz));lastAction.current=Date.now();}}>← Previous question</button>}
-    <p className={styles.footer}>Free · No signup or paid upgrade · Comparisons optional</p>
+    <Link className={styles.scanEntry} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan"})}>◎ Prefer a camera color check? Open Live Guide →</Link>
+    <p className={styles.footer}>Free · 7 questions · No signup</p>
   </section>;
 }

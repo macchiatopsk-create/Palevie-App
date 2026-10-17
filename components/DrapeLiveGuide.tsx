@@ -133,16 +133,16 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
   <section className={styles.panel} aria-label="Palevie live comparison guide">
    <div className={styles.dock} data-guide-dock>
     <div className={styles.header}>
-     <div className={styles.title}><b>Palevie Live Guide</b><span>BETA · ON-DEVICE</span></div>
+     <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
      <button type="button" className={`${styles.toggle} ${enabled?styles.toggleOn:""}`}
-      aria-label={enabled?"Turn guide off & clear measurements":"Enable on-device guide"}
+      aria-label={enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
       aria-pressed={enabled} aria-controls={toolsId} aria-describedby={consentId}
       onClick={()=>{clearMeasurements();setEnabled(v=>!v);}}>
-      <i aria-hidden/>Live Guide <span>{enabled?"On":"Off"}</span>
+      <i aria-hidden/>{enabled?"Scan active":"Start scan"} <span>{enabled?"●":"→"}</span>
      </button>
     </div>
-    <p id={consentId} className={styles.consent}>Opt in for a Soft/Bold look guide. Frames stay on this device, never saved or uploaded.</p>
-    <p className={styles.lighting} data-light-warning>Use even daylight. Colored light, shadows and beauty filters can change the scores.</p>
+    <p id={consentId} className={styles.consent}>Compares light/dark contrast for Soft or Bold looks. No camera frames uploaded.</p>
+    <p className={styles.lighting} data-light-warning>Use even daylight; scans are styling hints, not a personal-tone diagnosis.</p>
     <div id={toolsId} hidden={!enabled}>
      <div className={styles.goals} role="group" aria-label="Choose a look goal">
       <span>Look goal</span>
