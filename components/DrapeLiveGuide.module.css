@@ -26,3 +26,12 @@
 .goals{display:flex;align-items:center;gap:5px;margin-top:5px}.goals>span{font-size:10px;flex:1;color:#64544c}.goals button{min-height:44px;border:1px solid #d3c5b5;border-radius:9px;background:#fffaf4;font:inherit;font-size:10.5px;padding:7px 10px;cursor:pointer}.goals button[aria-pressed="true"]{background:#455d50;color:#fff;border-color:#455d50}.goals button:focus-visible{outline:3px solid #a776c8;outline-offset:2px}
 .recommendation{min-height:51px;margin-top:5px;padding:7px 9px;border-radius:10px;background:#e9f1e9}.recommendation strong{display:block;font-size:13px;line-height:1.4;color:#324d3d}.recommendation small{display:block;font-size:10px;line-height:1.4;color:#526755;margin-top:3px}
 .notice{min-height:26px}
+
+/* Compact, prominent scan consent; reserve long instructions for collapsed help. */
+.dock{background:#fff9fc;border-color:#eecadc;padding:10px 12px 8px}
+.title b{color:#65304f;font-size:13px}
+.toggle{min-height:48px;background:#cc5789;border:1px solid #b84776;color:#fff;font-size:13px;font-weight:800;padding:10px 14px;box-shadow:0 3px 10px rgba(174,70,118,.18)}
+.toggle>i{background:#fff}.toggle>span{font-size:13px;color:inherit;font-weight:800}
+.toggleOn{background:#4d735a;border-color:#4d735a}
+.panel .consent{font-size:10px;margin:5px 0 0}
+.panel .lighting{font-size:10px;background:transparent;padding:0;margin:4px 0;color:#927388}
