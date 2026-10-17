@@ -139,6 +139,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
        The worker still measures the same areas and applies all quality checks.
        Scan status and recommendations are displayed in the panel below. */}
   <section className={styles.panel} aria-label="Palevie live comparison guide">
+   {children}
    <div className={styles.dock} data-guide-dock>
     <div className={styles.header}>
      <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
@@ -174,7 +175,6 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
      </div>
     </div>
    </div>
-   {children}
    <details className={styles.explain} data-guide-help>
     <summary>How to use Live Guide</summary>
     <p><b>1.</b> The private scanner starts when the camera preview plays. Keep your forehead and cheeks in view in even daylight.</p>
