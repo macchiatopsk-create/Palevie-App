@@ -11,7 +11,12 @@ export async function captureLocalGuideFrame(video:HTMLVideoElement):Promise<Loc
   const scale=Math.min(1,360/Math.max(video.videoWidth,video.videoHeight));
   const width=Math.max(1,Math.round(video.videoWidth*scale)),height=Math.max(1,Math.round(video.videoHeight*scale));
   if(typeof createImageBitmap==="function"){
-    try{return {kind:"bitmap",bitmap:await createImageBitmap(video,{resizeWidth:width,resizeHeight:height})};}
+    try{
+      const bitmap=await createImageBitmap(video,{resizeWidth:width,resizeHeight:height});
+      if(bitmap.width===width&&bitmap.height===height)return {kind:"bitmap",bitmap};
+      // Some WebViews accept resize options but silently return a full-size frame.
+      bitmap.close();
+    }
     catch{/* Some camera implementations disallow bitmap resize options. */}
   }
   const canvas=document.createElement("canvas");
