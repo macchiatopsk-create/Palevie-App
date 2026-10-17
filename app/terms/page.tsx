@@ -1,21 +1,3 @@
-import { pageMetadata } from "@/lib/pageMetadata";
-
-export const metadata = pageMetadata({
-  title: "Terms of Use — Palevie",
-  description: "Read Palevie's terms for quizzes, optional AI tools, shopping guidance, accounts, and affiliate links.",
-  path: "/terms",
-});
-
-export default function TermsPage(){return <article className="privacy app-wrap narrow">
-  <div className="eyebrow">Terms of use</div>
-  <h1>The short, honest version.</h1>
-  <p><strong>Style guidance only.</strong> Palevie&apos;s quiz, screen draping and optional AI photo scan produce style suggestions — not scientific, medical, dermatological, or biometric-identification results. Colors that &quot;suit you&quot; are subjective; results can be wrong, and lighting or screen calibration can change them.</p>
-  <p><strong>No professional advice.</strong> Nothing here is medical or skincare advice. Ingredient and product notes are informational; check labels and consult a professional for skin concerns.</p>
-  <p><strong>Affiliate disclosure.</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Retailer links may pay us a commission at no extra cost to you. Prices shown are approximate; the retailer&apos;s page always controls the final price and availability.</p>
-  <p><strong>Products &amp; retailers.</strong> Brand names and products belong to their owners. Palevie curates and links; we do not sell, ship, or warrant third-party products.</p>
-  <p><strong>Your account.</strong> Sign-in is optional. You&apos;re responsible for the email you register. We may suspend accounts that abuse the service (scraping, automated scans, attempts to overload AI quotas).</p>
-  <p><strong>Age.</strong> Palevie is intended for users 16 and older.</p>
-  <p><strong>Service &quot;as is&quot;.</strong> This is an early product. We may change or discontinue features, and we provide the service without warranties to the fullest extent permitted by law. Our total liability is limited to the amount you paid us (currently $0 for free features).</p>
-  <p><strong>Photos.</strong> The optional selfie scan runs only with your explicit consent, sends a resized copy to our AI provider for one-time processing, and is not intentionally stored by Palevie. Details in our <a href="/privacy">Privacy &amp; photo policy</a>.</p>
-  <p>Questions: palevie0@gmail.com</p>
-</article>;}
+import {pageMetadata} from "@/lib/pageMetadata";
+export const metadata=pageMetadata({title:"Terms of Use — Palevie",description:"Terms for Palevie's free color exploration, optional AI tools, accounts and affiliate links.",path:"/terms"});
+export default function TermsPage(){return <article className="privacy app-wrap narrow"><div className="eyebrow">Terms of use · October 17, 2026</div><h1>Explore freely.</h1><p><strong>Free service.</strong> Palevie does not offer paid subscriptions, user credit purchases or paid upgrades. Optional externally processed features may be limited or paused for operating costs and abuse prevention. Payment cannot unlock additional usage.</p><p><strong>Style guidance only.</strong> The quiz records preferences, screen draping supports comparison, and optional AI provides uncertain reference-palette suggestions. None is a scientifically validated personal-color, medical, dermatological or identity determination. Lighting, makeup and screen calibration can change visible colors.</p><p><strong>No professional advice.</strong> Product and ingredient notes are informational. Check product labels and consult an appropriate professional about skin concerns.</p><p><strong>Affiliate disclosure.</strong> As an Amazon Associate, Palevie earns from qualifying purchases. We do not display manually copied Amazon prices. Amazon controls the actual product variation, price, stock and purchase terms.</p><p><strong>Products and retailers.</strong> Brand names and products belong to their owners. Palevie curates and links; we do not sell, ship or warrant those third-party products.</p><p><strong>Your account.</strong> Sign-in is optional. You are responsible for your registered email and password. Accounts or requests that abuse the service may be limited.</p><p><strong>Age.</strong> Palevie is intended for users 16 and older.</p><p><strong>Service availability.</strong> This is an early product, offered as-is. Features may change or become unavailable. Applicable legal rights are not excluded by these terms.</p><p><strong>Photos.</strong> An optional selfie upload requires consent and is sent to the configured AI provider. On-device live draping is a separate feature. Read the <a href="/privacy">privacy and processing notice</a> before uploading.</p><p>Questions: <a href="mailto:support@palevie.com">support@palevie.com</a></p></article>;}

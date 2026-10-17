@@ -1,13 +1,15 @@
-import { NextResponse } from "next/server";
-import { toneProfiles } from "@/lib/palettes";
-import { finalizeAiUsage,quotaSubject,reserveAiUsage } from "@/lib/server/aiQuota";
+import {NextResponse} from "next/server";
+import {toneProfiles} from "@/lib/palettes";
+import {finalizeAiUsage,quotaSubject,reserveAiUsage} from "@/lib/server/aiQuota";
 function axis(value:unknown){return typeof value==="number"&&Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;}
 export async function POST(request:Request){
   let usageId:string|undefined;
   try{
+    if(Number(request.headers.get("content-length")||0)>3050000)return NextResponse.json({error:"Image is too large."},{status:413});
     const raw=await request.text();if(raw.length>3050000)return NextResponse.json({error:"Image is too large."},{status:413});
     let body;try{body=JSON.parse(raw);}catch{return NextResponse.json({error:"Invalid image request."},{status:400});}
-    const image=body?.imageDataUrl;
+    if(body?.consent!==true)return NextResponse.json({error:"Explicit consent to optional external photo processing is required."},{status:400});
+    const image=body.imageDataUrl;
     if(typeof image!=="string"||!/^data:image\/(?:jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image)||image.length>3000000)return NextResponse.json({error:"Invalid image."},{status:400});
     const key=process.env.OPENAI_API_KEY,model=process.env.OPENAI_VISION_MODEL;
     if(!key||!model)return NextResponse.json({error:"Optional AI is not configured. Try the free quiz or guided draping."},{status:503});
