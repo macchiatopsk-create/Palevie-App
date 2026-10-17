@@ -111,7 +111,7 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
     <h2 className={styles.resultHeading}>{suggestedMood ? <>Let's try <em>{palette.label}.</em></> : <>Choose a <em>color mood.</em></>}</h2>
     <p className={styles.desc}>
       {suggestedMood
-        ? "You picked this makeup style in question 7, so we're starting there. Explore other moods whenever you like."
+        ? "We started from the makeup style you picked in question 7. Switch moods whenever you like."
         : "You said you're open to anything, so start with whichever makeup mood catches your eye."}
     </p>
     <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">
