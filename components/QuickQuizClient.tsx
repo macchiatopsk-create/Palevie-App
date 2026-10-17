@@ -114,13 +114,32 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
   return <section className={styles.quiz} aria-label="Quick color explorer">
-    <Link className={styles.scanEntry} href="/quiz?mode=draping&method=camera"
-      onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
-      <span aria-hidden="true">◎</span> Camera color scan & live guide <span aria-hidden="true">→</span>
-    </Link>
+    <div className={styles.entryChoice} role="group" aria-label="Choose how to explore your colors">
+      <p className={styles.entryTitle}>CHOOSE YOUR COLOR CHECK</p>
+      <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera"
+        onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
+        <span className={styles.entryCameraIcon} aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 11a3 3 0 0 1 3-3h4l2-3h5l2 3h3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11Z"/>
+            <circle cx="16" cy="18" r="5"/>
+            <path d="M25 4v4M23 6h4"/>
+          </svg>
+        </span>
+        <span className={styles.entryCameraText}>
+          <strong>Try the live camera scan</strong>
+          <small>Compare colors beside your face</small>
+        </span>
+        <span className={styles.entryCameraGo} aria-hidden="true">OPEN <span>→</span></span>
+      </Link>
+      <Link className={styles.entryQuiz} href="#quiz-questions"
+        onClick={()=>track("quiz_intro_started",{source:"quiz_mode_choice",method:"questions"})}>
+        <span className={styles.entryQuizText}><span aria-hidden="true">OR</span> Answer 7 quick questions</span>
+        <span className={styles.entryQuizArrow} aria-hidden="true">↓</span>
+      </Link>
+    </div>
     <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
-    <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 className={styles.question}>{question.text}</h2>
+    <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 id="quiz-questions" className={styles.question}>{question.text}</h2>
     <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
     <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
     <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
