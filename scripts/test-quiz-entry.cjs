@@ -40,7 +40,16 @@ assert(card>=0 && camera>card && camera<question && question<progress,
   "Camera scan button must be directly above the seven-question UI, not after question choices.");
 assert(quick.includes('source:"quick_quest_scan_top"'),
   "Camera CTA must preserve attribution after being moved.");
-assert.equal((quick.slice(card).match(/className=\{styles.scanEntry\}/g)||[]).length,1,
-  "Camera CTA must not be duplicated under the questions.");
+assert.equal((quick.slice(card).match(/className=\{styles.entryCamera\}/g)||[]).length,1,
+  "Primary camera entry must be one actionable card above the questions.");
+const quizAlternative=quick.indexOf('className={styles.entryQuiz}',card);
+assert(quizAlternative>camera && quizAlternative<question,"Quiz option must be an actionable alternative under the camera option.");
+assert(quick.includes('href="#quiz-questions"') && quick.includes('id="quiz-questions"'),
+  "Choosing the 7-question path must move users to the real question.");
+const entryStyles=read("components/QuickQuizClient.module.css");
+assert(entryStyles.includes("background:linear-gradient(112deg,#683350 0%,#4c2840 100%)"),
+  "Camera choice must visibly contrast with the pale quiz UI.");
+assert(entryStyles.includes(".entryCamera:focus-visible"),
+  "Camera choice must be keyboard accessible.");
 
 console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; 9 route/render invariants; Q1 by default, previous result optional.");
