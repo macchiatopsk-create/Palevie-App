@@ -1,87 +1,26 @@
 import { NextResponse } from "next/server";
 import { toneProfiles } from "@/lib/palettes";
-import { finalizeAiUsage, quotaSubject, reserveAiUsage } from "@/lib/server/aiQuota";
-
-function extractOutputText(data: any) {
-  if (typeof data?.output_text === "string") return data.output_text;
-  return (data?.output || []).flatMap((x: any) => x?.content || []).map((x: any) => x?.text || "").join(" ");
-}
-function parseJson(text: string) {
-  const clean = text.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-  const start = clean.indexOf("{");
-  const end = clean.lastIndexOf("}");
-  if (start < 0 || end < start) throw new Error("Invalid AI response");
-  return JSON.parse(clean.slice(start, end + 1));
-}
-function clamp(value: unknown, min = -1, max = 1) {
-  const n = Number(value);
-  return Math.max(min, Math.min(max, Number.isFinite(n) ? n : 0));
-}
-
-export async function POST(request: Request) {
-  let usageId: string | undefined;
-  try {
-    const body = await request.json();
-    const imageDataUrl = body?.imageDataUrl;
-    if (typeof imageDataUrl !== "string" || !/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(imageDataUrl)) return NextResponse.json({ error: "Invalid image." }, { status: 400 });
-    if (imageDataUrl.length > 3_000_000) return NextResponse.json({ error: "Image is too large after resize." }, { status: 413 });
-
-    const key = process.env.OPENAI_API_KEY;
-    const model = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
-    if (!key) return NextResponse.json({ error: "AI scan is not configured yet. Use the free quiz for now." }, { status: 503 });
-
-    const visitor = (request.headers.get("x-palevie-visitor") || "anonymous").slice(0, 80);
-    const reservation = await reserveAiUsage(quotaSubject(visitor, request), "color_scan", model);
-    usageId = reservation.usageId;
-    if (!reservation.allowed) return NextResponse.json({ error: reservation.reason }, { status: 429 });
-
-    const ids = toneProfiles.map(p => p.id).join(", ");
-    const prompt = [
-      "You are an assistive personal-color estimator for a fashion/beauty shopping app.",
-      "This is style guidance only: not scientific, medical, biometric, identity, race/ethnicity, age, health, or attractiveness analysis.",
-      "Lighting, camera white balance, makeup, hair dye and filters can make the estimate wrong.",
-      `Choose the closest Korean-inspired 16-tone profile from this exact list: ${ids}.`,
-      "Return JSON only with keys: primaryType, secondaryType, confidence, temperature, value, chroma, contrast, notes.",
-      "confidence must be an integer 35-85. Axis values must be numbers from -1 to 1. notes must be one short sentence about uncertainty/visible color cues only.",
-    ].join(" ");
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        model,
-        input: [{ role: "user", content: [{ type: "input_text", text: prompt }, { type: "input_image", image_url: imageDataUrl, detail: "low" }] }],
-        max_output_tokens: 240,
-      }),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      await finalizeAiUsage(usageId, "failed", data?.usage);
-      return NextResponse.json({ error: `AI provider returned ${response.status}.` }, { status: 502 });
-    }
-
-    const parsed = parseJson(extractOutputText(data));
-    const valid = new Set(toneProfiles.map(p => p.id));
-    if (!valid.has(parsed.primaryType)) throw new Error("Unknown profile returned by AI.");
-    const secondaryType = valid.has(parsed.secondaryType) ? parsed.secondaryType : parsed.primaryType;
-    await finalizeAiUsage(usageId, "completed", data?.usage);
-
-    return NextResponse.json({
-      primaryType: parsed.primaryType,
-      secondaryType,
-      confidence: Math.round(clamp(parsed.confidence, 35, 85)),
-      scores: {
-        temperature: clamp(parsed.temperature),
-        value: clamp(parsed.value),
-        chroma: clamp(parsed.chroma),
-        contrast: clamp(parsed.contrast),
-      },
-      notes: String(parsed.notes || "").slice(0, 240),
-      quotaMode: reservation.mode,
-    });
-  } catch (e) {
-    await finalizeAiUsage(usageId, "failed");
-    console.error("ai scan failed", e);
-    return NextResponse.json({ error: "The scan didn't go through. Try again in a moment." }, { status: 500 });
-  }
+import { finalizeAiUsage,quotaSubject,reserveAiUsage } from "@/lib/server/aiQuota";
+function axis(value:unknown){return typeof value==="number"&&Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;}
+export async function POST(request:Request){
+  let usageId:string|undefined;
+  try{
+    const raw=await request.text();if(raw.length>3050000)return NextResponse.json({error:"Image is too large."},{status:413});
+    let body;try{body=JSON.parse(raw);}catch{return NextResponse.json({error:"Invalid image request."},{status:400});}
+    const image=body?.imageDataUrl;
+    if(typeof image!=="string"||!/^data:image\/(?:jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image)||image.length>3000000)return NextResponse.json({error:"Invalid image."},{status:400});
+    const key=process.env.OPENAI_API_KEY,model=process.env.OPENAI_VISION_MODEL;
+    if(!key||!model)return NextResponse.json({error:"Optional AI is not configured. Try the free quiz or guided draping."},{status:503});
+    const reservation=await reserveAiUsage(quotaSubject("",request),"color_scan",model);usageId=reservation.usageId;
+    if(!reservation.allowed)return NextResponse.json({error:reservation.reason},{status:429});
+    const prompt=`Suggest an illustrative fashion color palette from visible colors only. This is not a diagnosis or a validated personal-color classification. Do not infer race, ethnicity, identity, age, health, biometrics or attractiveness. Lighting, white balance and makeup can invalidate the suggestion. Choose primaryType and secondaryType from: ${toneProfiles.map(p=>p.id).join(", ")}. Return only JSON with primaryType,secondaryType,temperature,value,chroma,contrast,notes. Axes are illustrative numbers from -1 to 1; do not generate confidence or accuracy percentages. notes is one short sentence acknowledging uncertainty.`;
+    const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{authorization:`Bearer ${key}`,"content-type":"application/json"},body:JSON.stringify({model,store:false,input:[{role:"user",content:[{type:"input_text",text:prompt},{type:"input_image",image_url:image,detail:"low"}]}],max_output_tokens:240}),signal:AbortSignal.timeout(20000)});
+    const data=await response.json();if(!response.ok)throw new Error("provider_error");
+    const text=typeof data.output_text==="string"?data.output_text:(Array.isArray(data.output)?data.output:[]).flatMap((x:any)=>Array.isArray(x.content)?x.content:[]).map((x:any)=>typeof x.text==="string"?x.text:"").join(" ");
+    const start=text.indexOf("{"),end=text.lastIndexOf("}");if(start<0||end<start)throw new Error("invalid_result");
+    const result=JSON.parse(text.slice(start,end+1)),valid=new Set(toneProfiles.map(p=>p.id));
+    if(!valid.has(result.primaryType))throw new Error("invalid_palette");
+    await finalizeAiUsage(usageId,"completed",data.usage);
+    return NextResponse.json({primaryType:result.primaryType,secondaryType:valid.has(result.secondaryType)?result.secondaryType:result.primaryType,confidence:null,assessment:"unvalidated_palette_suggestion",scores:{temperature:axis(result.temperature),value:axis(result.value),chroma:axis(result.chroma),contrast:axis(result.contrast)},notes:String(result.notes||"Lighting and camera settings can change this suggestion.").slice(0,240),quotaMode:reservation.mode});
+  }catch{await finalizeAiUsage(usageId,"failed");return NextResponse.json({error:"The optional photo suggestion is unavailable. You can still use the quiz or guided draping."},{status:503});}
 }

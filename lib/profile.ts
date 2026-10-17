@@ -1,47 +1,15 @@
-import { AxisScores, RankedType } from "./quiz";
-
-export type ColorProfileSource = "quiz" | "photo" | "manual";
-export type ColorProfile = {
-  primaryType: string;
-  secondaryType: string;
-  ranked?: RankedType[];
-  scores: AxisScores;
-  confidence: number;
-  source: ColorProfileSource;
-  createdAt: string;
-};
-
-const KEY = "palevie-profile-v1";
-
-export function loadProfile(): ColorProfile | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) || "null") as ColorProfile | null;
-    return parsed?.primaryType ? parsed : null;
-  } catch { return null; }
+import type { AxisScores, RankedType } from "./quiz";
+import { safeStorage, readStoredJson } from "./safeStorage";
+export type ColorProfileSource="quiz"|"photo"|"manual";
+export type ColorProfile={primaryType:string;secondaryType:string;ranked?:RankedType[];scores:AxisScores;confidence:number;source:ColorProfileSource;createdAt:string};
+const KEY="palevie-profile-v1";
+export function loadProfile():ColorProfile|null{
+  const value=readStoredJson(KEY);if(!value||typeof value!=="object"||Array.isArray(value))return null;
+  const p=value as ColorProfile;return typeof p.primaryType==="string"&&p.primaryType.length<80?p:null;
 }
-export function saveProfile(profile: ColorProfile) {
-  if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(profile));
-}
-export function clearProfile() {
-  if (typeof window !== "undefined") localStorage.removeItem(KEY);
-}
-
-// Anonymous/local-demo gate. Signed-in production users are enforced server-side.
-const FREE_KEY = "palevie-free-product-checks-v2";
-export const LOCAL_FREE_PRODUCT_CHECKS_MONTHLY = 5;
-function monthKey() {
-  const d = new Date();
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;
-}
-export function localProductChecksUsed() {
-  if (typeof window === "undefined") return 0;
-  try {
-    const value = JSON.parse(localStorage.getItem(FREE_KEY) || "null") as { month?: string; used?: number } | null;
-    return value?.month === monthKey() ? Math.max(0, Number(value.used || 0)) : 0;
-  } catch { return 0; }
-}
-export function markLocalProductCheckUsed() {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(FREE_KEY, JSON.stringify({ month: monthKey(), used: localProductChecksUsed() + 1 }));
-}
+export function saveProfile(profile:ColorProfile){try{safeStorage.setItem(KEY,JSON.stringify(profile));}catch{}}
+export function clearProfile(){safeStorage.removeItem(KEY);}
+// Compatibility exports for older local UI: checks are free, never a paid entitlement.
+export const LOCAL_FREE_PRODUCT_CHECKS_MONTHLY=Number.POSITIVE_INFINITY;
+export function localProductChecksUsed(){return 0;}
+export function markLocalProductCheckUsed(){/* Local checks do not consume paid credits. */}
