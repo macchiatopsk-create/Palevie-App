@@ -1,29 +1,38 @@
-# PALEVIE — MUSE / SOCIAL CONTENT FACT SHEET
-**Effective 2026-10-16 — replaces older 21-question quiz marketing**
+# PALEVIE · CURRENT MUSE / SOCIAL COPY (as of 2026-10-17)
 
-## CRITICAL: 21-question copy is outdated
-The live primary Palevie quiz at https://palevie.com/quiz is the **7-question Quick Quiz**. The former 21-question flow is NOT the current default consumer experience. Never say "21 questions", "21-step quiz", or promote the former flow as the present default. Update all future Reel scripts, on-screen text, captions, voiceovers, thumbnails, hashtags, auto-generated templates, pinned/queued items, TikTok copies and ad variants to reflect **7 questions** where an exact number is used. Old scheduled posts containing "21" must be reviewed and corrected before publishing.
+IMPORTANT: This file is a fact sheet in GitHub. It does NOT automatically edit external Muse prompts or queued/published content.
 
-## What the product ACTUALLY provides
-- A 7-question starter experience for exploring color preferences and makeup shades.
-- Example warm/cool/soft/vivid palettes to explore; **NOT** a professionally verified seasonal-personal-color diagnosis or a guaranteed personalized undertone.
-- Optional **guided draping** for side-by-side colors with camera **or mirror**; camera permission may be required. Do not claim medically/scientifically validated color-season detection or mandatory AI face scanning.
-- Makeup shade/product browsing, with Amazon detail links for reviewed products; available stock, shade variation and pricing are confirmed on Amazon, not promised by Palevie.
-- The short quiz is distinct from other optional shopping/style/skin preferences. Do not add them to the claimed 7 count.
+## Consumer experience at /quiz
 
-## Suggested truthful English copy
-Hook: "21 questions? Not anymore. Start with Palevie's 7-question Color Quiz."
-Caption: "Explore color palettes in 7 quick questions, then compare shades with guided draping. No need to know your undertone first. Start free at palevie.com/quiz."
-CTA: "Try Palevie's 7-question Color Quiz → palevie.com/quiz"
-Alternative evergreen wording: "A quick color quiz + side-by-side shade comparisons."
+The primary quiz is **seven guided face-side color comparisons**, not seven hair/eye/makeup-preference questions and not the historical 21-question or 16-tone certification flow.
 
-Avoid "find your scientifically exact season," "perfectly accurate AI result," "guaranteed best colors," "instant 16-season diagnosis," invented percentages, unverified prices, or "all products in stock."
+- Set up even indirect daylight, remove colorful makeup/filters, keep phone at consistent distance.
+- Compare two screen colors at a time using a mirror or a private on-device front camera.
+- Test observations of **temperature (warm/cool)** in three hue families, **depth (light/deep)** in two and **chroma (clear/soft)** in two.
+- The visitor selects the color that makes their face look more even, with fewer shadows, rather than their favorite makeup style. They can choose **Can't tell** instead.
+- Results report how many face-side observations favor each side, whether they agree, and a **provisional Spring/Summer/Autumn/Winter direction only for coherent evidence**. Contradictory or missing evidence produces an inconclusive result.
+- No paid plan or account is required. Camera is optional. Front-camera video is not sent to the server by the live comparison.
+- This is an at-home adaptation inspired by common draping practice, **not expert certification**, lab-calibrated cloth, peer-reviewed validated diagnostic accuracy, a guaranteed undertone, or a 12/16-season diagnosis.
+- Colors saved from comparisons can help sort existing verified exact-Amazon product links. Actual shade/stock/price remain Amazon's responsibility.
 
-## Checklist for the MUSE publishing workflow (requires access to Muse itself)
-1. Replace old saved 21-question prompts, scripts, templates and content calendars with this fact sheet.
-2. Review pending/scheduled media before publication, including embedded text/voiceovers (caption changes alone cannot correct a baked-in video claim).
-3. Audit already-published 21-question posts. Correct captions when possible; otherwise make an explicit correction or replace the content rather than letting it misdirect consumers.
-4. Verify a newly generated draft says **7 questions**, accurately describes **palette exploration**, and links to **https://palevie.com/quiz**.
-5. Do not claim the Muse automation was changed merely because this GitHub file was updated; update and test the actual external Muse publishing prompt/workflow separately.
+## Suggested English content
 
-Authoritative source: `components/QuickQuizClient.tsx` (seven `QUICK_INDEXES`) and `components/QuizHub.tsx` (default quiz mounts QuickQuizClient). If these change, re-check the live product before approving new social copy.
+Reel hook: "Your favorite color isn't always your most flattering. What does it do to your face?"
+Caption: "Try 7 face-side color comparisons: warm or cool, light or deep, bright or soft. Compare by mirror or private on-device camera, and see where your observations agree. Free at palevie.com/quiz."
+CTA: "Try the 7-comparison Personal Color Check → palevie.com/quiz"
+
+DO NOT USE anymore:
+- "7 quick questions about your hair and makeup tastes"
+- "21-question personal color quiz"
+- "We know your exact undertone from a few selfies"
+- "Certified/clinically proven 16-season diagnosis"
+- Invented accuracy percentages or claims that we can objectively measure harmony from camera skin brightness alone.
+
+## Publication checklist
+
+Update the actual Muse agent instructions, queued scripts, caption/video overlays and pinned materials separately using this fact sheet. Review existing media promoting the old 7-question preference quiz, not only the older 21-question quiz. Do not claim the external workflow is synchronized until independently verified.
+
+Methodology background: expert practice contrasts matched color drapes near the face and considers hue/temperature, value, chroma and repeated evidence; smartphone lighting and device display calibration limit reliable conclusions. See:
+https://www.imageconsultantinstitute.com/blog/how-professionals-do-a-seasonal-color-analysis/
+https://beautylearn.com/en/guides/personal-colour-analysis-draping-test-light-preparation-sequence-errors
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0230561
