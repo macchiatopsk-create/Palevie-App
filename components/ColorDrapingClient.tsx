@@ -23,8 +23,12 @@ export default function ColorDrapingClient() {
   const pair = PAIRS[step];
   const finished = step >= PAIRS.length;
   const lastFavorite = [...picks].reverse().find((p): p is NonNullable<Pick> => Boolean(p && p.assessment === "better"));
-  useEffect(() => { track("drape_session_started", { surface: "quick_followup" }); }, []);
-  function chooseMode(next: Mode) { setMode(next); if (next !== "choose") track("drape_mode_selected", {surface: "quick_followup", mode: next}); }
+  useEffect(() => { track("drape_screen_viewed", { surface: "quick_followup" }); }, []);
+  function chooseMode(next: Mode) {
+    if (mode === "choose" && next !== "choose") track("drape_session_started", { surface: "quick_followup" });
+    setMode(next);
+    if (next !== "choose") track("drape_mode_selected", {surface: "quick_followup", mode: next});
+  }
   function answer(index: number | null, assessment: "better" | "worse" = "better") {
     const choice: Pick = index === null ? null : { index, ...pair.colors[index], assessment };
     const updated = [...picks];
