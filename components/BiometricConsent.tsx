@@ -1,67 +1,8 @@
 "use client";
-import { useState } from "react";
+import {useState} from "react";
 import Link from "next/link";
-
-// BIPA / state biometric-law consent gate for the optional selfie scan.
-// Illinois BIPA (and similar TX/WA laws) require, BEFORE collecting a face image:
-//   1. written notice of WHAT is collected and WHY,
-//   2. notice of the RETENTION and DELETION policy,
-//   3. explicit written consent (an electronic signature/checkbox is sufficient
-//      under Illinois SB2979).
-// Using a third-party analyzer (e.g. Perfect Corp) does NOT remove this duty — their
-// terms make the operator solely liable — so we implement it here.
-//
-// Renders nothing once consent is given; calls onConsent() so the parent unlocks the scan.
-export default function BiometricConsent({ onConsent }: { onConsent: () => void }) {
-  const [notice, setNotice] = useState(false);
-  const [retention, setRetention] = useState(false);
-  const bothChecked = notice && retention;
-
-  return (
-    <div className="biometric-consent">
-      <div className="eyebrow">Before your photo scan</div>
-      <h2>How your photo is used</h2>
-
-      <div className="consent-facts">
-        <div className="cf">
-          <span className="cf-ic" aria-hidden="true">🔍</span>
-          <div>
-            <strong>What we analyze</strong>
-            <p>Only visual color and surface qualities of your skin (tone, and — if enabled — a look-based read of oil/dryness) to suggest matching products. We do not identify you, and we do not build a face template or faceprint.</p>
-          </div>
-        </div>
-        <div className="cf">
-          <span className="cf-ic" aria-hidden="true">⏱️</span>
-          <div>
-            <strong>How long it&apos;s kept</strong>
-            <p>Your photo is processed for a one-time analysis and is <strong>not stored by Palevie</strong>. If an external analysis provider is used, their system may hold the original image up to 1 hour and the result image up to 24 hours to compute your result, after which it is deleted. We keep only the non-identifying color scores.</p>
-          </div>
-        </div>
-        <div className="cf">
-          <span className="cf-ic" aria-hidden="true">🚫</span>
-          <div>
-            <strong>What we never do</strong>
-            <p>No facial recognition, no identity matching, no selling or sharing of your image, no using it to train AI. This is a cosmetic shopping aid, not a medical or biometric identification.</p>
-          </div>
-        </div>
-      </div>
-
-      <label className="consent-check">
-        <input type="checkbox" checked={notice} onChange={e => setNotice(e.target.checked)} />
-        <span>I have read what is analyzed and why, and I agree to a one-time color analysis of my photo.</span>
-      </label>
-      <label className="consent-check">
-        <input type="checkbox" checked={retention} onChange={e => setRetention(e.target.checked)} />
-        <span>I understand the retention &amp; deletion policy above and consent to this use of my image under applicable biometric-privacy laws.</span>
-      </label>
-
-      <p className="consent-fineprint">
-        Read our full <Link href="/privacy">Privacy Policy</Link>. You can use the free quiz instead — it never uses a photo.
-      </p>
-
-      <button className="button rose" disabled={!bothChecked} onClick={onConsent}>
-        I consent — continue to photo
-      </button>
-    </div>
-  );
+/** An explicit notice/consent UI, not a claim of legal certification. */
+export default function BiometricConsent({onConsent}:{onConsent:()=>void}){
+  const [notice,setNotice]=useState(false),[processing,setProcessing]=useState(false);
+  return <div className="biometric-consent"><div className="eyebrow">OPTIONAL PHOTO SUGGESTION</div><h2>Before you send a photo</h2><div className="consent-facts"><div className="cf"><div><strong>Where your photo goes</strong><p>Only when you choose to run this optional feature, a resized copy is sent through Palevie to OpenAI to suggest an illustrative color palette. It is not a validated undertone or seasonal-color diagnosis.</p></div></div><div className="cf"><div><strong>Storage and processing</strong><p>Palevie does not intentionally save the uploaded image in its database. We request that the API response is not stored, but this does not guarantee that the provider retains no processing or abuse-monitoring records. Provider retention depends on its policy and our account configuration.</p></div></div><div className="cf"><div><strong>Your choice</strong><p>Declining does not limit the free quiz, Shop or on-device camera draping. Live draping is separate: its video stays in your browser. We do not use photo suggestions for identity matching or face recognition.</p></div></div></div><label className="consent-check"><input type="checkbox" checked={notice} onChange={e=>setNotice(e.target.checked)}/><span>I understand this is an optional, uncertain style suggestion rather than a personal-color diagnosis.</span></label><label className="consent-check"><input type="checkbox" checked={processing} onChange={e=>setProcessing(e.target.checked)}/><span>I agree to send my selected photo to the external AI provider for this request and understand the processing and retention notice above.</span></label><p className="consent-fineprint"><Link href="/privacy">Privacy details</Link> · <Link href="/quiz">Use the free quiz instead</Link></p><button type="button" className="button rose" disabled={!notice||!processing} onClick={onConsent}>I consent — choose a photo</button></div>;
 }

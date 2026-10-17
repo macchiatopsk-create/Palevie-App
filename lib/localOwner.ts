@@ -1,62 +1,17 @@
 import { WISHLIST_EVENT } from "./wishlist";
 import { MEMBER_EVENT } from "./member";
-
-/**
- * Local-first storage means personal data lives in localStorage, which is
- * per-device rather than per-account. Without an owner check, signing out
- * and signing in as someone else leaves the previous person's list, quiz
- * result and preferences sitting there — and the profile sync would then
- * push them up to the new account.
- *
- * We stamp the device with whoever owns the local data:
- *   - no owner (anonymous)  -> the next sign-in adopts the data, so a quiz
- *                              taken while logged out carries into the account
- *   - same owner            -> nothing happens
- *   - different owner       -> wipe personal keys before anything is read
- */
-
-const OWNER_KEY = "palevie-local-owner-v1";
-
-/** Keys holding data that belongs to a person. */
-const PERSONAL_KEYS = [
-  "palevie-profile-v1",
-  "palevie-skin-profile-v1",
-  "palevie-wishlist-v1",
-  "palevie-style-prefs-v1",
-  "palevie-style-detail-v1",
-  "palevie-garment-cats-v1",
-  "palevie-fit-pref-v1",
-  "palevie-makeup-prefs-v1",
-  "palevie-free-product-checks-v2",
-  "palevie-member-v1",
-];
-
-// Device-level keys (visitor id, attribution, event log) are deliberately
-// left alone — they describe the browser, not the person.
-
-function clearPersonal() {
-  for (const k of PERSONAL_KEYS) localStorage.removeItem(k);
-  window.dispatchEvent(new Event(WISHLIST_EVENT));
-  window.dispatchEvent(new Event(MEMBER_EVENT));
+import { safeStorage } from "./safeStorage";
+const OWNER_KEY="palevie-local-owner-v1";
+export const PERSONAL_STORAGE_KEYS=["palevie-profile-v1","palevie-skin-profile-v1","palevie-wishlist-v1","palevie-style-prefs-v1","palevie-style-detail-v1","palevie-garment-cats-v1","palevie-fit-pref-v1","palevie-makeup-prefs-v1","palevie-free-product-checks-v2","palevie-member-v1","palevie-quiz-state-v1","palevie-quick-quiz-v3","palevie-color-discovery-v1","palevie-drape-session-v2","palevie-history-v1"] as const;
+export function clearPersonalData(){
+  if(typeof window==="undefined")return;
+  PERSONAL_STORAGE_KEYS.forEach(k=>safeStorage.removeItem(k));
+  for(const event of [WISHLIST_EVENT,MEMBER_EVENT,"palevie-discovery-changed"])window.dispatchEvent(new Event(event));
 }
-
-/**
- * Call as soon as a session is known, BEFORE reading any local profile.
- * Returns true when data from a different account was cleared.
- */
-export function claimLocalData(userId: string): boolean {
-  if (typeof window === "undefined") return false;
-  const owner = localStorage.getItem(OWNER_KEY);
-  if (owner === userId) return false;
-  const switched = !!owner && owner !== userId;
-  if (switched) clearPersonal();
-  localStorage.setItem(OWNER_KEY, userId);
-  return switched;
+export function claimLocalData(userId:string):boolean{
+  if(typeof window==="undefined")return false;
+  const owner=safeStorage.getItem(OWNER_KEY);if(owner===userId)return false;
+  const switched=Boolean(owner&&owner!==userId);if(switched)clearPersonalData();
+  safeStorage.setItem(OWNER_KEY,userId);return switched;
 }
-
-/** Call on sign out so the next person on this device starts clean. */
-export function releaseLocalData() {
-  if (typeof window === "undefined") return;
-  clearPersonal();
-  localStorage.removeItem(OWNER_KEY);
-}
+export function releaseLocalData(){clearPersonalData();safeStorage.removeItem(OWNER_KEY);}
