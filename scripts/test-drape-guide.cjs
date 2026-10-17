@@ -21,6 +21,35 @@ test('strong left/right image difference is gated',()=>{const im=image([100,100,
 test('head tilt and turn are gated',()=>{let l=landmarks();l[263].y=.55;assert.equal(M.inspect(image(),[l],null).status,'pose');l=landmarks();l[1].x=.65;assert.equal(M.inspect(image(),[l],null).status,'pose');});
 test('camera color shift discards comparison',()=>{const s=steady([140,140,140]);const x=M.inspect(image([170,140,140]),[landmarks()],s.next);assert.equal(x.status,'changed');assert.equal(x.rgb,null);});
 test('cover mapping matches mirrored, cropped video',()=>{const p=M.coverPoint({x:.25,y:.5,r:.05},640,480,300,400,true);assert.ok(Math.abs(p.x-283.333333)<.001);assert.equal(p.y,200);assert.ok(p.r>26&&p.r<27);});
+test('camera face-area coordinates match CSS cover crop with horizontal selfie mirror',()=>{
+ const {runtime}=require('./free-service-test-runtime.cjs');
+ const {mapGuidePoint,patchObstructed}=runtime().load('lib/drapeGuideView.ts');
+ const layout={width:500,height:720,vw:720,vh:960,clothTop:600};
+ const facePoint={x:.33,y:.5,r:.03};
+ const actual=mapGuidePoint(facePoint,layout);
+ // object-fit:cover -> scale=.75, rendered video 540x720, x offset -20
+ // object-position 50% 44% -> y offset 0 for this geometry.
+ assert.ok(Math.abs(actual.x-(500-(.33*540-20)))<1e-6);
+ assert.ok(Math.abs(actual.y-.5*720)<1e-6);
+ assert.ok(Math.abs(actual.r-.03*540)<1e-6);
+ assert.equal(patchObstructed([actual],layout),false);
+ const tall={width:390,height:500,vw:720,vh:960,clothTop:340};
+ const testPoint=mapGuidePoint({x:.50,y:.5,r:.04},tall);
+ // cover scale=390/720, rendered height 520, object-position .44 -> -8.8px.
+ assert.ok(Math.abs(testPoint.y-(.5*520-8.8))<1e-6);
+ assert.ok(Math.abs(testPoint.x-195)<1e-6);
+});
+test('forehead samples avoid hairline and reject dark hat/shadow rather than report readiness',()=>{
+ const region=M.regions(landmarks());
+ assert.ok(Math.abs(region.points[0].y-.27)<1e-8,'landmark 151 should set central forehead center');
+ const im=image([140,140,140]);
+ for(let y=70;y<=103;y++)for(let x=140;x<=180;x++)im.data.set([20,20,20,255],(y*im.width+x)*4);
+ const sampled=M.inspect(im,[landmarks()],null);
+ assert.equal(sampled.status,'forehead-covered');
+ assert.equal(sampled.rgb,null);
+ const normal=M.inspect(image([140,140,140]),[landmarks()],null);
+ assert.equal(normal.status,'settling');
+});
 test('face landmarks measure privately without drawing a forehead marker on preview',()=>{
  const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
  assert(src.includes('patchObstructed(mapped,layout)'), 'measurement geometry must remain');
