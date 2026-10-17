@@ -1,40 +1,53 @@
 "use client";
 import { useEffect,useRef,useState } from "react";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import { track } from "@/lib/analytics";
 import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDiscovery";
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
-import { QUICK_INDEXES,QUICK_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState } from "@/lib/quickQuizState";
+import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState,quickRouteState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
 import VerifiedShadePicks from "./VerifiedShadePicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
-export default function QuickQuizClient({detail=false,retake=false}:{detail?:boolean;retake?:boolean}){
+export default function QuickQuizClient({detail=false,retake=false,showResult=false}:{detail?:boolean;retake?:boolean;showResult?:boolean}){
+  const router=useRouter();
   const [quiz,setQuiz]=useState(initialQuickState),[ready,setReady]=useState(false);
   const [chosenMood,setChosenMood]=useState<ColorMoodId|null>(null);
+  const [hasSavedResult,setHasSavedResult]=useState(false);
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
   const lastAction=useRef(0);
   useEffect(()=>{
+    // Existing users may have an auto-restored completed result. Show Q1 instead.
+    // Preserve their previous result under a separate key, only on explicit request.
+    const existing=normalizeQuickState(readStoredJson(QUICK_KEY));
+    const previous=normalizeQuickState(readStoredJson(QUICK_RESULT_KEY));
+    if(existing.completed)safeStorage.setItem(QUICK_RESULT_KEY,JSON.stringify(existing));
+    const saved=existing.completed?existing:previous;
+    setHasSavedResult(saved.completed);
+    const prefs=loadDiscoveryPreferences();
     if(retake){
       safeStorage.removeItem(QUICK_KEY);
-      // A retake resets only quiz-derived mood; preserve independently recorded draping colors.
-      const saved=loadDiscoveryPreferences();
-      if(saved.source==="mood")clearDiscoveryPreferences();
+      if(prefs.source==="mood")clearDiscoveryPreferences();
       setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
     }else{
-      setQuiz(normalizeQuickState(readStoredJson(QUICK_KEY)));
-      const saved=loadDiscoveryPreferences();setChosenMood(saved.mood);setFeedback(saved.feedback);
+      setQuiz(quickRouteState(existing,saved,showResult,false));
+      setChosenMood(prefs.mood);setFeedback(prefs.feedback);
     }
     setReady(true);
-  },[retake]);
-  useEffect(()=>{if(ready)safeStorage.setItem(QUICK_KEY,JSON.stringify(quiz));},[ready,quiz]);
+  },[retake,showResult]);
+  useEffect(()=>{
+    // Saving an explicit previous-result view must not erase fresh quiz progress.
+    if(ready&&!showResult)safeStorage.setItem(QUICK_KEY,JSON.stringify(quiz));
+  },[ready,quiz,showResult]);
   function pick(choice:number){
     const now=Date.now();if(quiz.completed||now-lastAction.current<250)return;lastAction.current=now;
     const next=answerQuickState(quiz,choice);if(next===quiz)return;
     setQuiz(next);
     track("quiz_quick_answered",{question:QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]].id,step:quiz.cursor+1,skipped:choice<0});
     if(next.completed){
+      safeStorage.setItem(QUICK_RESULT_KEY,JSON.stringify(next));setHasSavedResult(true);
       const mood=startingColorMood(next.picks[6]);setChosenMood(mood);setFeedback(null);
       saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});
       track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer"});
@@ -45,12 +58,22 @@ export default function QuickQuizClient({detail=false,retake=false}:{detail?:boo
     if(loadDiscoveryPreferences().source==="mood")clearDiscoveryPreferences();
     safeStorage.removeItem(QUICK_KEY);
     lastAction.current=0;track("quiz_quick_restarted",{entry:"visible_retake"});
+    router.replace("/quiz?retake=1",{scroll:false});
     window.scrollTo({top:0,behavior:"smooth"});
   }
   const suggested=startingColorMood(quiz.picks[6]),active=chosenMood??suggested??"soft",palette=COLOR_MOODS[active];
   function changeMood(mood:ColorMoodId){setChosenMood(mood);setFeedback(null);saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});track("quiz_palette_changed",{mood,original_preference:suggested??"open"});}
   function vote(value:Exclude<PaletteFeedback,null>){setFeedback(value);saveDiscoveryPreferences({mood:active,feedback:value,source:"mood"});track("quiz_palette_feedback",{mood:active,feedback:value,source:"quick_result"});}
-  if(!ready)return <div className={styles.loading} aria-label="Loading quiz"/>;
+  if(!ready){
+    // Real Q1 content instead of a blank loading rectangle while hydration starts.
+    const first=QUIZ_QUESTIONS[QUICK_INDEXES[0]];
+    return <section className={styles.quiz} aria-label="Loading seven-question color quiz">
+      <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
+      <div className={styles.counter}>1 / 7</div>
+      <h2 className={styles.question}>{first.text}</h2>
+      <div className={styles.options}>{first.options.map(option=><button className={styles.option} type="button" disabled key={option.label}>{option.label}</button>)}</div>
+    </section>;
+  }
   if(detail&&!quiz.completed)return <section className={styles.result}><h2 className={styles.resultHeading}>Start with the quick quiz</h2><Link className={styles.primary} href="/quiz">Start Quick Quiz →</Link></section>;
   if(detail)return <section className={styles.result} aria-label="Color mood explorer">
     <p className={styles.eyebrow}>PALEVIE · EXPLORE COLOR MOODS</p><h2 className={styles.resultHeading}>Choose a mood to explore.</h2>
@@ -91,7 +114,7 @@ export default function QuickQuizClient({detail=false,retake=false}:{detail?:boo
   </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
   return <section className={styles.quiz} aria-label="Quick color explorer">
-    <p className={styles.eyebrow}>YOUR FEATURES & MAKEUP PREFERENCES</p>
+    <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 className={styles.question}>{question.text}</h2>
     <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
@@ -99,6 +122,7 @@ export default function QuickQuizClient({detail=false,retake=false}:{detail?:boo
     <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
     {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{setQuiz(previousQuickState(quiz));lastAction.current=Date.now();}}>← Previous question</button>}
     <Link className={styles.scanEntry} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan"})}>◎ Prefer a camera color check? Open Live Guide →</Link>
+    {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
     <p className={styles.footer}>Free · 7 questions · No signup</p>
   </section>;
 }

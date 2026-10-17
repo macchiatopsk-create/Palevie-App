@@ -23,7 +23,8 @@ const MESSAGES:Record<string,[string,string]>={
  changed:["Let the camera settle","Rest your elbow and hold comfortably for a moment. We will wait for a steady comparison."],
  settling:["Checking your view","Hold comfortably for a moment. The comparison will stay still once it is ready."],
  held:["Comparison held","This is your last steady comparison, not a changing live score. Read at your pace, or refresh for a new reading."],
- obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."]
+ obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."],
+ "forehead-covered":["Forehead may be covered or shadowed","Move your hat or hair away from your forehead and avoid strong shadow. The scan will not score this view."]
 };
 export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide}:{
  videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;
@@ -133,13 +134,20 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
  const comparison=active&&phase==="running"&&view.pair===pair&&!obstructed?view.held?.comparison:null;
  const message=MESSAGES[view.pair===pair?view.status:"settling"]||MESSAGES.settling;
  const lookScore=scoreDrapeLook(comparison,goal);
+ // Give a trustworthy indication of what the scanner actually checked,
+ // instead of drawing numbered skin sampling dots on the user's face.
+ const regionStatus=lookScore&&view.status==="held"
+  ? "✓ Three regions checked: forehead and both cheeks"
+  : active&&phase==="running"&&sample?.points?.length===3
+   ? "Face detected · checking light and skin-area visibility"
+   : active&&phase==="running"?"Looking for one clearly visible face":null;
  return <>
   {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
-  {active&&stage&&mapped.length===3&&!obstructed&&createPortal(
-   <svg className={styles.overlay} viewBox={`0 0 ${layout.width} ${layout.height}`} aria-hidden>
-    {mapped.map((p,i)=><g key={i}><circle className={styles.ring} cx={p.x} cy={p.y} r={p.r}/><text className={styles.label} x={p.x+p.r+4} y={p.y+3}>{i+1}</text></g>)}
-   </svg>,stage)}
+  {/* Face landmark rings (including the forehead marker) are hidden from users.
+       The worker still measures the same areas and applies all quality checks.
+       Scan status and recommendations are displayed in the panel below. */}
   <section className={styles.panel} aria-label="Palevie live comparison guide">
+   {children}
    <div className={styles.dock} data-guide-dock>
     <div className={styles.header}>
      <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
@@ -164,6 +172,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       </div>
 
      </div>
+     {regionStatus&&<p className={styles.regionStatus} role="status">{regionStatus}</p>}
      {phase==="error"&&<p className={styles.scanError} role="alert">{scanError}</p>}
      <div className={styles.recommendation} data-guide-comparison data-look-recommendation>
       <strong>{!lookScore?"Check your camera view first":lookScore.preferred===null?"Too close to choose":`Try ${colors[lookScore.preferred].label} first`}</strong>
@@ -175,7 +184,6 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
      </div>
     </div>
    </div>
-   {children}
    <details className={styles.explain} data-guide-help>
     <summary>How to use Live Guide</summary>
     <p><b>1.</b> The private scanner starts when the camera preview plays. Keep your forehead and cheeks in view in even daylight.</p>

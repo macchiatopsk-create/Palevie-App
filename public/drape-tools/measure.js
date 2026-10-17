@@ -44,7 +44,9 @@
     if(required.some(i=>!lm[i]||!Number.isFinite(lm[i].x)||!Number.isFinite(lm[i].y)))return null;
     const fw=Math.abs(lm[454].x-lm[234].x),fh=Math.abs(lm[152].y-lm[10].y);
     const avg=ids=>({x:ids.reduce((s,i)=>s+lm[i].x,0)/ids.length,y:ids.reduce((s,i)=>s+lm[i].y,0)/ids.length,r:fw*.07});
-    return {points:[avg([10,151]),avg([50,101,205,187]),avg([280,330,425,411])],fw,fh};
+    // Landmark 10 is near the hairline and can sit under a hat brim. Sample the
+    // lower central forehead at 151, plus both cheeks, rather than the hairline.
+    return {points:[avg([151]),avg([50,101,205,187]),avg([280,330,425,411])],fw,fh};
   }
   function inspect(image,faces,previous){
     const fail=(status,points=[])=>({status,points,rgb:null});
@@ -65,6 +67,10 @@
     if(patches.some(p=>p.low>.15||p.high>.18))return fail('clipped',points);
     // No absolute skin-brightness gate: dark skin must not be treated as bad light.
     if(Math.abs(lightness(patches[1].rgb)-lightness(patches[2].rgb))>18)return fail('uneven',points);
+    // A hat brim, hair or deep shadow can be mistaken for forehead skin. Such a
+    // region should not yield an apparently successful three-site measurement.
+    const cheekLight=(lightness(patches[1].rgb)+lightness(patches[2].rgb))/2;
+    if(Math.abs(lightness(patches[0].rgb)-cheekLight)>28)return fail('forehead-covered',points);
     const rgb=[0,1,2].map(c=>median(patches.map(p=>p.rgb[c])));
     const center={x:(lm[234].x+lm[454].x)/2,y:(lm[10].y+lm[152].y)/2};
     const motion=previous?.center?Math.hypot(center.x-previous.center.x,center.y-previous.center.y):0;
