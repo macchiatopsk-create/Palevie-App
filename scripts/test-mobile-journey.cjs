@@ -1,5 +1,5 @@
 /* Actual mobile-sized Chromium/WebKit on a local production build.
- * Mock Auth and camera sources; inspect LOCAL redirect headers, never Amazon. */
+ * Mock Auth/camera. Inspect LOCAL redirect headers without following Amazon. */
 const assert=require('node:assert/strict');
 const {chromium,webkit,devices}=require('playwright');
 const BASE='http://127.0.0.1:3100',AUTH='https://palevie-regression.invalid',summary=[];
@@ -20,7 +20,6 @@ async function runCase(browser,engine,name,fn,options={}){
    if(url.pathname==='/api/explain')return json({mode:'deterministic',summary:null});
    if(url.pathname==='/api/diagnose'){errors.push('Unexpected optional photo request');return json({error:'Blocked test request'},503);}
    if(url.pathname.startsWith('/go/')){
-    // Routing may apply only to the first hop. NEVER continue a redirect chain.
     const response=await route.fetch({maxRedirects:0}),location=response.headers().location;
     if(![302,307].includes(response.status())||!location){errors.push('Missing retailer redirect');return json({error:'Missing redirect'},502);}
     const target=new URL(location,BASE);
@@ -32,14 +31,13 @@ async function runCase(browser,engine,name,fn,options={}){
   }
   if(url.origin===AUTH){
    if(req.method()==='OPTIONS')return json({});
-   authCalls.push({path:url.pathname,method:req.method()}); // No passwords/tokens in logs.
+   authCalls.push({path:url.pathname,method:req.method()}); // Never capture password/token bodies.
    if(url.pathname.endsWith('/token'))return options.codeExchange&&url.searchParams.get('grant_type')==='pkce'?json(session):json({error:'invalid_grant',error_description:'Invalid login credentials'},400);
    if(url.pathname.endsWith('/signup'))return json({user:session.user,session:null});
    if(url.pathname.endsWith('/user')){if(req.method()==='PUT'){await new Promise(r=>setTimeout(r,200));if(options.resetFails)return json({msg:'Temporary test failure'},500);}return json(session.user);}
    if(url.pathname.includes('/rest/'))return json(url.pathname.endsWith('/profiles')?null:[]);
    return json({});
   }
-  // Empty external styles avoid network dependence without loading licensed assets.
   if(url.hostname==='fonts.googleapis.com')return route.fulfill({status:200,contentType:'text/css',body:''});
   if(/(^|\.)amazon\.com$/.test(url.hostname))errors.push('Test attempted an external Amazon request');
   return route.abort();
@@ -51,8 +49,15 @@ async function runCase(browser,engine,name,fn,options={}){
  page.on('pageerror',error=>errors.push(error.message));
  page.on('requestfailed',req=>{if(req.url().startsWith(BASE))navigation.push(new URL(req.url()).pathname+': '+req.failure()?.errorText);});
  try{await fn({page,context,events,authCalls,destinations,session,mark});assert.deepEqual(errors,[],engine+' '+name+' browser errors');summary.push({engine,name,status:'PASS'});console.log('BROWSER_PASS '+engine+' '+name);}
- catch(error){summary.push({engine,name,status:'FAIL'});console.error('BROWSER_FAIL '+engine+' '+name+' stage='+stage+' '+error.message);console.error('BROWSER_ERRORS '+JSON.stringify(errors));console.error('LOCAL_REQUEST_FAILURES '+JSON.stringify(navigation.slice(-15)));console.error('PAGE_STATE '+(await page.locator('body').innerText().catch(()=>'' )).slice(0,2200));}
+ catch(error){summary.push({engine,name,status:'FAIL'});console.error('BROWSER_FAIL '+engine+' '+name+' stage='+stage+' '+error.message);console.error('BROWSER_ERRORS '+JSON.stringify(errors));console.error('CAMERA_REASONS '+JSON.stringify(events.filter(e=>e.name==='drape_camera_error').map(e=>e.props?.reason)));console.error('LOCAL_REQUEST_FAILURES '+JSON.stringify(navigation.slice(-15)));console.error('PAGE_STATE '+(await page.locator('body').innerText().catch(()=>'' )).slice(0,2200));}
  finally{await context.close();}
+}
+// Wait for the client-restored state, not only a visible SSR button. The exact
+// selected value remains mandatory; no assertion is skipped or changed to a default.
+async function pressed(page,label){
+ const button=page.getByRole('button',{name:label,exact:true});
+ await button.and(page.locator('[aria-pressed="true"]')).waitFor();
+ assert.equal(await button.getAttribute('aria-pressed'),'true');
 }
 async function completeQuiz(page){
  await page.goto(BASE+'/quiz?utm_source=qa&utm_medium=internal',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:/Find My Colors/}).click();
@@ -73,16 +78,17 @@ async function cameraStub(context,mode){
   const browser=await launcher.launch({headless:true});
   try{
    await runCase(browser,engine,'quiz-persist-drape-shop-amazon',async({page,context,events,destinations,mark})=>{
-    mark('complete quiz');await completeQuiz(page);await page.getByRole('button',{name:'Bright & playful',exact:true}).click();
-    mark('reload chosen palette');await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Bright & playful',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Bright & playful',exact:true}).getAttribute('aria-pressed'),'true');
+    mark('complete quiz');await completeQuiz(page);await page.getByRole('button',{name:'Bright & playful',exact:true}).click();await pressed(page,'Bright & playful');
+    mark('reload chosen palette');await page.reload({waitUntil:'domcontentloaded'});await pressed(page,'Bright & playful');
     mark('start draping');await page.getByRole('link',{name:/BEGIN GUIDED DRAPING/}).click();await mirror(page);await page.getByRole('button',{name:'Looks better ✓',exact:true}).first().click();await page.getByText('PAIR 2 OF 4',{exact:true}).waitFor();
     mark('reload draping');await page.reload({waitUntil:'domcontentloaded'});await page.getByText('PAIR 2 OF 4',{exact:true}).waitFor();await mirror(page);await page.getByRole('button',{name:'Previous comparison',exact:true}).click();await page.getByText('PAIR 1 OF 4',{exact:true}).waitFor();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('palevie-drape-session-v2')).picks.length),0);
     await page.waitForTimeout(280);await page.getByRole('button',{name:'Looks better ✓',exact:true}).first().click();
-    mark('open Shop');await page.getByRole('link',{name:'Skip comparisons · Browse Shop →',exact:true}).click();await page.getByRole('group',{name:'Grid density'}).waitFor();await page.getByRole('button',{name:'3 columns',exact:true}).click();
-    mark('reload grid density');await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'3 columns',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'3 columns',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.locator('article.shop-card').count(),134);
+    mark('open Shop');await page.getByRole('link',{name:'Skip comparisons · Browse Shop →',exact:true}).click();await page.getByRole('group',{name:'Grid density'}).waitFor();await page.getByRole('button',{name:'3 columns',exact:true}).click();await pressed(page,'3 columns');
+    assert.equal(await page.evaluate(()=>localStorage.getItem('palevie-shop-grid-cols')),'3');
+    mark('reload grid density');await page.reload({waitUntil:'domcontentloaded'});await pressed(page,'3 columns');assert.equal(await page.evaluate(()=>localStorage.getItem('palevie-shop-grid-cols')),'3');assert.equal(await page.locator('article.shop-card').count(),134);
     mark('validate local redirect');const link=page.locator('a.sh-card-price').first();assert.match(await link.getAttribute('href'),/^\/go\//);const [popup]=await Promise.all([context.waitForEvent('page'),link.click()]);await popup.waitForLoadState('domcontentloaded');assert.equal(destinations.length,1);assert.match(destinations[0],/amazon\.com\/dp\/[A-Z0-9]{10}/i);assert(events.some(e=>e.name==='quiz_quick_completed'));assert(events.some(e=>e.name==='drape_session_started'));
    });
-   await runCase(browser,engine,'blocked-storage-quiz-and-shop',async({page})=>{await completeQuiz(page);await page.getByRole('link',{name:'Browse the full Shop →',exact:true}).click();await page.getByRole('button',{name:'1 columns',exact:true}).click();assert.equal(await page.getByRole('button',{name:'1 columns',exact:true}).getAttribute('aria-pressed'),'true');},{blockStorage:true});
+   await runCase(browser,engine,'blocked-storage-quiz-and-shop',async({page})=>{await completeQuiz(page);await page.getByRole('link',{name:'Browse the full Shop →',exact:true}).click();await page.getByRole('button',{name:'1 columns',exact:true}).click();await pressed(page,'1 columns');},{blockStorage:true});
    await runCase(browser,engine,'camera-denied-mirror-fallback',async({page,context})=>{await cameraStub(context,'denied');await page.goto(BASE+'/quiz?mode=draping');await page.getByRole('button',{name:'Continue with camera →',exact:true}).click();await page.getByRole('button',{name:'Turn on front camera',exact:true}).click();await page.getByRole('alert').filter({hasText:'Camera access was blocked'}).waitFor();await page.getByRole('button',{name:'Use a mirror instead',exact:true}).click();await page.getByRole('button',{name:'Looks better ✓',exact:true}).first().click();await page.getByText('PAIR 2 OF 4',{exact:true}).waitFor();});
    await runCase(browser,engine,'signup-policy-and-existing-password-signin',async({page,authCalls})=>{
     await page.goto(BASE+'/account');await page.getByRole('button',{name:'Sign up',exact:true}).click();await page.getByLabel('Email',{exact:true}).fill('browser-test@example.invalid');await page.getByLabel('Password',{exact:true}).fill('password123456!');await page.getByRole('button',{name:'Create free account',exact:true}).click();await page.getByRole('status').filter({hasText:'too easy to guess'}).waitFor();assert.equal(authCalls.filter(c=>c.path.endsWith('/signup')).length,0);

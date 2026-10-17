@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const {runtime,browser}=require('./free-service-test-runtime.cjs');
-const r=runtime(),{newPasswordError}=r.load('lib/passwordPolicy.ts'),{cameraCanBeRated}=r.load('lib/cameraReadiness.ts');
+const r=runtime(),{newPasswordError}=r.load('lib/passwordPolicy.ts'),{cameraCanBeRated,cameraErrorReason}=r.load('lib/cameraReadiness.ts');
 let n=0;
 function check(name,fn){fn();console.log('MOBILE_SAFETY_PASS '+name);n++;}
 check('new-password-minimum',()=>assert(newPasswordError('short')));
@@ -19,4 +19,8 @@ check('muted-track',()=>{track.muted=true;assert.equal(cameraCanBeRated(video,st
 check('ended-track',()=>{track.readyState='ended';assert.equal(cameraCanBeRated(video,stream),false);});
 check('theme-read-with-blocked-storage',()=>{const t=runtime({window:browser(true)}).load('lib/theme.ts');assert.equal(t.loadTheme(),'silk');assert.equal(t.loadTod(),'auto');});
 check('theme-ignores-invalid-stored-slot',()=>{const w=browser();w.values.set('palevie-tod-v1','bad-slot');w.values.set('palevie-theme-v1','invalid-theme');const t=runtime({window:w}).load('lib/theme.ts');assert.equal(t.loadTheme(),'silk');assert.equal(t.loadTod(),'auto');});
+check('cross-realm-permission-error',()=>assert.equal(cameraErrorReason({name:'NotAllowedError'}),'NotAllowedError'));
+check('legacy-permission-error-name',()=>assert.equal(cameraErrorReason({name:'PermissionDeniedError'}),'NotAllowedError'));
+check('unknown-errors-never-leak-data',()=>{for(const error of [null,undefined,'private-message',{name:'private-message'}])assert.equal(cameraErrorReason(error),'camera_error');});
+check('throwing-error-name-falls-back',()=>assert.equal(cameraErrorReason({get name(){throw Error('private-message');}}),'camera_error'));
 console.log('MOBILE_SAFETY_TOTAL '+n);

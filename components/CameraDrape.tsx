@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {track} from "@/lib/analytics";
-import {cameraCanBeRated} from "@/lib/cameraReadiness";
+import {cameraCanBeRated,cameraErrorReason} from "@/lib/cameraReadiness";
 import {MARK} from "./icons";
 import DrapeLiveGuide from "./DrapeLiveGuide";
 import styles from "./CameraDrape.module.css";
@@ -69,7 +69,7 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
       setStatus("live");
     }catch(error){
       if(!mounted.current||request!==generation.current)return;
-      const reason=error instanceof DOMException?error.name:"camera_error";
+      const reason=cameraErrorReason(error);
       fail(reason,reason==="NotAllowedError"?"Camera access was blocked. Allow it in your browser settings, open Palevie in Safari or Chrome, or use a mirror.":"We could not start the camera. You can still use a mirror.");
     }
   }
