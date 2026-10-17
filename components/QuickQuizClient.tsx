@@ -55,7 +55,7 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
     <p className={styles.desc}>A quick starting palette from your answers. For a more meaningful face-side comparison, use the camera or mirror below.</p>
     <div className={styles.scanFirst}>
       <p>Want to check colors directly beside your face?</p>
-      <Link className={styles.scanPrimary} href="/quiz?mode=draping"
+      <Link className={styles.scanPrimary} href="/quiz?mode=draping&method=camera"
         onClick={()=>track("drape_cta_clicked",{source:"quick_result_scan_top"})}>◎ Camera scan & live color guide →</Link>
       <Link className={styles.scanMirror} href="/quiz?mode=draping&method=mirror"
         onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_top"})}>Use a mirror instead</Link>
