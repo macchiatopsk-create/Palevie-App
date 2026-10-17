@@ -126,7 +126,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
    if(lastFrameAt&&performance.now()-lastFrameAt>2200){lastFrameAt=0;clearMeasurements();}
   },750);
   return()=>{disposed=true;clearInterval(expiry);stop();};
- },[enabled,visible,playing,videoRef]);
+ },[enabled,visible,playing,videoRef,epoch]);
  const active=enabled&&visible&&playing;
  const mapped=sample?.pair===pair?sample.points.map(p=>mapGuidePoint(p,layout)):[];
  const obstructed=patchObstructed(mapped,layout);
@@ -144,10 +144,10 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
     <div className={styles.header}>
      <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
      <button type="button" className={`${styles.toggle} ${enabled?styles.toggleOn:""}`}
-      aria-label={enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
+      aria-label={phase==="error"?"Retry on-device scan":enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
       aria-pressed={enabled} aria-controls={toolsId} aria-describedby={consentId}
-      onClick={()=>{clearMeasurements();setEnabled(v=>!v);}}>
-      <i aria-hidden/>{enabled?"Scan active":"Start scan"} <span>{enabled?"●":"→"}</span>
+      onClick={()=>{clearMeasurements();if(phase==="error"){setScanError("");setEpoch(v=>v+1);}else setEnabled(v=>!v);}}>
+      <i aria-hidden/>{phase==="error"?"Retry scan":enabled?"Scan on":"Start scan"} <span>{phase==="error"?"↻":enabled?"●":"→"}</span>
      </button>
     </div>
     <p id={consentId} className={styles.consent}>Compares light/dark contrast for Soft or Bold looks. No camera frames uploaded.</p>
