@@ -3,8 +3,8 @@ import QuizHub from "@/components/QuizHub";
 import { pageMetadata } from "@/lib/pageMetadata";
 
 export const metadata = pageMetadata({
-  title: "Personal Color Quiz — Find Your 16-Tone Season",
-  description: "Take Palevie's guided personal color quiz to find your closest 16-tone season, palette, best colors, and comparison shades.",
+  title: "Personal Color Quiz — Guided Face-Side Draping",
+  description: "Compare seven pairs of warm/cool, light/deep and clear/soft colors beside your face in a mirror or on-device camera. See a provisional seasonal direction where observations agree.",
   path: "/quiz",
 });
 export default function QuizPage(){

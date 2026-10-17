@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/prepare-drape-guide.mjs && next dev",
-    "build": "node scripts/test-free-service.cjs && node scripts/test-mobile-safety.cjs && node scripts/prepare-drape-guide.mjs && next build",
+    "build": "node scripts/test-free-service.cjs && node scripts/test-mobile-safety.cjs && node scripts/test-tone-evidence.cjs && node scripts/prepare-drape-guide.mjs && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:free-service": "node scripts/test-free-service.cjs",
     "test:mobile-safety": "node scripts/test-mobile-safety.cjs",
+    "test:tone-evidence": "node scripts/test-tone-evidence.cjs",
     "test:quiz": "tsc lib/quiz.ts lib/palettes.ts lib/types.ts --outDir .quiztest --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node scripts/test-quiz.cjs",
     "test:skin": "tsc -p tsconfig.skintest.json && node -e \"const f='.skintest/lib/skincare.js',fs=require('fs');fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace(/@\\\\/data\\\\/products/g,'../data/products'))\" && node scripts/test-skin.cjs",
     "test:drape-guide": "node scripts/test-drape-guide.cjs"
