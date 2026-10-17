@@ -10,15 +10,12 @@ import SkinProfileClient from "./SkinProfileClient";
 import {CAT_ICON,MARK,NAV_ICON} from "./icons";
 import {loadWishlist,type SavedItem,WISHLIST_EVENT} from "@/lib/wishlist";
 import {calendarSeason,heroLight,activeTod,type TimeOfDay} from "@/lib/heroArt";
-import {EVIDENCE_KEY} from "@/lib/toneEvidence";
 const TABS=[{id:"color",label:"Color",icon:MARK.flower},{id:"makeup",label:"Makeup",icon:CAT_ICON.lip},{id:"style",label:"Style",icon:CAT_ICON.clothes},{id:"skin",label:"Skin",icon:CAT_ICON.skin}] as const;
 type TabId=(typeof TABS)[number]["id"];
 const HEADINGS:Record<TabId,{eyebrow:string;title:string;sub:string}>={color:{eyebrow:"Personal color check",title:"Compare colors beside your face",sub:"Seven self-observed drape comparisons, not a preference survey."},makeup:{eyebrow:"Makeup preferences",title:"Tell us your makeup mood",sub:"Choose the styles and categories you want to explore."},style:{eyebrow:"Style preferences",title:"Explore your clothing style",sub:"Your preferences shape your saved wardrobe ideas."},skin:{eyebrow:"Skin preferences",title:"Your skin shopping profile",sub:"Tell Palevie what you are shopping for."}};
 export default function QuizHub(){
   const router=useRouter(),params=useSearchParams(),raw=params.get("tab");const tab:TabId=TABS.some(t=>t.id===raw)?raw as TabId:"color";
   const draping=params.get("mode")==="draping";
-  // New assessment progress is kept separately from the superseded preference quiz.
-  void EVIDENCE_KEY;
   const [wl,setWl]=useState<SavedItem[]>([]),[tod,setTod]=useState<TimeOfDay>("day");
   useEffect(()=>{document.body.classList.add("h2-clean");setWl(loadWishlist());setTod(activeTod());const sync=()=>setWl(loadWishlist());window.addEventListener(WISHLIST_EVENT,sync);return()=>{document.body.classList.remove("h2-clean");window.removeEventListener(WISHLIST_EVENT,sync);};},[]);
   const select=useCallback((id:TabId)=>router.replace(id==="color"?"/quiz":`/quiz?tab=${id}`,{scroll:false}),[router]);const h=HEADINGS[tab],season=calendarSeason();
