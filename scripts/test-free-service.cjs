@@ -1,34 +1,12 @@
-/* Offline regression suite. External calls and databases are mocked.
- * Runs repository TS modules; not device/camera/checkout E2E.
+/* Actual repository modules in an offline mocked runtime. No paid calls,
+ * database fixtures, real account changes or device E2E are performed here.
  */
-const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
-const root=path.resolve(__dirname,'..'),uuid='12345678-1234-4234-8234-123456789abc';
-function browser(blocked=false){
- const values=new Map();let fail=blocked;
- const localStorage={getItem(k){if(fail)throw Error('storage blocked');return values.get(k)??null;},setItem(k,v){if(fail)throw Error('storage blocked');values.set(k,String(v));},removeItem(k){if(fail)throw Error('storage blocked');values.delete(k);}};
- return {localStorage,location:{pathname:'/quiz',search:'?utm_source=ig&utm_medium=paid&code=secret-code&email=private%40example.test'},dispatchEvent(){return true;},addEventListener(){},removeEventListener(){},fail(v){fail=v;},values};
-}
-function runtime(options={}){
- const cache=new Map(),afterTasks=[],requests=[];let database=options.db??null;
- const env={...(options.env||{})};
- const next={NextResponse:{json:(body,init={})=>new Response(JSON.stringify(body),{...init,headers:{'content-type':'application/json',...(init.headers||{})}}),redirect:(url,status=307)=>new Response(null,{status,headers:{location:String(url)}})},after:fn=>afterTasks.push(fn)};
- const context=vm.createContext({console,Date,Map,Set,URL,URLSearchParams,JSON,Math,Number,String,Array,Object,Error,Promise,RegExp,Boolean,Uint8Array,AbortController,AbortSignal,Request,Response,Headers,TextEncoder,TextDecoder,setTimeout,clearTimeout,Event,crypto:require('node:crypto').webcrypto,process:{env},window:options.window,localStorage:options.window?.localStorage,fetch:async(...args)=>{requests.push(args);if(options.fetch)return options.fetch(...args);throw Error('Real network forbidden in regression tests');}});
- function resolve(spec,from){const base=spec.startsWith('@/')?path.join(root,spec.slice(2)):path.resolve(path.dirname(from),spec);for(const suffix of ['','.ts','.tsx','.js','.json']){const p=base+suffix;if(fs.existsSync(p)&&fs.statSync(p).isFile())return p;}throw Error('Unresolved '+spec+' from '+from);}
- function load(file){
-  const absolute=path.isAbsolute(file)?file:path.join(root,file);if(cache.has(absolute))return cache.get(absolute).exports;
-  if(absolute.endsWith('.json'))return JSON.parse(fs.readFileSync(absolute,'utf8'));
-  const compiled=ts.transpileModule(fs.readFileSync(absolute,'utf8'),{fileName:absolute,reportDiagnostics:true,compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}});
-  const errors=(compiled.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error);assert.equal(errors.length,0,'TS syntax: '+absolute+' '+errors.map(d=>ts.flattenDiagnosticMessageText(d.messageText,' ')).join('; '));
-  const module={exports:{}};cache.set(absolute,module);
-  const req=spec=>{if(spec==='next/server')return next;if(spec==='crypto'||spec==='node:crypto')return require('node:crypto');if(spec.endsWith('/supabaseAdmin')||spec==='./supabaseAdmin')return {getSupabaseAdmin:()=>database};if(spec.startsWith('.')||spec.startsWith('@/'))return load(resolve(spec,absolute));if(options.modules?.[spec])return options.modules[spec];throw Error('External module not allowed: '+spec);};
-  vm.runInContext('(function(require,module,exports,__filename,__dirname){'+compiled.outputText+'\n})',context,{filename:absolute})(req,module,module.exports,absolute,path.dirname(absolute));return module.exports;
- }
- return {load,env,afterTasks,requests,setDb:db=>database};
-}
+const assert=require('node:assert/strict');
+const {runtime,browser,source}=require('./free-service-test-runtime.cjs');
+const uuid='12345678-1234-4234-8234-123456789abc';
 let passed=0,staticPassed=0;
 async function test(name,fn){await fn();passed++;console.log('PASS behavioral: '+name);}
 function sourceTest(name,fn){fn();staticPassed++;console.log('PASS source invariant: '+name);}
-const source=file=>fs.readFileSync(path.join(root,file),'utf8');
 const request=(pathname='/api/events',body={},headers={})=>new Request('https://palevie.example'+pathname,{method:'POST',headers:{'content-type':'application/json','user-agent':'PalevieRegression','x-vercel-forwarded-for':'198.51.100.11',...headers},body:JSON.stringify(body)});
 (async()=>{
  await test('blocked storage preserves ephemeral values and removal tombstones',()=>{const r=runtime({window:browser(true)}),s=r.load('lib/safeStorage.ts').safeStorage;s.setItem('x','one');assert.equal(s.getItem('x'),'one');s.removeItem('x');assert.equal(s.getItem('x'),null);});
@@ -54,41 +32,19 @@ const request=(pathname='/api/events',body={},headers={})=>new Request('https://
  const aiEnv={PALEVIE_AI_ENABLED:'true',PALEVIE_AI_QUOTA_SALT:'fixture-not-a-real-secret',PALEVIE_AI_USER_DAILY_CALL_CAP:'2',PALEVIE_AI_MONTHLY_CALL_CAP:'100',PALEVIE_AI_MONTHLY_BUDGET_USD:'1',PALEVIE_AI_ESTIMATED_COST_PER_SCAN_USD:'0.01',VERCEL:'1'};
  await test('AI defaults disabled without explicit operating authorization',async()=>{const a=runtime().load('lib/server/aiQuota.ts');assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);});
  await test('rotating a client visitor ID does not rotate AI quota',()=>{const a=runtime({env:aiEnv}).load('lib/server/aiQuota.ts'),req=request();assert.equal(a.quotaSubject('visitor-one',req),a.quotaSubject('visitor-two',req));assert.notEqual(a.quotaSubject('',req),a.quotaSubject('',request('/x',{}, {'x-vercel-forwarded-for':'198.51.100.12'})));assert.equal(a.quotaSubject('',new Request('https://palevie.example')),'');});
- await test('missing database or atomic reservation RPC fails closed',async()=>{const r=runtime({env:aiEnv}),a=r.load('lib/server/aiQuota.ts');assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);r.setDb({rpc:async()=>({data:null,error:{message:'unavailable'}})});assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);});
+ await test('missing database or atomic reservation RPC fails closed',async()=>{const r=runtime({env:aiEnv}),a=r.load('lib/server/aiQuota.ts');assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);let reached=false;r.setDb({rpc:async()=>{reached=true;return {data:null,error:{message:'unavailable'}};}});assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);assert.equal(reached,true);});
  await test('AI honors atomic deny and validates reservation ID',async()=>{const r=runtime({env:aiEnv,db:{rpc:async()=>({data:[{allowed:false,reason:'budget'}],error:null})}}),a=r.load('lib/server/aiQuota.ts');assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);r.setDb({rpc:async()=>({data:[{allowed:true,usage_id:'42'}],error:null})});assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).usageId,'42');r.setDb({rpc:async()=>({data:[{allowed:true,usage_id:'bad'}],error:null})});assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);});
  await test('missing, zero or invalid AI budget cannot create implicit allowance',async()=>{for(const value of [undefined,'0','invalid']){const env={...aiEnv};if(value===undefined)delete env.PALEVIE_AI_MONTHLY_BUDGET_USD;else env.PALEVIE_AI_MONTHLY_BUDGET_USD=value;const a=runtime({env}).load('lib/server/aiQuota.ts');assert.equal((await a.reserveAiUsage('a'.repeat(64),'color_scan','fixture')).allowed,false);}});
  await test('retired billing cannot create checkout or mutate subscriptions',async()=>{for(const file of ['app/api/checkout/route.ts','app/api/billing-portal/route.ts','app/api/webhooks/lemonsqueezy/route.ts']){const r=runtime(),res=await r.load(file).POST(request());assert.equal(res.status,410);assert.equal((await res.json()).code,'billing_retired');assert.equal(r.requests.length,0);}});
  await test('local checks are free without monthly credits',async()=>{const r=runtime(),res=await r.load('app/api/usage/product-check/route.ts').POST(request());assert.equal((await res.json()).allowed,true);const p=r.load('lib/profile.ts');assert.equal(p.localProductChecksUsed(),0);assert.equal(p.LOCAL_FREE_PRODUCT_CHECKS_MONTHLY,Infinity);});
  await test('default explanations return local summary with no provider request',async()=>{const r=runtime(),res=await r.load('app/api/explain/route.ts').POST(request('/api/explain',{result:{summary:'Local comparison'}}));assert.equal((await res.json()).summary,'Local comparison');assert.equal(r.requests.length,0);});
  await test('cloud history reports authentication and service errors honestly',async()=>{const r=runtime(),api=r.load('app/api/analyses/route.ts');assert.equal((await api.POST(request('/api/analyses'))).status,503);r.setDb({auth:{getUser:async()=>({data:{user:null},error:{message:'invalid'}})}});assert.equal((await api.POST(request('/api/analyses',{}, {authorization:'Bearer fixture'}))).status,401);});
- await test('supplied analysis UUID cannot overwrite another account',async()=>{
-  const db={auth:{getUser:async()=>({data:{user:{id:'account-one'}},error:null})}};
-  db.from=()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{user_id:'account-two'},error:null})})})});
-  const r=runtime({db}),api=r.load('app/api/analyses/route.ts');
-  const result={id:uuid,dominantHex:'#B08699',score:50,colorFit:50,verdict:'MAYBE',profileId:'reference',profileName:'Reference',alternatives:['#B08699']};
-  assert.equal((await api.POST(request('/api/analyses',{result},{authorization:'Bearer fixture'}))).status,409);
- });
+ await test('supplied analysis UUID cannot overwrite another account',async()=>{const db={auth:{getUser:async()=>({data:{user:{id:'account-one'}},error:null})}};db.from=()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{user_id:'account-two'},error:null})})})});const r=runtime({db}),api=r.load('app/api/analyses/route.ts'),result={id:uuid,dominantHex:'#B08699',score:50,colorFit:50,verdict:'MAYBE',profileId:'reference',profileName:'Reference',alternatives:['#B08699']};assert.equal((await api.POST(request('/api/analyses',{result},{authorization:'Bearer fixture'}))).status,409);});
  await test('preview analytics never write customer records',async()=>{let writes=0;const r=runtime({env:{VERCEL_ENV:'preview'},db:{from:()=>{writes++;throw Error('unexpected write');}}});const res=await r.load('app/api/events/route.ts').POST(request('/api/events',{name:'page_view',id:uuid}));assert.equal((await res.json()).ignored,true);assert.equal(writes,0);});
- await test('repeat event IDs use idempotent upsert',async()=>{
-  const ids=new Set(),db={};db.from=()=>({upsert:async(row,options)=>{assert.equal(options.onConflict,'event_id');assert.equal(options.ignoreDuplicates,true);ids.add(row.event_id);assert.equal(row.props.server_environment,'production');return {error:null};}});
-  const api=runtime({env:{VERCEL_ENV:'production'},db}).load('app/api/events/route.ts');
-  await api.POST(request('/api/events',{name:'page_view',id:uuid,props:{}}));await api.POST(request('/api/events',{name:'page_view',id:uuid,props:{}}));assert.equal(ids.size,1);
- });
+ await test('repeat event IDs use idempotent upsert',async()=>{const ids=new Set(),db={};db.from=()=>({upsert:async(row,options)=>{assert.equal(options.onConflict,'event_id');assert.equal(options.ignoreDuplicates,true);ids.add(row.event_id);assert.equal(row.props.server_environment,'production');return {error:null};}});const api=runtime({env:{VERCEL_ENV:'production'},db}).load('app/api/events/route.ts');await api.POST(request('/api/events',{name:'page_view',id:uuid,props:{}}));await api.POST(request('/api/events',{name:'page_view',id:uuid,props:{}}));assert.equal(ids.size,1);});
  await test('identified automation is not ingested as customer traffic',async()=>{let writes=0;const r=runtime({db:{from:()=>{writes++;throw Error('unexpected');}}});const res=await r.load('app/api/events/route.ts').POST(request('/api/events',{name:'page_view'},{'user-agent':'HeadlessChrome'}));assert.equal((await res.json()).ignored,true);assert.equal(writes,0);});
- await test('retailer logging is deferred and failure cannot block response construction',async()=>{
-  let writes=0;const db={};db.from=()=>({insert:()=>({abortSignal:async()=>{writes++;throw Error('offline');}})});
-  const r=runtime({env:{VERCEL_ENV:'production'},db});r.load('lib/server/outboundLog.ts').scheduleOutboundLog(new Request('https://palevie.example/go/x',{headers:{'user-agent':'PalevieRegression'}}),{visitor_id:'fixture'});
-  assert.equal(writes,0);assert.equal(r.afterTasks.length,1);await r.afterTasks[0]();assert.equal(writes,1);
- });
- await test('account deletion requires typed confirmation and ignores supplied visitor IDs',async()=>{
-  let called=false;
-  const db={auth:{getUser:async()=>({data:{user:{id:'own-user'}},error:null}),admin:{}}};
-  db.auth.admin.signOut=async()=>{called=true;return {error:null};};
-  db.auth.admin.deleteUser=async()=>{called=true;return {error:null};};
-  const r=runtime({db}),api=r.load('app/api/account/delete/route.ts');
-  const res=await api.POST(request('/api/account/delete',{visitorId:'someone-else'},{authorization:'Bearer fixture'}));
-  assert.equal(res.status,400);assert.equal(called,false);
- });
+ await test('retailer logging is deferred and failure cannot block response construction',async()=>{let writes=0;const db={};db.from=()=>({insert:()=>({abortSignal:async()=>{writes++;throw Error('offline');}})});const r=runtime({env:{VERCEL_ENV:'production'},db});r.load('lib/server/outboundLog.ts').scheduleOutboundLog(new Request('https://palevie.example/go/x',{headers:{'user-agent':'PalevieRegression'}}),{visitor_id:'fixture'});assert.equal(writes,0);assert.equal(r.afterTasks.length,1);await r.afterTasks[0]();assert.equal(writes,1);});
+ await test('account deletion requires typed confirmation and ignores supplied visitor IDs',async()=>{let called=false;const db={auth:{getUser:async()=>({data:{user:{id:'own-user'}},error:null}),admin:{}}};db.auth.admin.signOut=async()=>{called=true;return {error:null};};db.auth.admin.deleteUser=async()=>{called=true;return {error:null};};const r=runtime({db}),api=r.load('app/api/account/delete/route.ts');const res=await api.POST(request('/api/account/delete',{visitorId:'someone-else'},{authorization:'Bearer fixture'}));assert.equal(res.status,400);assert.equal(called,false);});
  await test('photo processing requires explicit consent before any provider request',async()=>{const r=runtime(),res=await r.load('app/api/diagnose/route.ts').POST(request('/api/diagnose',{imageDataUrl:'data:image/jpeg;base64,AA=='}));assert.equal(res.status,400);assert.equal(r.requests.length,0);});
  sourceTest('camera start evidence is actual playback and ratings are gated',()=>{const s=source('components/CameraDrape.tsx');for(const text of ['evidence:"video_playing"','disabled={!cameraPlaying}','drape_camera_permission_granted','stream.getTracks().forEach(t=>t.stop())'])assert(s.includes(text),text);});
  sourceTest('camera cleanup handles timeouts and page visibility',()=>{const s=source('components/CameraDrape.tsx');for(const text of ['pagehide','visibilitychange','permission_timeout','play_timeout','generation.current'])assert(s.includes(text),text);});
