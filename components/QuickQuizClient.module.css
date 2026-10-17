@@ -114,3 +114,37 @@
 .scanMirror{margin-top:8px;background:#fff;border:1px solid #e3bad0;color:#73445f!important}
 .scanEntry{display:flex;margin:14px auto 8px;justify-content:center;align-items:center;min-height:44px;border:1px solid #eab6d0;background:#ffeaf3;border-radius:12px;padding:8px 10px;font-weight:750;font-size:12px;color:#743e61;text-decoration:none;text-align:center}
 .scanFirst a:focus-visible,.scanEntry:focus-visible{outline:3px solid #cf5890;outline-offset:2px}
+
+/* 2026-10-17: Galaxy/mobile result card must never size itself from long content.
+   Previous min-content sizing overflowed the column flex parent; global html/body
+   overflow-x:hidden hid the right half instead of allowing responsive wrapping. */
+.quiz,.result{
+  box-sizing:border-box;
+  display:block;
+  width:100%;
+  max-width:560px;
+  min-width:0;
+  margin-left:auto;
+  margin-right:auto;
+  overflow-wrap:break-word;
+}
+.quiz>*,.result>*{max-width:100%;min-width:0}
+.resultHeading,.question{max-width:100%;min-width:0;white-space:normal;overflow-wrap:break-word;word-break:normal}
+.resultHeading{font-size:clamp(27px,7vw,42px)}
+.eyebrow{max-width:100%;white-space:normal;overflow-wrap:anywhere;letter-spacing:.12em}
+.result .desc,.chosenPalette p,.scanFirst p{max-width:100%;white-space:normal;overflow-wrap:break-word}
+.scanFirst,.chosenPalette,.feedback,.drapeCallout,.paletteGroups,.bigSwatches,.scanFirst a,.scanEntry,.primary,.secondary,.drapeButton{box-sizing:border-box;max-width:100%;min-width:0}
+.scanPrimary,.scanMirror,.scanEntry,.drapeButton{width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;text-align:center}
+.moodTabs{width:100%;max-width:100%;margin:14px 0 12px;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;overflow:visible}
+.moodTab,.moodActive{width:100%;min-width:0;max-width:100%;white-space:normal;overflow-wrap:break-word;line-height:1.35;min-height:48px;padding:9px 7px}
+@media(max-width:480px){
+  .result,.quiz{width:100%;max-width:100%;min-width:0;padding:22px 14px 26px}
+  .resultHeading{font-size:clamp(26px,7.1vw,34px);letter-spacing:-.035em}
+  .moodTabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .moodTab:last-child:nth-child(odd),.moodActive:last-child:nth-child(odd){grid-column:1/-1}
+  .scanFirst{padding:15px 12px}
+  .scanPrimary,.scanMirror{padding:12px 10px;font-size:13px;min-height:52px}
+  .drapeCallout{width:auto;max-width:calc(100% + 8px);margin-left:-4px;margin-right:-4px}
+  .drapeCallout h3{max-width:100%;font-size:clamp(24px,6vw,30px)}
+  .paletteGroups{grid-template-columns:1fr}
+}
