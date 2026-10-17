@@ -4,22 +4,21 @@ import Link from "next/link";
 import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import { track } from "@/lib/analytics";
 import styles from "./QuickQuizClient.module.css";
+import { COLOR_MOODS, startingColorMood, type ColorMoodId } from "@/lib/colorDiscovery";
+import VerifiedShadePicks from "@/components/VerifiedShadePicks";
 
 const QUICK_INDEXES = [0, 1, 2, 10, 17, 18, 20] as const;
 const QUICK_KEY = "palevie-quick-quiz-v3";
 
 type QuickState = { picks: (number | null)[]; cursor: number; completed: boolean };
 const initial = (): QuickState => ({ picks: Array(QUICK_INDEXES.length).fill(null), cursor: 0, completed: false });
-const COLOR_GROUPS = [
-  { label: "Warm & golden", description: "Peach, coral, honey and earth shades.", colors: ["#F2A65A","#F28C6F","#C3842C","#B96532","#68753F"] },
-  { label: "Cool & rosy", description: "Rose, mauve, berry and blue-based shades.", colors: ["#E7C7D7","#B36B8C","#C51F5D","#9381B5","#7189B8"] },
-  { label: "Soft & muted", description: "Dusty rose, taupe, beige and softened green.", colors: ["#B08699","#A8896C","#C9A099","#8D8197","#78918C"] },
-  { label: "Bright & vivid", description: "Clear pink, coral, teal and saturated colors.", colors: ["#FF4F91","#FF6B5E","#00A7A5","#3AAED8","#FFB000"] }
-] as const;
+const MOOD_KEYS: ColorMoodId[] = ["soft", "bright", "deep", "warm", "cool"];
 
 export default function QuickQuizClient({ detail = false }: { detail?: boolean }) {
   const [quiz, setQuiz] = useState<QuickState>(initial);
   const [ready, setReady] = useState(false);
+  const [chosenMood, setChosenMood] = useState<ColorMoodId | null>(null);
+  const [paletteFeedback, setPaletteFeedback] = useState<"yes" | "no" | "unsure" | null>(null);
 
   useEffect(() => {
     try {
@@ -50,12 +49,16 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
       setQuiz({ picks, cursor: quiz.cursor + 1, completed: false });
       return;
     }
+    setChosenMood(null);
+    setPaletteFeedback(null);
     setQuiz({ picks, cursor: quiz.cursor, completed: true });
     track("quiz_quick_completed", { questions: QUICK_INDEXES.length, answered: picks.filter(a => a !== null && a >= 0).length, result_type: "palette_explorer" });
   }
 
   function restart() {
     setQuiz(initial());
+    setChosenMood(null);
+    setPaletteFeedback(null);
 
     track("quiz_quick_restarted");
   }
@@ -71,11 +74,11 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
     <h2 className={styles.resultHeading}>Compare colors, don't guess a season.</h2>
     <p className={styles.desc}>Your eye color, hair color and skin depth cannot reliably establish a warm or cool season. Compare these different makeup moods before choosing what to try.</p>
     <div className={styles.paletteGroups}>
-      {COLOR_GROUPS.map(group => <div className={styles.paletteGroup} key={group.label}>
-        <h3>{group.label}</h3>
-        <p>{group.description}</p>
-        <div className={styles.groupSwatches} aria-label={group.label + " shade examples"}>
-          {group.colors.map(color => <span key={color} style={{backgroundColor:color}} />)}
+      {MOOD_KEYS.map(key => <div className={styles.paletteGroup} key={key}>
+        <h3>{COLOR_MOODS[key].label}</h3>
+        <p>{COLOR_MOODS[key].description}</p>
+        <div className={styles.groupSwatches} aria-label={COLOR_MOODS[key].label + " shade examples"}>
+          {COLOR_MOODS[key].colors.map(color => <span key={color} style={{backgroundColor:color}} />)}
         </div>
       </div>)}
     </div>
@@ -90,26 +93,65 @@ export default function QuickQuizClient({ detail = false }: { detail?: boolean }
     <Link className={styles.primary} href="/shop">Explore makeup products →</Link>
     <Link className={styles.secondary} href="/quiz">Back to My Quick Results</Link>
   </section>;
+  const suggestedMood = startingColorMood(quiz.picks[6]);
+  const activeMood = chosenMood ?? suggestedMood ?? "soft";
+  const palette = COLOR_MOODS[activeMood];
+  function changeMood(next: ColorMoodId) {
+    setChosenMood(next);
+    setPaletteFeedback(null);
+    track("quiz_palette_changed", { mood: next, original_preference: suggestedMood ?? "open" });
+  }
+  function giveFeedback(feedback: "yes" | "no" | "unsure") {
+    setPaletteFeedback(feedback);
+    track("quiz_palette_feedback", { mood: activeMood, feedback, source: "quick_result" });
+  }
+
   if (quiz.completed) return <section className={styles.result} aria-label="Quick color quiz result">
-    <p className={styles.eyebrow}>PALEVIE · YOUR COLOR STARTING POINT</p>
-    <h2 className={styles.resultHeading}>Let's explore <em>your colors.</em></h2>
-    <p className={styles.desc}>You told us about your features and makeup style. Those details help plan what to explore, but cannot determine your seasonal color type.</p>
-    <div className={styles.paletteGroups}>
-      {COLOR_GROUPS.slice(0,2).map(group => <div className={styles.paletteGroup} key={group.label}>
-        <h3>{group.label}</h3>
-        <div className={styles.groupSwatches} aria-label={group.label+" makeup shade examples"}>{group.colors.map(color=><span key={color} style={{backgroundColor:color}} />)}</div>
-      </div>)}
+    <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
+    <h2 className={styles.resultHeading}>{suggestedMood ? <>Let's try <em>{palette.label}.</em></> : <>Choose a <em>color mood.</em></>}</h2>
+    <p className={styles.desc}>
+      {suggestedMood
+        ? "We started from the makeup style you picked in question 7. Switch moods whenever you like."
+        : "You said you're open to anything, so start with whichever makeup mood catches your eye."}
+    </p>
+    <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">
+      {MOOD_KEYS.map(key => <button key={key} type="button"
+        className={activeMood === key ? styles.moodActive : styles.moodTab}
+        aria-pressed={activeMood === key} onClick={() => changeMood(key)}>{COLOR_MOODS[key].label}</button>)}
     </div>
-    <p className={styles.hint}>A starting point, not a Winter/Summer/Spring/Autumn diagnosis. Dark or light skin can have different undertones.</p>
+    <div className={styles.chosenPalette}>
+      <h3>{palette.label}</h3>
+      <p>{palette.description}</p>
+      <div className={styles.bigSwatches} aria-label={palette.label + " example colors"}>
+        {palette.colors.map(hex => <span key={hex} style={{backgroundColor:hex}} />)}
+      </div>
+      <small>Style inspiration based on your stated preferences — not a measured color match or undertone diagnosis.</small>
+    </div>
+    <div className={styles.feedback} role="group" aria-label="Does this palette feel right to explore">
+      <p>Do these colors feel right to explore?</p>
+      <div className={styles.feedbackOptions}>
+        {([["yes", "Yes 💗"], ["no", "Not really"], ["unsure", "Not sure yet"]] as const).map(([value,label]) =>
+          <button key={value} type="button" className={paletteFeedback === value ? styles.feedbackSelected : ""}
+            aria-pressed={paletteFeedback === value} onClick={() => giveFeedback(value)}>{label}</button>)}
+      </div>
+      {paletteFeedback === "no" && <small>No problem. Try a different mood above, or compare shades beside your face below.</small>}
+      {paletteFeedback === "unsure" && <small>Seeing colors near your face may help. You can also go directly to Shop.</small>}
+      {paletteFeedback === "yes" && <small>Great. Explore visually similar makeup swatches below.</small>}
+    </div>
+    {paletteFeedback !== "no" && <VerifiedShadePicks referenceHex={palette.colors[1]} surface="quick_result" />}
     <div className={styles.drapeCallout}>
-      <span className={styles.drapeEyebrow}>A MORE REFINED COLOR EXPERIENCE</span>
-      <h3>Want a more refined color check?</h3>
-      <p>Go beyond the quick quiz with guided draping. Compare shades beside your face with your camera or a mirror.</p>
-      <Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_result"})}>BEGIN GUIDED DRAPING <span aria-hidden="true">→</span></Link>
-      <small>Free to try · Camera optional · No photos stored or uploaded</small>
+      <span className={styles.drapeEyebrow}>OPTIONAL · CAMERA OR MIRROR</span>
+      <h3>See colors beside your face.</h3>
+      <p>Compare shade pairs in even light and choose what you prefer. No need to know your season first.</p>
+      <Link className={styles.drapeButton} href="/quiz?mode=draping"
+        onClick={() => track("drape_cta_clicked", { source: "quick_result", mood: activeMood })}>
+        BEGIN GUIDED DRAPING <span aria-hidden="true">→</span>
+      </Link>
+      <small>Camera optional · No certified seasonal diagnosis</small>
     </div>
-    <Link className={styles.secondary} href="/quiz?mode=detailed">Compare more palettes instead →</Link>
-    <Link className={styles.secondary} href="/shop">Explore makeup shades</Link>
+    <Link className={styles.secondary} href="/quiz?mode=detailed">Explore all color moods</Link>
+    <Link className={styles.secondary} href="/shop"
+      onClick={() => track("discovery_shop_clicked", { surface: "quick_result", mood: activeMood })}>Browse the full Shop →</Link>
     <button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
 
