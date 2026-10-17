@@ -7,19 +7,27 @@ import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDisco
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
 import { QUICK_INDEXES,QUICK_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
-import { DRAPE_KEY } from "@/lib/drapingState";
 import VerifiedShadePicks from "./VerifiedShadePicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
-export default function QuickQuizClient({detail=false}:{detail?:boolean}){
+export default function QuickQuizClient({detail=false,retake=false}:{detail?:boolean;retake?:boolean}){
   const [quiz,setQuiz]=useState(initialQuickState),[ready,setReady]=useState(false);
   const [chosenMood,setChosenMood]=useState<ColorMoodId|null>(null);
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
   const lastAction=useRef(0);
   useEffect(()=>{
-    setQuiz(normalizeQuickState(readStoredJson(QUICK_KEY)));
-    const saved=loadDiscoveryPreferences();setChosenMood(saved.mood);setFeedback(saved.feedback);setReady(true);
-  },[]);
+    if(retake){
+      safeStorage.removeItem(QUICK_KEY);
+      // A retake resets only quiz-derived mood; preserve independently recorded draping colors.
+      const saved=loadDiscoveryPreferences();
+      if(saved.source==="mood")clearDiscoveryPreferences();
+      setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
+    }else{
+      setQuiz(normalizeQuickState(readStoredJson(QUICK_KEY)));
+      const saved=loadDiscoveryPreferences();setChosenMood(saved.mood);setFeedback(saved.feedback);
+    }
+    setReady(true);
+  },[retake]);
   useEffect(()=>{if(ready)safeStorage.setItem(QUICK_KEY,JSON.stringify(quiz));},[ready,quiz]);
   function pick(choice:number){
     const now=Date.now();if(quiz.completed||now-lastAction.current<250)return;lastAction.current=now;
@@ -32,7 +40,13 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
       track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer"});
     }
   }
-  function restart(){setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);clearDiscoveryPreferences();safeStorage.removeItem(DRAPE_KEY);lastAction.current=0;track("quiz_quick_restarted");}
+  function restart(){
+    setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
+    if(loadDiscoveryPreferences().source==="mood")clearDiscoveryPreferences();
+    safeStorage.removeItem(QUICK_KEY);
+    lastAction.current=0;track("quiz_quick_restarted",{entry:"visible_retake"});
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
   const suggested=startingColorMood(quiz.picks[6]),active=chosenMood??suggested??"soft",palette=COLOR_MOODS[active];
   function changeMood(mood:ColorMoodId){setChosenMood(mood);setFeedback(null);saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});track("quiz_palette_changed",{mood,original_preference:suggested??"open"});}
   function vote(value:Exclude<PaletteFeedback,null>){setFeedback(value);saveDiscoveryPreferences({mood:active,feedback:value,source:"mood"});track("quiz_palette_feedback",{mood:active,feedback:value,source:"quick_result"});}
@@ -50,6 +64,10 @@ export default function QuickQuizClient({detail=false}:{detail?:boolean}){
     <Link className={styles.secondary} href="/quiz">Back to Quick Results</Link>
   </section>;
   if(quiz.completed)return <section className={styles.result} aria-label="Quick color quiz result">
+    <div className={styles.retakeBar} role="group" aria-label="Saved quiz result and restart">
+      <span>✓ Your saved 7-question result</span>
+      <button type="button" onClick={restart}>↻ Retake the quiz</button>
+    </div>
     <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
     <h2 className={styles.resultHeading}>Let's explore <em>{palette.label}.</em></h2>
     <p className={styles.desc}>A quick starting palette from your answers. For a more meaningful face-side comparison, use the camera or mirror below.</p>

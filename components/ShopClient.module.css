@@ -1,0 +1,9 @@
+.tryOnFilterRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:5px 0 14px}
+.tryOnFilterRow>span{font-size:11px;line-height:1.5;color:#8d6e80;flex:1;min-width:130px}
+.filterButton,.filterActive{font:inherit;font-weight:750;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:45px;padding:9px 15px;border:1px solid #e6b6d1;border-radius:14px;color:#743857;background:#fff6fa}
+.filterActive{background:#d15e91;color:#fff;border-color:#ca5589}
+.filterButton span,.filterActive span{font-size:14px}
+.tryOnButton{display:block!important;width:100%!important;min-height:35px!important;padding:8px 7px!important;border-radius:10px!important;background:#d86094!important;border-color:#d86094!important;color:#fff!important;font-size:11px!important;font-weight:800!important;white-space:normal!important;line-height:1.35!important}
+.tryOnButton:hover{background:#b64378!important}
+.tryOnButton:focus-visible,.filterButton:focus-visible,.filterActive:focus-visible{outline:3px solid #bd5d8d;outline-offset:2px}
+@media(max-width:430px){.tryOnFilterRow>span{flex-basis:100%}.tryOnButton{min-height:39px!important}}
