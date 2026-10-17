@@ -1,0 +1,45 @@
+name: Mobile journey
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mobile-journey-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser-regression:
+    # Standard public-repository runner only; no paid runners, cache or artifact uploads.
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PALEVIE_AI_ENABLED: 'false'
+      PALEVIE_AI_EXPLANATIONS_ENABLED: 'false'
+      NEXT_PUBLIC_SUPABASE_URL: 'https://palevie-regression.invalid'
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-public-key-not-a-secret'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Install isolated browser tools
+        # 1.56 has a confirmed upstream WebKit reload regression (#37766).
+        # Use the verified 1.59.1 release without changing application dependencies.
+        run: |
+          npm install --prefix "$RUNNER_TEMP/palevie-playwright" --no-audit --no-fund --ignore-scripts playwright@1.59.1
+          node "$RUNNER_TEMP/palevie-playwright/node_modules/playwright/cli.js" install --with-deps chromium webkit > "$RUNNER_TEMP/browser-install.log" 2>&1 || { tail -80 "$RUNNER_TEMP/browser-install.log"; exit 1; }
+          echo "Chromium and WebKit installed."
+      - name: Test local mobile journeys without customer traffic
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3100 > "$RUNNER_TEMP/palevie-server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for n in $(seq 1 60); do curl --silent --fail http://127.0.0.1:3100/pricing > /dev/null && break; sleep 1; done
+          NODE_PATH="$RUNNER_TEMP/palevie-playwright/node_modules" node scripts/test-mobile-journey.cjs
