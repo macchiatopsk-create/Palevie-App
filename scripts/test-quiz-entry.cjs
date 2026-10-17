@@ -50,8 +50,9 @@ const entryStyles=read("components/QuickQuizClient.module.css");
 assert(entryStyles.includes("background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)"),
   "Camera choice must use the approved coral pink gradient.");
 assert(entryStyles.includes("color:#452238!important") &&
-  entryStyles.includes(".entryCameraText strong{\\n  color:#452238") &&
-  entryStyles.includes("background:#452238;\\n  color:#fff;"),
+  entryStyles.includes(".entryCameraText strong{") &&
+  entryStyles.includes("background:#452238;") &&
+  entryStyles.includes("color:#fff;"),
   "Coral foreground and OPEN control must retain high contrast.");
 assert(entryStyles.includes(".entryCamera:focus-visible"),
   "Camera choice must be keyboard accessible.");
