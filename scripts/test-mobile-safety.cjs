@@ -66,7 +66,7 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
  });
  await test('UI invariant: quick seven-question quiz is default, advanced draping is optional',()=>{
   const hub=source('components/QuizHub.tsx'),quick=source('components/QuickQuizClient.tsx');
-  assert(hub.includes('expert?<ToneEvidenceQuiz/>:<QuickQuizClient detail={detailed} retake={retake}/>'));
+  assert(hub.includes('expert?<ToneEvidenceQuiz/>:<QuickQuizClient key={showResult?"saved-result":retake?"new-quiz":"active-quiz"} detail={detailed} retake={retake} showResult={showResult}/>'));
   assert(quick.includes('Camera scan & live color guide'));
   assert(quick.includes('/quiz?mode=draping&method=camera'));
   assert(quick.includes('Advanced 7-color face comparison'));
