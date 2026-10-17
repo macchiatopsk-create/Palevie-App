@@ -7,6 +7,7 @@ import type {GuideComparison,GuideLayout,GuidePoint} from "@/lib/drapeGuideView"
 import styles from "./DrapeLiveGuide.module.css";
 import DrapeColorControls from "./DrapeColorControls";
 import {scoreDrapeLook,type DrapeLookGoal} from "@/lib/drapeLookScore";
+import {captureLocalGuideFrame} from "@/lib/localGuideFrame";
 
 type Color={label:string;hex:string};
 type Measurement={type:"measurement";status:string;points:GuidePoint[];comparison:GuideComparison|null;pair:string;received:number};
@@ -29,8 +30,10 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
 }){
  const consentId=useId(),toolsId=useId();
  const [goal,setGoal]=useState<DrapeLookGoal>("soft");
- const [enabled,setEnabled]=useState(false),[visible,setVisible]=useState(true);
+ // A user explicitly selected CAMERA SCAN: no second hidden toggle is needed.
+ const [enabled,setEnabled]=useState(true),[visible,setVisible]=useState(true);
  const [phase,setPhase]=useState<Phase>("off"),[sample,setSample]=useState<Measurement|null>(null);
+ const [scanError,setScanError]=useState("");
  const [epoch,setEpoch]=useState(0);
  // Epoch rejects an in-flight result when Refresh is tapped, without recording frames.
  const pair=colors.map(c=>c.hex).join("|")+":"+epoch;
@@ -68,29 +71,35 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
   clearMeasurements();
   if(!enabled){setPhase("off");return;}
   if(!visible||!playing){setPhase("paused");return;}
-  if(typeof Worker==="undefined"||typeof createImageBitmap==="undefined"||typeof OffscreenCanvas==="undefined"){
-   setPhase("error");return;
+  if(typeof Worker==="undefined"){
+   setScanError("This browser does not support the on-device scanner. Try Chrome or the mirror.");setPhase("error");return;
   }
   let disposed=false,busy=false,lastFrameAt=0;
   let timer:ReturnType<typeof setTimeout>|undefined,deadline:ReturnType<typeof setTimeout>|undefined;
   let worker:Worker;
   const stop=()=>{if(timer)clearTimeout(timer);if(deadline)clearTimeout(deadline);worker?.terminate();workerRef.current=null;};
-  const fail=()=>{if(disposed)return;disposed=true;stop();clearMeasurements();setPhase("error");};
+  const fail=()=>{if(disposed)return;disposed=true;stop();clearMeasurements();setScanError("Could not process the camera preview. Try Chrome, use a mirror, or turn scanning off to compare manually.");setPhase("error");};
   const schedule=()=>{if(!disposed)timer=setTimeout(frame,300);};
   async function frame(){
    const video=videoRef.current;if(disposed||busy)return;
    if(!video||video.paused||video.ended||video.readyState<2||!video.videoWidth){clearMeasurements();schedule();return;}
    busy=true;let bitmap:ImageBitmap|null=null;
    try{
-    const scale=Math.min(1,360/Math.max(video.videoWidth,video.videoHeight));
-    bitmap=await createImageBitmap(video,{resizeWidth:Math.round(video.videoWidth*scale),resizeHeight:Math.round(video.videoHeight*scale)});
-    if(disposed){bitmap.close();return;}
+    const capture=await captureLocalGuideFrame(video);
+    if(capture.kind==="bitmap")bitmap=capture.bitmap;
+    if(disposed){bitmap?.close();return;}
     deadline=setTimeout(fail,12000);
-    worker.postMessage({type:"frame",bitmap,timestamp:performance.now(),colors:colorsRef.current,pair:pairRef.current},[bitmap]);bitmap=null;
+    if(capture.kind==="bitmap"){
+      worker.postMessage({type:"frame",bitmap:capture.bitmap,timestamp:performance.now(),colors:colorsRef.current,pair:pairRef.current},[capture.bitmap]);
+      bitmap=null;
+    }else{
+      worker.postMessage({type:"frame",pixels:{width:capture.width,height:capture.height,data:capture.data},
+        timestamp:performance.now(),colors:colorsRef.current,pair:pairRef.current},[capture.data.buffer]);
+    }
    }catch{bitmap?.close();fail();}
   }
   try{
-   setPhase("loading");worker=new Worker("/drape-tools/guide-worker.js");workerRef.current=worker;
+   setScanError("");setPhase("loading");worker=new Worker("/drape-tools/guide-worker.js");workerRef.current=worker;
    deadline=setTimeout(fail,45000);
    worker.onerror=(event)=>{event.preventDefault();fail();};
    worker.onmessage=({data})=>{
@@ -117,7 +126,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
    if(lastFrameAt&&performance.now()-lastFrameAt>2200){lastFrameAt=0;clearMeasurements();}
   },750);
   return()=>{disposed=true;clearInterval(expiry);stop();};
- },[enabled,visible,playing,videoRef]);
+ },[enabled,visible,playing,videoRef,epoch]);
  const active=enabled&&visible&&playing;
  const mapped=sample?.pair===pair?sample.points.map(p=>mapGuidePoint(p,layout)):[];
  const obstructed=patchObstructed(mapped,layout);
@@ -135,10 +144,10 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
     <div className={styles.header}>
      <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
      <button type="button" className={`${styles.toggle} ${enabled?styles.toggleOn:""}`}
-      aria-label={enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
+      aria-label={phase==="error"?"Retry on-device scan":enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
       aria-pressed={enabled} aria-controls={toolsId} aria-describedby={consentId}
-      onClick={()=>{clearMeasurements();setEnabled(v=>!v);}}>
-      <i aria-hidden/>{enabled?"Scan active":"Start scan"} <span>{enabled?"●":"→"}</span>
+      onClick={()=>{clearMeasurements();if(phase==="error"){setScanError("");setEpoch(v=>v+1);}else setEnabled(v=>!v);}}>
+      <i aria-hidden/>{phase==="error"?"Retry scan":enabled?"Scan on":"Start scan"} <span>{phase==="error"?"↻":enabled?"●":"→"}</span>
      </button>
     </div>
     <p id={consentId} className={styles.consent}>Compares light/dark contrast for Soft or Bold looks. No camera frames uploaded.</p>
@@ -151,10 +160,11 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
      </div>
      <div className={styles.notice}>
       <div role="status" className={`${styles.status} ${comparison?styles.ready:""}`}><i className={styles.dot}/>
-       {phase==="loading"?"Loading tools on this device…":phase==="error"?"Live Guide is unavailable here":phase==="paused"?"Guide paused":message[0]}
+       {phase==="loading"?"Preparing live scan…":phase==="error"?"Scan unavailable — mirror or browser":phase==="paused"?"Waiting for camera video":message[0]}
       </div>
 
      </div>
+     {phase==="error"&&<p className={styles.scanError} role="alert">{scanError}</p>}
      <div className={styles.recommendation} data-guide-comparison data-look-recommendation>
       <strong>{!lookScore?"Check your camera view first":lookScore.preferred===null?"Too close to choose":`Try ${colors[lookScore.preferred].label} first`}</strong>
       <small>{lookScore?`For a ${goal} look · not a season-match score.`:"Scores appear on the camera buttons after a steady reading."}</small>
@@ -168,7 +178,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
    {children}
    <details className={styles.explain} data-guide-help>
     <summary>How to use Live Guide</summary>
-    <p><b>1.</b> Tap <b>Live Guide</b> directly above the camera. Keep your phone comfortable; your face does not need to fit the outline.</p>
+    <p><b>1.</b> The private scanner starts when the camera preview plays. Keep your forehead and cheeks in view in even daylight.</p>
     <p><b>2.</b> Choose Soft look for a more blended effect, or Bold look for a stronger stand-out effect. Read the /100 scores on the camera buttons and tap a shade there; no scrolling needed.</p>
     <p><b>3.</b> <b>Comparison held</b> keeps that reading still. Tap <b>Refresh comparison</b> for a new reading after changing light or position.</p>
     <p>Higher scores mean more of your selected effect, not greater beauty or more accurate personal color. A recommendation only compares these two shades for that goal. Close scores do not pick a winner. Use <b>Honestly can&apos;t tell</b> when unsure.</p>
