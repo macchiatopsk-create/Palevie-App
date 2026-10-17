@@ -155,3 +155,7 @@
 .retakeBar button{min-height:44px;padding:9px 12px;border:1px solid #bf5c8c;border-radius:11px;background:#fff;color:#7a3460;font-size:13px;font-weight:800;cursor:pointer}
 .retakeBar button:focus-visible{outline:3px solid #b75687;outline-offset:2px}
 @media(max-width:440px){.retakeBar{padding:10px;margin:-8px 0 15px}.retakeBar span{flex:1 1 100%}.retakeBar button{width:100%}}
+
+/* Previous results are always optional: the Quiz tab opens actual questions. */
+.savedResultLink{display:flex;width:100%;max-width:100%;min-height:47px;align-items:center;justify-content:center;padding:10px 12px;margin-top:11px;border:1px solid #e6bfd2;border-radius:12px;background:#fff;color:#7c4363;font-weight:750;font-size:12px;line-height:1.4;text-decoration:none;text-align:center;overflow-wrap:break-word}
+.savedResultLink:focus-visible{outline:3px solid #bd76a0;outline-offset:3px}
