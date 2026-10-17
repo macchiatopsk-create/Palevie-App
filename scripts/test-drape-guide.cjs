@@ -44,7 +44,7 @@ test('guide component has no storage or analytics calls',()=>{const src=fs.readF
  assert.deepEqual(Object.keys(output).sort(),['comparison','pair','points','status','type']);
  console.log('PASS no image, full mesh, face color or identifiers in UI message');passed++;
  // Android/WebView canvas path sends local RGBA instead of a video ImageBitmap.
- for(let i=0;i<6;i++)await self.onmessage({data:{type:'frame',timestamp:3000+i*300,colors:[{hex:'#888888'},{hex:'#ffffff'}],pair:'mobile-pixels',pixels:{width:320,height:320,data:new Uint8ClampedArray(320*320*4)}}}});
+ for(let i=0;i<6;i++)await self.onmessage({data:{type:'frame',timestamp:3000+i*300,colors:[{hex:'#888888'},{hex:'#ffffff'}],pair:'mobile-pixels',pixels:{width:320,height:320,data:new Uint8ClampedArray(320*320*4)}}});
  const transferred=messages.at(-1);
  assert.equal(transferred.type,'measurement');assert.equal(transferred.status,'ready');
  assert.ok(transferred.comparison);assert.deepEqual(Object.keys(transferred).sort(),['comparison','pair','points','status','type']);
