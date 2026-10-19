@@ -360,3 +360,63 @@
 .moodDisclosure .feedbackOptions button{border-color:#f5c2d2;color:#a83e70}
 .moodDisclosure .feedbackOptions button.feedbackSelected{background:#ffe2ee;border-color:#f47fa8;color:#a5285e}
 @media(prefers-reduced-motion:reduce){.moodDisclosure > summary::after{transition:none}}
+
+
+/* Compact, readable quiz answer history, scoped to completed results only. */
+.featureNotes{
+  margin:18px 0 14px;
+  padding:11px 13px;
+  border-color:#f5cade;
+  border-radius:16px;
+  background:#fff8fb;
+  color:#793f5e;
+  font-family:Inter,"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+.featureNotes > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:46px;
+  padding:8px 7px;
+  list-style:none;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:750;
+  line-height:1.4;
+  letter-spacing:-.018em;
+  color:#b33b72;
+}
+.featureNotes > summary::-webkit-details-marker{display:none}
+.featureNotes > summary::marker{content:""}
+.featureNotes > summary::after{
+  content:"";
+  flex:none;
+  width:9px;
+  height:9px;
+  margin-right:5px;
+  border-right:2px solid #cc598a;
+  border-bottom:2px solid #cc598a;
+  transform:rotate(45deg);
+  transition:transform .15s;
+}
+.featureNotes[open] > summary::after{transform:rotate(225deg)}
+.featureNotes > summary:focus-visible{outline:3px solid #e97aa4;outline-offset:2px;border-radius:9px}
+.featureNotes .featureIntro{
+  font-size:12px;
+  line-height:1.5;
+  color:#987082;
+  margin:6px 7px 12px;
+}
+.featureAnswer{
+  display:grid;
+  gap:5px;
+  padding:12px 6px;
+  border-top:1px solid #f1dbe4;
+  font-size:12px;
+  line-height:1.45;
+}
+.featureAnswer strong{font-size:12px;font-weight:700;color:#704156;line-height:1.45}
+.featureAnswer span{font-size:13px;color:#b63d70;font-weight:650}
+@media(prefers-reduced-motion:reduce){.featureNotes > summary::after{transition:none}}
