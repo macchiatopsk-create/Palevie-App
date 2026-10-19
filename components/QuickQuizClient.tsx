@@ -1,5 +1,5 @@
 "use client";
-import { useEffect,useRef,useState } from "react";
+import { useEffect,useRef,useState,type TouchEvent,type MouseEvent } from "react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import { QUIZ_QUESTIONS } from "@/lib/quiz";
@@ -19,6 +19,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
   // Lock just the question that handled a tap; never drop an immediate next-question tap.
   const lastAnsweredState=useRef<QuickState|null>(null);
+  const answerTouchStart=useRef<{x:number;y:number}|null>(null);
+  const handledTouch=useRef<{x:number;y:number;at:number}|null>(null);
   useEffect(()=>{
     // Existing users may have an auto-restored completed result. Show Q1 instead.
     // Preserve their previous result under a separate key, only on explicit request.
@@ -60,6 +62,27 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});
       track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer",result_version:"product_first_v1"});
     }
+  }
+  // Android browsers can retain :hover after a tap and delay/suppress click.
+  // Commit a short, stationary touch on touchend; click still covers keyboard/mouse.
+  function onAnswerTouchStart(e:TouchEvent<HTMLButtonElement>){
+    const t=e.touches[0];
+    answerTouchStart.current=t?{x:t.clientX,y:t.clientY}:null;
+  }
+  function onAnswerTouchEnd(e:TouchEvent<HTMLButtonElement>,choice:number){
+    const start=answerTouchStart.current,t=e.changedTouches[0];answerTouchStart.current=null;
+    if(!start||!t||Math.hypot(t.clientX-start.x,t.clientY-start.y)>14)return;
+    if(e.cancelable)e.preventDefault(); // Avoid a synthetic click answering the NEXT question.
+    handledTouch.current={x:t.clientX,y:t.clientY,at:Date.now()};
+    pick(choice);
+  }
+  function onAnswerClick(e:MouseEvent<HTMLButtonElement>,choice:number){
+    const touch=handledTouch.current;
+    // Some WebViews still emit a compatibility click after canceled touchend.
+    // This ONLY suppresses the generated click for that same gesture/position.
+    if(touch&&e.detail>0&&Date.now()-touch.at<900&&
+        Math.hypot(e.clientX-touch.x,e.clientY-touch.y)<25)return;
+    pick(choice);
   }
   function restart(){
     setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
@@ -151,8 +174,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 id="quiz-questions" className={styles.question}>{question.text}</h2>
     <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
-    <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
-    <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
+    <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onTouchStart={onAnswerTouchStart} onTouchEnd={e=>onAnswerTouchEnd(e,index)} onTouchCancel={()=>{answerTouchStart.current=null;}} onClick={e=>onAnswerClick(e,index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
+    <button className={styles.skip} type="button" onTouchStart={onAnswerTouchStart} onTouchEnd={e=>onAnswerTouchEnd(e,-1)} onTouchCancel={()=>{answerTouchStart.current=null;}} onClick={e=>onAnswerClick(e,-1)}>Not sure? Skip this one</button>
     {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{lastAnsweredState.current=null;setQuiz(previousQuickState(quiz));}}>← Previous question</button>}
     {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
     <p className={styles.footer}>Free · 7 questions · No signup</p>
