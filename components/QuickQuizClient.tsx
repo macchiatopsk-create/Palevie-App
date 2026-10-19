@@ -8,7 +8,7 @@ import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDisco
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
 import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState,quickRouteState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
-import VerifiedShadePicks from "./VerifiedShadePicks";
+import ResultProductPicks from "./ResultProductPicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
 export default function QuickQuizClient({detail=false,retake=false,showResult=false}:{detail?:boolean;retake?:boolean;showResult?:boolean}){
@@ -41,6 +41,12 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     // Saving an explicit previous-result view must not erase fresh quiz progress.
     if(ready&&!showResult)safeStorage.setItem(QUICK_KEY,JSON.stringify(quiz));
   },[ready,quiz,showResult]);
+  useEffect(()=>{
+    // Completion should show the result, not leave the viewport at the old answer.
+    if(!ready||!quiz.completed)return;
+    const frame=window.requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"auto"}));
+    return()=>window.cancelAnimationFrame(frame);
+  },[ready,quiz.completed]);
   function pick(choice:number){
     const now=Date.now();if(quiz.completed||now-lastAction.current<250)return;lastAction.current=now;
     const next=answerQuickState(quiz,choice);if(next===quiz)return;
@@ -50,7 +56,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       safeStorage.setItem(QUICK_RESULT_KEY,JSON.stringify(next));setHasSavedResult(true);
       const mood=startingColorMood(next.picks[6]);setChosenMood(mood);setFeedback(null);
       saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});
-      track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer"});
+      track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer",result_version:"product_first_v1"});
     }
   }
   function restart(){
@@ -93,21 +99,23 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     </div>
     <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
     <h2 className={styles.resultHeading}>Let's explore <em>{palette.label}.</em></h2>
-    <p className={styles.desc}>A quick starting palette from your answers. For a more meaningful face-side comparison, use the camera or mirror below.</p>
+    <p className={styles.desc}>{chosenMood||suggested?"A starting palette from your style choice.":"An example palette to get you started."} Not a skin-tone diagnosis. Compare products now, or change the mood below.</p>
+    <details className={styles.chosenPalette} open={feedback==="no"?true:undefined}>
+      <summary>Change your color mood &amp; view the palette</summary>
+      <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">{MOODS.map(key=><button key={key} type="button" className={active===key?styles.moodActive:styles.moodTab} aria-pressed={active===key} onClick={()=>changeMood(key)}>{COLOR_MOODS[key].label}</button>)}</div>
+      <h3>{palette.label}</h3><p>{palette.description}</p><div className={styles.bigSwatches} aria-label="Illustrative palette">{palette.colors.map(hex=><span key={hex} style={{backgroundColor:hex}}/>)}</div><small>Style inspiration, not a measured color match or undertone diagnosis.</small>
+      <div className={styles.feedback} role="group" aria-label="Palette feedback"><p>Do these colors feel right to explore?</p><div className={styles.feedbackOptions}>{([["yes","Yes 💗"],["no","Not really"],["unsure","Not sure yet"]] as const).map(([value,label])=><button key={value} type="button" className={feedback===value?styles.feedbackSelected:""} aria-pressed={feedback===value} onClick={()=>vote(value)}>{label}</button>)}</div>
+        {feedback==="no"&&<small>We won't use this mood for recommendations. Choose another mood or try guided comparisons.</small>}{feedback==="unsure"&&<small>You can compare colors beside your face, or browse Shop without finishing draping.</small>}
+      </div>
+    </details>
+    {feedback!=="no"?<ResultProductPicks mood={active}/>:<p className={styles.desc}>No product picks from this mood. Choose another color mood above, or <Link href="/shop">browse the full Shop</Link>.</p>}
     <div className={styles.scanFirst}>
-      <p>Want to check colors directly beside your face?</p>
+      <p>Optional: compare colors beside your face.</p>
       <Link className={styles.scanPrimary} href="/quiz?mode=draping&method=camera"
-        onClick={()=>track("drape_cta_clicked",{source:"quick_result_scan_top"})}>◎ Camera scan & live color guide →</Link>
+        onClick={()=>track("drape_cta_clicked",{source:"quick_result_scan_optional",result_version:"product_first_v1"})}>◎ Camera scan &amp; live color guide →</Link>
       <Link className={styles.scanMirror} href="/quiz?mode=draping&method=mirror"
-        onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_top"})}>Use a mirror instead</Link>
+        onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_optional",result_version:"product_first_v1"})}>Use a mirror instead</Link>
     </div>
-    <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">{MOODS.map(key=><button key={key} type="button" className={active===key?styles.moodActive:styles.moodTab} aria-pressed={active===key} onClick={()=>changeMood(key)}>{COLOR_MOODS[key].label}</button>)}</div>
-    <div className={styles.chosenPalette}><h3>{palette.label}</h3><p>{palette.description}</p><div className={styles.bigSwatches} aria-label="Illustrative palette">{palette.colors.map(hex=><span key={hex} style={{backgroundColor:hex}}/>)}</div><small>Style inspiration, not a measured color match or undertone diagnosis.</small></div>
-    <div className={styles.feedback} role="group" aria-label="Palette feedback"><p>Do these colors feel right to explore?</p><div className={styles.feedbackOptions}>{([["yes","Yes 💗"],["no","Not really"],["unsure","Not sure yet"]] as const).map(([value,label])=><button key={value} type="button" className={feedback===value?styles.feedbackSelected:""} aria-pressed={feedback===value} onClick={()=>vote(value)}>{label}</button>)}</div>
-      {feedback==="no"&&<small>We won't use this mood for recommendations. Choose another mood or try guided comparisons.</small>}{feedback==="unsure"&&<small>You can compare colors beside your face, or browse Shop without finishing draping.</small>}
-    </div>
-    {feedback!=="no"&&<VerifiedShadePicks referenceHex={palette.colors[1]} surface="quick_result"/>}
-    <div className={styles.drapeCallout}><span className={styles.drapeEyebrow}>OPTIONAL · CAMERA OR MIRROR</span><h3>See colors beside your face.</h3><p>Compare shade pairs in even light and choose what you prefer.</p><Link className={styles.drapeButton} href="/quiz?mode=draping" onClick={()=>track("drape_cta_clicked",{source:"quick_result",mood:active})}>BEGIN GUIDED DRAPING →</Link><small>Camera optional · No certified seasonal diagnosis</small></div>
     <details className={styles.chosenPalette}><summary>Your feature notes</summary><p>Questions 1–6 are descriptive notes. They are not used to assign a color season.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><p key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><br/>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</p>)}</details>
     <Link className={styles.secondary} href="/quiz?mode=expert">Advanced 7-color face comparison →</Link>
     <Link className={styles.secondary} href="/quiz?mode=detailed">Explore all color moods</Link><Link className={styles.secondary} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"quick_result",mood:active})}>Browse the full Shop →</Link><button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
