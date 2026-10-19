@@ -71,7 +71,7 @@ assert.strictEqual(q.answerQuickStateOnce(q0,999,null),q0,"Bad choices still can
 assert(quick.includes("answerQuickStateOnce(quiz,choice,lastAnsweredState.current)"));
 assert(quick.includes("lastAnsweredState.current=quiz"));
 assert(quick.includes("lastAnsweredState.current=null;setQuiz(previousQuickState(quiz));"));
-assert(!quick.includes("lastAction")&&!quick.includes("Date.now()"),"No global time-based click blocking");
+assert(!quick.includes("lastAction") && !quick.includes("now-lastAction") && quick.includes("isSyntheticQuickTouchClick"),"No cross-question time blocking; only same-gesture compatibility clicks may be filtered");
 assert(quick.includes('className={`${styles.chosenPalette} ${styles.moodDisclosure}`}'));
 assert(quick.includes("Change your color mood &amp; view the palette"));
 const rose=entryStyles;
