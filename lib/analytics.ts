@@ -6,6 +6,7 @@ export type AnalyticsEventName =
   | "quiz_started" | "quiz_answered" | "quiz_completed"
   | "quiz_quick_answered" | "quiz_quick_completed" | "quiz_quick_restarted" | "quiz_detailed_started"
   | "quiz_palette_feedback" | "quiz_palette_changed" | "discovery_product_clicked" | "discovery_shop_clicked"
+  | "result_products_viewed" | "result_product_viewed" | "result_shopping_preference_changed" | "result_product_details_opened"
   | "tone_evidence_started" | "tone_evidence_answered" | "tone_evidence_completed"
   | "ai_scan_started" | "ai_scan_completed" | "ai_scan_failed" | "bio_consent_given"
   | "member_setup_shown" | "member_setup_done" | "member_profile_updated"
