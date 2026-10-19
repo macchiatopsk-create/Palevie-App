@@ -102,7 +102,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
     <h2 className={styles.resultHeading}>Let's explore <em>{palette.label}.</em></h2>
     <p className={styles.desc}>{chosenMood||suggested?"A starting palette from your style choice.":"An example palette to get you started."} Not a skin-tone diagnosis. Compare products now, or change the mood below.</p>
-    <details className={styles.chosenPalette} open={feedback==="no"?true:undefined}>
+    <details className={`${styles.chosenPalette} ${styles.moodDisclosure}`} open={feedback==="no"?true:undefined}>
       <summary>Change your color mood &amp; view the palette</summary>
       <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">{MOODS.map(key=><button key={key} type="button" className={active===key?styles.moodActive:styles.moodTab} aria-pressed={active===key} onClick={()=>changeMood(key)}>{COLOR_MOODS[key].label}</button>)}</div>
       <h3>{palette.label}</h3><p>{palette.description}</p><div className={styles.bigSwatches} aria-label="Illustrative palette">{palette.colors.map(hex=><span key={hex} style={{backgroundColor:hex}}/>)}</div><small>Style inspiration, not a measured color match or undertone diagnosis.</small>
