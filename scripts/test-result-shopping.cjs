@@ -102,6 +102,39 @@ test('result shopping precedes optional camera, with seven-question entry unchan
  assert(c.includes('nofollow sponsored noopener noreferrer'));assert(c.includes('As an Amazon Associate'));
  assert(!c.includes('priceLabel'));assert(!c.includes('<img'));assert(!c.includes('signIn'));assert(c.includes('toggleProduct(id)'));
 });
+test('Android-friendly choices stay inline and retain exact type/finish filtering',()=>{
+ const component=source('components/ResultProductPicks.tsx');
+ const css=source('components/ResultProductPicks.module.css');
+ assert(!component.includes('<select') && !component.includes('<option'),'No native Android fullscreen dropdown');
+ assert(component.includes('<fieldset className={styles.filterGroup}>'));
+ assert(component.includes('<legend>Looking for</legend>'));
+ assert(component.includes('<legend>Finish</legend>'));
+ assert(component.includes('aria-pressed={preferences.category===value}'));
+ assert(component.includes('aria-pressed={preferences.finish===value}'));
+ assert(component.includes('choose({...preferences,category:value as ShoppingPreferences["category"]})'));
+ assert(component.includes('choose({...preferences,finish:value as ShoppingPreferences["finish"]})'));
+ assert(component.includes('normalizeShoppingPreferences(readStoredJson(PREF_KEY))'));
+ assert(component.includes('track("result_shopping_preference_changed"'));
+ for(const key of Object.keys(m.SHOPPING_CATEGORIES)) assert(component.includes('SHOPPING_CATEGORIES'),'Categories remain data-driven: '+key);
+ assert(css.includes('.choice[aria-pressed="true"]'),'Current selection must be visibly distinct');
+ assert(css.includes('@media(max-width:440px){.choices{grid-template-columns:repeat(2,minmax(0,1fr))}'));
+ assert(css.includes('min-height:45px') && css.includes('touch-action:manipulation'));
+ assert(!css.includes('\\\\n@media'),'CSS must not contain escaped media query newlines');
+});
+test('quiz history and secondary navigation use compact pink styling, not oversized generic buttons',()=>{
+ const component=source('components/QuickQuizClient.tsx');
+ const css=source('components/QuickQuizClient.module.css');
+ assert(component.includes('<summary>Your quiz answers</summary>'));
+ assert(component.includes('className={styles.featureAnswer}'));
+ assert(component.includes('<nav className={styles.resultExtras}'));
+ assert(component.includes('href="/quiz?mode=expert"'));
+ assert(component.includes('href="/quiz?mode=detailed"'));
+ assert(component.includes('href="/shop" onClick={()=>track("discovery_shop_clicked"'));
+ assert(css.includes('.featureNotes > summary') && css.includes('.featureAnswer span'));
+ assert(css.includes('.resultExtras a + a'));
+ assert(css.includes('font-family:Inter,"Avenir Next","Segoe UI"'));
+ assert(css.includes('background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)'));
+});
 async function apiChecks(){
  const rows=[],db={from:table=>({upsert:async row=>{assert.equal(table,'events');rows.push(row);return {error:null};}})};
  const production=runtime({db,env:{VERCEL_ENV:'production'}}).load('app/api/events/route.ts');
