@@ -420,3 +420,34 @@
 .featureAnswer strong{font-size:12px;font-weight:700;color:#704156;line-height:1.45}
 .featureAnswer span{font-size:13px;color:#b63d70;font-weight:650}
 @media(prefers-reduced-motion:reduce){.featureNotes > summary::after{transition:none}}
+
+
+/* Secondary destinations no longer compete visually with the primary Shop products. */
+.resultExtras{
+  display:grid;
+  gap:0;
+  margin-top:15px;
+  padding:3px 13px;
+  background:#fff9fc;
+  border:1px solid #f3d2e0;
+  border-radius:14px;
+  text-align:left;
+}
+.resultExtras a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:45px;
+  padding:10px 1px;
+  color:#aa4874;
+  font-family:Inter,"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:13px;
+  font-weight:650;
+  line-height:1.45;
+  text-decoration:none;
+  overflow-wrap:break-word;
+}
+.resultExtras a + a{border-top:1px solid #f6e4ed}
+.resultExtras a span{flex:none;color:#d26991;font-size:17px}
+.resultExtras a:focus-visible{outline:3px solid #e97aa4;outline-offset:2px;border-radius:6px}
