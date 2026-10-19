@@ -46,7 +46,7 @@ function componentHarness(){
   "@/lib/quickQuizTouch":touch,
   "@/lib/safeStorage":{readStoredJson:()=>null,safeStorage:{setItem:(...args)=>storage.push(args),removeItem:()=>{}}},
   "./ResultProductPicks":{default:"result-product-picks"},
-  "./QuickQuizClient.module.css":{default:styles}
+  "./QuickQuizClient.module.css":{__esModule:true,default:styles}
  };
  const file=path.join(root,"components/QuickQuizClient.tsx");
  const compiled=ts.transpileModule(fs.readFileSync(file,"utf8"),{fileName:file,compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true},reportDiagnostics:true});
