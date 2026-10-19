@@ -94,7 +94,7 @@ test('unmount cleans observer, timer and listener; unsupported browsers do not f
 test('result shopping precedes optional camera, with seven-question entry unchanged',()=>{
  const q=source('components/QuickQuizClient.tsx'),start=q.indexOf('if(quiz.completed)return');
  assert(q.indexOf('<ResultProductPicks',start)<q.indexOf('className={styles.scanFirst}',start));
- assert(q.includes('quickRouteState(existing,saved,showResult,false)'));assert(q.includes('Your feature notes'));
+ assert(q.includes('quickRouteState(existing,saved,showResult,false)'));assert(q.includes('Your quiz answers'));
  assert(q.includes('Not a skin-tone diagnosis'));assert(q.includes('result_version:"product_first_v1"'));
  assert(q.includes('source:"quick_quest_scan_top"'));assert(q.includes('window.requestAnimationFrame'));
  const c=source('components/ResultProductPicks.tsx');
