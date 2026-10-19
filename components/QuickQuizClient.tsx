@@ -8,6 +8,7 @@ import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDisco
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
 import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickStateOnce,previousQuickState,quickRouteState,type QuickState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
+import { isShortQuickTap,isSyntheticQuickTouchClick,type QuickTouchPoint,type QuickTouchHandled } from "@/lib/quickQuizTouch";
 import ResultProductPicks from "./ResultProductPicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
@@ -19,8 +20,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
   // Lock just the question that handled a tap; never drop an immediate next-question tap.
   const lastAnsweredState=useRef<QuickState|null>(null);
-  const answerTouchStart=useRef<{x:number;y:number}|null>(null);
-  const handledTouch=useRef<{x:number;y:number;at:number}|null>(null);
+  const answerTouchStart=useRef<QuickTouchPoint|null>(null);
+  const handledTouch=useRef<QuickTouchHandled|null>(null);
   useEffect(()=>{
     // Existing users may have an auto-restored completed result. Show Q1 instead.
     // Preserve their previous result under a separate key, only on explicit request.
@@ -71,7 +72,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   }
   function onAnswerTouchEnd(e:TouchEvent<HTMLButtonElement>,choice:number){
     const start=answerTouchStart.current,t=e.changedTouches[0];answerTouchStart.current=null;
-    if(!start||!t||Math.hypot(t.clientX-start.x,t.clientY-start.y)>14)return;
+    if(!isShortQuickTap(start,t?{x:t.clientX,y:t.clientY}:null))return;
     if(e.cancelable)e.preventDefault(); // Avoid a synthetic click answering the NEXT question.
     handledTouch.current={x:t.clientX,y:t.clientY,at:Date.now()};
     pick(choice);
@@ -80,8 +81,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     const touch=handledTouch.current;
     // Some WebViews still emit a compatibility click after canceled touchend.
     // This ONLY suppresses the generated click for that same gesture/position.
-    if(touch&&e.detail>0&&Date.now()-touch.at<900&&
-        Math.hypot(e.clientX-touch.x,e.clientY-touch.y)<25)return;
+    if(isSyntheticQuickTouchClick(touch,{x:e.clientX,y:e.clientY,at:Date.now(),detail:e.detail}))return;
     pick(choice);
   }
   function restart(){
