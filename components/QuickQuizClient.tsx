@@ -1,5 +1,5 @@
 "use client";
-import { useEffect,useRef,useState } from "react";
+import { useEffect,useRef,useState,type TouchEvent,type MouseEvent } from "react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import { QUIZ_QUESTIONS } from "@/lib/quiz";
@@ -8,6 +8,7 @@ import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDisco
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
 import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickStateOnce,previousQuickState,quickRouteState,type QuickState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
+import { isShortQuickTap,isSyntheticQuickTouchClick,type QuickTouchPoint,type QuickTouchHandled } from "@/lib/quickQuizTouch";
 import ResultProductPicks from "./ResultProductPicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
@@ -19,6 +20,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
   // Lock just the question that handled a tap; never drop an immediate next-question tap.
   const lastAnsweredState=useRef<QuickState|null>(null);
+  const answerTouchStart=useRef<QuickTouchPoint|null>(null);
+  const handledTouch=useRef<QuickTouchHandled|null>(null);
   useEffect(()=>{
     // Existing users may have an auto-restored completed result. Show Q1 instead.
     // Preserve their previous result under a separate key, only on explicit request.
@@ -60,6 +63,26 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});
       track("quiz_quick_completed",{questions:7,answered:next.picks.filter(p=>p!==null&&p>=0).length,result_type:"preference_palette_explorer",result_version:"product_first_v1"});
     }
+  }
+  // Android browsers can retain :hover after a tap and delay/suppress click.
+  // Commit a short, stationary touch on touchend; click still covers keyboard/mouse.
+  function onAnswerTouchStart(e:TouchEvent<HTMLButtonElement>){
+    const t=e.touches[0];
+    answerTouchStart.current=t?{x:t.clientX,y:t.clientY}:null;
+  }
+  function onAnswerTouchEnd(e:TouchEvent<HTMLButtonElement>,choice:number){
+    const start=answerTouchStart.current,t=e.changedTouches[0];answerTouchStart.current=null;
+    if(!isShortQuickTap(start,t?{x:t.clientX,y:t.clientY}:null))return;
+    if(e.cancelable)e.preventDefault(); // Avoid a synthetic click answering the NEXT question.
+    handledTouch.current={x:t.clientX,y:t.clientY,at:Date.now()};
+    pick(choice);
+  }
+  function onAnswerClick(e:MouseEvent<HTMLButtonElement>,choice:number){
+    const touch=handledTouch.current;
+    // Some WebViews still emit a compatibility click after canceled touchend.
+    // This ONLY suppresses the generated click for that same gesture/position.
+    if(isSyntheticQuickTouchClick(touch,{x:e.clientX,y:e.clientY,at:Date.now(),detail:e.detail}))return;
+    pick(choice);
   }
   function restart(){
     setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
@@ -118,9 +141,13 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       <Link className={styles.scanMirror} href="/quiz?mode=draping&method=mirror"
         onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_optional",result_version:"product_first_v1"})}>Use a mirror instead</Link>
     </div>
-    <details className={styles.chosenPalette}><summary>Your feature notes</summary><p>Questions 1–6 are descriptive notes. They are not used to assign a color season.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><p key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><br/>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</p>)}</details>
-    <Link className={styles.secondary} href="/quiz?mode=expert">Advanced 7-color face comparison →</Link>
-    <Link className={styles.secondary} href="/quiz?mode=detailed">Explore all color moods</Link><Link className={styles.secondary} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"quick_result",mood:active})}>Browse the full Shop →</Link><button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
+    <details className={`${styles.chosenPalette} ${styles.featureNotes}`}><summary>Your quiz answers</summary><p className={styles.featureIntro}>Your first six answers are notes for reference—not a color-season diagnosis.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><div className={styles.featureAnswer} key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><span>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</span></div>)}</details>
+    <nav className={styles.resultExtras} aria-label="More ways to explore">
+      <Link href="/quiz?mode=expert">Advanced 7-color face comparison <span aria-hidden="true">→</span></Link>
+      <Link href="/quiz?mode=detailed">Explore all color moods <span aria-hidden="true">→</span></Link>
+      <Link href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"quick_result",mood:active})}>Browse the full Shop <span aria-hidden="true">→</span></Link>
+    </nav>
+    <button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
   return <section className={styles.quiz} aria-label="Quick color explorer">
@@ -151,8 +178,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 id="quiz-questions" className={styles.question}>{question.text}</h2>
     <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
-    <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
-    <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
+    <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onTouchStart={onAnswerTouchStart} onTouchEnd={e=>onAnswerTouchEnd(e,index)} onTouchCancel={()=>{answerTouchStart.current=null;}} onClick={e=>onAnswerClick(e,index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
+    <button className={styles.skip} type="button" onTouchStart={onAnswerTouchStart} onTouchEnd={e=>onAnswerTouchEnd(e,-1)} onTouchCancel={()=>{answerTouchStart.current=null;}} onClick={e=>onAnswerClick(e,-1)}>Not sure? Skip this one</button>
     {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{lastAnsweredState.current=null;setQuiz(previousQuickState(quiz));}}>← Previous question</button>}
     {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
     <p className={styles.footer}>Free · 7 questions · No signup</p>
