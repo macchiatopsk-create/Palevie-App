@@ -300,3 +300,63 @@
   .entryCameraGo{grid-column:2;justify-self:start}
   .entryCameraText strong{font-size:14px}
 }
+
+
+/* Quick-result mood selector only: clear sans-serif typography and soft rose pink.
+   Leave the approved coral camera choice and other site surfaces untouched. */
+.moodDisclosure{
+  border-color:#ffc6d8;
+  background:#fff7fa;
+}
+.moodDisclosure > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 16px;
+  min-height:54px;
+  border:1px solid #ffb5d0;
+  border-radius:13px;
+  background:linear-gradient(110deg,#ffe4ef 0%,#ffd2e3 100%);
+  color:#b92f67;
+  font-family:Inter,"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;
+  font-weight:750;
+  letter-spacing:-.025em;
+  line-height:1.4;
+  cursor:pointer;
+  list-style:none;
+}
+.moodDisclosure > summary::-webkit-details-marker{display:none}
+.moodDisclosure > summary::marker{content:""}
+.moodDisclosure > summary::after{
+  content:"";
+  flex:none;
+  width:9px;
+  height:9px;
+  border-right:2px solid #c83370;
+  border-bottom:2px solid #c83370;
+  transform:rotate(45deg);
+  transition:transform .15s ease;
+}
+.moodDisclosure[open] > summary::after{transform:rotate(225deg)}
+.moodDisclosure > summary:hover{background:linear-gradient(110deg,#ffdaea 0%,#ffc8dc 100%)}
+.moodDisclosure > summary:focus-visible{outline:3px solid #f06a9c;outline-offset:3px}
+.moodDisclosure[open] > summary{margin-bottom:15px}
+.moodDisclosure h3,.moodDisclosure .feedback p{color:#b6366c}
+.moodDisclosure p,.moodDisclosure small{color:#865965}
+.moodDisclosure .moodTab,.moodDisclosure .moodActive{
+  font-family:Inter,"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+  border-color:#f5c2d2;
+  color:#aa3a6b;
+  background:#fff;
+}
+.moodDisclosure .moodActive{
+  background:#ffdcea;
+  border-color:#f47fa8;
+  color:#a5285e;
+  box-shadow:0 0 0 1px #f47fa825;
+}
+.moodDisclosure .feedbackOptions button{border-color:#f5c2d2;color:#a83e70}
+.moodDisclosure .feedbackOptions button.feedbackSelected{background:#ffe2ee;border-color:#f47fa8;color:#a5285e}
+@media(prefers-reduced-motion:reduce){.moodDisclosure > summary::after{transition:none}}

@@ -6,7 +6,7 @@ import { QUIZ_QUESTIONS } from "@/lib/quiz";
 import { track } from "@/lib/analytics";
 import { COLOR_MOODS,startingColorMood,type ColorMoodId } from "@/lib/colorDiscovery";
 import { loadDiscoveryPreferences,saveDiscoveryPreferences,clearDiscoveryPreferences,type PaletteFeedback } from "@/lib/discoveryPreferences";
-import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickState,previousQuickState,quickRouteState } from "@/lib/quickQuizState";
+import { QUICK_INDEXES,QUICK_KEY,QUICK_RESULT_KEY,initialQuickState,normalizeQuickState,answerQuickStateOnce,previousQuickState,quickRouteState,type QuickState } from "@/lib/quickQuizState";
 import { readStoredJson,safeStorage } from "@/lib/safeStorage";
 import ResultProductPicks from "./ResultProductPicks";
 import styles from "./QuickQuizClient.module.css";
@@ -17,7 +17,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   const [chosenMood,setChosenMood]=useState<ColorMoodId|null>(null);
   const [hasSavedResult,setHasSavedResult]=useState(false);
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
-  const lastAction=useRef(0);
+  // Lock just the question that handled a tap; never drop an immediate next-question tap.
+  const lastAnsweredState=useRef<QuickState|null>(null);
   useEffect(()=>{
     // Existing users may have an auto-restored completed result. Show Q1 instead.
     // Preserve their previous result under a separate key, only on explicit request.
@@ -48,8 +49,9 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     return()=>window.cancelAnimationFrame(frame);
   },[ready,quiz.completed]);
   function pick(choice:number){
-    const now=Date.now();if(quiz.completed||now-lastAction.current<250)return;lastAction.current=now;
-    const next=answerQuickState(quiz,choice);if(next===quiz)return;
+    const next=answerQuickStateOnce(quiz,choice,lastAnsweredState.current);
+    if(next===quiz)return;
+    lastAnsweredState.current=quiz;
     setQuiz(next);
     track("quiz_quick_answered",{question:QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]].id,step:quiz.cursor+1,skipped:choice<0});
     if(next.completed){
@@ -63,7 +65,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
     if(loadDiscoveryPreferences().source==="mood")clearDiscoveryPreferences();
     safeStorage.removeItem(QUICK_KEY);
-    lastAction.current=0;track("quiz_quick_restarted",{entry:"visible_retake"});
+    lastAnsweredState.current=null;track("quiz_quick_restarted",{entry:"visible_retake"});
     router.replace("/quiz?retake=1",{scroll:false});
     window.scrollTo({top:0,behavior:"smooth"});
   }
@@ -100,7 +102,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <p className={styles.eyebrow}>PALEVIE · YOUR MAKEUP MOOD TO EXPLORE</p>
     <h2 className={styles.resultHeading}>Let's explore <em>{palette.label}.</em></h2>
     <p className={styles.desc}>{chosenMood||suggested?"A starting palette from your style choice.":"An example palette to get you started."} Not a skin-tone diagnosis. Compare products now, or change the mood below.</p>
-    <details className={styles.chosenPalette} open={feedback==="no"?true:undefined}>
+    <details className={`${styles.chosenPalette} ${styles.moodDisclosure}`} open={feedback==="no"?true:undefined}>
       <summary>Change your color mood &amp; view the palette</summary>
       <div className={styles.moodTabs} role="group" aria-label="Choose a makeup color mood">{MOODS.map(key=><button key={key} type="button" className={active===key?styles.moodActive:styles.moodTab} aria-pressed={active===key} onClick={()=>changeMood(key)}>{COLOR_MOODS[key].label}</button>)}</div>
       <h3>{palette.label}</h3><p>{palette.description}</p><div className={styles.bigSwatches} aria-label="Illustrative palette">{palette.colors.map(hex=><span key={hex} style={{backgroundColor:hex}}/>)}</div><small>Style inspiration, not a measured color match or undertone diagnosis.</small>
@@ -151,7 +153,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     <p className={styles.tip}>A starting quiz — compare colors next to your face for a closer check.</p>
     <div className={styles.options}>{question.options.map((option,index)=><button type="button" className={styles.option} key={option.label} onClick={()=>pick(index)}>{(option.hex||option.tone)&&<span className={styles.swatch} style={{backgroundColor:option.hex||option.tone}} aria-hidden="true"/>}<span>{option.label}</span><span className={styles.arrow} aria-hidden="true">→</span></button>)}</div>
     <button className={styles.skip} type="button" onClick={()=>pick(-1)}>Not sure? Skip this one</button>
-    {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{setQuiz(previousQuickState(quiz));lastAction.current=Date.now();}}>← Previous question</button>}
+    {quiz.cursor>0&&<button className={styles.back} type="button" onClick={()=>{lastAnsweredState.current=null;setQuiz(previousQuickState(quiz));}}>← Previous question</button>}
     {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
     <p className={styles.footer}>Free · 7 questions · No signup</p>
   </section>;

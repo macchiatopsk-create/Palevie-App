@@ -57,4 +57,29 @@ assert(entryStyles.includes("color:#452238!important") &&
 assert(entryStyles.includes(".entryCamera:focus-visible"),
   "Camera choice must be keyboard accessible.");
 
+// Rapid answers must never be throttled just because Q2 appears <250ms after Q1.
+const q0=q.initialQuickState();
+const q1=q.answerQuickStateOnce(q0,1,null);
+assert.equal(q1.cursor,1);
+assert.strictEqual(q.answerQuickStateOnce(q0,2,q0),q0,"Same rendered question double-click cannot answer twice");
+const q2=q.answerQuickStateOnce(q1,0,q0);
+assert.equal(q2.cursor,2,"First tap on the freshly rendered next question must work immediately");
+const qBack=q.previousQuickState(q2);
+assert.equal(qBack.cursor,1);
+assert.equal(q.answerQuickStateOnce(qBack,2,null).cursor,2,"After Back, first tap must be accepted");
+assert.strictEqual(q.answerQuickStateOnce(q0,999,null),q0,"Bad choices still cannot advance");
+assert(quick.includes("answerQuickStateOnce(quiz,choice,lastAnsweredState.current)"));
+assert(quick.includes("lastAnsweredState.current=quiz"));
+assert(quick.includes("lastAnsweredState.current=null;setQuiz(previousQuickState(quiz));"));
+assert(!quick.includes("lastAction")&&!quick.includes("Date.now()"),"No global time-based click blocking");
+assert(quick.includes('className={`${styles.chosenPalette} ${styles.moodDisclosure}`}'));
+assert(quick.includes("Change your color mood &amp; view the palette"));
+const rose=entryStyles;
+assert(rose.includes("/* Quick-result mood selector only:"));
+assert(rose.includes(".moodDisclosure > summary"));
+assert(rose.includes("#ffe4ef")&&rose.includes("#ffd2e3"));
+assert(rose.includes('font-family:Inter,"Avenir Next","Segoe UI"'));
+assert(rose.includes(".moodDisclosure > summary:focus-visible"));
+assert(rose.includes("background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)"));
+console.log("QUIZ_SINGLE_TAP_AND_PINK_RESULT_PASS fast-next-tap, duplicate-guard, back, scoped styling");
 console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; 9 route/render invariants; Q1 by default, previous result optional.");

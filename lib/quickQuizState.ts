@@ -20,6 +20,14 @@ export function answerQuickState(state:QuickState,choice:number):QuickState{
   const picks=state.picks.map((p,i)=>i<state.cursor?p:i===state.cursor?choice:null);
   return {picks,cursor:Math.min(6,state.cursor+1),completed:state.cursor===6};
 }
+/** Suppress a second click on the same rendered question, without any time-based
+ * debounce. Once React renders the next QuickState, its first tap is valid.
+ * Using object identity rather than cursor also handles Back/Retake correctly.
+ */
+export function answerQuickStateOnce(state:QuickState,choice:number,alreadyAnsweredState:QuickState|null):QuickState{
+  if(alreadyAnsweredState===state)return state;
+  return answerQuickState(state,choice);
+}
 export function previousQuickState(state:QuickState):QuickState{
   const cursor=Math.max(0,state.cursor-1);return {picks:state.picks.map((p,i)=>i<cursor?p:null),cursor,completed:false};
 }
