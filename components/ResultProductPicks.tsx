@@ -56,13 +56,27 @@ export default function ResultProductPicks({mood}:{mood:ColorMoodId}) {
       <h3>Compare, then choose.</h3>
       <p>Pick a product type and finish. No extra quiz or camera needed.</p>
     </div>
-    <div className={styles.filters}>
-      <label>Looking for<select value={preferences.category} onChange={e=>choose({...preferences,category:e.target.value as ShoppingPreferences["category"]})}>
-        {Object.entries(SHOPPING_CATEGORIES).map(([value,label])=><option key={value} value={value}>{label}</option>)}
-      </select></label>
-      <label>Finish<select value={preferences.finish} onChange={e=>choose({...preferences,finish:e.target.value as ShoppingPreferences["finish"]})}>
-        {Object.entries(SHOPPING_FINISHES).map(([value,label])=><option key={value} value={value}>{label}</option>)}
-      </select></label>
+    <div className={styles.filters} aria-label="Product preferences">
+      <fieldset className={styles.filterGroup}>
+        <legend>Looking for</legend>
+        <div className={styles.choices}>
+          {Object.entries(SHOPPING_CATEGORIES).map(([value,label])=><button
+            key={value} type="button" className={styles.choice}
+            aria-pressed={preferences.category===value}
+            onClick={()=>{if(preferences.category!==value)choose({...preferences,category:value as ShoppingPreferences["category"]});}}
+          >{label}</button>)}
+        </div>
+      </fieldset>
+      <fieldset className={styles.filterGroup}>
+        <legend>Finish</legend>
+        <div className={styles.choices}>
+          {Object.entries(SHOPPING_FINISHES).map(([value,label])=><button
+            key={value} type="button" className={styles.choice}
+            aria-pressed={preferences.finish===value}
+            onClick={()=>{if(preferences.finish!==value)choose({...preferences,finish:value as ShoppingPreferences["finish"]});}}
+          >{label}</button>)}
+        </div>
+      </fieldset>
     </div>
     <p className={styles.count} role="status">{picks.length ? `${picks.length} nearby color ${picks.length===1?"option":"options"} to compare` : "No close documented picks for these choices"}</p>
     {picks.length>0 ? <>
