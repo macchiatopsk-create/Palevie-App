@@ -141,7 +141,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
       <Link className={styles.scanMirror} href="/quiz?mode=draping&method=mirror"
         onClick={()=>track("drape_cta_clicked",{source:"quick_result_mirror_optional",result_version:"product_first_v1"})}>Use a mirror instead</Link>
     </div>
-    <details className={styles.chosenPalette}><summary>Your feature notes</summary><p>Questions 1–6 are descriptive notes. They are not used to assign a color season.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><p key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><br/>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</p>)}</details>
+    <details className={`${styles.chosenPalette} ${styles.featureNotes}`}><summary>Your quiz answers</summary><p className={styles.featureIntro}>Your first six answers are notes for reference—not a color-season diagnosis.</p>{QUICK_INDEXES.slice(0,6).map((index,i)=><div className={styles.featureAnswer} key={index}><strong>{QUIZ_QUESTIONS[index].text}</strong><span>{quiz.picks[i]!==null&&quiz.picks[i]!>=0?QUIZ_QUESTIONS[index].options[quiz.picks[i]!]?.label:"Not specified"}</span></div>)}</details>
     <Link className={styles.secondary} href="/quiz?mode=expert">Advanced 7-color face comparison →</Link>
     <Link className={styles.secondary} href="/quiz?mode=detailed">Explore all color moods</Link><Link className={styles.secondary} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"quick_result",mood:active})}>Browse the full Shop →</Link><button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
