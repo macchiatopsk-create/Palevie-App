@@ -43,5 +43,6 @@
 .empty p{margin:0 0 10px}
 .empty button{min-height:44px;border:1px solid #c793ac;border-radius:10px;padding:10px;background:#fff0f5;color:#452238;cursor:pointer;font:inherit}
 .wrap a:focus-visible,.wrap button:focus-visible,.wrap summary:focus-visible{outline:3px solid #963c67;outline-offset:3px}
-@media(max-width:440px){.choices{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{gap:12px}.choice{font-size:13px;min-height:46px}}\n@media(max-width:360px){.product{padding:12px}.productTop{grid-template-columns:40px minmax(0,1fr);gap:9px}.swatch{width:40px;height:50px}.product h4{font-size:15px}.buy{font-size:13px}.choices{gap:7px}}
+@media(max-width:440px){.choices{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{gap:12px}.choice{font-size:13px;min-height:46px}}
+@media(max-width:360px){.product{padding:12px}.productTop{grid-template-columns:40px minmax(0,1fr);gap:9px}.swatch{width:40px;height:50px}.product h4{font-size:15px}.buy{font-size:13px}.choices{gap:7px}}
 @media(prefers-reduced-motion:reduce){.wrap *{scroll-behavior:auto}}
