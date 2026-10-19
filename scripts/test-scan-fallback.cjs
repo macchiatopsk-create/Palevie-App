@@ -70,7 +70,8 @@ async function test(name,cb){await cb();passed++;console.log("PASS scan/mobile: 
    assert(style.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
    assert(style.includes(".scanPrimary,.scanMirror,.scanEntry,.drapeButton"));
    const result=fs.readFileSync(path.join(root,"components/QuickQuizClient.tsx"),"utf8");
-   assert(result.includes("Camera scan & live color guide"));
+   // Raw & and JSX &amp; render the same accessible label; preserve that label check.
+   assert(result.replace(/&amp;/g,"&").includes("Camera scan & live color guide"));
  });
  console.log("SCAN_AND_MOBILE_LAYOUT_PASS tests="+passed+" simulator_only=true");
 })().catch(e=>{console.error("SCAN_AND_MOBILE_LAYOUT_FAILED",e);process.exitCode=1;});
