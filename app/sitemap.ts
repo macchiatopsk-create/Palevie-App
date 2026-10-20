@@ -1,23 +1,24 @@
 import type { MetadataRoute } from "next";
 import { seasonSlugs } from "@/lib/seasonPages";
 import { launchGuideParams } from "@/lib/categoryGuides";
-
-const BASE = "https://palevie.com";
+import { colorGuides, guidePath, GUIDE_ORIGIN, GUIDE_UPDATED } from "@/lib/colorGuides";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const core = ["", "/quiz", "/shop", "/diagnose", "/wishlist", "/privacy", "/terms"].map(path => ({
-    url: `${BASE}${path}`,
-    lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.8,
+  // A build is not an editorial update. Omit lastmod when the real date is
+  // unknown; never stamp every URL with the current request/build time.
+  // Personal saved lists and account/admin/API/redirect routes are not articles.
+  const core = ["", "/quiz", "/shop", "/diagnose", "/privacy", "/terms", "/pricing"].map(path => ({
+    url: `${GUIDE_ORIGIN}${path}`,
   }));
+  // These two templates were substantively corrected on this editorial date.
   const seasons = seasonSlugs.map(slug => ({
-    url: `${BASE}/season/${slug}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
+    url: `${GUIDE_ORIGIN}/season/${slug}`, lastModified: GUIDE_UPDATED,
   }));
-  const guides = launchGuideParams.map(({ slug, category }) => ({ url: `${BASE}/season/${slug}/${category}`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.65 }));
-  return [...core, ...seasons, ...guides];
+  const makeupGuides = launchGuideParams.map(({ slug, category }) => ({
+    url: `${GUIDE_ORIGIN}/season/${slug}/${category}`, lastModified: GUIDE_UPDATED,
+  }));
+  const guides = ["/guides", ...colorGuides.map(guide => guidePath(guide.slug))].map(path => ({
+    url: `${GUIDE_ORIGIN}${path}`, lastModified: GUIDE_UPDATED,
+  }));
+  return [...core, ...seasons, ...makeupGuides, ...guides];
 }

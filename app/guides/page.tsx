@@ -1,0 +1,17 @@
+import Link from "next/link";
+import { pageMetadata } from "@/lib/pageMetadata";
+import { colorGuides, guidePath, GUIDE_ORIGIN, safeJsonLd } from "@/lib/colorGuides";
+import GuideActions from "@/components/GuideActions";
+import styles from "./guides.module.css";
+export const metadata=pageMetadata({title:"Personal Color & Makeup Guides | Palevie",description:"Practical guides to comparing colors beside your face, warm and cool color families, phone draping and makeup shades. Explore Palevie’s free tools.",path:"/guides"});
+export default function GuidesPage(){
+  const jsonLd={"@context":"https://schema.org","@type":"CollectionPage","@id":GUIDE_ORIGIN+"/guides",name:"Palevie color and makeup guides",url:GUIDE_ORIGIN+"/guides",inLanguage:"en-US",mainEntity:{"@type":"ItemList",itemListElement:colorGuides.map((guide,i)=>({"@type":"ListItem",position:i+1,name:guide.title,url:GUIDE_ORIGIN+guidePath(guide.slug)}))}};
+  return <div className={styles.page}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:safeJsonLd(jsonLd)}}/>
+    <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">Palevie</Link><span aria-hidden="true">/</span><span>Color guides</span></nav>
+    <header className={styles.header}><p className={styles.eyebrow}>COLOR, WITH CONTEXT</p><h1>Find a clearer way to compare your colors.</h1><p className={styles.intro}>Learn what to observe beside your face, how to make a fair comparison, and what to check before choosing makeup. Start with the question you are trying to answer.</p></header>
+    <div className={styles.grid}>{colorGuides.map((guide,i)=><Link key={guide.slug} className={styles.card} href={guidePath(guide.slug)}><small>GUIDE {String(i+1).padStart(2,"0")}</small><h2>{guide.title}</h2><p>{guide.description}</p></Link>)}</div>
+    <section id="about" className={styles.section}><h2>About these guides and Palevie</h2><p>Palevie is a free color-exploration and beauty-shopping website. Our goal is to help you compare colors with your face rather than choose from a swatch alone. These guides are published by Palevie and distinguish practical comparison advice from verified product facts and the limits of digital tools.</p><p>The current seven-question quiz starts a color-mood exploration; it is not a validated personal-color diagnosis. Live Draping lets you compare digital colors beside your face, and its experimental Soft/Bold guide concerns lightness contrast. Supported products also have an illustrative Virtual Try On. No mandatory signup or paid upgrade is needed for these core tools.</p><p>Season palettes are styling references, not proof that a person belongs to a season. We do not claim certified analysis, exact skin matches, or firsthand product testing where it has not been performed. Sources are linked beside the specific facts they support. An editorial publication date is not evidence of scientific validation.</p><p>As an Amazon Associate, Palevie earns from qualifying purchases. Product purchases happen on Amazon; check the actual shade, seller, price and availability there. Read our <Link href="/privacy">privacy information</Link> and <Link href="/terms">terms</Link> for the service’s scope.</p></section>
+    <div className={styles.notice}><h2>Try the comparison, not just the explanation.</h2><p>Camera optional. Free to explore. Keep uncertain results uncertain.</p><GuideActions slug="guides" action="camera" label="Compare colors beside my face"/></div>
+  </div>;
+}
