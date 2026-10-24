@@ -188,16 +188,16 @@
   width:100%;
   min-height:113px;
   padding:16px 13px;
-  border:2px solid #f27178;
+  border:2px solid #e994b5;
   border-radius:17px;
-  background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%);
+  background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%);
   color:#452238!important;
   text-decoration:none;
-  box-shadow:0 9px 21px rgba(211,92,94,.21);
+  box-shadow:0 9px 21px rgba(187,96,137,.17);
   cursor:pointer;
   transition:transform .13s ease,box-shadow .13s ease;
 }
-.entryCamera:hover{transform:translateY(-1px);box-shadow:0 11px 24px rgba(211,92,94,.24)}
+.entryCamera:hover{transform:translateY(-1px);box-shadow:0 11px 24px rgba(187,96,137,.23)}
 .entryCamera:active{transform:scale(.992)}
 .entryCameraIcon{
   width:49px;
@@ -205,7 +205,7 @@
   display:grid;
   place-items:center;
   border-radius:14px;
-  background:#ffe2cf;
+  background:#fff0f6;
   color:#452238;
 }
 .entryCameraIcon svg{display:block;width:28px;height:28px}
@@ -223,7 +223,7 @@
   overflow-wrap:break-word;
 }
 .entryCameraText small{
-  color:#5f3349;
+  color:#6a465c;
   font-size:11px;
   font-weight:550;
   line-height:1.45;
@@ -235,7 +235,7 @@
   gap:5px;
   padding:10px 9px;
   border-radius:10px;
-  background:#452238;
+  background:#7a3258;
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -303,7 +303,7 @@
 
 
 /* Quick-result mood selector only: clear sans-serif typography and soft rose pink.
-   Leave the approved coral camera choice and other site surfaces untouched. */
+   Keep the camera CTA and other site surfaces styled independently. */
 .moodDisclosure{
   border-color:#ffc6d8;
   background:#fff7fa;
