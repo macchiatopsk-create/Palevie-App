@@ -90,11 +90,11 @@ test("scroll gesture does not answer; click-only and keyboard still work",()=>{
  h.buttons()[0].props.onClick({detail:1,clientX:120,clientY:300});
  assert.equal(h.getCursor(),2);
 });
-test("responsive touch CSS is scoped and original coral entry remains",()=>{
+test("responsive touch CSS is scoped and pastel pink camera entry remains",()=>{
  const s=source("components/QuickQuizClient.module.css"),c=source("components/QuickQuizClient.tsx");
  assert(s.includes("touch-action:manipulation"));
  assert(s.includes("@media (hover:hover) and (pointer:fine){.option:hover"));
- assert(s.includes("background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)"));
+ assert(s.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"));
  assert(c.includes("onTouchEnd={e=>onAnswerTouchEnd(e,index)}"));
  assert(c.includes("onTouchEnd={e=>onAnswerTouchEnd(e,-1)}"));
  assert(c.includes("lastAnsweredState.current=quiz"));

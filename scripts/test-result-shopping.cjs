@@ -133,7 +133,7 @@ test('quiz history and secondary navigation use compact pink styling, not oversi
  assert(css.includes('.featureNotes > summary') && css.includes('.featureAnswer span'));
  assert(css.includes('.resultExtras a + a'));
  assert(css.includes('font-family:Inter,"Avenir Next","Segoe UI"'));
- assert(css.includes('background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)'));
+ assert(css.includes('background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)'));
 });
 async function apiChecks(){
  const rows=[],db={from:table=>({upsert:async row=>{assert.equal(table,'events');rows.push(row);return {error:null};}})};
