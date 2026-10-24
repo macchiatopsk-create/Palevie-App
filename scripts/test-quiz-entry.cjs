@@ -47,13 +47,13 @@ assert(quizAlternative>camera && quizAlternative<question,"Quiz option must be a
 assert(quick.includes('href="#quiz-questions"') && quick.includes('id="quiz-questions"'),
   "Choosing the 7-question path must move users to the real question.");
 const entryStyles=read("components/QuickQuizClient.module.css");
-assert(entryStyles.includes("background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)"),
-  "Camera choice must use the approved coral pink gradient.");
+assert(entryStyles.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"),
+  "Camera choice must use the requested pastel blush pink gradient.");
 assert(entryStyles.includes("color:#452238!important") &&
   entryStyles.includes(".entryCameraText strong{") &&
-  entryStyles.includes("background:#452238;") &&
+  entryStyles.includes("background:#7a3258;") &&
   entryStyles.includes("color:#fff;"),
-  "Coral foreground and OPEN control must retain high contrast.");
+  "Pastel CTA foreground and OPEN control must retain high contrast.");
 assert(entryStyles.includes(".entryCamera:focus-visible"),
   "Camera choice must be keyboard accessible.");
 
@@ -80,6 +80,6 @@ assert(rose.includes(".moodDisclosure > summary"));
 assert(rose.includes("#ffe4ef")&&rose.includes("#ffd2e3"));
 assert(rose.includes('font-family:Inter,"Avenir Next","Segoe UI"'));
 assert(rose.includes(".moodDisclosure > summary:focus-visible"));
-assert(rose.includes("background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)"));
+assert(rose.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"));
 console.log("QUIZ_SINGLE_TAP_AND_PINK_RESULT_PASS fast-next-tap, duplicate-guard, back, scoped styling");
 console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; 9 route/render invariants; Q1 by default, previous result optional.");
