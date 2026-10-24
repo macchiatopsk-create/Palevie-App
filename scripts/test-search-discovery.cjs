@@ -141,7 +141,7 @@ const makeBrowser=(referrer='',query='')=>{const w=browser();w.location={origin,
  await test('guide CSS is scoped and readable at narrow widths; existing core flow is untouched',()=>{
   const css=source('app/guides/guides.module.css');assert(css.includes('@media(max-width:560px)'));assert(css.includes('grid-template-columns:1fr'));assert(css.includes(':focus-visible'));assert(!css.includes('!important;display:none'));
   const quick=source('components/QuickQuizClient.tsx');assert(quick.includes('YOUR 7-QUESTION COLOR QUIZ'));assert(quick.includes('onTouchEnd={e=>onAnswerTouchEnd(e,index)}'));
-  assert(source('components/QuickQuizClient.module.css').includes('background:linear-gradient(112deg,#ff817c 0%,#ffa36d 100%)'));
+  assert(source('components/QuickQuizClient.module.css').includes('background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)'));
   assert(source('scripts/test-result-shopping.cjs').includes('visible.length,134'));assert(source('scripts/test-result-shopping.cjs').includes('length,63'));
  });
  console.log('SEARCH_DISCOVERY_REGRESSION_PASS groups='+checks+' guides=4 real_react_ssr=true no_live_requests=true');
