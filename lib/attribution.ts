@@ -27,7 +27,10 @@ function read(key:string):Attribution|null {
   }
   return result;
 }
-export function loadAttribution(){return {first:read(FIRST_KEY),latest:read(LAST_KEY)};}
+export function loadAttribution(){
+  if(typeof window!=="undefined"&&window.__palevieTelemetry)return window.__palevieTelemetry.capture();
+  return {first:read(FIRST_KEY),latest:read(LAST_KEY)};
+}
 export function captureAttributionFromLocation():Attribution|null {
   if(typeof window==="undefined")return null;
   try{

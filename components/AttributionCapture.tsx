@@ -12,6 +12,7 @@ function Capture(){
     previous.current=path;
     captureAttributionFromLocation();
     track("page_view",{path});
+    window.dispatchEvent(new Event("palevie-client-ready"));
   },[path]);
   return null;
 }

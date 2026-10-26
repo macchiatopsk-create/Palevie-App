@@ -1,8 +1,9 @@
 "use client";
-import { loadAttribution } from "./attribution";
+import type { TelemetryRuntime } from "./browserTelemetry";
+import { loadAttribution, captureAttributionFromLocation } from "./attribution";
 import { newLocalId, safeStorage, readStoredJson } from "./safeStorage";
 export type AnalyticsEventName =
-  | "page_view" | "visitor_interacted"
+  | "page_view" | "visitor_interacted" | "page_client_ready" | "page_client_error"
   | "quiz_started" | "quiz_answered" | "quiz_completed"
   | "quiz_quick_answered" | "quiz_quick_completed" | "quiz_quick_restarted" | "quiz_detailed_started"
   | "quiz_palette_feedback" | "quiz_palette_changed" | "discovery_product_clicked" | "discovery_shop_clicked"
@@ -25,6 +26,7 @@ const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 let tabVisitor: string | undefined;
 export function getVisitorId(): string {
   if (typeof window === "undefined") return "server";
+  if (window.__palevieTelemetry) return window.__palevieTelemetry.visitor;
   if (tabVisitor) return tabVisitor;
   const stored = safeStorage.getItem(VISITOR_KEY);
   tabVisitor = stored && UUID.test(stored) ? stored : newLocalId();
@@ -37,7 +39,11 @@ export function loadLocalEvents(): StoredEvent[] {
 }
 export function track(name: AnalyticsEventName, props: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;
+  if(safeStorage.getItem("palevie-analytics-optout-v1")==="1"||(typeof navigator!=="undefined"&&(navigator as Navigator & {globalPrivacyControl?:boolean}).globalPrivacyControl===true))return;
   try {
+    const runtime: TelemetryRuntime | undefined = window.__palevieTelemetry;
+    if(runtime){if(name==="page_view")runtime.page(typeof props.path==="string"?props.path:undefined);else runtime.send(name,props);return;}
+    captureAttributionFromLocation();
     const event: StoredEvent = { id:newLocalId(), name, ts:new Date().toISOString(), props:{...props,attribution:loadAttribution()} };
     const body = JSON.stringify(event);
     if (body.length > 18000) return;

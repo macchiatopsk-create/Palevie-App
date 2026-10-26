@@ -1,8 +1,9 @@
+import {SERVER_VISIT_COOKIE,validServerVisitId} from "@/lib/server/serverVisitAnalytics";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/server/supabaseAdmin";
 import { createHash, randomUUID } from "crypto";
 const HITS=new Map<string,{n:number;reset:number}>();
-const allowed=new Set(["page_view","visitor_interacted","quiz_started","quiz_answered","quiz_completed","quiz_quick_answered","quiz_quick_completed","quiz_quick_restarted","quiz_detailed_started","quiz_palette_feedback","quiz_palette_changed","discovery_product_clicked","discovery_shop_clicked","result_products_viewed","result_product_viewed","result_shopping_preference_changed","result_product_details_opened","tone_evidence_started","tone_evidence_answered","tone_evidence_completed","ai_scan_started","ai_scan_completed","ai_scan_failed","product_check_started","product_check_completed","skincare_profile_completed","shop_viewed","affiliate_outbound_click","result_shared","checkout_started","signup_started","signup_completed","wishlist_added","wishlist_removed","bio_consent_given","member_setup_shown","member_setup_done","member_profile_updated","shade_drape_opened","shade_drape_shop_click","virtual_tryon_opened","virtual_tryon_camera_started","virtual_tryon_error","virtual_tryon_shade_selected","virtual_tryon_shop_click","welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed","ad_welcome_shown","ad_welcome_started","quiz_intro_shown","quiz_intro_started","drape_cta_clicked","drape_session_started","drape_pair_answered","drape_session_completed","drape_color_feedback","drape_screen_viewed","drape_guide_shown","drape_guide_continued","drape_mode_selected","drape_camera_requested","drape_camera_permission_granted","drape_camera_started","drape_camera_error","drape_camera_color_switched"]);
+const allowed=new Set(["page_client_ready","page_client_error","page_view","visitor_interacted","quiz_started","quiz_answered","quiz_completed","quiz_quick_answered","quiz_quick_completed","quiz_quick_restarted","quiz_detailed_started","quiz_palette_feedback","quiz_palette_changed","discovery_product_clicked","discovery_shop_clicked","result_products_viewed","result_product_viewed","result_shopping_preference_changed","result_product_details_opened","tone_evidence_started","tone_evidence_answered","tone_evidence_completed","ai_scan_started","ai_scan_completed","ai_scan_failed","product_check_started","product_check_completed","skincare_profile_completed","shop_viewed","affiliate_outbound_click","result_shared","checkout_started","signup_started","signup_completed","wishlist_added","wishlist_removed","bio_consent_given","member_setup_shown","member_setup_done","member_profile_updated","shade_drape_opened","shade_drape_shop_click","virtual_tryon_opened","virtual_tryon_camera_started","virtual_tryon_error","virtual_tryon_shade_selected","virtual_tryon_shop_click","welcome_quiz_popup_shown","welcome_quiz_popup_cta","welcome_quiz_popup_dismissed","ad_welcome_shown","ad_welcome_started","quiz_intro_shown","quiz_intro_started","drape_cta_clicked","drape_session_started","drape_pair_answered","drape_session_completed","drape_color_feedback","drape_screen_viewed","drape_guide_shown","drape_guide_continued","drape_mode_selected","drape_camera_requested","drape_camera_permission_granted","drape_camera_started","drape_camera_error","drape_camera_color_switched"]);
 function overLimit(request:Request){
   const ip=(request.headers.get("x-vercel-forwarded-for")||request.headers.get("x-forwarded-for")||"unknown").split(",")[0];
   const key=createHash("sha256").update(ip).digest("hex"),now=Date.now();
@@ -12,13 +13,18 @@ function overLimit(request:Request){
 }
 export async function POST(request:Request){
   try{
+    const origin=request.headers.get("origin");
+    if((origin&&origin!==new URL(request.url).origin)||request.headers.get("sec-fetch-site")==="cross-site")return NextResponse.json({ok:false},{status:403});
+    if(request.headers.get("sec-gpc")==="1")return NextResponse.json({ok:true,ignored:true});
     if(process.env.VERCEL_ENV==="preview")return NextResponse.json({ok:true,ignored:true});
     if(Number(request.headers.get("content-length")||0)>20000)return NextResponse.json({ok:false},{status:413});
     if(overLimit(request))return NextResponse.json({ok:false},{status:429});
     const text=await request.text();if(text.length>20000)return NextResponse.json({ok:false},{status:413});
     let body;try{body=JSON.parse(text);}catch{return NextResponse.json({ok:false},{status:400});}
     if(!body||!allowed.has(body.name))return NextResponse.json({ok:false},{status:400});
-    const visitor=(request.headers.get("x-palevie-visitor")||"anonymous").slice(0,80);
+    const visitor=(request.headers.get("x-palevie-visitor")||(typeof body.visitor_id==="string"?body.visitor_id:"anonymous")).slice(0,80);
+    const cookie=(request.headers.get("cookie")||"").split(";").map(x=>x.trim()).find(x=>x.startsWith(SERVER_VISIT_COOKIE+"="))?.slice(SERVER_VISIT_COOKIE.length+1);
+    const serverVisitor=validServerVisitId(cookie)?"sv:"+cookie:null;
     const ua=request.headers.get("user-agent")||"";
     if(/(?:bot|crawler|spider|headless|playwright|puppeteer|curl|wget)/i.test(ua))return NextResponse.json({ok:true,ignored:true});
     if(body.name==="visitor_interacted"&&["server","anonymous",""] .includes(visitor))return NextResponse.json({ok:true,ignored:true});
@@ -26,7 +32,8 @@ export async function POST(request:Request){
     if(JSON.stringify(raw).length>12000)return NextResponse.json({ok:false},{status:413});
     const eventId=typeof body.id==="string"&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.id)?body.id:randomUUID();
     const db=getSupabaseAdmin();if(!db)return NextResponse.json({ok:false},{status:503});
-    const {error}=await db.from("events").upsert({event_id:eventId,visitor_id:visitor,event_name:body.name,props:{...raw,server_environment:process.env.VERCEL_ENV||process.env.NODE_ENV||"unknown"}},{onConflict:"event_id",ignoreDuplicates:true});
+    const {error}=await db.from("events").upsert({event_id:eventId,visitor_id:visitor,event_name:body.name,props:{...raw,server_visitor_id:serverVisitor,received_at:new Date().toISOString(),occurred_at:typeof body.ts==="string"?body.ts.slice(0,40):null,server_environment:process.env.VERCEL_ENV||process.env.NODE_ENV||"unknown"}},{onConflict:"event_id",ignoreDuplicates:true});
+    if(error)console.warn("[analytics] event storage failed",error.code);
     return error?NextResponse.json({ok:false},{status:503}):NextResponse.json({ok:true});
-  }catch{return NextResponse.json({ok:false},{status:400});}
+  }catch{console.warn("[analytics] request storage unavailable");return NextResponse.json({ok:false},{status:503});}
 }

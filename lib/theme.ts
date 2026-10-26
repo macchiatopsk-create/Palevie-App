@@ -1,3 +1,4 @@
+import { safeStorage } from "./safeStorage";
 export type ThemeId = "silk" | "beach";
 export type TimeOfDay = "morning" | "day" | "sunset" | "night";
 
@@ -22,10 +23,10 @@ export function applyTheme(theme: ThemeId, tod: TimeOfDay | "auto") {
 
 export function loadTheme(): ThemeId {
   if (typeof window === "undefined") return "silk";
-  return localStorage.getItem(THEME_KEY) === "beach" ? "beach" : "silk";
+  return safeStorage.getItem(THEME_KEY) === "beach" ? "beach" : "silk";
 }
 export function loadTod(): TimeOfDay | "auto" {
   if (typeof window === "undefined") return "auto";
-  const v = localStorage.getItem(TOD_KEY);
+  const v = safeStorage.getItem(TOD_KEY);
   return v === "morning" || v === "day" || v === "sunset" || v === "night" ? v : "auto";
 }
