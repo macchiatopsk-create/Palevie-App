@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import {NextResponse,type NextFetchEvent,type NextRequest} from "next/server";
 import {getSupabaseAdmin} from "@/lib/server/supabaseAdmin";
 import {
-  isDocumentVisit,safeReferrerHostname,safeVisitPath,serverVisitAttribution,
+  requestEvidence,isDocumentVisit,safeReferrerHostname,safeVisitPath,serverVisitAttribution,
   validServerVisitId,SERVER_VISIT_COOKIE,SERVER_VISIT_EVENT,SERVER_VISIT_VERSION
 } from "@/lib/server/serverVisitAnalytics";
 
@@ -12,7 +12,7 @@ import {
  */
 export function proxy(request:NextRequest,event:NextFetchEvent){
   const response=NextResponse.next();
-  if(process.env.VERCEL_ENV==="preview"||
+  if(request.headers.get("sec-gpc")==="1"||process.env.VERCEL_ENV==="preview"||
      !isDocumentVisit(request.method,request.nextUrl.pathname,request.headers))return response;
   const prior=request.cookies.get(SERVER_VISIT_COOKIE)?.value;
   const visitor=validServerVisitId(prior)?prior!:randomUUID();
@@ -24,6 +24,8 @@ export function proxy(request:NextRequest,event:NextFetchEvent){
   }
   const props={
     capture:SERVER_VISIT_VERSION,
+    request_evidence:requestEvidence(request.headers),
+    is_test:request.nextUrl.searchParams.get("utm_source")==="internal"&&request.nextUrl.searchParams.get("utm_medium")==="test",
     path:safeVisitPath(request.nextUrl.pathname,request.nextUrl.searchParams),
     attribution:{latest:serverVisitAttribution(request.nextUrl.searchParams)},
     referrer_hostname:safeReferrerHostname(request.headers.get("referer"),request.nextUrl.hostname)
@@ -39,4 +41,4 @@ export function proxy(request:NextRequest,event:NextFetchEvent){
   return response;
 }
 
-export const config={matcher:["/","/quiz","/shop","/guides/:path*"]};
+export const config={matcher:["/","/quiz","/shop","/diagnose","/analyze","/season/:path*","/guides/:path*"]};

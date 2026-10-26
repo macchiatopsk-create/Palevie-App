@@ -1,3 +1,4 @@
+import { safeStorage } from "./safeStorage";
 /**
  * What the person actually came for. Asked instead of gender: a routing
  * question answers the same product question without assuming anything about
@@ -10,13 +11,13 @@ export const INTEREST_EVENT = "palevie:interest";
 
 export function loadInterest(): Interest | null {
   if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(KEY);
+  const raw = safeStorage.getItem(KEY);
   return raw === "skincare" || raw === "makeup" || raw === "both" ? raw : null;
 }
 
 export function saveInterest(value: Interest) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(KEY, value);
+  safeStorage.setItem(KEY, value);
   window.dispatchEvent(new Event(INTEREST_EVENT));
 }
 

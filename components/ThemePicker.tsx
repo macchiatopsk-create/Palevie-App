@@ -1,4 +1,5 @@
 "use client";
+import { safeStorage } from "@/lib/safeStorage";
 import { useEffect, useState } from "react";
 import { ThemeId, TimeOfDay, applyTheme, loadTheme, loadTod, THEME_KEY, TOD_KEY, timeOfDay } from "@/lib/theme";
 
@@ -18,10 +19,10 @@ export default function ThemePicker() {
   useEffect(() => { setTheme(loadTheme()); setTod(loadTod()); setReady(true); }, []);
 
   function pickTheme(t: ThemeId) {
-    setTheme(t); localStorage.setItem(THEME_KEY, t); applyTheme(t, tod);
+    setTheme(t); safeStorage.setItem(THEME_KEY, t); applyTheme(t, tod);
   }
   function pickTod(v: TimeOfDay | "auto") {
-    setTod(v); localStorage.setItem(TOD_KEY, v); applyTheme(theme, v);
+    setTod(v); safeStorage.setItem(TOD_KEY, v); applyTheme(theme, v);
   }
   if (!ready) return null;
 
