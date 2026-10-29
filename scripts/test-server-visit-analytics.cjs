@@ -9,10 +9,13 @@ const browser=new Headers({
   "sec-fetch-mode":"navigate","sec-fetch-dest":"document"
 });
 check("top-level Chrome and Instagram in-app document requests are recorded",()=>{
-  for(const path of ["/","/quiz","/shop","/guides","/guides/choose-makeup-shades-online"])
+  for(const path of ["/","/quiz","/shop","/instagram","/camera-guide","/guides","/guides/choose-makeup-shades-online"])
     assert(lib.isDocumentVisit("GET",path,browser),path);
   const insta=new Headers({"user-agent":"Mozilla/5.0 (Linux; Android 15) Instagram 390.0","sec-fetch-mode":"navigate"});
   assert(lib.isDocumentVisit("GET","/quiz",insta));
+  assert(lib.isDocumentVisit("GET","/instagram",insta));
+  const matcher=source("proxy.ts");
+  for(const path of ['"/instagram"','"/camera-guide"'])assert(matcher.includes(path),"proxy matcher "+path);
 });
 check("bots, API, non-doc fetch, prefetch and RSC do not count",()=>{
   for(const path of ["/api/events","/_next/static/x.js","/account","/quiz-nope"])

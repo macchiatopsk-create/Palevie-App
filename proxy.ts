@@ -41,4 +41,4 @@ export function proxy(request:NextRequest,event:NextFetchEvent){
   return response;
 }
 
-export const config={matcher:["/","/quiz","/shop","/diagnose","/analyze","/season/:path*","/guides/:path*"]};
+export const config={matcher:["/","/quiz","/shop","/instagram","/camera-guide","/diagnose","/analyze","/season/:path*","/guides/:path*"]};

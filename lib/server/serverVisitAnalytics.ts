@@ -6,7 +6,7 @@ export const SERVER_VISIT_EVENT="server_page_request";
 export const SERVER_VISIT_COOKIE="palevie-server-visit-v1";
 export const SERVER_VISIT_VERSION="server_request_v2";
 const BOT=/(?:bot\b|crawler|spider|headless|playwright|puppeteer|curl|wget|python-requests|facebookexternalhit|meta-externalagent|lighthouse|pagespeed|previewbot|uptimerobot)/i;
-const ALLOWED_PATH=/^\/(?:$|quiz\/?$|shop\/?$|diagnose\/?$|analyze\/?$|season(?:\/[^?#]*)?$|guides(?:\/[^?#]*)?$)/;
+const ALLOWED_PATH=/^\/(?:$|quiz\/?$|shop\/?$|instagram\/?$|camera-guide\/?$|diagnose\/?$|analyze\/?$|season(?:\/[^?#]*)?$|guides(?:\/[^?#]*)?$)/;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const UTM=["utm_source","utm_medium","utm_campaign","utm_content"] as const;
 export function validServerVisitId(value:string|undefined):boolean{
