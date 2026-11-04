@@ -13,7 +13,7 @@ const shop=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.tsx"
 const products=eligible.visibleShopProducts(catalog),tryOn=products.filter(p=>rt.load("lib/tryOnEligibility.ts").makeupTryOnArea(p));
 const indexed=new Map(catalog.map(p=>[p.id,p]));
 const aliases={"elf-lipoil-rose":"elf-oil-03","rare-pinch-joy":"rare-pinch-09"};
-assert.equal(Object.keys(refs).length,60,"The 46 original brand digital swatches plus 14 new measured swatches must remain intact");
+assert.equal(Object.keys(refs).length,54,"46 original digital swatches plus 8 validated lip-oil image samples must remain intact");
 for(const [id,ref] of Object.entries(refs)){
  const p=indexed.get(id);assert(p,"Missing brand swatch product: "+id);
  assert.equal(p.colorHex,ref.hex,"Brand swatch color changed without source: "+id);
@@ -31,12 +31,12 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
 const described=tryOn.filter(p=>src.shadeEvidence(p)==="brand-described");
 assert.equal(Object.keys(brandDescriptions).length,23,"Official descriptions require individual review");
-assert.equal(described.length,9,"Nine brand-description-only shades remain after fourteen were pixel-sampled");
+assert.equal(described.length,15,"Six pearlescent blushes remain brand-described along with nine other estimated shades");
 for(const [id,record] of Object.entries(brandDescriptions)){
  const p=indexed.get(id);assert(p,"Unknown described product: "+id);
  assert.equal(p.name.split(" · ").at(-1),record.shade,"Different shade name vs official descriptor: "+id);
  assert(record.description.trim()&&record.source.startsWith("https://"),"Missing provenance: "+id);
- if(measured[id]){
+ if(measured[id]&&id.startsWith("rare-lip-oil-")){
    assert.equal(p.colorHex,measured[id].hex,"Sampled digital swatch not applied: "+id);
    assert.equal(src.shadeEvidence(p),"brand-digital");
    assert(color.hasDocumentedSwatch(p),"Only measured shade pixels qualify as digital swatch evidence");
@@ -51,7 +51,7 @@ for(const [id,record] of Object.entries(brandDescriptions)){
 assert.equal(Object.values(brandDescriptions).filter(r=>r.officialSwatchAsset).length,14,"Rare Beauty image sources must remain traceable");
 assert.equal(Object.keys(measured).length,14,"Exactly 14 Rare Beauty swatches were sampled");
 
-assert.equal(digital.length,62,"46 original swatch records + 14 sampled Rare Beauty swatches + 2 exact product aliases");
+assert.equal(digital.length,56,"46 original swatches + 8 applied Rare lip oil swatches + 2 exact aliases");
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
  assert(["brand-digital","brand-described","illustrative"].includes(src.shadeEvidence(p)));
@@ -87,4 +87,4 @@ for(const [id,hex] of Object.entries({
  "nyx-bg-35":"#D58B50", "nyx-bg-37":"#D64D98", "nyx-bg-38":"#BA694E",
  "nyx-bg-39":"#A64B64", "nyx-bg-40":"#6C473C",
 }))assert.equal(concepts[id],hex,"NYX color-name family description mismatch: "+id);
-console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" measured_new="+Object.keys(measured).length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-described.length)+" clear_formulas=2 official_name_links=3");
+console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" applied_measured=8 held_powder_samples=6 total_samples="+Object.keys(measured).length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-described.length)+" clear_formulas=2 official_name_links=3");
