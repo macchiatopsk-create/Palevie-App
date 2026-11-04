@@ -30,8 +30,10 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
 }
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
 const described=tryOn.filter(p=>src.shadeEvidence(p)==="brand-described");
+const photos=tryOn.filter(p=>src.shadeEvidence(p)==="brand-photo");
 assert.equal(Object.keys(brandDescriptions).length,23,"Official descriptions require individual review");
-assert.equal(described.length,15,"Six pearlescent blushes remain brand-described along with nine other estimated shades");
+assert.equal(described.length,13,"Six pearlescent blushes and seven other prose-only shades remain");
+assert.equal(photos.length,5,"Only five reviewed MERIT photo screen samples are applied");
 for(const [id,record] of Object.entries(brandDescriptions)){
  const p=indexed.get(id);assert(p,"Unknown described product: "+id);
  assert.equal(p.name.split(" · ").at(-1),record.shade,"Different shade name vs official descriptor: "+id);
@@ -54,7 +56,7 @@ assert.equal(Object.keys(measured).length,14,"Exactly 14 Rare Beauty swatches we
 assert.equal(digital.length,56,"46 original swatches + 8 applied Rare lip oil swatches + 2 exact aliases");
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
- assert(["brand-digital","brand-described","illustrative"].includes(src.shadeEvidence(p)));
+ assert(["brand-digital","brand-photo","brand-described","illustrative"].includes(src.shadeEvidence(p)));
  assert.equal(color.hasDocumentedSwatch(p),src.shadeEvidence(p)==="brand-digital","Color recommendation gate must use same provenance");
 }
 assert(src.isClearGloss(indexed.get("elf-oil-07")),"e.l.f. Crystal Clear must not pigment lips");
@@ -87,4 +89,4 @@ for(const [id,hex] of Object.entries({
  "nyx-bg-35":"#D58B50", "nyx-bg-37":"#D64D98", "nyx-bg-38":"#BA694E",
  "nyx-bg-39":"#A64B64", "nyx-bg-40":"#6C473C",
 }))assert.equal(concepts[id],hex,"NYX color-name family description mismatch: "+id);
-console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" applied_measured=8 held_powder_samples=6 total_samples="+Object.keys(measured).length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-described.length)+" clear_formulas=2 official_name_links=3");
+console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" applied_measured=8 held_powder_samples=6 total_samples="+Object.keys(measured).length+" brand_photo_estimated="+photos.length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-photos.length-described.length)+" clear_formulas=2 official_name_links=3");
