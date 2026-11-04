@@ -1839,3 +1839,6 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 
 /* Official shade prose is evidence for a hue family, not a sampled RGB. */
 .sh-shade-source.is-described{background:#F4F0FA;color:#75618C;border:1px solid #E3DAF0}
+
+/* Sampled brand photo colors are lighting-dependent, not flat digital chips. */
+.sh-shade-source.is-photo{background:#F0F4FB;border:1px solid #C9DCEE;color:#58718D}
