@@ -5,7 +5,7 @@ import type { CatalogProduct } from "@/lib/types";
 import {makeupTryOnArea,type MakeupTryOnArea} from "@/lib/tryOnEligibility";
 import {shopPurchaseOffers} from "@/lib/shopEligibility";
 import {hasDocumentedSwatch} from "@/lib/colorDiscovery";
-import {isClearGloss,shadeEvidenceLabel} from "@/lib/shadeEvidence";
+import {isClearGloss,shadeEvidence,shadeEvidenceLabel} from "@/lib/shadeEvidence";
 import { getVisitorId, track } from "@/lib/analytics";
 import styles from "./VirtualMakeupTryOn.module.css";
 
@@ -308,7 +308,9 @@ export default function VirtualMakeupTryOn({
   const colorSource=current&&isClearGloss(current)
     ? "Clear gloss: no color pigment overlay; shine is a subtle illustration."
     : current&&hasDocumentedSwatch(current)
-    ? "This reference is taken from a brand's on-screen swatch. Actual pigment/skin results differ."
+    ? "Brand on-screen color reference; actual product pigment and skin results differ."
+    : current&&shadeEvidence(current)==="brand-described"
+    ? "Brand describes this hue, but the RGB shown is a Palevie estimate. Actual payoff can differ."
     : current?.subcategory==="eyeshadow"&&/palette|quad|bite.size/i.test(current.name)
     ? "Conceptual palette mood, not the individual eyeshadow pans or real finish."
     : current?.subcategory==="concealer"||current?.subcategory==="cushion"
@@ -338,7 +340,7 @@ export default function VirtualMakeupTryOn({
         <div className={styles.selected}>
           <div className={`${styles.currentSwatch} ${current&&isClearGloss(current)?styles.clearSwatch:""}`} style={current&&isClearGloss(current)?undefined:{background:current?.colorHex??"#e5c9d5"}}/>
           <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong>
-            {current&&<span className={hasDocumentedSwatch(current)?styles.sourceBrand:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
+            {current&&<span className={shadeEvidence(current)==="brand-digital"?styles.sourceBrand:shadeEvidence(current)==="brand-described"?styles.sourceDescribed:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
             <small>{current ? colorSource : "Only shades with a digital color reference can be previewed."}</small></div>
         </div>
         <div className={styles.presets} role="group" aria-label="Makeup strength">
@@ -349,7 +351,7 @@ export default function VirtualMakeupTryOn({
           <button type="button" aria-pressed={brandOnly} className={brandOnly?styles.sourceFilterActive:styles.sourceFilterButton} onClick={()=>{const next=!brandOnly;setBrandOnly(next);if(next&&(!current||!hasDocumentedSwatch(current))){const first=products.find(p=>isArea(p)===active&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[active]:first}));}}}>
             Brand digital refs only ({availableDigital})
           </button>
-          <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"All colors include conceptual Palevie illustrations."}</small>
+          <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"Digital swatches, brand-described hues and conceptual colors are separate evidence levels."}</small>
         </div>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
         <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span className={isClearGloss(p)?styles.clearSwatch:""} style={isClearGloss(p)?undefined:{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
@@ -365,7 +367,9 @@ export default function VirtualMakeupTryOn({
           </a>;
         })}</div>}
         {current&&<small className={styles.retailNote}>
-          {hasDocumentedSwatch(current)?"Brand digital screen reference, not measured cosmetic payoff.":"Palevie illustrative tint, not an exact shade match."}
+          {shadeEvidence(current)==="brand-digital"?"Brand digital screen reference, not measured cosmetic payoff."
+          :shadeEvidence(current)==="brand-described"?"Brand-described hue, with Palevie-estimated RGB; not an exact shade match."
+          :"Palevie illustrative tint, not an exact shade match."}
           {" "}{hasExactDestination?"Check the actual shade, stock and finish on the retailer's page.":"Select the named shade on the retailer's product-family page."}
         </small>}
       </div>
