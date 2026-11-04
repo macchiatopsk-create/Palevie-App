@@ -1,5 +1,6 @@
 import { expandedShades } from "./expandedShades";
 import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS} from "./shopExpansion";
+import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./megaCatalog";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
 
@@ -336,6 +337,7 @@ export const catalogProducts: CatalogProduct[] = [
       }),
       ...(OFFICIAL_STORE_OFFERS[product.id]?[{...OFFICIAL_STORE_OFFERS[product.id],reviewedDirect:true,exactShade:product.id==="elf-lipoil-rose"}]:[]),
       ...expandedRetailerOffers(product),
+      ...(EXISTING_BRAND_FAMILY_PAGES[product.id]?[brandOffer(product.id,EXISTING_BRAND_FAMILY_PAGES[product.id])]:[]),
     ],
   })),
   ...expandedShades.map(product => {
@@ -348,10 +350,12 @@ export const catalogProducts: CatalogProduct[] = [
       offers:[
         ...product.offers.map(offer=>asin?{...offer,url:`https://www.amazon.com/dp/${asin}`,affiliateReady:true,priceLabel:undefined}:offer),
         ...expandedRetailerOffers(product),
+      ...(EXISTING_BRAND_FAMILY_PAGES[product.id]?[brandOffer(product.id,EXISTING_BRAND_FAMILY_PAGES[product.id])]:[]),
       ],
     };
   }),
   ...additionalShopProducts,
+  ...megaCatalogProducts,
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));

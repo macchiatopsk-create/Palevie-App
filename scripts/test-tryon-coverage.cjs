@@ -11,7 +11,7 @@ const previous=shop.filter(p=>p.category==="makeup"&&p.colorHex&&original.includ
 assert(shop.length>amazon.length,"Reviewed non-Amazon products must surface in Shop");
 assert(amazon.length===134,"Previously verified Amazon products must stay visible");
 assert(now.length>=previous.length);
-assert(now.length>63,"Expanded Try On must surpass the previous 63 items");
+assert(now.length>116,"Expanded Try On must surpass the previous 63 items");
 assert(now.length>previous.length,"Try On should cover more items than previous four categories");
 assert(now.every(p=>shopPurchaseOffers(p).length>0));
 assert(now.every(p=>p.category==="makeup"));
