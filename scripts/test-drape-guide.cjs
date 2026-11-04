@@ -59,6 +59,35 @@ test('face landmarks measure privately without drawing a forehead marker on prev
  const camera=src.indexOf('   {children}'),dock=src.indexOf('   <div className={styles.dock}');
  assert(camera>=0&&dock>camera, 'scan controls/status must render after camera, not over face');
 });
+test('scanner has score strip above camera and direct A/B voting below it',()=>{
+ const guide=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
+ const camera=fs.readFileSync(path.join(root,'components/CameraDrape.tsx'),'utf8');
+ const drape=fs.readFileSync(path.join(root,'components/ColorDrapingClient.tsx'),'utf8');
+ const switcher=fs.readFileSync(path.join(root,'components/DrapeColorControls.tsx'),'utf8');
+ const css=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.module.css'),'utf8');
+ const top=guide.indexOf('className={styles.scoreTop}'),stage=guide.indexOf('   {children}');
+ assert(top>=0&&top<stage,'Styling score must be above the video, not under scrolling instructions');
+ assert(guide.includes('data-look-score={i}')&&guide.includes('data-guide-comparison'),
+   'Separate A/B soft-bold styling indices must be visible in top row');
+ assert(guide.includes('className={styles.help} data-guide-help')&&guide.includes('aria-label="About this scan and its scores"'),
+   'Detailed instructions must live inside keyboard/touch accessible information icon');
+ assert(guide.includes('className={styles.dock} data-guide-dock')&&guide.includes('conciseStatus'),
+   'Only a slim one-line status bar should remain below voting');
+ assert(!guide.includes('className={styles.recommendation}')&&!guide.includes('className={styles.lighting}'),
+   'No second recommendation card or standing light-instruction paragraph');
+ assert(camera.includes('const pickPanel=')&&camera.includes('onPick(i===1?1:0)')&&camera.includes('aria-label={`Choose ${i===0?"A":"B"}'),
+   'Voting either shade must directly record selected A/B, not require separate switching');
+ assert(camera.includes('{pickPanel}')&&camera.includes('rate(()=>onPick(i===1?1:0))'),
+   'Direct A/B cards must be reachable beside camera, with camera-playing safety gate');
+ assert(!camera.includes('<p className="camera-drape-prompt">'),
+   'Avoid long always-visible instruction underneath scan');
+ assert(drape.includes('data-scan-more')&&drape.includes('styles.scanTopline'),
+   'Shopping notes belong in a collapsed area and the pair header must be compact');
+ assert(!switcher.includes('className={styles.scoreLine}')&&!switcher.includes('/100'),
+   'Do not show duplicate numeric scores over the color cloth');
+ assert(css.includes('.scoreTop')&&css.includes('.helpPanel')&&css.includes('max-height:min(65dvh,450px)'),
+   'Info should open as a capped, scrollable popover rather than expanding the page');
+});
 test('guide component has no storage or analytics calls',()=>{const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');assert.ok(!/localStorage|sessionStorage|indexedDB|\btrack\(|\/api\//.test(src));assert.ok(src.includes('worker?.terminate()'));assert.ok(src.includes('bitmap?.close()')||src.includes('bitmap.close()'));assert.ok(src.includes('visibilitychange'));});
 (async()=>{
  const calls=[],messages=[];let closed=false,bitmapClosed=false;

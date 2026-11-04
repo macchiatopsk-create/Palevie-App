@@ -44,9 +44,14 @@ export default function ColorDrapingClient(){
   if(finished)return <section className={styles.card} aria-label="Color comparison summary"><span className={styles.eyebrow}>PALEVIE · YOUR DRAPING NOTES</span><h2>Your color choices, saved.</h2><p>A recap of your preferences, not a confirmed seasonal diagnosis. Your liked colors carry through to Shop on this browser.</p><div className={styles.chips}>{session.picks.map((pick,i)=><div className={styles.chip} key={i}>{pick?<><span style={{background:DRAPE_PAIRS[i].colors[pick.index].hex}} aria-hidden="true"/><b>{pick.assessment==="better"?"Liked: ":"Not for me: "}{DRAPE_PAIRS[i].colors[pick.index].label}</b></>:<><span className={styles.unsure}/><b>Pair {i+1}: not sure</b></>}</div>)}</div>
     {lastFavorite&&<VerifiedShadePicks referenceHex={lastFavorite} surface="drape_summary"/>}<Link className={styles.action} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"drape_summary"})}>Explore makeup shades →</Link><button type="button" className={styles.secondary} onClick={restart}>Compare again</button><Link className={styles.backLink} href="/quiz">Back to Quick Quiz</Link><p className={styles.disclaimer}>Lighting, screen settings and makeup change perceived colors. Preferences are not a measured undertone or accuracy percentage.</p>
   </section>;
-  return <section className={styles.card} aria-label="Guided color draping">
-    <span className={styles.eyebrow}>PALEVIE · LIVE COLOR COMPARISON</span>
-    <h2>See colors on your face.</h2>
+  return <section className={`${styles.card} ${mode==="camera"?styles.cameraCompact:""}`} aria-label="Guided color draping">
+    {mode!=="camera"&&<span className={styles.eyebrow}>PALEVIE · LIVE COLOR COMPARISON</span>}
+    {mode!=="camera"&&<h2>See colors on your face.</h2>}
+    {mode==="camera"&&<div className={styles.scanTopline}>
+      <div><span>FACE COLOR CHECK</span><strong>{pair.title}</strong></div>
+      <b>PAIR {session.step+1} / {DRAPE_PAIRS.length}</b>
+      <div className={styles.scanTopProgress} aria-label={`Comparison ${session.step+1} of ${DRAPE_PAIRS.length}`}><i style={{width:`${session.step/DRAPE_PAIRS.length*100}%`}}/></div>
+    </div>}
     {mode==="choose"&&<p className={styles.headlineIntro}>Start a live camera check or compare in a mirror.</p>}
     {mode==="choose"&&<div className={styles.methodCards} role="group" aria-label="Choose camera or mirror">
       <button type="button" className={styles.cameraCard} onClick={()=>chooseMode("camera")}>
@@ -58,15 +63,24 @@ export default function ColorDrapingClient(){
         <small>Compare swatches without camera</small>
       </button>
     </div>}
-    {mode!=="choose"&&<div className={styles.comparisonHead}>
+    {mode==="mirror"&&<div className={styles.comparisonHead}>
       <div className={styles.progress} aria-label={`Comparison ${session.step+1} of ${DRAPE_PAIRS.length}`}><div style={{width:`${session.step/DRAPE_PAIRS.length*100}%`}}/></div>
       <p className={styles.count}>PAIR {session.step+1} OF {DRAPE_PAIRS.length}</p>
       <h3>{pair.title}</h3>
       {mode==="mirror"&&<p className={styles.note}>{pair.note}</p>}
     </div>}
-    {mode==="camera"&&<CameraDrape colors={pair.colors.map(c=>({label:c.label,hex:c.hex}))} side={side} onSide={setSide} onPick={()=>answer(side===1?1:0,"better")} onWorse={()=>answer(side===1?1:0,"worse")} onCant={()=>answer(null)} onPrev={session.step>0?goBack:undefined} onUseMirror={()=>chooseMode("mirror")}/>}
+    {mode==="camera"&&<CameraDrape colors={pair.colors.map(c=>({label:c.label,hex:c.hex}))} side={side} onSide={setSide} onPick={(chosenSide)=>answer(chosenSide??(side===1?1:0),"better")} onWorse={(chosenSide)=>answer(chosenSide??(side===1?1:0),"worse")} onCant={()=>answer(null)} onPrev={session.step>0?goBack:undefined} onUseMirror={()=>chooseMode("mirror")}/>}
     {mode==="mirror"&&<div className={styles.mirror}><p>Hold the screen beside your cheek in a mirror. Rate the effect of each color, or select “can't tell”. A worse rating does not mean the other color is better.</p><div className={styles.mirrorOptions}>{pair.colors.map((c,i)=><div key={c.label} className={styles.mirrorChoice}><span className={styles.mirrorColor} style={{background:c.hex}} aria-hidden="true"/><b>{c.label}</b><button type="button" className={styles.mirrorBetter} onClick={()=>answer(i===1?1:0,"better")}>Looks better ✓</button><button type="button" className={styles.mirrorWorse} onClick={()=>answer(i===1?1:0,"worse")}>Looks worse</button></div>)}</div><button type="button" className={styles.unsureButton} onClick={()=>answer(null)}>I can't tell yet</button><button type="button" className={styles.otherMethod} onClick={()=>chooseMode("camera")}>Switch to front camera</button>{session.step>0&&<button type="button" className={styles.otherMethod} onClick={goBack}>Previous comparison</button>}</div>}
-    <Link className={styles.skipShop} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"drape_skip"})}>Browse Shop without comparing →</Link>
+    {mode==="camera"?
+      <details className={styles.scanMore} data-scan-more>
+        <summary>More options · Shop · Notes</summary>
+            <Link className={styles.skipShop} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"drape_skip"})}>Browse Shop without comparing →</Link>
     {session.step>0&&lastFavorite&&<VerifiedShadePicks referenceHex={lastFavorite} surface="drape_after_pair"/>}{session.step>0&&!lastFavorite&&<p className={styles.emptyPicks}>No favorite yet? Keep comparing or browse Shop freely.</p>}<p className={styles.disclaimer}>Exploratory comparisons, not a certified personal-color diagnosis. Progress is stored on this browser when storage is available.</p><Link className={styles.backLink} href="/quiz">Back to Quick Quiz</Link>
+      </details>:
+      <>
+            <Link className={styles.skipShop} href="/shop" onClick={()=>track("discovery_shop_clicked",{surface:"drape_skip"})}>Browse Shop without comparing →</Link>
+    {session.step>0&&lastFavorite&&<VerifiedShadePicks referenceHex={lastFavorite} surface="drape_after_pair"/>}{session.step>0&&!lastFavorite&&<p className={styles.emptyPicks}>No favorite yet? Keep comparing or browse Shop freely.</p>}<p className={styles.disclaimer}>Exploratory comparisons, not a certified personal-color diagnosis. Progress is stored on this browser when storage is available.</p><Link className={styles.backLink} href="/quiz">Back to Quick Quiz</Link>
+      </>}
+
   </section>;
 }

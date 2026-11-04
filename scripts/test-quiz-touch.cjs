@@ -21,7 +21,7 @@ test("compatibility click blocked only when it matches prior touch, keyboard sti
  assert(!touch.isSyntheticQuickTouchClick(t,{x:100,y:201,at:1950,detail:1}));
  assert(!touch.isSyntheticQuickTouchClick(null,{x:100,y:201,at:1050,detail:1}));
 });
-function componentHarness(){
+function componentHarness(startQuestions=true){
  const hooks=[],events=[],storage=[];
  let index=0;
  // The initial state is hydrated in normal runtime by a useEffect; seed ready=true here.
@@ -54,7 +54,7 @@ function componentHarness(){
  const mod={exports:{}},ctx={Date,Math,console,window:{scrollTo(){},requestAnimationFrame(cb){cb();return 1;},cancelAnimationFrame(){}},document:{}};
  vm.runInNewContext("(function(require,module,exports){"+compiled.outputText+"\n})",ctx)(p=>{if(!(p in dep))throw Error("unmocked "+p);return dep[p];},mod,mod.exports);
  const fn=mod.exports.default;
- function render(){index=0;return fn({});}
+ function render(){index=0;return fn({startQuestions});}
  function walk(node,out=[]){if(Array.isArray(node)){node.forEach(x=>walk(x,out));return out;}if(!node||typeof node!=="object")return out;if("type" in node)out.push(node);walk(node.props?.children,out);return out;}
  function buttons(){return walk(render()).filter(x=>x.type==="button"&&x.props.className==="option");}
  return {buttons,render,getCursor:()=>hooks[0].cursor,completed:()=>hooks[0].completed,events,storage,walk};
@@ -90,11 +90,25 @@ test("scroll gesture does not answer; click-only and keyboard still work",()=>{
  h.buttons()[0].props.onClick({detail:1,clientX:120,clientY:300});
  assert.equal(h.getCursor(),2);
 });
+test("equal split landing reveals questions only after user chooses quiz",()=>{
+ const h=componentHarness(false),root=h.render();
+ const links=h.walk(root);
+ const quizEntry=links.find(x=>x.type==="button"&&x.props.className==="entryQuiz");
+ const cameraEntry=links.find(x=>x.props.className==="entryCamera"&&x.props.href==="/quiz?mode=draping&method=camera");
+ assert(quizEntry,"Must show a real Start quiz button on first screen");
+ assert(cameraEntry&&cameraEntry.props.href==="/quiz?mode=draping&method=camera","Must show genuine camera destination beside quiz");
+ assert.equal(h.buttons().length,0,"Do not render full Q1 options underneath the initial chooser");
+ quizEntry.props.onClick();
+ assert(h.buttons().length>0,"Choosing the quiz must reveal its real first question");
+ assert.equal(h.getCursor(),0);
+ assert(h.events.some(x=>x.name==="quiz_intro_started"&&x.props.method==="questions"));
+});
 test("responsive touch CSS is scoped and pastel pink camera entry remains",()=>{
  const s=source("components/QuickQuizClient.module.css"),c=source("components/QuickQuizClient.tsx");
  assert(s.includes("touch-action:manipulation"));
  assert(s.includes("@media (hover:hover) and (pointer:fine){.option:hover"));
- assert(s.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"));
+ assert(s.includes(".entryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))"));
+ assert(s.includes(".entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%)"));
  assert(c.includes("onTouchEnd={e=>onAnswerTouchEnd(e,index)}"));
  assert(c.includes("onTouchEnd={e=>onAnswerTouchEnd(e,-1)}"));
  assert(c.includes("lastAnsweredState.current=quiz"));

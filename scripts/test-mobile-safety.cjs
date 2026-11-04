@@ -48,6 +48,22 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   stream.track.muted=false;h.find('video').props.onPlaying();h.flush();h.find('button','Looks better').props.onClick();assert.equal(picks,1);
   h.find('video').props.onWaiting();h.flush();assert.equal(h.find('button','Looks better').props.disabled,true);h.unmount();assert.equal(stream.track.stops,1);assert.equal(h.timers.size,0);
  });
+ await test('creative A/B color vote selects B directly without a prior preview switch',async()=>{
+  const stream=cameraStream(),votes=[];let switches=0;
+  const h=harness('components/CameraDrape.tsx',{
+    colors:[{label:'Rose',hex:'#B08699'},{label:'Peach',hex:'#DFA58B'}],side:0,
+    onSide(){switches++;},onPick:selected=>votes.push(selected),onCant(){},onUseMirror(){}
+  },{getUserMedia:()=>Promise.resolve(stream)});
+  h.find('button','Turn on front camera').props.onClick();await h.settle();
+  const blue=h.nodes().find(n=>n.type==='button'&&n.props['aria-label']==='Choose B, Peach, as looking better');
+  assert(blue&&blue.props.disabled===true,"Cannot vote while video has not begun playing");
+  h.find('video').props.onPlaying();h.flush();
+  const choice=h.nodes().find(n=>n.type==='button'&&n.props['aria-label']==='Choose B, Peach, as looking better');
+  assert(choice&&choice.props.disabled===false);
+  choice.props.onClick();assert.deepEqual(votes,[1]);assert.equal(switches,0,"A/B vote must not require a separate color switch");
+  stream.track.muted=true;choice.props.onClick();assert.deepEqual(votes,[1],"Inactive camera must block voting");
+  h.unmount();assert.equal(stream.track.stops,1);
+ });
  await test('camera permission timeout clears controls and offers mirror fallback',()=>{
   const h=harness('components/CameraDrape.tsx',{colors:[{label:'Rose',hex:'#B08699'}],side:0,onSide(){},onPick(){},onCant(){},onUseMirror(){}},{getUserMedia:()=>new Promise(()=>{}),userAgent:'Instagram'});
   h.find('button','Turn on front camera').props.onClick();h.flush();h.tick(45000);assert(h.text().includes('No camera preview'));assert(h.text().includes('Safari or Chrome'));h.find('button','Use a mirror instead');h.unmount();assert.equal(h.timers.size,0);
@@ -64,10 +80,10 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
  await test('quiz-draping-Shop preference handoff persists without fabricating a color diagnosis',()=>{
   const {browser}=require('./free-service-test-runtime.cjs'),w=browser(),r=runtime({window:w}),q=r.load('lib/quickQuizState.ts'),p=r.load('lib/discoveryPreferences.ts'),d=r.load('lib/drapingState.ts');let state=q.initialQuickState();for(let i=0;i<7;i++)state=q.answerQuickState(state,i===6?2:0);assert.equal(state.completed,true);p.saveDiscoveryPreferences({mood:'deep',source:'mood'});let drape=d.answerDrapeState(d.initialDrapeState(),{index:1,assessment:'better'});p.saveDiscoveryPreferences({source:'drape',likedColors:d.drapeColors(drape,'better')});const next=runtime({window:w}).load('lib/discoveryPreferences.ts');assert.deepEqual(JSON.parse(JSON.stringify(next.preferredDiscoveryColors(next.loadDiscoveryPreferences()))),['#CA6D9A']);
  });
- await test('UI invariant: quick seven-question quiz is default, advanced draping is optional',()=>{
+ await test('UI invariant: first screen offers equal quiz and camera paths while draping stays optional',()=>{
   const hub=source('components/QuizHub.tsx'),quick=source('components/QuickQuizClient.tsx');
-  assert(hub.includes('expert?<ToneEvidenceQuiz/>:<QuickQuizClient key={showResult?"saved-result":retake?"new-quiz":"active-quiz"} detail={detailed} retake={retake} showResult={showResult}/>'));
-  assert(quick.includes('Try the live camera scan'));
+  assert(hub.includes('expert?<ToneEvidenceQuiz/>:<QuickQuizClient key={showResult?"saved-result":retake?"new-quiz":"active-quiz"} detail={detailed} retake={retake} showResult={showResult} startQuestions={params.get("start")==="questions"}/>'));
+  assert(quick.includes('styles.entryGrid')&&quick.includes('styles.entryScanTile')&&quick.includes('styles.entryQuizTile'));
   assert(quick.includes('/quiz?mode=draping&method=camera'));
   assert(quick.includes('Advanced 7-color face comparison'));
  });
@@ -79,7 +95,7 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   assert(camera.includes('styles.scanSwitch')&&camera.indexOf('styles.scanSwitch')>camera.indexOf('camera-drape-cloth'));
   assert(style.includes('object-fit:cover')&&!style.includes('object-fit:contain'));
   assert(style.includes('bottom:10px'));
-  assert(guide.includes('Live color scan')&&guide.includes('Start scan'));
+  assert(guide.includes('LIVE LOOK GUIDE')&&guide.includes('styles.scoreTop')&&guide.includes('styles.helpPanel'));
  });
  console.log('MOBILE_PASSWORD_REGRESSION_PASS tests='+count+' browser=simulated physical_device=false');
 })().catch(error=>{console.error('MOBILE_PASSWORD_REGRESSION_FAILED',error.stack||error);process.exitCode=1;});

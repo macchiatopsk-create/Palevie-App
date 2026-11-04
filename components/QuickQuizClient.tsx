@@ -12,12 +12,13 @@ import { isShortQuickTap,isSyntheticQuickTouchClick,type QuickTouchPoint,type Qu
 import ResultProductPicks from "./ResultProductPicks";
 import styles from "./QuickQuizClient.module.css";
 const MOODS:ColorMoodId[]=["soft","bright","deep","warm","cool"];
-export default function QuickQuizClient({detail=false,retake=false,showResult=false}:{detail?:boolean;retake?:boolean;showResult?:boolean}){
+export default function QuickQuizClient({detail=false,retake=false,showResult=false,startQuestions=false}:{detail?:boolean;retake?:boolean;showResult?:boolean;startQuestions?:boolean}){
   const router=useRouter();
   const [quiz,setQuiz]=useState(initialQuickState),[ready,setReady]=useState(false);
   const [chosenMood,setChosenMood]=useState<ColorMoodId|null>(null);
   const [hasSavedResult,setHasSavedResult]=useState(false);
   const [feedback,setFeedback]=useState<PaletteFeedback>(null);
+  const [quizStarted,setQuizStarted]=useState(startQuestions);
   // Lock just the question that handled a tap; never drop an immediate next-question tap.
   const lastAnsweredState=useRef<QuickState|null>(null);
   const answerTouchStart=useRef<QuickTouchPoint|null>(null);
@@ -34,13 +35,14 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     if(retake){
       safeStorage.removeItem(QUICK_KEY);
       if(prefs.source==="mood")clearDiscoveryPreferences();
-      setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
+      setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(startQuestions);
     }else{
-      setQuiz(quickRouteState(existing,saved,showResult,false));
+      const routed=quickRouteState(existing,saved,showResult,false);
+      setQuiz(routed);setQuizStarted(startQuestions||routed.cursor>0||routed.completed);
       setChosenMood(prefs.mood);setFeedback(prefs.feedback);
     }
     setReady(true);
-  },[retake,showResult]);
+  },[retake,showResult,startQuestions]);
   useEffect(()=>{
     // Saving an explicit previous-result view must not erase fresh quiz progress.
     if(ready&&!showResult)safeStorage.setItem(QUICK_KEY,JSON.stringify(quiz));
@@ -85,24 +87,45 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     pick(choice);
   }
   function restart(){
-    setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);
+    setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(true);
     if(loadDiscoveryPreferences().source==="mood")clearDiscoveryPreferences();
     safeStorage.removeItem(QUICK_KEY);
     lastAnsweredState.current=null;track("quiz_quick_restarted",{entry:"visible_retake"});
-    router.replace("/quiz?retake=1",{scroll:false});
+    router.replace("/quiz?retake=1&start=questions",{scroll:false});
     window.scrollTo({top:0,behavior:"smooth"});
   }
   const suggested=startingColorMood(quiz.picks[6]),active=chosenMood??suggested??"soft",palette=COLOR_MOODS[active];
   function changeMood(mood:ColorMoodId){setChosenMood(mood);setFeedback(null);saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});track("quiz_palette_changed",{mood,original_preference:suggested??"open"});}
   function vote(value:Exclude<PaletteFeedback,null>){setFeedback(value);saveDiscoveryPreferences({mood:active,feedback:value,source:"mood"});track("quiz_palette_feedback",{mood:active,feedback:value,source:"quick_result"});}
   if(!ready){
-    // Real Q1 content instead of a blank loading rectangle while hydration starts.
-    const first=QUIZ_QUESTIONS[QUICK_INDEXES[0]];
-    return <section className={styles.quiz} aria-label="Loading seven-question color quiz">
-      <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
-      <div className={styles.counter}>1 / 7</div>
-      <h2 className={styles.question}>{first.text}</h2>
-      <div className={styles.options}>{first.options.map(option=><button className={styles.option} type="button" disabled key={option.label}>{option.label}</button>)}</div>
+    if(startQuestions){
+      const first=QUIZ_QUESTIONS[QUICK_INDEXES[0]];
+      return <section className={styles.quiz} aria-label="Loading seven-question color quiz">
+        <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
+        <div className={styles.counter}>1 / 7</div>
+        <h2 className={styles.question}>{first.text}</h2>
+        <div className={styles.options}>{first.options.map(option=><button className={styles.option} type="button" disabled key={option.label}>{option.label}</button>)}</div>
+      </section>;
+    }
+    return <section className={`${styles.quiz} ${styles.entryScreen}`} aria-label="Choose quiz or camera scan">
+      <div className={styles.entryChoice}>
+        <p className={styles.entryTitle}>YOUR COLOR JOURNEY</p>
+        <h2 className={styles.entryHeading}>How would you like to begin?</h2>
+        <div className={styles.entryGrid}>
+          <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
+            <div className={styles.entryIllustration} aria-hidden="true">✎</div>
+            <span className={styles.entryStep}>01 · WITHOUT CAMERA</span>
+            <h3>Quick quiz</h3><p className={styles.entryDescription}>7 simple questions</p>
+            <Link className={styles.entryQuiz} href="/quiz?start=questions">Start quiz →</Link>
+          </div>
+          <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
+            <span className={styles.entryCameraIcon} aria-hidden="true">◎</span>
+            <span className={styles.entryStep}>02 · LIVE CAMERA</span>
+            <h3>Face scan</h3><p className={styles.entryDescription}>See colors beside your face</p>
+            <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Start scan →</Link>
+          </div>
+        </div>
+      </div>
     </section>;
   }
   if(detail&&!quiz.completed)return <section className={styles.result}><h2 className={styles.resultHeading}>Start with the quick quiz</h2><Link className={styles.primary} href="/quiz">Start Quick Quiz →</Link></section>;
@@ -149,31 +172,69 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     </nav>
     <button className={styles.reset} type="button" onClick={restart}>Retake the quick quiz</button>
   </section>;
+  // The first screen is a real decision, not a long question list below a tiny scan banner.
+  // Continuing an unfinished quiz goes straight back to its saved question.
+  if(!quizStarted&&quiz.cursor===0)return <section className={`${styles.quiz} ${styles.entryScreen}`} aria-label="Choose your color-check method">
+    <div className={styles.entryChoice} role="group" aria-label="Choose quiz or face color scan">
+      <p className={styles.entryTitle}>YOUR COLOR JOURNEY</p>
+      <h2 className={styles.entryHeading}>How would you like to begin?</h2>
+      <div className={styles.entryGrid}>
+        <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
+          <details className={styles.entryInfo}>
+            <summary aria-label="About the seven-question quiz" title="About this option">ⓘ</summary>
+            <div className={styles.entryPopover}>
+              <b>Quick quiz</b>
+              <p>Answer seven short questions about colors you notice and styles you like. Get a starting palette to explore, not a verified seasonal or skin-tone diagnosis.</p>
+            </div>
+          </details>
+          <div className={styles.entryIllustration} aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="12" y="9" width="40" height="47" rx="10"/>
+              <path d="M21 24l5 5 9-11M21 43h22M35 27h8"/>
+              <circle cx="32" cy="6" r="3" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <span className={styles.entryStep}>01 · WITHOUT CAMERA</span>
+          <h3>Quick quiz</h3>
+          <p className={styles.entryDescription}>7 simple questions</p>
+          <button type="button" className={styles.entryQuiz} onClick={()=>{
+            setQuizStarted(true);
+            track("quiz_intro_started",{source:"quiz_mode_choice",method:"questions"});
+          }}>
+            Start quiz <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
+          <details className={styles.entryInfo}>
+            <summary aria-label="About live camera color scan" title="About this option">ⓘ</summary>
+            <div className={styles.entryPopover}>
+              <b>Face color scan</b>
+              <p>Enable your front camera to compare virtual color drapes. The on-device guide offers styling comparisons, not a certified skin or undertone result. Mirror mode is available too.</p>
+            </div>
+          </details>
+          <span className={styles.entryCameraIcon} aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="8" y="17" width="48" height="37" rx="9"/>
+              <path d="M19 17l5-7h16l5 7"/>
+              <circle cx="32" cy="35" r="11"/>
+              <path d="M52 5v9M47.5 9.5h9"/>
+            </svg>
+          </span>
+          <span className={styles.entryStep}>02 · LIVE CAMERA</span>
+          <h3>Face scan</h3>
+          <p className={styles.entryDescription}>See colors beside your face</p>
+          <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera"
+            onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
+            Start scan <span className={styles.entryCameraGo} aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </div>
+      <p className={styles.entryFootnote}>Free to explore · No account required</p>
+      {hasSavedResult&&<Link href="/quiz?view=result" className={styles.savedResultLink}>View previous quiz result →</Link>}
+    </div>
+  </section>;
   const question=QUIZ_QUESTIONS[QUICK_INDEXES[quiz.cursor]];
   return <section className={styles.quiz} aria-label="Quick color explorer">
-    <div className={styles.entryChoice} role="group" aria-label="Choose how to explore your colors">
-      <p className={styles.entryTitle}>CHOOSE YOUR COLOR CHECK</p>
-      <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera"
-        onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
-        <span className={styles.entryCameraIcon} aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 11a3 3 0 0 1 3-3h4l2-3h5l2 3h3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11Z"/>
-            <circle cx="16" cy="18" r="5"/>
-            <path d="M25 4v4M23 6h4"/>
-          </svg>
-        </span>
-        <span className={styles.entryCameraText}>
-          <strong>Try the live camera scan</strong>
-          <small>Compare colors beside your face</small>
-        </span>
-        <span className={styles.entryCameraGo} aria-hidden="true">OPEN <span>→</span></span>
-      </Link>
-      <Link className={styles.entryQuiz} href="#quiz-questions"
-        onClick={()=>track("quiz_intro_started",{source:"quiz_mode_choice",method:"questions"})}>
-        <span className={styles.entryQuizText}><span aria-hidden="true">OR</span> Answer 7 quick questions</span>
-        <span className={styles.entryQuizArrow} aria-hidden="true">↓</span>
-      </Link>
-    </div>
     <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
     <div className={styles.progress} role="progressbar" aria-valuemin={0} aria-valuemax={7} aria-valuenow={quiz.cursor}><span style={{width:`${quiz.cursor/7*100}%`}}/></div>
     <div className={styles.counter}>{quiz.cursor+1} / 7</div><h2 id="quiz-questions" className={styles.question}>{question.text}</h2>

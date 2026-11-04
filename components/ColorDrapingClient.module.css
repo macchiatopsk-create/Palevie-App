@@ -60,3 +60,25 @@
 .comparisonHead{margin:7px 0}
 .comparisonHead .note{margin:4px 0 12px}
 @media(max-width:390px){.methodCards{gap:8px}.cameraCard,.mirrorCard{padding:12px;min-height:106px}.cameraCard strong,.mirrorCard strong{font-size:12px}}
+
+/* On camera, keep the A/B score strip and selection in immediate view. */
+.cameraCompact{padding:12px 13px 14px;margin:0 auto 18px;background:#fffafd;max-width:650px;min-width:0}
+.scanTopline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 9px;margin:0 2px 9px}
+.scanTopline>div:first-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px;min-width:0}
+.scanTopline>div:first-child>span{font-size:9px;font-weight:800;color:#a36b89;letter-spacing:.07em}
+.scanTopline strong{font-size:15px;font-weight:800;color:#623852;line-height:1.25}
+.scanTopline>b{font-size:10px;font-weight:800;white-space:nowrap;color:#955f7a}
+.scanTopProgress{grid-column:1/-1;height:4px;border-radius:999px;background:#f3dce6;overflow:hidden;margin-top:4px}
+.scanTopProgress i{display:block;height:100%;background:#d36192;border-radius:999px}
+.scanMore{margin:7px 1px 0;border:1px solid #eed8e2;border-radius:11px;background:#fff6fb;padding:0 11px}
+.scanMore>summary{display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:40px;
+  list-style:none;color:#a06685;font-size:11px;font-weight:750;cursor:pointer}
+.scanMore>summary::-webkit-details-marker{display:none}
+.scanMore>summary::marker{content:""}
+.scanMore>summary::after{content:"+";font-size:18px;font-weight:500}
+.scanMore[open]>summary::after{content:"−"}
+.scanMore>summary:focus-visible{outline:3px solid #b65a86;outline-offset:2px}
+.scanMore .backLink{margin:8px auto 12px}
+.scanMore .disclaimer{margin:6px 0;font-size:10px!important}
+.scanMore .skipShop{margin:6px auto 10px}
+@media(max-width:440px){.cameraCompact{padding:10px 9px 12px}.scanTopline strong{font-size:13px}.scanTopline>div:first-child>span{font-size:8px}}

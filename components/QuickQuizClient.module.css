@@ -451,3 +451,72 @@
 .resultExtras a + a{border-top:1px solid #f6e4ed}
 .resultExtras a span{flex:none;color:#d26991;font-size:17px}
 .resultExtras a:focus-visible{outline:3px solid #e97aa4;outline-offset:2px;border-radius:6px}
+
+
+/* 2026-11-04: true equal-width choice-first opening screen.
+ * No question list or tiny camera banner until a mode is selected.
+ */
+.entryScreen{max-width:690px!important;padding:19px 16px 21px!important;min-height:0;margin-bottom:24px!important}
+.entryChoice{margin:0;text-align:center;min-width:0}
+.entryTitle{font-size:10px;letter-spacing:.17em;color:#9b6780;margin:3px 0 6px}
+.entryHeading{font-family:Georgia,"Times New Roman",serif;font-size:clamp(23px,5vw,33px);font-weight:500;line-height:1.15;letter-spacing:-.03em;color:#5e3550;margin:0 0 17px}
+.entryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;width:100%;min-width:0}
+.entryTile{box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
+  min-width:0;min-height:clamp(302px,52svh,448px);padding:24px 18px 19px;border-radius:21px;border:1.5px solid #efc3d6;
+  color:#59334b;text-align:center;box-shadow:0 12px 25px rgba(157,80,120,.08);overflow:visible}
+.entryQuizTile{background:linear-gradient(158deg,#fff5f9 0%,#fffafd 62%,#fcebf3 100%);border-color:#ecd0dc}
+.entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%);border-color:#e99cbd}
+.entryTile h3{font-size:clamp(20px,4vw,28px);font-weight:850;letter-spacing:-.04em;line-height:1.06;color:#573049;margin:0;overflow-wrap:normal}
+.entryDescription{font-size:clamp(11px,2.5vw,13px);line-height:1.45;color:#79576e;margin:0;min-height:32px}
+.entryStep{font-size:9px;font-weight:850;letter-spacing:.08em;color:#a16685;line-height:1.4}
+.entryIllustration,.entryCameraIcon{display:grid;place-items:center;flex:none;width:clamp(61px,14vw,82px);height:clamp(61px,14vw,82px);border-radius:23px;
+  background:rgba(255,255,255,.74);color:#a6517b;box-shadow:inset 0 0 0 1px #ffffffaa}
+.entryCameraIcon{background:#ffedf6;color:#93426c}
+.entryIllustration svg,.entryCameraIcon svg{width:52%;height:52%;display:block}
+.entryQuiz,.entryCamera{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;margin-top:auto;
+  padding:11px 7px;width:100%;border-radius:14px;border:1px solid #dda3bd;text-decoration:none;text-align:center;
+  font:inherit;font-size:clamp(12px,2.8vw,15px);font-weight:850;line-height:1.2;white-space:normal;cursor:pointer}
+.entryQuiz{background:#fff;color:#88466b;border-color:#e5b6ca}
+.entryCamera{background:#8b3a67;color:#fff!important;border-color:#8b3a67;box-shadow:0 5px 14px rgba(125,45,89,.15)}
+.entryCameraGo{display:inline;font-size:18px;line-height:1;padding:0;color:inherit;background:transparent;border-radius:0}
+.entryQuiz:hover{background:#fff0f6;border-color:#d68bad}
+.entryCamera:hover{background:#793059;box-shadow:0 8px 20px #9c477638;transform:none}
+.entryQuiz:active,.entryCamera:active{transform:scale(.985)}
+.entryQuiz:focus-visible,.entryCamera:focus-visible{outline:3px solid #be4d82;outline-offset:3px}
+.entryInfo{position:absolute;top:11px;right:11px;z-index:3;line-height:1}
+.entryInfo[open]{z-index:20}
+.entryInfo>summary{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e9bad0;border-radius:50%;
+  background:#ffffffee;color:#84466b;font-size:19px;font-weight:750;list-style:none;cursor:pointer;box-shadow:0 3px 9px #a4578320}
+.entryInfo>summary::-webkit-details-marker{display:none}
+.entryInfo>summary::marker{content:""}
+.entryInfo>summary:focus-visible{outline:3px solid #bf6a99;outline-offset:3px}
+.entryPopover{position:absolute;top:40px;right:0;width:min(270px,calc(100vw - 38px));padding:13px 14px;
+  border:1px solid #e8c7d8;border-radius:13px;background:#fffdfd;color:#704761;
+  text-align:left;box-shadow:0 13px 30px #733a5b32;line-height:1.5}
+.entryQuizTile .entryPopover{left:0;right:auto}
+.entryPopover b{font-size:12px;color:#713853}
+.entryPopover p{font-size:11px;line-height:1.55;color:#70586a;margin:5px 0 0}
+.entryFootnote{font-size:11px;color:#9b7c8d;margin:14px 0 0}
+.entryScreen .savedResultLink{margin-top:15px}
+@media(max-width:440px){
+  .entryScreen{padding:16px 11px 17px!important}
+  .entryHeading{font-size:24px;margin-bottom:14px}
+  .entryGrid{gap:9px}
+  .entryTile{min-height:clamp(286px,52svh,392px);gap:9px;padding:20px 10px 12px;border-radius:17px}
+  .entryTile h3{font-size:clamp(18px,4.8vw,22px)}
+  .entryStep{font-size:8px;letter-spacing:.01em}
+  .entryDescription{font-size:11px}
+  .entryQuiz,.entryCamera{font-size:12px;min-height:51px;padding:10px 5px}
+  .entryInfo{top:8px;right:8px}
+  .entryInfo>summary{width:32px;height:32px}
+}
+@media(max-width:350px){
+  .entryScreen{padding:14px 8px 17px!important}
+  .entryGrid{gap:7px}
+  .entryTile{padding:18px 7px 10px;min-height:280px}
+  .entryTile h3{font-size:18px}
+  .entryDescription{font-size:10px}
+  .entryQuiz,.entryCamera{font-size:11px;padding:9px 4px}
+  .entryIllustration,.entryCameraIcon{width:56px;height:56px;border-radius:17px}
+}
+@media(prefers-reduced-motion:reduce){.entryCamera,.entryQuiz{transition:none}}

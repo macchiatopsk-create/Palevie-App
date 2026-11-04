@@ -14,3 +14,55 @@
 .scanSwitch:global(.camera-drape-switch){position:absolute;top:auto;bottom:10px;left:10px;right:10px;z-index:8;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:6px;border-radius:15px;background:rgba(255,251,253,.94);backdrop-filter:blur(8px);box-shadow:0 5px 20px rgba(38,21,31,.2)}
 .scanSwitch:global(.camera-drape-switch) button{font-size:12px;font-weight:800;min-height:51px;padding:10px 5px;margin:0;white-space:normal;border-radius:11px}
 @media(max-width:440px){.scanSwitch:global(.camera-drape-switch) button{min-height:48px;font-size:11px}}
+
+/* Camera scan: a short setup instead of several always-visible instructions. */
+.compactStart:global(.camera-drape-setup){position:relative;padding:15px 16px 17px;margin:4px 0 10px;border-radius:17px;background:#fff3f9;border-color:#f1c4d9;text-align:center}
+.setupHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px;text-align:left;color:#793b5e}
+.setupHeader b{font-size:15px;line-height:1.3}
+.setupHelp{position:relative;z-index:12}
+.setupHelp>summary{display:grid;place-items:center;width:35px;height:35px;border:1px solid #db9fbf;border-radius:50%;background:#fff;color:#803f65;font-size:19px;font-weight:850;list-style:none;cursor:pointer}
+.setupHelp>summary::-webkit-details-marker{display:none}
+.setupHelp>summary::marker{content:""}
+.setupHelp summary:focus-visible{outline:3px solid #a95a8c;outline-offset:2px}
+.setupPopover{position:absolute;right:0;top:40px;box-sizing:border-box;width:min(295px,calc(100vw - 43px));max-height:min(58dvh,350px);overflow-y:auto;text-align:left;
+  border-radius:13px;border:1px solid #e9b9cf;background:#fffefa;padding:14px;box-shadow:0 13px 35px #67334a38}
+.setupPopover b{font-size:12px}.setupPopover p{margin:8px 0 0;font-size:11px;line-height:1.5;color:#765a6b}
+.compactStart :global(.camera-drape-start){display:block;width:100%;margin:0 auto;min-height:52px;background:#b84981;color:#fff;border-radius:13px;font-size:15px;font-weight:800}
+.setupMirror{display:block;width:100%;min-height:39px;border:0;background:transparent;color:#874b6c;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+.compactStart>small{display:block;font-size:10px;color:#9a7489;line-height:1.4;margin:0}
+.compactEmbed{font-size:11px;line-height:1.45;color:#86647a;text-align:left;margin:0 0 11px}
+
+/* Compact live scan: camera / two direct-selection cards / actions / tiny status. */
+.liveCompact{min-width:0}
+.liveCompact .stage:global(.camera-drape-stage){height:clamp(302px,46dvh,422px);min-height:302px;max-height:422px;margin-bottom:8px}
+.pickPanel{margin:0;padding:10px 10px 8px;background:#fff9fc;border:1px solid #efd2e0;border-radius:15px;box-shadow:0 6px 18px #9b66821a}
+.pickHeading{display:flex;justify-content:space-between;align-items:center;gap:7px;margin:0 2px 8px;color:#7a4160}
+.pickHeading b{font-size:14px;font-weight:850;line-height:1.3}
+.pickHeading span{font-size:10px;font-weight:750;color:#a26a8a}
+.pickGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.pickCard{min-width:0;min-height:73px;display:flex;align-items:center;gap:9px;padding:10px 9px;border-radius:13px;
+  border:1.5px solid #d995b7;background:linear-gradient(115deg,#fff,#ffedf5);box-shadow:0 3px 10px #b15b8822;
+  text-align:left;font:inherit;color:#5b3450;cursor:pointer}
+.pickCard:nth-child(2){background:linear-gradient(115deg,#ffedf5,#ffe2ef)}
+.pickCard:disabled{opacity:.50;cursor:not-allowed;box-shadow:none}
+.pickCard:not(:disabled):active{transform:scale(.98);background:#fff0f7}
+.pickCard:not(:disabled):hover{border-color:#bb5e8d}
+.pickCard:focus-visible,.pickSecondary button:focus-visible,.pickExtras button:focus-visible{outline:3px solid #b35c8a;outline-offset:2px}
+.pickOrb{width:43px;height:43px;flex:none;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #ad7b93,0 4px 8px #613b4930}
+.pickLabel{min-width:0;display:flex;flex-direction:column;gap:5px}
+.pickLabel b{font-size:11px;font-weight:850;line-height:1.3;overflow-wrap:anywhere}
+.pickLabel small{font-size:10px;font-weight:800;color:#ac3d77;line-height:1.2}
+.pickLabel small span{font-size:13px}
+.pickSecondary{display:flex;gap:8px;justify-content:stretch;align-items:center;margin-top:9px}
+.pickSecondary button{flex:1 1 0;min-width:0;min-height:39px;display:grid;place-items:center;
+  border:1px solid #ebcbdc;border-radius:10px;background:#fff;color:#77556b;font:inherit;
+  font-size:10px;font-weight:730;line-height:1.3;padding:8px 5px;cursor:pointer}
+.pickSecondary button:disabled{opacity:.46;cursor:not-allowed}
+.pickExtras{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin:6px 0 0}
+.pickExtras button{min-height:30px;background:transparent;border:0;color:#956782;font:inherit;font-size:10px;font-weight:750;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 7px}
+.compactStatus{font-size:10px;color:#a24c72;margin:6px 0}
+@media(max-width:400px){.pickPanel{padding:9px 7px 7px}.pickGrid{gap:7px}.pickCard{padding:8px 6px;gap:6px;min-height:66px}
+ .pickOrb{width:35px;height:35px}.pickLabel b{font-size:10px}.pickLabel small{font-size:9px}
+ .pickHeading b{font-size:12px}.pickHeading span{font-size:9px}
+ .liveCompact .stage:global(.camera-drape-stage){height:clamp(302px,44dvh,385px)}
+}
