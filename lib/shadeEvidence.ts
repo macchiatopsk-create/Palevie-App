@@ -9,10 +9,15 @@ type ShadePick=Pick<CatalogProduct,"category"|"subcategory"|"name"|"colorHex"|"t
 const HEX=/^#[0-9a-f]{6}$/i;
 const SOURCE=/^shade-source:https:\/\/[^\s]+$/;
 
-export type ShadeEvidence="brand-digital"|"brand-described"|"illustrative"|"none";
+export type ShadeEvidence="brand-digital"|"brand-photo"|"brand-described"|"illustrative"|"none";
 export function shadeEvidence(product:ShadePick):ShadeEvidence{
   if(product.category!=="makeup"||!product.colorHex||!HEX.test(product.colorHex))return "none";
   if(product.tags.includes("brand-digital-swatch")&&product.tags.some(tag=>SOURCE.test(tag)))return "brand-digital";
+  // Reviewable RGB sampled from a published swatch PHOTO, with light/shadow
+  // variation: separate from flat official digital chips and recommendations.
+  if(product.tags.includes("brand-photo-reference")
+    &&product.tags.some(tag=>SOURCE.test(tag))
+    &&product.tags.includes("photo-sample-method:center-pigment-masked-jpeg-median-v1"))return "brand-photo";
   // Official prose describes hue family only; our RGB remains an estimate.
   if(product.tags.includes("brand-described-reference")
       &&product.tags.some(tag=>/^brand-description-source:https:\/\/[^\s]+$/.test(tag)))return "brand-described";
@@ -21,6 +26,7 @@ export function shadeEvidence(product:ShadePick):ShadeEvidence{
 export function shadeEvidenceLabel(product:ShadePick):string{
   const evidence=shadeEvidence(product);
   return evidence==="brand-digital"?"Brand digital swatch"
+    : evidence==="brand-photo"?"Brand swatch photo · approximate"
     : evidence==="brand-described"?"Brand-described · estimated color"
     : evidence==="illustrative"?"Illustrative tint":"No color reference";
 }
