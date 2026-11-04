@@ -6,6 +6,7 @@ const {runtime}=require("./free-service-test-runtime.cjs");
 const rt=runtime(),catalog=rt.load("data/products.ts").catalogProducts;
 const refs=rt.load("data/verifiedShadeColors.ts").verifiedShadeColors;
 const color=rt.load("lib/colorDiscovery.ts"),src=rt.load("lib/shadeEvidence.ts");
+const brandDescriptions=rt.load("data/brandDescribedHues.ts").BRAND_DESCRIBED_HUES;
 const eligible=rt.load("lib/shopEligibility.ts"),studio=fs.readFileSync(path.resolve(__dirname,"../components/VirtualMakeupTryOn.tsx"),"utf8");
 const shop=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.tsx"),"utf8");
 const products=eligible.visibleShopProducts(catalog),tryOn=products.filter(p=>rt.load("lib/tryOnEligibility.ts").makeupTryOnArea(p));
@@ -27,10 +28,24 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
  assert.equal(src.shadeEvidence(p),"brand-digital");
 }
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
+const described=tryOn.filter(p=>src.shadeEvidence(p)==="brand-described");
+assert.equal(Object.keys(brandDescriptions).length,23,"Official descriptions require individual review");
+assert.equal(described.length,23,"Every brand-described shade must be reachable inside Try On");
+for(const [id,record] of Object.entries(brandDescriptions)){
+ const p=indexed.get(id);assert(p,"Unknown brand-described product: "+id);
+ assert.equal(p.colorHex,record.illustrativeHex,"Hue family estimate not used: "+id);
+ assert.equal(p.name.split(" · ").at(-1),record.shade,"Different shade name vs official descriptor: "+id);
+ assert.equal(src.shadeEvidence(p),"brand-described");
+ assert(!color.hasDocumentedSwatch(p),"Brand prose never qualifies as a measured digital swatch");
+ assert(p.tags.includes("brand-description-source:"+record.source),"Official source URL missing");
+ assert(record.description.trim()&&record.source.startsWith("https://"),"Missing provenance: "+id);
+}
+assert.equal(Object.values(brandDescriptions).filter(r=>r.officialSwatchAsset).length,14,"Rare Beauty official swatch assets must remain traceable (NOT yet sampled)");
+
 assert.equal(digital.length,48,"Only 46 sourced variants + 2 exact duplicate aliases qualify as brand-screen references");
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
- assert(["brand-digital","illustrative"].includes(src.shadeEvidence(p)));
+ assert(["brand-digital","brand-described","illustrative"].includes(src.shadeEvidence(p)));
  assert.equal(color.hasDocumentedSwatch(p),src.shadeEvidence(p)==="brand-digital","Color recommendation gate must use same provenance");
 }
 assert(src.isClearGloss(indexed.get("elf-oil-07")),"e.l.f. Crystal Clear must not pigment lips");
@@ -63,4 +78,4 @@ for(const [id,hex] of Object.entries({
  "nyx-bg-35":"#D58B50", "nyx-bg-37":"#D64D98", "nyx-bg-38":"#BA694E",
  "nyx-bg-39":"#A64B64", "nyx-bg-40":"#6C473C",
 }))assert.equal(concepts[id],hex,"NYX color-name family description mismatch: "+id);
-console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" conceptual="+(tryOn.length-digital.length)+" clear_formulas=2 official_name_links=3");
+console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-described.length)+" clear_formulas=2 official_name_links=3");
