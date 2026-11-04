@@ -334,7 +334,7 @@ export default function VirtualMakeupTryOn({
         <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Artistic shade illustration only; not a real skin-tone match, product finish, or color accuracy test.</p>
       </div>
       <div className={styles.controls}>
-        <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
+        <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");if(brandOnly){const first=products.find(p=>isArea(p)===area&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[area]:first}));}}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
         <div className={styles.selected}>
           <div className={styles.currentSwatch} style={{background:current?.colorHex??"#e5c9d5"}}/>
           <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong>
@@ -346,13 +346,14 @@ export default function VirtualMakeupTryOn({
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="20" max="100" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <div className={styles.sourceFilter}>
-          <button type="button" aria-pressed={brandOnly} className={brandOnly?styles.sourceFilterActive:styles.sourceFilterButton} onClick={()=>setBrandOnly(v=>!v)}>
+          <button type="button" aria-pressed={brandOnly} className={brandOnly?styles.sourceFilterActive:styles.sourceFilterButton} onClick={()=>{const next=!brandOnly;setBrandOnly(next);if(next&&(!current||!hasDocumentedSwatch(current))){const first=products.find(p=>isArea(p)===active&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[active]:first}));}}}>
             Brand digital refs only ({availableDigital})
           </button>
           <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"All colors include conceptual Palevie illustrations."}</small>
         </div>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
         <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        {options.length===0&&<small className={styles.retailNote}>{brandOnly?"No brand digital swatches recorded in this category. Switch off this filter for illustrated previews.":"No shades match this search."}</small>}
         {current&&purchaseOptions.length>0&&<div className={styles.purchaseOptions} aria-label="Where to buy this makeup shade">{purchaseOptions.map(o=>{
           const retailerLabel=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
           const action=o.retailer==="amazon"?"View product":o.exactShade?"View shade":"Choose shade";
