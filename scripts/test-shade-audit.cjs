@@ -37,6 +37,9 @@ assert(src.isClearGloss(indexed.get("elf-oil-07")),"e.l.f. Crystal Clear must no
 assert(src.isClearGloss(indexed.get("nyx-bg-31")),"NYX Sugar Glass must not pigment lips");
 assert(!src.isClearGloss(indexed.get("elf-oil-03")),"Rose Envy is a pigmented shade");
 assert(studio.includes("drawClearGloss(ctx,pts,w,h"),"Clear lip gloss must render shine without arbitrary gray pigment");
+assert(studio.includes("styles.clearSwatch"),"Try On clear gloss color chip must visually indicate transparency");
+assert(shop.includes('is-clear'),"Shop clear gloss chip must show transparency instead of invented pigment");
+
 assert(studio.includes("hasDocumentedSwatch(current)"),"Studio must distinguish on-screen brand reference from conceptual color");
 assert(studio.includes("Brand digital refs only"),"User must be able to filter to source-backed references");
 assert(studio.includes('current&&<small className={styles.retailNote}>'),"Every selected cosmetic, even with exact retailer URL, requires an accuracy caveat");
