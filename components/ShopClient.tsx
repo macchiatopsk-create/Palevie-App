@@ -15,7 +15,7 @@ import {pushWishlistItem,removeWishlistItem} from "@/lib/cloudWishlist";
 import ShadeDrape,{type DrapeShade} from "./ShadeDrape";
 import VirtualMakeupTryOn from "./VirtualMakeupTryOn";
 import {featuredShopOrder} from "@/lib/shopRanking";
-import {isVerifiedAmazonOffer,verifiedAmazonOffer,visibleAmazonProducts} from "@/lib/shopEligibility";
+import {preferredShopOffer,shopPurchaseOffers,visibleShopProducts} from "@/lib/shopEligibility";
 import {loadDiscoveryPreferences,normalizeDiscovery,preferredDiscoveryColors,DISCOVERY_EVENT} from "@/lib/discoveryPreferences";
 import {COLOR_MOODS,hasDocumentedSwatch,swatchDistance,MAX_SWATCH_DISTANCE,isColorHex} from "@/lib/colorDiscovery";
 import {safeStorage} from "@/lib/safeStorage";
@@ -47,7 +47,7 @@ function ProductVisual({category,subcategory,color}:{category:string;subcategory
   return <svg className="sh-packshot-svg" viewBox="0 0 220 220" aria-hidden="true"><ellipse cx="110" cy="184" rx="43" ry="9" fill="#E7DDE1" opacity=".55"/><rect x="82" y="62" width="56" height="108" rx="16" fill={shell} stroke={stroke} strokeWidth="4"/><rect x="92" y="98" width="36" height="36" rx="10" fill={tone}/><rect x="91" y="48" width="38" height="20" rx="6" fill={metal} stroke={stroke} strokeWidth="4"/></svg>;
 }
 export default function ShopClient(){
-  const shopProducts=useMemo(()=>visibleAmazonProducts(catalogProducts),[]);
+  const shopProducts=useMemo(()=>visibleShopProducts(catalogProducts),[]);
   const [tab,setTab]=useState<Tab>("all"),[qtext,setQtext]=useState(""),[brandFilter,setBrandFilter]=useState(""),[tryOnOnly,setTryOnOnly]=useState(false);
   const [tryonProduct,setTryonProduct]=useState<string|null>(null),[draping,setDraping]=useState<string|null>(null);
   const [sort,setSort]=useState<"featured"|"match"|"brand"|"category">("featured"),[cols,setCols]=useState<1|2|3>(2),[menu,setMenu]=useState(false),[brandMenu,setBrandMenu]=useState(false),[ready,setReady]=useState(false);
@@ -83,7 +83,7 @@ export default function ShopClient(){
   const shown=sort==="featured"?curated:[...items2].sort((a,b)=>sort==="match"?(Number(b.near)-Number(a.near)||(a.near&&b.near?a.distance-b.distance:0)||(order.get(a.id)!-order.get(b.id)!)):sort==="brand"?a.brand.localeCompare(b.brand)||a.name.localeCompare(b.name):a.subcategory.localeCompare(b.subcategory)||a.name.localeCompare(b.name));
   const nearby=items2.filter(p=>p.near).length;
   const drapeProduct=draping?items2.find(p=>p.id===draping):null;
-  const drapeOffer=drapeProduct?verifiedAmazonOffer(drapeProduct):undefined;
+  const drapeOffer=drapeProduct?preferredShopOffer(drapeProduct):undefined;
   const drapeShades:DrapeShade[]=drapeProduct&&isColorHex(drapeProduct.colorHex)?[{label:"Product illustration",hex:drapeProduct.colorHex},...(referenceColors.length?referenceColors:profile?.colors??[]).slice(0,3).map((hex,i)=>({label:`Reference ${i+1}`,hex}))]:[];
   const chosenTryonProduct=tryonProduct?shopProducts.find(p=>p.id===tryonProduct):null;
   function href(offerId:string,surface="shop",medium:"affiliate"|"referral"="affiliate"){
@@ -92,7 +92,7 @@ export default function ShopClient(){
   const sortLabel=sort==="featured"?"K-Beauty first":sort==="match"?"Saved colors":sort==="brand"?"Brand":"Category";
   return <>
     {chosenTryonProduct&&<VirtualMakeupTryOn initialProduct={chosenTryonProduct} products={shopProducts.filter(p=>Boolean(makeupTryOnArea(p)))} onClose={()=>setTryonProduct(null)}/>}
-    {drapeProduct&&drapeShades.length>0&&<ShadeDrape title={`${drapeProduct.brand} · ${drapeProduct.name}`} subtitle="Illustrative color comparison, not a personal-color accuracy score" shades={drapeShades} saved={wl.some(w=>w.id===productKey(drapeProduct.id))} onSave={()=>heart(drapeProduct.id,drapeProduct.name)} shopHref={drapeOffer?href(drapeOffer.id,"shade_drape"):undefined} onShop={()=>{track("shade_drape_shop_click",{product:drapeProduct.id});track("affiliate_outbound_click",{retailer:"amazon",product:drapeProduct.id,surface:"shade_drape"});}} onClose={()=>setDraping(null)}/>}
+    {drapeProduct&&drapeShades.length>0&&<ShadeDrape title={`${drapeProduct.brand} · ${drapeProduct.name}`} subtitle="Illustrative color comparison, not a personal-color accuracy score" shades={drapeShades} saved={wl.some(w=>w.id===productKey(drapeProduct.id))} onSave={()=>heart(drapeProduct.id,drapeProduct.name)} shopHref={drapeOffer?href(drapeOffer.id,"shade_drape",drapeOffer.retailer==="amazon"?"affiliate":"referral"):undefined} onShop={()=>{if(drapeOffer){track("shade_drape_shop_click",{product:drapeProduct.id});track("retailer_outbound_click",{retailer:drapeOffer.retailer,product:drapeProduct.id,surface:"shade_drape"});if(drapeOffer.retailer==="amazon")track("affiliate_outbound_click",{retailer:"amazon",product:drapeProduct.id,surface:"shade_drape"});}}} onClose={()=>setDraping(null)}/>}
     <div className="h2-top"><span className="h2-brand">Palevie</span><div className="h2-topbtns"><Link href="/wishlist" className="h2-ic" aria-label="My list">{NAV_ICON.heart}</Link><Link href="/account" className="h2-ic" aria-label="Account">{NAV_ICON.user}</Link></div></div>
     <div className="sh-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input aria-label="Search products, brands, or shades" value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search products, brands, or shades"/></div>
     <div className="sh-pills">{([["all","All"],["lip","Lipstick"],["gloss","Gloss & oils"],["blush","Cheeks"],["eyeshadow","Eyes"],["highlighter","Glow"],["cushion","Base"],["skincare","Skincare"],["clothes","Clothes"]] as const).map(([key,label])=><button type="button" key={key} className={tab===key?"on":""} onClick={()=>{setTab(key);if(key==="skincare"||key==="clothes")setTryOnOnly(false);}}>{label}</button>)}</div>
@@ -108,17 +108,17 @@ export default function ShopClient(){
     {!skin&&tab==="skincare"&&<div className="notice inline-notice">Add skin shopping preferences to screen product suggestions.</div>}
     {skin&&read(()=>shouldReferToDoctor(skin),false)&&<div className="h2-card sh-referral"><b>You told us a doctor is treating your skin</b><p>Follow their plan first. These are shopping preferences, not treatment advice.</p></div>}
     {heldBack.length>0&&<div className="h2-card sh-held"><b>{heldBack.length} products held back</b><ul>{heldBack.slice(0,4).map(p=><li key={p.id}><span>{p.brand} {p.name}</span><small>{p.held}</small></li>)}</ul></div>}
-    {tab!=="clothes"&&<><p className="sh-shop-curation">Curated browsing, not a bestseller or suitability ranking. Shade illustrations are not product photographs.</p><div className="sh-tools"><span className="sh-count">{shown.length} items</span><div className="sh-dd"><button type="button" className="sh-dd-btn" aria-expanded={menu} onClick={()=>setMenu(m=>!m)}>Sort: {sortLabel} ▾</button>{menu&&<div className="sh-dd-menu">{(["featured","match","brand","category"] as const).map(key=><button type="button" key={key} className={sort===key?"on":""} onClick={()=>{setSort(key);setMenu(false);}}>{key==="featured"?"K-Beauty first":key==="match"?"Saved colors first":key==="brand"?"Brand A–Z":"Category"}</button>)}</div>}</div><div className="sh-cols" role="group" aria-label="Grid density">{([1,2,3] as const).map(n=><button type="button" key={n} className={cols===n?"on":""} aria-label={`${n} columns`} aria-pressed={cols===n} onClick={()=>{setCols(n);safeStorage.setItem("palevie-shop-grid-cols",String(n));}}><svg viewBox="0 0 20 20" aria-hidden="true">{Array.from({length:n*n},(_,i)=>{const cell=16/n;return <rect key={i} x={2+(i%n)*cell} y={2+Math.floor(i/n)*cell} width={cell-1} height={cell-1} rx="1"/>;})}</svg></button>)}</div></div></>}
+    {tab!=="clothes"&&<><p className="sh-shop-curation">Curated browsing, not a bestseller or suitability ranking. All packaging artwork is independently illustrated, not an official product photograph.</p><div className="sh-tools"><span className="sh-count">{shown.length} items</span><div className="sh-dd"><button type="button" className="sh-dd-btn" aria-expanded={menu} onClick={()=>setMenu(m=>!m)}>Sort: {sortLabel} ▾</button>{menu&&<div className="sh-dd-menu">{(["featured","match","brand","category"] as const).map(key=><button type="button" key={key} className={sort===key?"on":""} onClick={()=>{setSort(key);setMenu(false);}}>{key==="featured"?"K-Beauty first":key==="match"?"Saved colors first":key==="brand"?"Brand A–Z":"Category"}</button>)}</div>}</div><div className="sh-cols" role="group" aria-label="Grid density">{([1,2,3] as const).map(n=><button type="button" key={n} className={cols===n?"on":""} aria-label={`${n} columns`} aria-pressed={cols===n} onClick={()=>{setCols(n);safeStorage.setItem("palevie-shop-grid-cols",String(n));}}><svg viewBox="0 0 20 20" aria-hidden="true">{Array.from({length:n*n},(_,i)=>{const cell=16/n;return <rect key={i} x={2+(i%n)*cell} y={2+Math.floor(i/n)*cell} width={cell-1} height={cell-1} rx="1"/>;})}</svg></button>)}</div></div></>}
     {tab==="clothes"?(!profile||!rawProfile?<div className="beauty-card" style={{textAlign:"center",marginTop:14}}><div className="eyebrow">Clothes</div><h2>Choose a reference palette.</h2><p className="lede-small">Clothing ideas use a palette you choose, not a season diagnosed by the quick quiz.</p><Link className="button rose" href="/analyze">Choose a reference palette</Link></div>:styleIds.length===0?<div className="beauty-card" style={{textAlign:"center",marginTop:14}}><h2>Tell us your style.</h2><p className="lede-small">Pick the aesthetics you want to explore.</p><Link className="button rose" href="/quiz?tab=style">Pick my styles</Link></div>:<div className="clothes-wrap">{styleIds.map(sid=><section key={sid} className="clothes-sec"><div className="eyebrow">{STYLES.find(x=>x.id===sid)?.name} · {profile.name} reference palette</div><div className="sp-grid">{read(()=>stylePieces(rawProfile.primaryType,sid,garmentCats.length?garmentCats:undefined,styleDetail,fitPref),[]).map(piece=>{const saved=wl.some(w=>w.id===pieceId(sid,piece.query));return <button type="button" key={piece.query} className={`sp-tile${saved?" on":""}`} onClick={()=>{const r=toggleSaved(piece,sid,rawProfile.primaryType);setWl(r.items);track(r.saved?"wishlist_added":"wishlist_removed",{label:piece.label,style:sid,surface:"shop_clothes"});}}><span className="sp-swatch" style={{background:piece.hex}}><i>{piece.icon}</i></span><b>{piece.label}</b><span className="sp-heart">{saved?"♥":"♡"}</span></button>;})}</div></section>)}<p className="wg-disc">Save ideas to <Link href="/wishlist">My list</Link> to browse their searches later.</p></div>):<div className={`shop-grid shop-grid-compact ${cols===3?"c3":cols===1?"c1":""}`}>{shown.map(p=>{
-      const amazonOffer=verifiedAmazonOffer(p);if(!amazonOffer)return null;
-      const purchaseOffers=p.offers.filter(o=>o.retailer==="official"||isVerifiedAmazonOffer(o));
-      const primaryOffer=purchaseOffers.find(o=>o.retailer==="official")||amazonOffer;
-      const primaryUrl=href(primaryOffer.id,primaryOffer.retailer==="official"?"shop_official":"shop_amazon",primaryOffer.retailer==="official"?"referral":"affiliate");
+      const purchaseOffers=shopPurchaseOffers(p),primaryOffer=purchaseOffers[0];
+      if(!primaryOffer)return null;
+      const offerHref=(o:ProductOffer)=>href(o.id,"shop_"+o.retailer,o.retailer==="amazon"?"affiliate":"referral");
+      const primaryUrl=offerHref(primaryOffer);
       const saved=wl.some(w=>w.id===productKey(p.id));
       const outbound=(retailer:string)=>{track("retailer_outbound_click",{retailer,product:p.id,surface:"shop_compare"});if(retailer==="amazon")track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_compare"});};
       return <article className="shop-card" key={p.id}>
         <div className="shop-art shop-square">
-          <a className="sh-card-image-link" href={primaryUrl} target="_blank" rel={primaryOffer.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(primaryOffer.retailer)} aria-label={`View ${p.brand} ${p.name} at ${primaryOffer.retailer==="official"?p.brand+" official store":"Amazon"}`}>
+          <a className="sh-card-image-link" href={primaryUrl} target="_blank" rel={primaryOffer.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(primaryOffer.retailer)} aria-label={`View ${p.brand} ${p.name} at ${primaryOffer.retailer==="official"?p.brand+" official store":primaryOffer.retailer==="target"?"Target":"Amazon"}`}>
             <span className="sh-product-visual" aria-hidden="true"><ProductVisual category={p.category} subcategory={p.subcategory} color={p.colorHex}/>{isColorHex(p.colorHex)&&<span className="sh-product-swatch" style={{background:p.colorHex}}/>}<span className="sh-product-visual-caption">{p.category==="skincare"?"Product type illustration":"Product + shade illustration"}</span></span>
           </a>
           <button type="button" className={`shop-heart${saved?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={saved} onClick={()=>heart(p.id,p.name)}><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 20.4S3.6 15.2 3.6 9.9A4.3 4.3 0 0 1 12 8.1a4.3 4.3 0 0 1 8.4 1.8c0 5.3-8.4 10.5-8.4 10.5z"/></svg></button>
@@ -131,16 +131,16 @@ export default function ShopClient(){
           <div className="sh-where-buy">
             <span className="sh-where-label">Where to buy</span>
             {purchaseOffers.map(o=>{
-              const label=o.retailer==="official"?"Official store":"Amazon";
+              const label=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
               const price=offerPriceLabel(o);
-              return <a key={o.id} className={o.retailer==="amazon"?"sh-where-amazon":"sh-where-official"} href={href(o.id,o.retailer==="official"?"shop_official":"shop_amazon",o.retailer==="official"?"referral":"affiliate")} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
-                <span>{label}</span><b>{price||(o.retailer==="amazon"?"Check price":p.category==="makeup"?"Choose shade":"View item")}</b><i aria-hidden="true">↗</i>
+              return <a key={o.id} className={"sh-where-"+o.retailer} href={offerHref(o)} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
+                <span>{label}</span><b>{price||(o.retailer==="amazon"?"Check price":o.exactShade?"View shade":p.category==="makeup"?"Choose shade":"View item")}</b><i aria-hidden="true">↗</i>
               </a>;
             })}
           </div>
         </div>
       </article>;
     })}{shown.length===0&&<p className="sh-empty-state">No products match these filters. Try another brand or category.</p>}</div>}
-    <p className="affiliate-disclosure"><strong>Disclosure:</strong> Some retailer links may be affiliate links. As an Amazon Associate, Palevie earns from qualifying purchases. Final prices, shades and availability are confirmed at each retailer. No stored Amazon prices are displayed. Digital colors are illustrative, not product photographs or guaranteed matches.</p>
+    <p className="affiliate-disclosure"><strong>Disclosure:</strong> Some retailer links may be affiliate links. Amazon links contain an Associate tag; Palevie earns from qualifying Amazon purchases. Official-store and Target links listed here are non-affiliate referrals. Final prices, shades and availability are confirmed at each retailer. No stored Amazon prices are displayed. Digital colors are illustrative, not product photographs or guaranteed matches.</p>
   </>;
 }
