@@ -1836,3 +1836,6 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 
 /* Clear gloss is no-pigment: transparency is more faithful than a gray chip. */
 .sh-product-swatch.is-clear{background-color:#fff;background-image:linear-gradient(45deg,#E9DEE5 25%,transparent 25%,transparent 75%,#E9DEE5 75%),linear-gradient(45deg,#E9DEE5 25%,transparent 25%,transparent 75%,#E9DEE5 75%);background-size:10px 10px;background-position:0 0,5px 5px}
+
+/* Official shade prose is evidence for a hue family, not a sampled RGB. */
+.sh-shade-source.is-described{background:#F4F0FA;color:#75618C;border:1px solid #E3DAF0}
