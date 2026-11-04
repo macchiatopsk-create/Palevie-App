@@ -30,33 +30,36 @@ assert(quick.includes("safeStorage.setItem(QUICK_RESULT_KEY,JSON.stringify(next)
 assert(quick.includes("View previous quiz result"));
 assert(quick.includes("Loading seven-question color quiz"));
 assert(page.includes('export const dynamic="force-dynamic"'));
-assert(page.includes("QUIZ_QUESTIONS[QUICK_INDEXES[0]]"));
+assert(page.includes("Loading color check choices"));
+assert(page.includes('href="/quiz?start=questions"'));
+assert(page.includes('href="/quiz?mode=draping&method=camera"'));
 assert(!page.includes("fallback={null}"));
-const card=quick.indexOf('return <section className={styles.quiz} aria-label="Quick color explorer">');
-const camera=quick.indexOf('href="/quiz?mode=draping&method=camera"',card);
-const question=quick.indexOf('YOUR 7-QUESTION COLOR QUIZ',card);
-const progress=quick.indexOf('className={styles.progress}',card);
-assert(card>=0 && camera>card && camera<question && question<progress,
-  "Camera scan button must be directly above the seven-question UI, not after question choices.");
-assert(quick.includes('source:"quick_quest_scan_top"'),
-  "Camera CTA must preserve attribution after being moved.");
-assert.equal((quick.slice(card).match(/className=\{styles.entryCamera\}/g)||[]).length,1,
-  "Primary camera entry must be one actionable card above the questions.");
-const quizAlternative=quick.indexOf('className={styles.entryQuiz}',card);
-assert(quizAlternative>camera && quizAlternative<question,"Quiz option must be an actionable alternative under the camera option.");
-assert(quick.includes('href="#quiz-questions"') && quick.includes('id="quiz-questions"'),
-  "Choosing the 7-question path must move users to the real question.");
+// Equal-width landing: both journeys have an actionable choice above any Q1.
+const landing=quick.indexOf("if(!quizStarted&&quiz.cursor===0)");
+const camera=quick.indexOf('href="/quiz?mode=draping&method=camera"',landing);
+const quizStart=quick.indexOf('className={styles.entryQuiz}',landing);
+const question=quick.indexOf('YOUR 7-QUESTION COLOR QUIZ',landing);
+assert(landing>=0&&quizStart>landing&&camera>quizStart&&question>camera,
+  "The first screen must present two equal choices, not a long camera banner over the question list.");
+assert(quick.includes('setQuizStarted(true)'),'Quiz choice must open the seven-question flow in place');
+assert(quick.includes('source:"quick_quest_scan_top"'),'Camera CTA must preserve attribution');
+assert(quick.includes('className={styles.entryGrid}')&&quick.includes('styles.entryScanTile')&&quick.includes('styles.entryQuizTile'),
+  'Two choices must share the same grid and responsive tile pattern');
+assert(quick.includes('className={styles.entryInfo}')&&quick.includes('summary aria-label="About live camera color scan"'),
+  'Explanations belong behind tappable, accessible info controls');
+assert(quick.includes('href="/quiz?start=questions"'),'Hydration fallback must offer direct quiz route');
+assert(quick.includes('id="quiz-questions"'),'Question focus destination must remain intact');
+assert(hub.includes('startQuestions={params.get("start")==="questions"}'),
+  'Direct quiz route must bypass the split chooser');
 const entryStyles=read("components/QuickQuizClient.module.css");
-assert(entryStyles.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"),
-  "Camera choice must use the requested pastel blush pink gradient.");
-assert(entryStyles.includes("color:#452238!important") &&
-  entryStyles.includes(".entryCameraText strong{") &&
-  entryStyles.includes("background:#7a3258;") &&
-  entryStyles.includes("color:#fff;"),
-  "Pastel CTA foreground and OPEN control must retain high contrast.");
-assert(entryStyles.includes(".entryCamera:focus-visible"),
-  "Camera choice must be keyboard accessible.");
-
+assert(entryStyles.includes(".entryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))"),
+  "Equal-width left/right choices must remain even on phones.");
+assert(entryStyles.includes(".entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%)"),
+  "Camera half remains unmistakably blush pink.");
+assert(entryStyles.includes(".entryCamera:focus-visible")&&entryStyles.includes(".entryInfo>summary:focus-visible"),
+  "Camera and info controls must remain keyboard accessible.");
+assert(entryStyles.includes("min-height:clamp(286px,52svh,392px)"),
+  "Mobile two-column choice must be tall and comfortably tappable.");
 // Rapid answers must never be throttled just because Q2 appears <250ms after Q1.
 const q0=q.initialQuickState();
 const q1=q.answerQuickStateOnce(q0,1,null);
@@ -80,6 +83,6 @@ assert(rose.includes(".moodDisclosure > summary"));
 assert(rose.includes("#ffe4ef")&&rose.includes("#ffd2e3"));
 assert(rose.includes('font-family:Inter,"Avenir Next","Segoe UI"'));
 assert(rose.includes(".moodDisclosure > summary:focus-visible"));
-assert(rose.includes("background:linear-gradient(112deg,#ffd8e8 0%,#ffc9df 100%)"));
+assert(rose.includes(".entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%)"));
 console.log("QUIZ_SINGLE_TAP_AND_PINK_RESULT_PASS fast-next-tap, duplicate-guard, back, scoped styling");
-console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; 9 route/render invariants; Q1 by default, previous result optional.");
+console.log("QUIZ_ENTRY_REGRESSION_PASS 6 behavior checks; split chooser first, Q1 by explicit choice, saved result optional.");
