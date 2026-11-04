@@ -8,6 +8,7 @@ const refs=rt.load("data/verifiedShadeColors.ts").verifiedShadeColors;
 const color=rt.load("lib/colorDiscovery.ts"),src=rt.load("lib/shadeEvidence.ts");
 const brandDescriptions=rt.load("data/brandDescribedHues.ts").BRAND_DESCRIBED_HUES;
 const measured=rt.load("data/rareBeautyPixelReferences.ts").RARE_BEAUTY_PIXEL_REFERENCES;
+const meritPhotos=rt.load("data/meritPhotoSwatches.ts").MERIT_PHOTO_SWATCHES;
 const eligible=rt.load("lib/shopEligibility.ts"),studio=fs.readFileSync(path.resolve(__dirname,"../components/VirtualMakeupTryOn.tsx"),"utf8");
 const shop=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.tsx"),"utf8");
 const products=eligible.visibleShopProducts(catalog),tryOn=products.filter(p=>rt.load("lib/tryOnEligibility.ts").makeupTryOnArea(p));
@@ -43,6 +44,11 @@ for(const [id,record] of Object.entries(brandDescriptions)){
    assert.equal(src.shadeEvidence(p),"brand-digital");
    assert(color.hasDocumentedSwatch(p),"Only measured shade pixels qualify as digital swatch evidence");
    assert(p.tags.includes("shade-source:"+measured[id].source),"Sampled swatch source URL missing: "+id);
+ }else if(meritPhotos[id]?.applied){
+   assert.equal(p.colorHex,meritPhotos[id].hex,"MERIT photo swatch RGB not used: "+id);
+   assert.equal(src.shadeEvidence(p),"brand-photo","Photo must retain its own evidence tier");
+   assert(!color.hasDocumentedSwatch(p),"Photo is not eligible for flat brand-digital color matching");
+   assert(p.tags.includes("shade-source:"+meritPhotos[id].source),"Photo source URL missing: "+id);
  }else{
    assert.equal(p.colorHex,record.illustrativeHex,"Brand-description estimate not applied: "+id);
    assert.equal(src.shadeEvidence(p),"brand-described");
