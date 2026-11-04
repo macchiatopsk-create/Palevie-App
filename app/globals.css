@@ -1695,3 +1695,25 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 .sh-brand-dot.d1{background:#F3C7D5}.sh-brand-dot.d2{background:#E6B0C8}.sh-brand-dot.d3{background:#F1D2DC}.sh-brand-dot.d4{background:#DFA7BF}
 @media(max-width:560px){.sh-brand-filter{align-items:flex-start;flex-direction:column;gap:6px}.sh-brand-select{width:100%}.sh-brand-select-trigger{min-height:46px;font-size:13px}.sh-brand-select-menu{max-height:260px}}
 @media(max-width:380px){.shop-grid.shop-grid-compact{gap:9px}.shop-grid.shop-grid-compact.c3{gap:5px}.shop-grid.shop-grid-compact.c3 .shop-heart{width:25px;height:25px;right:5px;top:5px}}
+
+
+/* Multistore purchase choices: quiet pastel styling, readable at 1/2/3 columns. */
+.sh-where-buy{display:grid;gap:5px;margin-top:12px;padding-top:9px;border-top:1px solid #F5E6EE;min-width:0}
+.sh-where-label{display:block;margin-bottom:1px;color:#956B82;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.sh-where-buy a{display:grid;grid-template-columns:minmax(0,1fr) auto 10px;gap:5px;align-items:center;min-height:34px;padding:7px 8px;border:1px solid #F0D4E2;border-radius:10px;background:linear-gradient(120deg,#FFF5FA,#FDEAF3);color:#62485A;text-decoration:none;min-width:0;transition:border-color .15s ease,background .15s ease}
+.sh-where-buy a:focus-visible{outline:3px solid rgba(194,123,159,.42);outline-offset:2px}
+.sh-where-buy a:hover{border-color:#DDA4BF;background:#FBE8F2}
+.sh-where-buy a:has(b:last-of-type):nth-of-type(2){background:#FFFDFE;border-color:#F0E5EB}
+.sh-where-buy a:has(b:last-of-type):nth-of-type(2):hover{background:#FFF6FA;border-color:#E5BED2}
+.sh-where-buy a span{font-size:10px;font-weight:700;line-height:1.2;min-width:0;overflow-wrap:anywhere}
+.sh-where-buy a b{font-size:9px;line-height:1.3;font-weight:800;color:#A55F85;text-align:right}
+.sh-where-buy a i{font-style:normal;font-size:11px;color:#B2819E;text-align:right}
+.shop-grid.shop-grid-compact.c3 .sh-where-buy{gap:4px;margin-top:8px;padding-top:7px}
+.shop-grid.shop-grid-compact.c3 .sh-where-label{font-size:8px;letter-spacing:.05em}
+.shop-grid.shop-grid-compact.c3 .sh-where-buy a{grid-template-columns:minmax(0,1fr) 9px;gap:2px 3px;padding:6px 5px;min-height:39px}
+.shop-grid.shop-grid-compact.c3 .sh-where-buy a span{grid-column:1/-1;font-size:8px}
+.shop-grid.shop-grid-compact.c3 .sh-where-buy a b{font-size:8px;text-align:left}
+.shop-grid.shop-grid-compact.c3 .sh-where-buy a i{font-size:10px}
+.shop-grid.shop-grid-compact.c1 .sh-where-buy a{padding:10px 13px}
+.shop-grid.shop-grid-compact.c1 .sh-where-buy a span{font-size:12px}
+.shop-grid.shop-grid-compact.c1 .sh-where-buy a b{font-size:11px}
