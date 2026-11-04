@@ -2,6 +2,7 @@ import { ProductOffer, RetailerId } from "./types";
 
 export const retailers: Record<RetailerId, { name: string; note: string }> = {
   amazon: { name: "Amazon", note: "Associate-tag capable after program approval." },
+  official: { name: "Official store", note: "Direct brand-owned product page." },
   sephora: { name: "Sephora", note: "Use an approved affiliate-network tracking URL/feed." },
   oliveyoung: { name: "Olive Young", note: "Use an approved affiliate-network tracking URL/feed." },
   yesstyle: { name: "YesStyle", note: "Use the approved affiliate link/feed." },
@@ -30,6 +31,7 @@ export function retailerSearchUrl(retailer: RetailerId, query: string): string {
   const q = encodeURIComponent(query);
   switch (retailer) {
     case "amazon": return `https://www.amazon.com/s?k=${q}`;
+    case "official": throw new Error("Official stores require a direct product URL.");
     case "sephora": return `https://www.sephora.com/search?keyword=${q}`;
     case "oliveyoung": return `https://global.oliveyoung.com/search?query=${q}`;
     case "yesstyle": return `https://www.yesstyle.com/en/searchresult.html?searchkeyword=${q}`;

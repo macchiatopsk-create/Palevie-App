@@ -29,6 +29,7 @@ export type AnalysisResult = {
 
 export type RetailerId =
   | "amazon"
+  | "official"
   | "sephora"
   | "oliveyoung"
   | "yesstyle"
@@ -49,6 +50,8 @@ export type ProductOffer = {
   affiliateReady?: boolean;
   inStock?: boolean;
   lastCheckedAt?: string;
+  /** Only render a numeric price when the source/license explicitly permits reuse. */
+  priceDisplayAuthorized?: boolean;
 };
 
 export type CatalogProduct = {
