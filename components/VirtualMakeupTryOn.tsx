@@ -309,6 +309,8 @@ export default function VirtualMakeupTryOn({
     ? "Clear gloss: no color pigment overlay; shine is a subtle illustration."
     : current&&hasDocumentedSwatch(current)
     ? "Brand on-screen color reference; actual product pigment and skin results differ."
+    : current&&shadeEvidence(current)==="brand-photo"
+    ? "Color sampled from a brand's swatch photograph. Photo lighting and blending can change the shade; not a skin match."
     : current&&shadeEvidence(current)==="brand-described"
     ? "Brand describes this hue, but the RGB shown is a Palevie estimate. Actual payoff can differ."
     : current?.subcategory==="eyeshadow"&&/palette|quad|bite.size/i.test(current.name)
@@ -340,7 +342,7 @@ export default function VirtualMakeupTryOn({
         <div className={styles.selected}>
           <div className={`${styles.currentSwatch} ${current&&isClearGloss(current)?styles.clearSwatch:""}`} style={current&&isClearGloss(current)?undefined:{background:current?.colorHex??"#e5c9d5"}}/>
           <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong>
-            {current&&<span className={shadeEvidence(current)==="brand-digital"?styles.sourceBrand:shadeEvidence(current)==="brand-described"?styles.sourceDescribed:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
+            {current&&<span className={shadeEvidence(current)==="brand-digital"?styles.sourceBrand:shadeEvidence(current)==="brand-photo"?styles.sourcePhoto:shadeEvidence(current)==="brand-described"?styles.sourceDescribed:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
             <small>{current ? colorSource : "Only shades with a digital color reference can be previewed."}</small></div>
         </div>
         <div className={styles.presets} role="group" aria-label="Makeup strength">
@@ -351,7 +353,7 @@ export default function VirtualMakeupTryOn({
           <button type="button" aria-pressed={brandOnly} className={brandOnly?styles.sourceFilterActive:styles.sourceFilterButton} onClick={()=>{const next=!brandOnly;setBrandOnly(next);if(next&&(!current||!hasDocumentedSwatch(current))){const first=products.find(p=>isArea(p)===active&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[active]:first}));}}}>
             Brand digital refs only ({availableDigital})
           </button>
-          <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"Digital swatches, brand-described hues and conceptual colors are separate evidence levels."}</small>
+          <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"Flat digital swatches, photo-sampled swatches and concept colors have different evidence levels."}</small>
         </div>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
         <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span className={isClearGloss(p)?styles.clearSwatch:""} style={isClearGloss(p)?undefined:{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
@@ -368,6 +370,7 @@ export default function VirtualMakeupTryOn({
         })}</div>}
         {current&&<small className={styles.retailNote}>
           {shadeEvidence(current)==="brand-digital"?"Brand digital screen reference, not measured cosmetic payoff."
+          :shadeEvidence(current)==="brand-photo"?"Brand swatch photo RGB, still influenced by studio lighting and not exact on skin."
           :shadeEvidence(current)==="brand-described"?"Brand-described hue, with Palevie-estimated RGB; not an exact shade match."
           :"Palevie illustrative tint, not an exact shade match."}
           {" "}{hasExactDestination?"Check the actual shade, stock and finish on the retailer's page.":"Select the named shade on the retailer's product-family page."}
