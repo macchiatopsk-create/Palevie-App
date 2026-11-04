@@ -35,7 +35,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     if(retake){
       safeStorage.removeItem(QUICK_KEY);
       if(prefs.source==="mood")clearDiscoveryPreferences();
-      setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(false);
+      setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(startQuestions);
     }else{
       const routed=quickRouteState(existing,saved,showResult,false);
       setQuiz(routed);setQuizStarted(startQuestions||routed.cursor>0||routed.completed);
@@ -87,11 +87,11 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
     pick(choice);
   }
   function restart(){
-    setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(false);
+    setQuiz(initialQuickState());setChosenMood(null);setFeedback(null);setQuizStarted(true);
     if(loadDiscoveryPreferences().source==="mood")clearDiscoveryPreferences();
     safeStorage.removeItem(QUICK_KEY);
     lastAnsweredState.current=null;track("quiz_quick_restarted",{entry:"visible_retake"});
-    router.replace("/quiz?retake=1",{scroll:false});
+    router.replace("/quiz?retake=1&start=questions",{scroll:false});
     window.scrollTo({top:0,behavior:"smooth"});
   }
   const suggested=startingColorMood(quiz.picks[6]),active=chosenMood??suggested??"soft",palette=COLOR_MOODS[active];
