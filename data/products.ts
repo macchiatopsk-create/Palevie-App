@@ -387,7 +387,7 @@ export const catalogProducts: CatalogProduct[] = [
   }),
   ...additionalShopProducts,
   ...megaCatalogProducts.map(product=>{
-    if(RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
+    if(product.id.startsWith("rare-lip-oil-")&&RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
     const described=BRAND_DESCRIBED_HUES[product.id];
     if(described){
       return {...product,colorHex:described.illustrativeHex,
@@ -399,7 +399,7 @@ export const catalogProducts: CatalogProduct[] = [
     return {...product,colorHex:tint,tags:[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview","conceptual-tone"]};
   }),
   ...ADDITIONAL_TRYON_SHADES.map(product=>{
-    if(RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
+    if(product.id.startsWith("rare-lip-oil-")&&RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
     const described=BRAND_DESCRIBED_HUES[product.id];
     return described?{...product,colorHex:described.illustrativeHex,
       tags:[...product.tags,"brand-described-reference","brand-description-source:"+described.source]}:product;
