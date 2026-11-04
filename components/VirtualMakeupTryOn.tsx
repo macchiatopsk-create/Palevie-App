@@ -4,6 +4,8 @@ import type { FaceLandmarker, NormalizedLandmark } from "@mediapipe/tasks-vision
 import type { CatalogProduct } from "@/lib/types";
 import {makeupTryOnArea,type MakeupTryOnArea} from "@/lib/tryOnEligibility";
 import {shopPurchaseOffers} from "@/lib/shopEligibility";
+import {hasDocumentedSwatch} from "@/lib/colorDiscovery";
+import {isClearGloss,shadeEvidenceLabel} from "@/lib/shadeEvidence";
 import { getVisitorId, track } from "@/lib/analytics";
 import styles from "./VirtualMakeupTryOn.module.css";
 
@@ -160,6 +162,23 @@ function drawConcealer(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:numbe
   }
 }
 
+/** No invented pigment for officially clear gloss/oil shade variants.
+ * Add a tiny light reflection only; not a physical gloss simulation.
+ */
+function drawClearGloss(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,intensity:number){
+  if([61,291,0,17].some(i=>!pts[i]))return;
+  const left=pts[61],right=pts[291],top=pts[0],bottom=pts[17];
+  const lipWidth=Math.hypot((right.x-left.x)*w,(right.y-left.y)*h);
+  if(lipWidth<9)return;
+  ctx.save();
+  ctx.strokeStyle=`rgba(255,255,255,${(.30*Math.min(1,intensity)).toFixed(3)})`;
+  ctx.lineWidth=Math.max(.9,lipWidth*.022);
+  ctx.lineCap="round";ctx.beginPath();
+  ctx.moveTo((left.x*.63+top.x*.37)*w,(left.y*.63+top.y*.37)*h);
+  ctx.quadraticCurveTo(top.x*w,top.y*h-lipWidth*.035,(top.x*.40+right.x*.60)*w,(top.y*.40+right.y*.60)*h);
+  ctx.stroke();ctx.restore();
+}
+
 function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number,presetStrength:number) {
   ctx.clearRect(0,0,w,h);
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
@@ -169,11 +188,13 @@ function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,
   if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.5,intensity*presetStrength));
   if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.5,intensity*presetStrength));
   if(highlight)drawHighlight(ctx,pts,w,h,highlight,Math.min(1.5,intensity*presetStrength));
-  if(lip && !selected.lip?.name.toLowerCase().includes("crystal clear")) {
-    // Gloss/oil tints are substantially more transparent than lipstick.
+  if(selected.lip&&isClearGloss(selected.lip)){
+    drawClearGloss(ctx,pts,w,h,intensity*presetStrength);
+  } else if(lip){
+    // Conceptual glossy tints are lighter than matte lipstick pigments.
     const sheer=selected.lip?.subcategory==="gloss";
     const pearl=selected.lip?.name.endsWith(" · Pearl") || selected.lip?.name.endsWith(" · Ice");
-    drawLip(ctx,pts,w,h,lip,Math.min(1.3,intensity*presetStrength)*(pearl?0.30:sheer?0.65:1));
+    drawLip(ctx,pts,w,h,lip,Math.min(1.3,intensity*presetStrength)*(pearl?0.30:sheer?0.55:1));
   }
 }
 
@@ -189,6 +210,7 @@ export default function VirtualMakeupTryOn({
   const [preset,setPreset]=useState<"soft"|"natural"|"bold">("natural");
   const [before,setBefore]=useState(false);
   const [filter,setFilter]=useState("");
+  const [brandOnly,setBrandOnly]=useState(false);
   const [detected,setDetected]=useState(false);
   const videoRef=useRef<HTMLVideoElement>(null);
   const canvasRef=useRef<HTMLCanvasElement>(null);
@@ -278,20 +300,25 @@ export default function VirtualMakeupTryOn({
     return()=>document.removeEventListener("visibilitychange",visibility);
   },[]);
 
-  const options=useMemo(()=>products.filter(p=>isArea(p)===active && Boolean(p.colorHex)).filter(p=>!filter || [p.brand,p.name].some(v=>v.toLowerCase().includes(filter.toLowerCase()))),[active,filter,products]);
+  const options=useMemo(()=>products.filter(p=>isArea(p)===active && Boolean(p.colorHex))
+    .filter(p=>!brandOnly||hasDocumentedSwatch(p))
+    .filter(p=>!filter || [p.brand,p.name].some(v=>v.toLowerCase().includes(filter.toLowerCase()))),[active,filter,products,brandOnly]);
+  const availableDigital=useMemo(()=>products.filter(p=>isArea(p)===active&&hasDocumentedSwatch(p)).length,[active,products]);
   const current=selected[active];
-  const colorSource=current?.tags.includes("brand-digital-swatch")
-    ? "Brand digital swatch reference (screen RGB, not measured skin color)."
+  const colorSource=current&&isClearGloss(current)
+    ? "Clear gloss: no color pigment overlay; shine is a subtle illustration."
+    : current&&hasDocumentedSwatch(current)
+    ? "This reference is taken from a brand's on-screen swatch. Actual pigment/skin results differ."
     : current?.subcategory==="eyeshadow"&&/palette|quad|bite.size/i.test(current.name)
-    ? "Artistic palette mood preview, not individual eyeshadow-pan colors or measured finish."
-    : current?.subcategory==="concealer"
-    ? "Conceptual under-eye tint only. Not a foundation, concealer or skin tone match."
-    : "Palevie approximate illustration, NOT a brand swatch or actual makeup payoff.";
+    ? "Conceptual palette mood, not the individual eyeshadow pans or real finish."
+    : current?.subcategory==="concealer"||current?.subcategory==="cushion"
+    ? "Conceptual complexion tint only; NOT a skin-tone or foundation match."
+    : "Palevie conceptual color only. This is not a verified brand shade swatch or actual skin payoff.";
   const purchaseOptions=current?shopPurchaseOffers(current):[];
-  const hasExactShade=purchaseOptions.some(o=>o.exactShade||o.retailer==="amazon");
+  const hasExactDestination=purchaseOptions.some(o=>o.exactShade||o.retailer==="amazon");
   return <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Palevie virtual makeup">
     <div className={styles.inner}>
-      <header className={styles.header}><div><strong>Virtual Makeup Studio</strong><small>Try real shade names on your face</small></div><button onClick={onClose} aria-label="Close makeup studio" className={styles.close}>×</button></header>
+      <header className={styles.header}><div><strong>Virtual Makeup Studio</strong><small>Explore named makeup shades · digital color study</small></div><button onClick={onClose} aria-label="Close makeup studio" className={styles.close}>×</button></header>
       <div className={styles.camera}>
         <video ref={videoRef} autoPlay muted playsInline className={styles.video}/>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden/>
@@ -307,17 +334,26 @@ export default function VirtualMakeupTryOn({
         <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Artistic shade illustration only; not a real skin-tone match, product finish, or color accuracy test.</p>
       </div>
       <div className={styles.controls}>
-        <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
+        <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");if(brandOnly){const first=products.find(p=>isArea(p)===area&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[area]:first}));}}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
         <div className={styles.selected}>
-          <div className={styles.currentSwatch} style={{background:current?.colorHex??"#e5c9d5"}}/>
-          <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong><small>{current ? colorSource : "Only shades with a recorded color reference can be previewed."}</small></div>
+          <div className={`${styles.currentSwatch} ${current&&isClearGloss(current)?styles.clearSwatch:""}`} style={current&&isClearGloss(current)?undefined:{background:current?.colorHex??"#e5c9d5"}}/>
+          <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong>
+            {current&&<span className={hasDocumentedSwatch(current)?styles.sourceBrand:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
+            <small>{current ? colorSource : "Only shades with a digital color reference can be previewed."}</small></div>
         </div>
         <div className={styles.presets} role="group" aria-label="Makeup strength">
           {(["soft","natural","bold"] as const).map(p=><button key={p} type="button" aria-pressed={preset===p} className={preset===p?styles.presetActive:styles.preset} onClick={()=>setPreset(p)}>{p==="soft"?"Soft":p==="natural"?"Natural":"Bold"}</button>)}
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="20" max="100" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
+        <div className={styles.sourceFilter}>
+          <button type="button" aria-pressed={brandOnly} className={brandOnly?styles.sourceFilterActive:styles.sourceFilterButton} onClick={()=>{const next=!brandOnly;setBrandOnly(next);if(next&&(!current||!hasDocumentedSwatch(current))){const first=products.find(p=>isArea(p)===active&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[active]:first}));}}}>
+            Brand digital refs only ({availableDigital})
+          </button>
+          <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"All colors include conceptual Palevie illustrations."}</small>
+        </div>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
-        <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span className={isClearGloss(p)?styles.clearSwatch:""} style={isClearGloss(p)?undefined:{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        {options.length===0&&<small className={styles.retailNote}>{brandOnly?"No brand digital swatches recorded in this category. Switch off this filter for illustrated previews.":"No shades match this search."}</small>}
         {current&&purchaseOptions.length>0&&<div className={styles.purchaseOptions} aria-label="Where to buy this makeup shade">{purchaseOptions.map(o=>{
           const retailerLabel=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
           const action=o.retailer==="amazon"?"View product":o.exactShade?"View shade":"Choose shade";
@@ -328,7 +364,10 @@ export default function VirtualMakeupTryOn({
             <span>{retailerLabel}</span><b>{action} ↗</b>
           </a>;
         })}</div>}
-        {current&&!hasExactShade&&<small className={styles.retailNote}>This is an illustrative color, not an exact shade match. Select the named shade and confirm availability on the retailer's page.</small>}
+        {current&&<small className={styles.retailNote}>
+          {hasDocumentedSwatch(current)?"Brand digital screen reference, not measured cosmetic payoff.":"Palevie illustrative tint, not an exact shade match."}
+          {" "}{hasExactDestination?"Check the actual shade, stock and finish on the retailer's page.":"Select the named shade on the retailer's product-family page."}
+        </small>}
       </div>
     </div>
   </div>;

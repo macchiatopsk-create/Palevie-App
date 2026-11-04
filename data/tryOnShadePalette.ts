@@ -7,19 +7,21 @@ import type {CatalogProduct,ProductOffer} from "@/lib/types";
  * color-match recommendation. Every application adds illustrative-preview.
  *
  * A color is only assigned to a confirmed named cosmetic or variant.
+ * NYX Butter Gloss shade-family descriptions were checked against the
+ * brand's official shade selector (Nov 4, 2026); hexes remain OUR estimates.
  */
 export const ADDITIONAL_ILLUSTRATIVE_TINTS:Readonly<Record<string,string>>={
-  "nyx-bg-05": "#CE9B93",
+  "nyx-bg-05": "#BE78A7",
   "nyx-bg-06": "#D59A7F",
   "nyx-bg-08": "#B99179",
   "nyx-bg-09": "#AC7583",
-  "nyx-bg-12": "#60403B",
+  "nyx-bg-12": "#7A4359",
   "nyx-bg-15": "#C8947D",
   "nyx-bg-16": "#D9919B",
   "nyx-bg-17": "#E08D5C",
-  "nyx-bg-18": "#C46B72",
-  "nyx-bg-22": "#DCC0BD",
-  "nyx-bg-23": "#D8A8BA",
+  "nyx-bg-18": "#D852A1",
+  "nyx-bg-22": "#B9A1CC",
+  "nyx-bg-23": "#DDB19A",
   "nyx-bg-24": "#9C6D50",
   "nyx-bg-25": "#835047",
   "nyx-bg-26": "#976955",
@@ -29,14 +31,14 @@ export const ADDITIONAL_ILLUSTRATIVE_TINTS:Readonly<Record<string,string>>={
   "nyx-bg-30": "#8A4B3F",
   "nyx-bg-31": "#DFD3D2",
   "nyx-bg-32": "#6B4D51",
-  "nyx-bg-33": "#DAB2A0",
-  "nyx-bg-34": "#AE8B91",
-  "nyx-bg-35": "#BE9086",
+  "nyx-bg-33": "#DDC2A1",
+  "nyx-bg-34": "#E4A18C",
+  "nyx-bg-35": "#D58B50",
   "nyx-bg-36": "#CAA172",
-  "nyx-bg-37": "#B78A89",
-  "nyx-bg-38": "#D3A3A5",
-  "nyx-bg-39": "#A9787B",
-  "nyx-bg-40": "#8C6071",
+  "nyx-bg-37": "#D64D98",
+  "nyx-bg-38": "#BA694E",
+  "nyx-bg-39": "#A64B64",
+  "nyx-bg-40": "#6C473C",
   "elf-bite-02": "#9E765A",
   "elf-bite-03": "#D9B48F",
   "elf-bite-04": "#B97C8E",
