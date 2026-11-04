@@ -8,6 +8,7 @@ const refs=rt.load("data/verifiedShadeColors.ts").verifiedShadeColors;
 const color=rt.load("lib/colorDiscovery.ts"),src=rt.load("lib/shadeEvidence.ts");
 const brandDescriptions=rt.load("data/brandDescribedHues.ts").BRAND_DESCRIBED_HUES;
 const measured=rt.load("data/rareBeautyPixelReferences.ts").RARE_BEAUTY_PIXEL_REFERENCES;
+const meritPhotos=rt.load("data/meritPhotoSwatches.ts").MERIT_PHOTO_SWATCHES;
 const eligible=rt.load("lib/shopEligibility.ts"),studio=fs.readFileSync(path.resolve(__dirname,"../components/VirtualMakeupTryOn.tsx"),"utf8");
 const shop=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.tsx"),"utf8");
 const products=eligible.visibleShopProducts(catalog),tryOn=products.filter(p=>rt.load("lib/tryOnEligibility.ts").makeupTryOnArea(p));
@@ -30,8 +31,10 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
 }
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
 const described=tryOn.filter(p=>src.shadeEvidence(p)==="brand-described");
+const photos=tryOn.filter(p=>src.shadeEvidence(p)==="brand-photo");
 assert.equal(Object.keys(brandDescriptions).length,23,"Official descriptions require individual review");
-assert.equal(described.length,15,"Six pearlescent blushes remain brand-described along with nine other estimated shades");
+assert.equal(described.length,13,"Six pearlescent blushes and seven other prose-only shades remain");
+assert.equal(photos.length,5,"Only five reviewed MERIT photo screen samples are applied");
 for(const [id,record] of Object.entries(brandDescriptions)){
  const p=indexed.get(id);assert(p,"Unknown described product: "+id);
  assert.equal(p.name.split(" · ").at(-1),record.shade,"Different shade name vs official descriptor: "+id);
@@ -41,6 +44,11 @@ for(const [id,record] of Object.entries(brandDescriptions)){
    assert.equal(src.shadeEvidence(p),"brand-digital");
    assert(color.hasDocumentedSwatch(p),"Only measured shade pixels qualify as digital swatch evidence");
    assert(p.tags.includes("shade-source:"+measured[id].source),"Sampled swatch source URL missing: "+id);
+ }else if(meritPhotos[id]?.applied){
+   assert.equal(p.colorHex,meritPhotos[id].hex,"MERIT photo swatch RGB not used: "+id);
+   assert.equal(src.shadeEvidence(p),"brand-photo","Photo must retain its own evidence tier");
+   assert(!color.hasDocumentedSwatch(p),"Photo is not eligible for flat brand-digital color matching");
+   assert(p.tags.includes("shade-source:"+meritPhotos[id].source),"Photo source URL missing: "+id);
  }else{
    assert.equal(p.colorHex,record.illustrativeHex,"Brand-description estimate not applied: "+id);
    assert.equal(src.shadeEvidence(p),"brand-described");
@@ -54,7 +62,7 @@ assert.equal(Object.keys(measured).length,14,"Exactly 14 Rare Beauty swatches we
 assert.equal(digital.length,56,"46 original swatches + 8 applied Rare lip oil swatches + 2 exact aliases");
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
- assert(["brand-digital","brand-described","illustrative"].includes(src.shadeEvidence(p)));
+ assert(["brand-digital","brand-photo","brand-described","illustrative"].includes(src.shadeEvidence(p)));
  assert.equal(color.hasDocumentedSwatch(p),src.shadeEvidence(p)==="brand-digital","Color recommendation gate must use same provenance");
 }
 assert(src.isClearGloss(indexed.get("elf-oil-07")),"e.l.f. Crystal Clear must not pigment lips");
@@ -87,4 +95,4 @@ for(const [id,hex] of Object.entries({
  "nyx-bg-35":"#D58B50", "nyx-bg-37":"#D64D98", "nyx-bg-38":"#BA694E",
  "nyx-bg-39":"#A64B64", "nyx-bg-40":"#6C473C",
 }))assert.equal(concepts[id],hex,"NYX color-name family description mismatch: "+id);
-console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" applied_measured=8 held_powder_samples=6 total_samples="+Object.keys(measured).length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-described.length)+" clear_formulas=2 official_name_links=3");
+console.log("SHADE_AUDIT_PASS total="+catalog.length+" tryon="+tryOn.length+" source_backed_digital="+digital.length+" applied_measured=8 held_powder_samples=6 total_samples="+Object.keys(measured).length+" brand_photo_estimated="+photos.length+" brand_described_estimated="+described.length+" conceptual_other="+(tryOn.length-digital.length-photos.length-described.length)+" clear_formulas=2 official_name_links=3");

@@ -97,7 +97,7 @@ export default function ShopClient(){
         onClick={()=>setDigitalOnly(v=>!v)}>
         ◇ Brand digital refs ({documentedCount})
       </button>
-      <span>Brand digital swatches are screen colors; brand-described hues and other Palevie previews are estimates, not actual skin payoff.</span>
+      <span>Digital swatches, photographed swatches and brand descriptions are different screen references. None guarantee actual skin payoff.</span>
     </div>}
     {tab!=="skincare"&&tab!=="clothes"&&preferences.source&&<div className="notice inline-notice"><strong>{preferences.source==="drape"?"Your saved draping choices":preferences.mood?`${COLOR_MOODS[preferences.mood].label} preferences`:"Your color preferences"}</strong><p>{referenceColors.length?(nearby?`${nearby} nearby documented digital swatches in these filters. Choose Saved colors to put them first; other products remain browseable.`:"No close documented swatches in these filters. We won't imply the remaining products are a color match."):"No color recommendations are active. Choose a mood or mark a draping color as better to guide browsing."}</p><Link href="/quiz">Edit color preferences →</Link></div>}
     {!skin&&tab==="skincare"&&<div className="notice inline-notice">Add skin shopping preferences to screen product suggestions.</div>}
@@ -122,7 +122,7 @@ export default function ShopClient(){
         <div className="sh-meta">
           <b className="sh-brand">{p.brand}</b>
           <a className="sh-product-name" href={primaryUrl} target="_blank" rel={primaryOffer.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(primaryOffer.retailer)}>{p.name}</a>
-          {makeupTryOnArea(p)&&<small className={"sh-shade-source "+(shadeEvidence(p)==="brand-digital"?"is-brand":shadeEvidence(p)==="brand-described"?"is-described":"is-illustrative")}>{shadeEvidence(p)==="illustrative"?"Approximate color":shadeEvidenceLabel(p)}</small>}
+          {makeupTryOnArea(p)&&<small className={"sh-shade-source "+(shadeEvidence(p)==="brand-digital"?"is-brand":shadeEvidence(p)==="brand-photo"?"is-photo":shadeEvidence(p)==="brand-described"?"is-described":"is-illustrative")}>{shadeEvidence(p)==="illustrative"?"Approximate color":shadeEvidenceLabel(p)}</small>}
           <div className="sh-card-mini-actions">{makeupTryOnArea(p)&&<button type="button" className={styles.tryOnButton} aria-label={`Try ${p.brand} ${p.name} with the virtual camera`} onClick={()=>setTryonProduct(p.id)}>◎ Try On</button>}{isColorHex(p.colorHex)&&<button type="button" onClick={()=>setDraping(p.id)}>Compare shade</button>}</div>
           <div className="sh-where-buy">
             <span className="sh-where-label">Where to buy</span>
