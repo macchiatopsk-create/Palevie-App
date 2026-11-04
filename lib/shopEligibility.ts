@@ -30,6 +30,9 @@ const OFFICIAL_HOSTS = new Set([
   "www.maybelline.com", "www.nyxcosmetics.com",
   "www.milanicosmetics.com", "int.etude.com", "roundlab.com",
   "en.somebymi.com",
+  "clubclio.shop", "romandbeauty.com", "colourpop.com",
+  "fentybeauty.com", "www.glossier.com", "www.meritbeauty.com",
+  "saiehello.com", "theordinary.com",
 ]);
 export function isReviewedRetailerOffer(offer:ProductOffer):boolean{
   if(offer.reviewedDirect!==true||offer.inStock===false)return false;
