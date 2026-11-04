@@ -80,6 +80,15 @@ export default function ShopProductVisual({product:p}:{product:Item}){
       <text x="110" y="139" fill="#FFDCE0" textAnchor="middle" fontSize="8">MASK FIT</text>
       <text x="110" y="151" fill="#FFDCE0" textAnchor="middle" fontSize="8">RED CUSHION</text>
     </>;
+  } else if(p.subcategory==="concealer"){
+    packshot=<>
+      <rect x="86" y="33" width="48" height="58" rx="10" fill={`url(#${id}-dark)`} stroke={stroke} strokeWidth="1.6"/>
+      <rect x="81" y="90" width="58" height="101" rx="15" fill={`url(#${id}-glass)`} stroke={stroke} strokeWidth="2"/>
+      <rect x="89" y="100" width="42" height="82" rx="11" fill={tone} opacity=".77"/>
+      <path d="M96 105v68" stroke="#fff" strokeWidth="5" opacity=".37" strokeLinecap="round"/>
+      {logo(139,brandSize,"#5E424A")}
+      <text x="110" y="152" textAnchor="middle" fontSize="6.5" fill="#6E5864">CONCEAL</text>
+    </>;
   } else if(p.subcategory==="cushion"){
     packshot=<>
       <circle cx="110" cy="124" r="57" fill={`url(#${id}-jar)`} stroke={stroke} strokeWidth="3"/>
