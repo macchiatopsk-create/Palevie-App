@@ -98,13 +98,34 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
   function changeMood(mood:ColorMoodId){setChosenMood(mood);setFeedback(null);saveDiscoveryPreferences({mood,feedback:null,likedColors:[],rejectedColors:[],source:"mood"});track("quiz_palette_changed",{mood,original_preference:suggested??"open"});}
   function vote(value:Exclude<PaletteFeedback,null>){setFeedback(value);saveDiscoveryPreferences({mood:active,feedback:value,source:"mood"});track("quiz_palette_feedback",{mood:active,feedback:value,source:"quick_result"});}
   if(!ready){
-    // Real Q1 content instead of a blank loading rectangle while hydration starts.
-    const first=QUIZ_QUESTIONS[QUICK_INDEXES[0]];
-    return <section className={styles.quiz} aria-label="Loading seven-question color quiz">
-      <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
-      <div className={styles.counter}>1 / 7</div>
-      <h2 className={styles.question}>{first.text}</h2>
-      <div className={styles.options}>{first.options.map(option=><button className={styles.option} type="button" disabled key={option.label}>{option.label}</button>)}</div>
+    if(startQuestions){
+      const first=QUIZ_QUESTIONS[QUICK_INDEXES[0]];
+      return <section className={styles.quiz} aria-label="Loading seven-question color quiz">
+        <p className={styles.eyebrow}>YOUR 7-QUESTION COLOR QUIZ</p>
+        <div className={styles.counter}>1 / 7</div>
+        <h2 className={styles.question}>{first.text}</h2>
+        <div className={styles.options}>{first.options.map(option=><button className={styles.option} type="button" disabled key={option.label}>{option.label}</button>)}</div>
+      </section>;
+    }
+    return <section className={`${styles.quiz} ${styles.entryScreen}`} aria-label="Choose quiz or camera scan">
+      <div className={styles.entryChoice}>
+        <p className={styles.entryTitle}>YOUR COLOR JOURNEY</p>
+        <h2 className={styles.entryHeading}>How would you like to begin?</h2>
+        <div className={styles.entryGrid}>
+          <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
+            <div className={styles.entryIllustration} aria-hidden="true">✎</div>
+            <span className={styles.entryStep}>01 · WITHOUT CAMERA</span>
+            <h3>Quick quiz</h3><p className={styles.entryDescription}>7 simple questions</p>
+            <Link className={styles.entryQuiz} href="/quiz?start=questions">Start quiz →</Link>
+          </div>
+          <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
+            <span className={styles.entryCameraIcon} aria-hidden="true">◎</span>
+            <span className={styles.entryStep}>02 · LIVE CAMERA</span>
+            <h3>Face scan</h3><p className={styles.entryDescription}>See colors beside your face</p>
+            <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Start scan →</Link>
+          </div>
+        </div>
+      </div>
     </section>;
   }
   if(detail&&!quiz.completed)return <section className={styles.result}><h2 className={styles.resultHeading}>Start with the quick quiz</h2><Link className={styles.primary} href="/quiz">Start Quick Quiz →</Link></section>;
