@@ -336,7 +336,7 @@ export default function VirtualMakeupTryOn({
       <div className={styles.controls}>
         <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");if(brandOnly){const first=products.find(p=>isArea(p)===area&&hasDocumentedSwatch(p));setSelected(prev=>({...prev,[area]:first}));}}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
         <div className={styles.selected}>
-          <div className={styles.currentSwatch} style={{background:current?.colorHex??"#e5c9d5"}}/>
+          <div className={`${styles.currentSwatch} ${current&&isClearGloss(current)?styles.clearSwatch:""}`} style={current&&isClearGloss(current)?undefined:{background:current?.colorHex??"#e5c9d5"}}/>
           <div><strong>{current?current.brand+" · "+current.name:"Choose a "+labels[active].toLowerCase()+" shade"}</strong>
             {current&&<span className={hasDocumentedSwatch(current)?styles.sourceBrand:styles.sourceConcept}>{shadeEvidenceLabel(current)}</span>}
             <small>{current ? colorSource : "Only shades with a digital color reference can be previewed."}</small></div>
@@ -352,7 +352,7 @@ export default function VirtualMakeupTryOn({
           <small>{brandOnly?"Showing source-backed screen swatches; not actual skin payoff.":"All colors include conceptual Palevie illustrations."}</small>
         </div>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
-        <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span className={isClearGloss(p)?styles.clearSwatch:""} style={isClearGloss(p)?undefined:{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
         {options.length===0&&<small className={styles.retailNote}>{brandOnly?"No brand digital swatches recorded in this category. Switch off this filter for illustrated previews.":"No shades match this search."}</small>}
         {current&&purchaseOptions.length>0&&<div className={styles.purchaseOptions} aria-label="Where to buy this makeup shade">{purchaseOptions.map(o=>{
           const retailerLabel=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
