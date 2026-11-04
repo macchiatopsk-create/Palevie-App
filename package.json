@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/prepare-drape-guide.mjs && next dev",
-    "build": "node scripts/test-analytics-reliability.cjs && node scripts/test-free-service.cjs && node scripts/test-mobile-safety.cjs && node scripts/test-tone-evidence.cjs && node scripts/test-scan-fallback.cjs && node scripts/test-drape-guide.cjs && node scripts/test-tryon-coverage.cjs && node scripts/test-tryon-shade-fill.cjs && node scripts/test-shade-audit.cjs && node scripts/test-mega-catalog.cjs && node scripts/test-quiz-entry.cjs && node scripts/test-quiz-touch.cjs && node scripts/test-result-shopping.cjs && node scripts/test-server-visit-analytics.cjs && node scripts/test-search-discovery.cjs && node scripts/prepare-drape-guide.mjs && next build",
+    "build": "node scripts/test-analytics-reliability.cjs && node scripts/test-free-service.cjs && node scripts/test-mobile-safety.cjs && node scripts/test-tone-evidence.cjs && node scripts/test-scan-fallback.cjs && node scripts/test-drape-guide.cjs && node scripts/test-tryon-coverage.cjs && node scripts/test-tryon-shade-fill.cjs && node scripts/test-shade-audit.cjs && node scripts/test-mega-catalog.cjs && node scripts/test-quiz-entry.cjs && node scripts/test-quiz-touch.cjs && node scripts/test-result-shopping.cjs && node scripts/test-server-visit-analytics.cjs && node scripts/test-search-discovery.cjs && node scripts/rare-swatch-pixel-audit.cjs && node scripts/prepare-drape-guide.mjs && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:free-service": "node scripts/test-free-service.cjs",
