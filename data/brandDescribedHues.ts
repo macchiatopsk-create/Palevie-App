@@ -5,10 +5,11 @@
  * product pages on Nov 4, 2026. The RGBs are PALEVIE-edited estimates chosen
  * to visually illustrate those words, NEVER sampled/scraped manufacturer RGB.
  *
- * Fourteen Rare Beauty official swatch image URLs were numerically sampled
- * on 2026-11-04 (see rareBeautyPixelReferences.ts); these historical
- * illustrativeHex values remain for before/after audit only. The product
- * catalog uses the validated pixel samples for those 14 products.
+ * Fourteen Rare Beauty official swatch images were sampled on 2026-11-04
+ * (see rareBeautyPixelReferences.ts). Eight lip-oil pixel medians are used
+ * as screen references. Six luminous powder medians are archived but NOT
+ * applied to camera overlays because pearlescent brightness may mislead.
+ * Historical illustrativeHex values remain for before/after review.
  * Other brand-described hues remain estimates, never digital measurements.
  * No pixel reference guarantees physical product or skin-color accuracy.
  */
