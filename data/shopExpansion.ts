@@ -43,7 +43,7 @@ const exactTargetPages:Record<string,string>={
   "elf-oil-10":"https://www.target.com/p/-/A-92296238",
   "nyx-bg-10":"https://www.target.com/p/-/A-51033539",
   "milani-baked-granita":"https://www.target.com/p/-/A-94740402",
-  "milani-baked-sparkling":"https://www.target.com/p/-/A-95021837",
+  "milani-baked-sparkling":"https://www.target.com/p/-/A-94740431",
 };
 export function expandedRetailerOffers(product:Pick<CatalogProduct,"id"|"name">):ProductOffer[]{
   const id=product.id;
@@ -111,8 +111,8 @@ export const additionalShopProducts:CatalogProduct[]=[
   {id:"round-dokdo-toner",brand:"Round Lab",name:"1025 Dokdo Toner",category:"skincare",
     subcategory:"toner",description:"Lightweight daily hydrating toner; verify size and availability at Round Lab.",
     tags:["hydration","lightweight","gentle"],offers:[direct("round-dokdo-toner","official","https://roundlab.com/products/1025-dokdo-toner")]},
-  {id:"round-birch-uvlock",brand:"Round Lab",name:"Birch Moisturizing UVLock Sunscreen SPF 45",category:"skincare",
-    subcategory:"sunscreen",description:"US broad-spectrum daily sunscreen; distinct from the Korean SPF 50 formula.",
+  {id:"round-birch-uvlock",brand:"Round Lab",name:"Birch Moisturizing UVLock Sunscreen",category:"skincare",
+    subcategory:"sunscreen",description:"Broad-spectrum daily sunscreen. Confirm the active ingredients and current SPF labeling on the official product page.",
     tags:["sunscreen","hydration"],offers:[direct("round-birch-uvlock","official","https://roundlab.com/products/birch-moisturizing-uv-sunscreen")]},
   {id:"cosrx-snail92-cream",brand:"COSRX",name:"Advanced Snail 92 All In One Cream",category:"skincare",
     subcategory:"moisturizer",description:"Snail mucin moisturizer; choose the preferred jar or tube size on the official store.",
