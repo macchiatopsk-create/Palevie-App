@@ -3,6 +3,7 @@ import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS}
 import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./megaCatalog";
 import {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES} from "./tryOnShadePalette";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
+import {verifiedShadeColors} from "./verifiedShadeColors";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
 
 /**
@@ -324,9 +325,20 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
  */
 // Keep every seed item browseable, but reserve the verified badge and direct-buy
 // wording for exact Amazon product URLs vetted separately.
+// Seed records duplicate shade names with brand-hosted digital references.
+// Their pixels should agree. Neither swatch guarantees real on-skin payoff.
+const SEED_REFERENCE_ALIAS:Readonly<Record<string,string>>={
+  "elf-lipoil-rose":"elf-oil-03",
+  "rare-pinch-joy":"rare-pinch-09",
+};
 export const catalogProducts: CatalogProduct[] = [
   ...seedCatalogProducts.map(product => ({
     ...product,
+    ...(SEED_REFERENCE_ALIAS[product.id]&&verifiedShadeColors[SEED_REFERENCE_ALIAS[product.id]]?{
+      colorHex:verifiedShadeColors[SEED_REFERENCE_ALIAS[product.id]].hex,
+      tags:[...product.tags,"brand-digital-swatch",
+        "shade-source:"+verifiedShadeColors[SEED_REFERENCE_ALIAS[product.id]].source],
+    }:{}),
     offers: [
       ...product.offers.map(offer => {
         if(offer.retailer!=="amazon")return offer;
