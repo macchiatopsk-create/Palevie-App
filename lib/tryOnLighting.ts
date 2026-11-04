@@ -41,7 +41,8 @@ function sampleCheek(frame:FramePixels,x:number,y:number,radius:number){
     const maximum=Math.max(red,green,blue),minimum=Math.min(red,green,blue);
     dark+=maximum<=7?1:0;
     // A strong red/pink shade isn't necessarily overexposure.
-    bright+=minimum>=245?1:0;
+    // Only near-white clipping, not naturally fair/bright skin.
+    bright+=minimum>=252?1:0;
     count++;
   }
   if(count<20)return null;
