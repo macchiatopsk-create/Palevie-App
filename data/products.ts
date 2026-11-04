@@ -3,6 +3,7 @@ import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS}
 import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./megaCatalog";
 import {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES} from "./tryOnShadePalette";
 import {BRAND_DESCRIBED_HUES} from "./brandDescribedHues";
+import {RARE_BEAUTY_PIXEL_REFERENCES} from "./rareBeautyPixelReferences";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import {verifiedShadeColors} from "./verifiedShadeColors";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
@@ -328,6 +329,21 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
 // wording for exact Amazon product URLs vetted separately.
 // Seed records duplicate shade names with brand-hosted digital references.
 // Their pixels should agree. Neither swatch guarantees real on-skin payoff.
+/** Only explicit, measured official screen-swatches can gain this evidence tier.
+ * Preserve product/retailer IDs while removing stale conceptual tags.
+ */
+function withMeasuredRareSwatch(product:CatalogProduct):CatalogProduct{
+  const ref=RARE_BEAUTY_PIXEL_REFERENCES[product.id];
+  if(!ref)return product;
+  const tags=product.tags.filter(t=>
+    t!=="shade-unverified"&&t!=="illustrative-preview"&&t!=="conceptual-tone"
+    &&t!=="brand-described-reference"&&t!=="brand-digital-swatch"
+    &&!t.startsWith("brand-description-source:")&&!t.startsWith("shade-source:")
+  );
+  return {...product,colorHex:ref.hex,
+    tags:[...tags,"brand-digital-swatch","shade-source:"+ref.source,
+      "digital-sample-method:center34-opaque-rgb-median"]};
+}
 const SEED_REFERENCE_ALIAS:Readonly<Record<string,string>>={
   "elf-lipoil-rose":"elf-oil-03",
   "rare-pinch-joy":"rare-pinch-09",
@@ -371,6 +387,7 @@ export const catalogProducts: CatalogProduct[] = [
   }),
   ...additionalShopProducts,
   ...megaCatalogProducts.map(product=>{
+    if(RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
     const described=BRAND_DESCRIBED_HUES[product.id];
     if(described){
       return {...product,colorHex:described.illustrativeHex,
@@ -382,6 +399,7 @@ export const catalogProducts: CatalogProduct[] = [
     return {...product,colorHex:tint,tags:[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview","conceptual-tone"]};
   }),
   ...ADDITIONAL_TRYON_SHADES.map(product=>{
+    if(RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
     const described=BRAND_DESCRIBED_HUES[product.id];
     return described?{...product,colorHex:described.illustrativeHex,
       tags:[...product.tags,"brand-described-reference","brand-description-source:"+described.source]}:product;
