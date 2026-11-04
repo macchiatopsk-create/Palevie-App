@@ -133,8 +133,8 @@ export default function ShopClient(){
             {purchaseOffers.map(o=>{
               const label=o.retailer==="official"?"Official store":"Amazon";
               const price=offerPriceLabel(o);
-              return <a key={o.id} href={href(o.id,o.retailer==="official"?"shop_official":"shop_amazon",o.retailer==="official"?"referral":"affiliate")} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
-                <span>{label}</span><b>{price||(o.retailer==="amazon"?"Check price":"View item")}</b><i aria-hidden="true">↗</i>
+              return <a key={o.id} className={o.retailer==="amazon"?"sh-where-amazon":"sh-where-official"} href={href(o.id,o.retailer==="official"?"shop_official":"shop_amazon",o.retailer==="official"?"referral":"affiliate")} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
+                <span>{label}</span><b>{price||(o.retailer==="amazon"?"Check price":p.category==="makeup"?"Choose shade":"View item")}</b><i aria-hidden="true">↗</i>
               </a>;
             })}
           </div>
