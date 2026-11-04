@@ -4,7 +4,7 @@ import type {CatalogProduct} from "./types";
  * Do not display face-makeup Try On on skincare, clothing, or missing color data.
  * All results are illustrative; a screen RGB is not a measured cosmetic finish.
  */
-export type MakeupTryOnArea="lip"|"blush"|"eyeshadow"|"highlighter"|"cushion";
+export type MakeupTryOnArea="lip"|"blush"|"eyeshadow"|"highlighter"|"cushion"|"concealer";
 const HEX=/^#[0-9a-f]{6}$/i;
 export function makeupTryOnArea(product:Pick<CatalogProduct,"category"|"subcategory"|"colorHex">):MakeupTryOnArea|null{
   if(product.category!=="makeup"||!product.colorHex||!HEX.test(product.colorHex))return null;
@@ -13,5 +13,6 @@ export function makeupTryOnArea(product:Pick<CatalogProduct,"category"|"subcateg
   if(product.subcategory==="eyeshadow")return "eyeshadow";
   if(product.subcategory==="highlighter")return "highlighter";
   if(product.subcategory==="cushion")return "cushion";
+  if(product.subcategory==="concealer")return "concealer";
   return null;
 }

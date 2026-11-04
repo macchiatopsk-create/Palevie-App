@@ -11,11 +11,11 @@ const previous=shop.filter(p=>p.category==="makeup"&&p.colorHex&&original.includ
 assert(shop.length>amazon.length,"Reviewed non-Amazon products must surface in Shop");
 assert(amazon.length===134,"Previously verified Amazon products must stay visible");
 assert(now.length>=previous.length);
-assert(now.length>116,"Expanded Try On must surpass the previous 63 items");
+assert(now.length>=400,"Expanded Try On should cover at least 400 named products");
 assert(now.length>previous.length,"Try On should cover more items than previous four categories");
 assert(now.every(p=>shopPurchaseOffers(p).length>0));
 assert(now.every(p=>p.category==="makeup"));
-for(const name of ["lip","gloss","blush","eyeshadow","highlighter","cushion"]){
+for(const name of ["lip","gloss","blush","eyeshadow","highlighter","cushion","concealer"]){
  const fixture={category:"makeup",subcategory:name,colorHex:"#AABBCC"};
  assert.notEqual(makeupTryOnArea(fixture),null,name+" must be supported");
 }
@@ -33,6 +33,7 @@ const hub=fs.readFileSync(path.resolve(__dirname,"../components/QuizHub.tsx"),"u
 for(const x of ["drawHighlight(ctx,pts","drawComplexion(ctx,pts",'cushion:"Base"','highlighter:"Glow"',"shopPurchaseOffers(current)"])assert(jsx.includes(x),x);
 assert(shopCode.includes("makeupTryOnArea(p)"));
 assert(shopCode.includes("Only Try On items"));
+assert(shopCode.includes('["cushion","concealer"].includes(p.subcategory)'));
 assert(shopCode.includes("styles.tryOnButton"));
 assert(quick.includes("Retake the quiz")&&quick.includes("saved 7-question result"));
 assert(hub.includes('params.get("retake")==="1"'));
