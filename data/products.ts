@@ -2,6 +2,7 @@ import { expandedShades } from "./expandedShades";
 import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS} from "./shopExpansion";
 import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./megaCatalog";
 import {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES} from "./tryOnShadePalette";
+import {BRAND_DESCRIBED_HUES} from "./brandDescribedHues";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import {verifiedShadeColors} from "./verifiedShadeColors";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
@@ -370,11 +371,21 @@ export const catalogProducts: CatalogProduct[] = [
   }),
   ...additionalShopProducts,
   ...megaCatalogProducts.map(product=>{
+    const described=BRAND_DESCRIBED_HUES[product.id];
+    if(described){
+      return {...product,colorHex:described.illustrativeHex,
+        tags:[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview",
+          "brand-described-reference","brand-description-source:"+described.source]};
+    }
     const tint=ADDITIONAL_ILLUSTRATIVE_TINTS[product.id];
     if(product.colorHex||!tint)return product;
     return {...product,colorHex:tint,tags:[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview","conceptual-tone"]};
   }),
-  ...ADDITIONAL_TRYON_SHADES,
+  ...ADDITIONAL_TRYON_SHADES.map(product=>{
+    const described=BRAND_DESCRIBED_HUES[product.id];
+    return described?{...product,colorHex:described.illustrativeHex,
+      tags:[...product.tags,"brand-described-reference","brand-description-source:"+described.source]}:product;
+  }),
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
