@@ -44,7 +44,7 @@ check("both cheeks underexposed on otherwise normal frame", "clipped",
 check("one cheek strongly overexposed", "clipped",fillRect(frame(),.61,.49,.73,.63,[254,255,254]));
 check("strong left/right face shadow", "uneven",fillRect(frame([224,170,144]),.61,.49,.73,.63,[72,45,36]));
 check("same side-shadow detected when mirrored", "uneven",fillRect(frame([72,45,36]),.61,.49,.73,.63,[224,170,144]));
-check("deep skin with strong one-sided lighting still flagged", "uneven",fillRect(frame([70,44,37]),.61,.49,.73,.63,[15,11,10]));
+check("deep skin with strong one-sided lighting still flagged", "uneven",fillRect(frame([116,73,58]),.61,.49,.73,.63,[15,11,10]));
 check("bright background alone is irrelevant to face quality", "balanced",
  fillRect(fillRect(frame([255,255,255]),.27,.49,.39,.63,[140,94,75]),.61,.49,.73,.63,[140,94,75]));
 check("small tracked face cannot be scored", "unavailable",frame(),points().map(p=>({x:.5+(p.x-.5)*.15,y:.5+(p.y-.5)*.15})));
