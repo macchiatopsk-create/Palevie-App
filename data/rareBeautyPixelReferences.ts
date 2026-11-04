@@ -4,6 +4,10 @@
  * Median of 3136 fully-opaque pixels inside the central 34% x 34% square
  * from 164x164 image; all 14 downloads succeeded and MAD<=20.
  *
+ * All 14 source-image measurements are recorded, but the six luminous powder
+ * samples are withheld from Try On: pearlescent highlights are noticeably
+ * lighter than the official hue descriptions. Only eight lip oils are used.
+ *
  * The sample is an sRGB approximation of a WEBSITE IMAGE. It is NOT a
  * physical product measurement, real skin payoff, shade-match guarantee, or
  * evidence of image licensing rights. Keep this separate from old estimates.
