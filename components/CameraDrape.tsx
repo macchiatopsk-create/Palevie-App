@@ -90,9 +90,9 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
     {embedded&&<p className={styles.compactEmbed}>In-app camera blocked? Open Palevie in Safari or Chrome, or use a mirror.</p>}
     {status==="error"&&<p className="camera-drape-error" role="alert">{errorText}</p>}
     <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>
-      {status==="starting"?"Preparing front camera…":"Enable front camera →"}
+      {status==="starting"?"Waiting for camera permission…":"Turn on front camera"}
     </button>
-    <button type="button" className={styles.setupMirror} onClick={useMirror}>Or compare in a mirror</button>
+    <button type="button" className={styles.setupMirror} onClick={useMirror}>Use a mirror instead</button>
     <small>On-device · No photos stored</small>
   </section>;
   // Choosing A or B is a direct answer; switching the in-camera cloth is a
