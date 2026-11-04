@@ -1811,3 +1811,19 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
   .shop-grid.shop-grid-compact.c3 .sh-where-buy a span{font-size:8.7px}
   .shop-grid.shop-grid-compact.c3 .sh-where-buy a b{font-size:8.7px}
 }
+
+/* Large catalog browsing remains light and keeps the existing 1/2/3-column control. */
+.shop-grid.shop-grid-compact .sh-load-more{
+  grid-column:1/-1;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:9px;padding:22px 10px 18px;
+}
+.sh-load-more span{font-size:11px;font-weight:650;color:#99758B}
+.sh-load-more button{
+  min-height:44px;min-width:190px;max-width:100%;
+  padding:11px 20px;border:1px solid #E8ABC9;border-radius:999px;
+  background:linear-gradient(135deg,#FFF1F8,#FCE5F0);
+  color:#8E426E;font-size:12px;font-weight:800;cursor:pointer;
+}
+.sh-load-more button:hover{background:#F7DDEA;border-color:#CF8FB2}
+.sh-load-more button:focus-visible{outline:3px solid rgba(195,112,160,.33);outline-offset:3px}
