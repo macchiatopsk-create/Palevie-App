@@ -334,8 +334,9 @@ const NAMED:Readonly<Record<string,string>>={
   "cool it":"#B8879E","whimsy":"#DCA092","25/8":"#D99A7F",
   "dgaf":"#AC7259","barely trying":"#C49A8F",
   "rose in mind":"#BD7E8A","fenty glow":"#AA6D68",
-  "wattabrat":"#DFA4BC","fu$y":"#D89FAD",
-  "strawberry sprinkles":"#D58BA4", // Pink family instead of dark berry
+  "wattabrat":"#DFA4BC","fu$$y":"#D89FAD",
+  "strawberry sprinkles":"#D58BA4",
+  "raspberry jam":"#A95370", // Pink family instead of dark berry
   "strawberry cheesecake":"#D56688",
 };
 export function approxPreviewHex(label:string):string|undefined{
