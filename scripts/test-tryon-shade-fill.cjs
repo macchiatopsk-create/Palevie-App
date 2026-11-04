@@ -4,6 +4,7 @@ const {runtime}=require("./free-service-test-runtime.cjs");
 const rt=runtime(),catalog=rt.load("data/products.ts").catalogProducts;
 const elig=rt.load("lib/shopEligibility.ts"),tryon=rt.load("lib/tryOnEligibility.ts");
 const {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES}=rt.load("data/tryOnShadePalette.ts");
+const {BRAND_DESCRIBED_HUES}=rt.load("data/brandDescribedHues.ts");
 const shop=elig.visibleShopProducts(catalog),available=shop.filter(p=>tryon.makeupTryOnArea(p));
 assert.equal(Object.keys(ADDITIONAL_ILLUSTRATIVE_TINTS).length,98);
 assert.equal(ADDITIONAL_TRYON_SHADES.length,34);
@@ -13,7 +14,7 @@ for(const [id,hex] of Object.entries(ADDITIONAL_ILLUSTRATIVE_TINTS)){
   assert(/^#[0-9a-f]{6}$/i.test(hex),"Invalid illustrative hex: "+id);
   const p=byId.get(id);
   assert(p,"No matching product for "+id);
-  assert.equal(p.colorHex,hex,"Illustrative palette not applied: "+id);
+  assert.equal(p.colorHex,BRAND_DESCRIBED_HUES[id]?.illustrativeHex??hex,"Illustrative palette/brand description hue not applied: "+id);
   assert(p.tags.includes("illustrative-preview"),"Illusory official color claim: "+id);
   assert(!p.tags.includes("brand-digital-swatch"),"Synthetic color must not be tagged as source-backed: "+id);
   assert(elig.shopPurchaseOffers(p).length>0,"Try On without a valid purchase destination: "+id);
