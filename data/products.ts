@@ -240,7 +240,7 @@ const seedCatalogProducts: CatalogProduct[] = [
 const OFFICIAL_STORE_OFFERS: Readonly<Record<string, ProductOffer>> = {
   "elf-lipoil-rose": {
     id: "of-elf-lipoil-rose-official", retailer: "official",
-    url: "https://www.elfcosmetics.com/products/glow-reviver-lip-oil",
+    url: "https://www.elfcosmetics.com/products/glow-reviver-lip-oil?Color=Rose+Envy+-+Rosewood",
     affiliateReady: false, lastCheckedAt: "2026-11-03",
   },
   "cosrx-snail": {
