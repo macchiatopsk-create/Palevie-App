@@ -20,6 +20,7 @@ import {loadDiscoveryPreferences,normalizeDiscovery,preferredDiscoveryColors,DIS
 import {COLOR_MOODS,hasDocumentedSwatch,swatchDistance,MAX_SWATCH_DISTANCE,isColorHex} from "@/lib/colorDiscovery";
 import {safeStorage} from "@/lib/safeStorage";
 import {makeupTryOnArea} from "@/lib/tryOnEligibility";
+import {isClearGloss} from "@/lib/shadeEvidence";
 import ShopProductVisual from "./ShopProductVisual";
 import styles from "./ShopClient.module.css";
 type Tab="all"|"lip"|"gloss"|"eyeshadow"|"blush"|"highlighter"|"cushion"|"skincare"|"clothes";
@@ -113,7 +114,7 @@ export default function ShopClient(){
       return <article className="shop-card" key={p.id}>
         <div className="shop-art shop-square">
           <a className="sh-card-image-link" href={primaryUrl} target="_blank" rel={primaryOffer.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(primaryOffer.retailer)} aria-label={`View ${p.brand} ${p.name} at ${primaryOffer.retailer==="official"?p.brand+" official store":primaryOffer.retailer==="target"?"Target":"Amazon"}`}>
-            <span className="sh-product-visual" aria-hidden="true"><ShopProductVisual product={p}/>{isColorHex(p.colorHex)&&<span className="sh-product-swatch" style={{background:p.colorHex}}/>}<span className="sh-product-visual-caption">Palevie artwork · Not a product photo</span></span>
+            <span className="sh-product-visual" aria-hidden="true"><ShopProductVisual product={p}/>{isColorHex(p.colorHex)&&<span className={`sh-product-swatch${isClearGloss(p)?" is-clear":""}`} style={isClearGloss(p)?undefined:{background:p.colorHex}}/>}<span className="sh-product-visual-caption">Palevie artwork · Not a product photo</span></span>
           </a>
           <button type="button" className={`shop-heart${saved?" on":""}`} aria-label={`Save ${p.name}`} aria-pressed={saved} onClick={()=>heart(p.id,p.name)}><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 20.4S3.6 15.2 3.6 9.9A4.3 4.3 0 0 1 12 8.1a4.3 4.3 0 0 1 8.4 1.8c0 5.3-8.4 10.5-8.4 10.5z"/></svg></button>
           {p.sponsored&&<b className="sponsored-badge">Sponsored</b>}
