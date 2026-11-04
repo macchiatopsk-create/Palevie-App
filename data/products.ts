@@ -1,6 +1,6 @@
 import { expandedShades } from "./expandedShades";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
-import { CatalogProduct } from "@/lib/types";
+import { CatalogProduct, ProductOffer } from "@/lib/types";
 
 /**
  * Seed catalog: real branded retail products only; shades are illustrative,
@@ -237,6 +237,44 @@ const seedCatalogProducts: CatalogProduct[] = [
   },
 ];
 
+const OFFICIAL_STORE_OFFERS: Readonly<Record<string, ProductOffer>> = {
+  "elf-lipoil-rose": {
+    id: "of-elf-lipoil-rose-official", retailer: "official",
+    url: "https://www.elfcosmetics.com/products/glow-reviver-lip-oil",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "cosrx-snail": {
+    id: "of-cosrx-snail-official", retailer: "official",
+    url: "https://www.cosrx.com/products/advanced-snail-96-mucin-power-essence",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "boj-glow": {
+    id: "of-boj-glow-official", retailer: "official",
+    url: "https://beautyofjoseon.com/products/glow-deep-serum-rice-alpha-arbutin",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "anua-toner": {
+    id: "of-anua-toner-official", retailer: "official",
+    url: "https://anua.com/products/heartleaf-77-soothing-toner",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "mk-laneige-balm": {
+    id: "of-laneige-balm-official", retailer: "official",
+    url: "https://us.laneige.com/products/lip-sleeping-mask",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "tirtir-21n": {
+    id: "of-tirtir-21n-official", retailer: "official",
+    url: "https://tirtir.global/products/mask-fit-red-cushion",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+  "rare-pinch-joy": {
+    id: "of-rare-pinch-joy-official", retailer: "official",
+    url: "https://www.rarebeauty.com/products/soft-pinch-liquid-blush",
+    affiliateReady: false, lastCheckedAt: "2026-11-03",
+  },
+};
+
 const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
   "rmd-jlt-06",
   // Bare Grape ASIN B09242GH8Q currently resolves to a different shade; do not list it as verified.
@@ -286,13 +324,17 @@ const VERIFIED_AMAZON_PRODUCT_IDS = new Set([
 export const catalogProducts: CatalogProduct[] = [
   ...seedCatalogProducts.map(product => ({
     ...product,
-    offers: product.offers.map(offer => {
-      const asin=researchedAmazonAsins[product.id];
-      const url=asin ? `https://www.amazon.com/dp/${asin}` : offer.url;
-      const direct=VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
-        && /^https:\/\/(?:www\.)?amazon\.com\/dp\/[A-Z0-9]{10}\/??$/i.test(url);
-      return { ...offer, url, affiliateReady:direct, priceLabel:undefined };
-    }),
+    offers: [
+      ...product.offers.map(offer => {
+        if(offer.retailer!=="amazon")return offer;
+        const asin=researchedAmazonAsins[product.id];
+        const url=asin ? `https://www.amazon.com/dp/${asin}` : offer.url;
+        const direct=VERIFIED_AMAZON_PRODUCT_IDS.has(product.id)
+          && /^https:\/\/(?:www\.)?amazon\.com\/dp\/[A-Z0-9]{10}\/??$/i.test(url);
+        return { ...offer, url, affiliateReady:direct, priceLabel:undefined, priceCents:undefined };
+      }),
+      ...(OFFICIAL_STORE_OFFERS[product.id]?[OFFICIAL_STORE_OFFERS[product.id]]:[]),
+    ],
   })),
   ...expandedShades.map(product => {
     const asin=researchedAmazonAsins[product.id];
