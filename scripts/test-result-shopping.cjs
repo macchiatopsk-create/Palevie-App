@@ -149,9 +149,9 @@ async function apiChecks(){
 // Real catalog integration runs in the normal build environment.
 function catalogChecks(){
  const {catalogProducts}=rt.load('data/products.ts');
- const snapshot=JSON.stringify(catalogProducts),visible=eligibility.visibleAmazonProducts(catalogProducts);
- assert.equal(catalogProducts.length,168);assert.equal(visible.length,134);
- const {makeupTryOnArea}=rt.load('lib/tryOnEligibility.ts');assert.equal(visible.filter(p=>makeupTryOnArea(p)).length,63);
+ const snapshot=JSON.stringify(catalogProducts),visible=eligibility.visibleAmazonProducts(catalogProducts),shop=eligibility.visibleShopProducts(catalogProducts);
+ assert.equal(catalogProducts.length,197);assert.equal(visible.length,134);assert(shop.length>visible.length);
+ const {makeupTryOnArea}=rt.load('lib/tryOnEligibility.ts');assert(visible.filter(p=>makeupTryOnArea(p)).length>63);assert(shop.filter(p=>makeupTryOnArea(p)).length>visible.filter(p=>makeupTryOnArea(p)).length);
  for(const mood of Object.keys(color.COLOR_MOODS))for(const category of Object.keys(m.SHOPPING_CATEGORIES))for(const finish of Object.keys(m.SHOPPING_FINISHES)){
   const picks=m.resultProductPicks(catalogProducts,mood,{category,finish});assert(picks.length<=3);
   const asins=new Set();for(const {product,details,referenceHex,distance} of picks){
@@ -162,6 +162,6 @@ function catalogChecks(){
  }
  for(const mood of Object.keys(color.COLOR_MOODS))assert(m.resultProductPicks(catalogProducts,mood,prefs).length>0,`No default picks for ${mood}`);
  assert.equal(JSON.stringify(catalogProducts),snapshot);checks++;
- console.log('PASS result shopping: 80 catalog/filter combinations; 168 catalog / 134 Shop / 63 Try On preserved');
+ console.log('PASS result shopping: 80 catalog/filter combinations; 197 catalog / 134 verified Amazon / '+shop.length+' multistore Shop / '+shop.filter(p=>makeupTryOnArea(p)).length+' Try On');
 }
 apiChecks().then(()=>{catalogChecks();console.log('RESULT_SHOPPING_REGRESSION_PASS '+checks+' groups; no real network or analytics writes.');}).catch(e=>{console.error(e);process.exitCode=1;});

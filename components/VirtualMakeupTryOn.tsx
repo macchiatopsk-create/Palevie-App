@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FaceLandmarker, NormalizedLandmark } from "@mediapipe/tasks-vision";
 import type { CatalogProduct } from "@/lib/types";
 import {makeupTryOnArea,type MakeupTryOnArea} from "@/lib/tryOnEligibility";
-import {verifiedAmazonOffer} from "@/lib/shopEligibility";
+import {shopPurchaseOffers} from "@/lib/shopEligibility";
 import { getVisitorId, track } from "@/lib/analytics";
 import styles from "./VirtualMakeupTryOn.module.css";
 
@@ -263,8 +263,8 @@ export default function VirtualMakeupTryOn({
   const colorSource=current?.tags.includes("brand-digital-swatch")
     ? "Brand digital swatch reference (screen RGB, not measured skin color)."
     : "Approximate illustrative preview — product swatch not yet verified.";
-  const buy=current?verifiedAmazonOffer(current):undefined;
-  const direct=Boolean(buy);
+  const purchaseOptions=current?shopPurchaseOffers(current):[];
+  const hasExactShade=purchaseOptions.some(o=>o.exactShade||o.retailer==="amazon");
   return <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Palevie virtual makeup">
     <div className={styles.inner}>
       <header className={styles.header}><div><strong>Virtual Makeup Studio</strong><small>Try real shade names on your face</small></div><button onClick={onClose} aria-label="Close makeup studio" className={styles.close}>×</button></header>
@@ -293,9 +293,18 @@ export default function VirtualMakeupTryOn({
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="20" max="100" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
-        <div className={styles.shades} aria-label="Available makeup shades">{options.slice(0,100).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
-        {current&&buy&&<a className={styles.buy} href={`/go/${buy.id}?v=${encodeURIComponent(getVisitorId())}&utm_source=virtual_makeup&utm_medium=affiliate`} target="_blank" rel="nofollow sponsored noopener noreferrer" onClick={()=>track("virtual_tryon_shop_click",{product:current.id,direct})}>{direct?"View exact product on Amazon ↗":"Find this shade on Amazon ↗"}</a>}
-        {!direct && <small className={styles.retailNote}>Search results may show different shades, sellers, or versions. Check the product before purchasing.</small>}
+        <div className={styles.shades} aria-label="Available makeup shades">{options.slice(0,180).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        {current&&purchaseOptions.length>0&&<div className={styles.purchaseOptions} aria-label="Where to buy this makeup shade">{purchaseOptions.map(o=>{
+          const retailerLabel=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
+          const action=o.retailer==="amazon"?"View product":o.exactShade?"View shade":"Choose shade";
+          const medium=o.retailer==="amazon"?"affiliate":"referral";
+          const href=`/go/${o.id}?v=${encodeURIComponent(getVisitorId())}&utm_source=virtual_makeup&utm_medium=${medium}`;
+          return <a key={o.id} className={styles.buy} href={href} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"}
+            onClick={()=>{track("virtual_tryon_shop_click",{product:current.id,retailer:o.retailer,exactShade:o.exactShade===true});track("retailer_outbound_click",{retailer:o.retailer,product:current.id,surface:"virtual_makeup"});if(o.retailer==="amazon")track("affiliate_outbound_click",{retailer:"amazon",product:current.id,surface:"virtual_makeup"});}}>
+            <span>{retailerLabel}</span><b>{action} ↗</b>
+          </a>;
+        })}</div>}
+        {current&&!hasExactShade&&<small className={styles.retailNote}>This is an illustrative color, not an exact shade match. Select the named shade and confirm availability on the retailer's page.</small>}
       </div>
     </div>
   </div>;

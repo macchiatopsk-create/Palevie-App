@@ -19,3 +19,33 @@ export function isVerifiedAmazonOffer(offer:ProductOffer):boolean{
 }
 export function verifiedAmazonOffer(product:CatalogProduct):ProductOffer|undefined{return product.offers.find(isVerifiedAmazonOffer);}
 export function visibleAmazonProducts(products:CatalogProduct[]):CatalogProduct[]{return products.filter(p=>Boolean(verifiedAmazonOffer(p)));}
+
+/** Reviewed retailer product links, separate from Amazon ASIN verification.
+ * Target explicitly allows other sites to link to it; no Target image, price,
+ * stock, description or feed data are republished.
+ */
+const OFFICIAL_HOSTS = new Set([
+  "www.elfcosmetics.com", "www.cosrx.com", "www.rarebeauty.com",
+  "us.laneige.com", "tirtir.global", "anua.com", "beautyofjoseon.com",
+  "www.maybelline.com", "www.nyxcosmetics.com",
+  "www.milanicosmetics.com", "int.etude.com", "roundlab.com",
+  "en.somebymi.com",
+]);
+export function isReviewedRetailerOffer(offer:ProductOffer):boolean{
+  if(offer.reviewedDirect!==true||offer.inStock===false)return false;
+  if(offer.retailer!=="official"&&offer.retailer!=="target")return false;
+  try{
+    const u=new URL(offer.url);
+    if(u.protocol!=="https:"||u.username||u.password||u.port||u.hash)return false;
+    if(offer.retailer==="target")return u.hostname==="www.target.com"&&/^\/p\/-\/A-\d+$/.test(u.pathname);
+    return OFFICIAL_HOSTS.has(u.hostname)&&u.pathname!=="/"&&u.pathname.length>4;
+  }catch{return false;}
+}
+export function shopPurchaseOffers(product:CatalogProduct):ProductOffer[]{
+  const officials=product.offers.filter(o=>o.retailer==="official"&&isReviewedRetailerOffer(o));
+  const targets=product.offers.filter(o=>o.retailer==="target"&&isReviewedRetailerOffer(o));
+  const amazon=product.offers.filter(isVerifiedAmazonOffer);
+  return [...officials,...targets,...amazon];
+}
+export function preferredShopOffer(product:CatalogProduct):ProductOffer|undefined{return shopPurchaseOffers(product)[0];}
+export function visibleShopProducts(products:CatalogProduct[]):CatalogProduct[]{return products.filter(p=>shopPurchaseOffers(p).length>0);}

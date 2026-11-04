@@ -1,4 +1,5 @@
 import { expandedShades } from "./expandedShades";
+import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS} from "./shopExpansion";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
 
@@ -333,17 +334,24 @@ export const catalogProducts: CatalogProduct[] = [
           && /^https:\/\/(?:www\.)?amazon\.com\/dp\/[A-Z0-9]{10}\/??$/i.test(url);
         return { ...offer, url, affiliateReady:direct, priceLabel:undefined, priceCents:undefined };
       }),
-      ...(OFFICIAL_STORE_OFFERS[product.id]?[OFFICIAL_STORE_OFFERS[product.id]]:[]),
+      ...(OFFICIAL_STORE_OFFERS[product.id]?[{...OFFICIAL_STORE_OFFERS[product.id],reviewedDirect:true,exactShade:product.id==="elf-lipoil-rose"}]:[]),
+      ...expandedRetailerOffers(product),
     ],
   })),
   ...expandedShades.map(product => {
     const asin=researchedAmazonAsins[product.id];
-    if(!asin)return product;
     return {
       ...product,
-      offers:product.offers.map(offer=>({...offer,url:`https://www.amazon.com/dp/${asin}`,affiliateReady:true,priceLabel:undefined})),
+      // Explicitly illustrative colors unlock comparison without claiming a
+      // verified manufacturer shade swatch or a physical shade match.
+      colorHex:product.colorHex??ILLUSTRATIVE_TRYON_COLORS[product.id],
+      offers:[
+        ...product.offers.map(offer=>asin?{...offer,url:`https://www.amazon.com/dp/${asin}`,affiliateReady:true,priceLabel:undefined}:offer),
+        ...expandedRetailerOffers(product),
+      ],
     };
   }),
+  ...additionalShopProducts,
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));

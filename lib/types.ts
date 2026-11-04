@@ -52,6 +52,10 @@ export type ProductOffer = {
   lastCheckedAt?: string;
   /** Only render a numeric price when the source/license explicitly permits reuse. */
   priceDisplayAuthorized?: boolean;
+  /** Manually checked direct product-family URL; never inferred from a search link. */
+  reviewedDirect?: boolean;
+  /** The external link opens the exact shade rather than just the product family. */
+  exactShade?: boolean;
 };
 
 export type CatalogProduct = {
