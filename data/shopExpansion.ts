@@ -19,7 +19,7 @@ const page={
   mayVinyl:"https://www.maybelline.com/lip-makeup/lipstick/super-stay-vinyl-ink-longwear-liquid-lipstick",
   etudeGlow:"https://int.etude.com/shop/category/lip/glow-fixing-tint-3-8g-2/",
   milaniBaked:"https://www.milanicosmetics.com/products/baked-blush-1",
-  nyxSoft:"https://www.nyxcosmetics.com/soft-matte-lip-cream/800897142872.html",
+  nyxSoft:"https://www.nyxcosmetics.com/lip/lipstick/soft-matte-lip-cream/800897142872.html",
 };
 const existingOfficialPages:Record<string,string>={
   "mbl-vinyl-peachy":page.mayVinyl+"?variant=Peachy",
@@ -31,7 +31,7 @@ const existingOfficialPages:Record<string,string>={
   "lng-balm-berry":"https://us.laneige.com/products/lip-glowy-balm",
   "lng-sleep":"https://us.laneige.com/products/water-sleeping-mask",
   "sk-cosrx-bha":"https://www.cosrx.com/products/bha-blackhead-power-liquid",
-  "sk-cosrx-reti":"https://www.cosrx.com/products/the-retinol-0-1-cream",
+  "sk-cosrx-reti":"https://www.cosrx.com/collections/retinol/products/the-retinol-0-1-cream",
   "sk-round-panthe":"https://roundlab.com/products/1025-dokdo-cream",
   "sk-some-aha":"https://en.somebymi.com/product/some-by-mi-ahabhapha-30-days-miracle-toner/741/",
 };
