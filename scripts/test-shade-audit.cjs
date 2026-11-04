@@ -28,7 +28,6 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
 }
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
 assert.equal(digital.length,48,"Only 46 sourced variants + 2 exact duplicate aliases qualify as brand-screen references");
-console.log("SHADE_AUDIT_COLORLESS_MAKEUP "+products.filter(p=>p.category==="makeup"&&!p.colorHex).map(p=>p.id+"="+p.name).join("|"));
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
  assert(["brand-digital","illustrative"].includes(src.shadeEvidence(p)));
@@ -46,6 +45,9 @@ assert(shop.includes("Approximate color"),"Approximate-card label missing");
 const mega=rt.load("data/megaCatalog.ts");
 assert.equal(mega.approxPreviewHex("Strawberry Sprinkles"),"#D58BA4","Strawberry must not inherit generic dark berry");
 assert.equal(mega.approxPreviewHex("Blueberry Jelly"),"#813951","Berry hues still work when appropriate");
+assert.equal(indexed.get("fenty-gloss-04").colorHex,"#D89FAD","The exact Fu$y shade key must survive editing");
+assert.equal(indexed.get("laneige-glaze-06").colorHex,"#A95370","Raspberry Jam must retain an illustrative shade");
+
 assert(indexed.get("clio-concealer-05").name.includes("3.5 Vanila"),"Concealer name must match retailer listing");
 for(const id of ["cp-shock-02","cp-shock-04","cp-shadow-01"]){
  const p=indexed.get(id),offer=p?.offers.find(o=>o.retailer==="official");
