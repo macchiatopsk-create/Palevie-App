@@ -134,70 +134,63 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
  const comparison=active&&phase==="running"&&view.pair===pair&&!obstructed?view.held?.comparison:null;
  const message=MESSAGES[view.pair===pair?view.status:"settling"]||MESSAGES.settling;
  const lookScore=scoreDrapeLook(comparison,goal);
- // Give a trustworthy indication of what the scanner actually checked,
- // instead of drawing numbered skin sampling dots on the user's face.
- const regionStatus=lookScore&&view.status==="held"
-  ? "✓ Three regions checked: forehead and both cheeks"
-  : active&&phase==="running"&&sample?.points?.length===3
-   ? "Face detected · checking light and skin-area visibility"
-   : active&&phase==="running"?"Looking for one clearly visible face":null;
+ // The guide is a stylistic light/dark comparison. Scores are NOT match
+ // percentages, season likelihoods, or a measure of attractiveness.
+ const conciseStatus=phase==="loading"?"Preparing scan…":
+  phase==="error"?"Guide unavailable — use the mirror if needed":
+  phase==="paused"?"Camera paused":
+  !enabled?"Guide paused":
+  view.status==="held"?"✓ Steady view captured":
+  message[0];
+ const scoreLabels=colors.slice(0,2);
  return <>
   {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
-  {/* Face landmark rings (including the forehead marker) are hidden from users.
-       The worker still measures the same areas and applies all quality checks.
-       Scan status and recommendations are displayed in the panel below. */}
-  <section className={styles.panel} aria-label="Palevie live comparison guide">
+  <section className={styles.panel} aria-label="Palevie live color comparison guide">
+   <div className={styles.scoreTop} data-guide-comparison data-look-recommendation>
+    <div className={styles.scoreToolbar}>
+     <span className={styles.scoreCaption}>LIVE LOOK GUIDE <b>· BETA</b></span>
+     <div className={styles.scoreTools}>
+      <div className={styles.goals} role="group" aria-label="Look goal">
+       <button type="button" aria-pressed={goal==="soft"} onClick={()=>setGoal("soft")}>Soft</button>
+       <button type="button" aria-pressed={goal==="bold"} onClick={()=>setGoal("bold")}>Bold</button>
+      </div>
+      <details className={styles.help} data-guide-help>
+       <summary title="About the scan and scores" aria-label="About this scan and its scores">ⓘ</summary>
+       <div className={styles.helpPanel} id={consentId}>
+        <b>How to use your camera</b>
+        <p><strong>Preview:</strong> Tap A or B on the color cloth to switch shades. Look at the colors beside your face.</p>
+        <p><strong>Pick:</strong> Choose A or B below the camera to save the color you like. You can mark the currently previewed color as “not for me” or skip if unsure.</p>
+        <p><strong>Look score:</strong> Soft/Bold scores describe light-and-dark contrast for the chosen style, not skin compatibility, seasonal type, attractiveness, color accuracy, or a likelihood percentage. Similar scores do not prove a winner.</p>
+        <p><strong>Scan:</strong> Keep your forehead and cheeks in even daylight. The guide waits for a steady view, then holds the comparison until refreshed. You can pause it without closing your camera.</p>
+        <p><strong>Privacy:</strong> Facial areas are located on your device, not identity or personal color. No camera frames uploaded or stored and no measurement analytics sent. Illumination, filters and makeup influence the estimates.</p>
+       </div>
+      </details>
+     </div>
+    </div>
+    <div className={styles.scoreTiles} aria-label={`Two ${goal}-look styling scores, not personal color match scores`}>
+     {scoreLabels.map((color,i)=><div className={`${styles.scoreTile} ${side===i?styles.scoreCurrent:""}`} key={color.hex+i}>
+      <span className={styles.scoreName}><i style={{background:color.hex}} aria-hidden="true"/>{i===0?"A":"B"} · {color.label}</span>
+      <div className={styles.scoreNumber}><strong data-look-score={i}>{enabled&&lookScore?lookScore.scores[i]:"—"}</strong><span>/100</span></div>
+      <small>{enabled&&lookScore?lookScore.preferred===null?"Similar":lookScore.preferred===i?"Try first":"Compare":"Waiting…"}</small>
+     </div>)}
+    </div>
+    <p className={styles.scoreDisclaimer}>For a {goal} look · not a personal-color match</p>
+   </div>
    {children}
    <div className={styles.dock} data-guide-dock>
-    <div className={styles.header}>
-     <div className={styles.title}><b>Live color scan</b><span>BETA · ON YOUR DEVICE</span></div>
-     <button type="button" className={`${styles.toggle} ${enabled?styles.toggleOn:""}`}
-      aria-label={phase==="error"?"Retry on-device scan":enabled?"Pause live scan and clear measurements":"Start live color comparison scan"}
-      aria-pressed={enabled} aria-controls={toolsId} aria-describedby={consentId}
-      onClick={()=>{clearMeasurements();if(phase==="error"){setScanError("");setEpoch(v=>v+1);}else setEnabled(v=>!v);}}>
-      <i aria-hidden/>{phase==="error"?"Retry scan":enabled?"Scan on":"Start scan"} <span>{phase==="error"?"↻":enabled?"●":"→"}</span>
-     </button>
+    <div className={styles.statusRow} role="status">
+     <span className={`${styles.statusDot} ${phase==="running"&&view.status==="held"?styles.statusReady:""}`} aria-hidden="true"/>
+     <span>{conciseStatus}</span>
     </div>
-    <p id={consentId} className={styles.consent}>Compares light/dark contrast for Soft or Bold looks. No camera frames uploaded.</p>
-    <p className={styles.lighting} data-light-warning>Use even daylight; scans are styling hints, not a personal-tone diagnosis.</p>
-    <div id={toolsId} hidden={!enabled}>
-     <div className={styles.goals} role="group" aria-label="Choose a look goal">
-      <span>Look goal</span>
-      <button type="button" aria-pressed={goal==="soft"} onClick={()=>setGoal("soft")}>Soft look</button>
-      <button type="button" aria-pressed={goal==="bold"} onClick={()=>setGoal("bold")}>Bold look</button>
-     </div>
-     <div className={styles.notice}>
-      <div role="status" className={`${styles.status} ${comparison?styles.ready:""}`}><i className={styles.dot}/>
-       {phase==="loading"?"Preparing live scan…":phase==="error"?"Scan unavailable — mirror or browser":phase==="paused"?"Waiting for camera video":message[0]}
-      </div>
-
-     </div>
-     {regionStatus&&<p className={styles.regionStatus} role="status">{regionStatus}</p>}
-     {phase==="error"&&<p className={styles.scanError} role="alert">{scanError}</p>}
-     <div className={styles.recommendation} data-guide-comparison data-look-recommendation>
-      <strong>{!lookScore?"Check your camera view first":lookScore.preferred===null?"Too close to choose":`Try ${colors[lookScore.preferred].label} first`}</strong>
-      <small>{lookScore?`For a ${goal} look · not a season-match score.`:"Scores appear on the camera buttons after a steady reading."}</small>
-     </div>
-     <div className={styles.actions}>
-      <span>Look-goal guide only · Beta</span>
-      <button type="button" className={styles.refresh} disabled={phase!=="running"} onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}}>Refresh comparison</button>
-     </div>
-    </div>
+    <button type="button" className={styles.refresh} disabled={!enabled||phase!=="running"}
+      onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}} aria-label="Refresh styling comparison">↻ Refresh</button>
+    <button type="button" className={styles.toggle} aria-label={phase==="error"?"Retry on-device scan":enabled?"Pause on-device scan and clear measurements":"Start live scan"}
+      aria-pressed={enabled} aria-controls={toolsId} onClick={()=>{clearMeasurements();if(phase==="error"){setScanError("");setEpoch(v=>v+1);}else setEnabled(v=>!v);}}>
+      {phase==="error"?"Retry":enabled?"Scan on":"Scan off"}
+    </button>
    </div>
-   <details className={styles.explain} data-guide-help>
-    <summary>How to use Live Guide</summary>
-    <p><b>1.</b> The private scanner starts when the camera preview plays. Keep your forehead and cheeks in view in even daylight.</p>
-    <p><b>2.</b> Choose Soft look for a more blended effect, or Bold look for a stronger stand-out effect. Read the /100 scores on the camera buttons and tap a shade there; no scrolling needed.</p>
-    <p><b>3.</b> <b>Comparison held</b> keeps that reading still. Tap <b>Refresh comparison</b> for a new reading after changing light or position.</p>
-    <p>Higher scores mean more of your selected effect, not greater beauty or more accurate personal color. A recommendation only compares these two shades for that goal. Close scores do not pick a winner. Use <b>Honestly can&apos;t tell</b> when unsure.</p>
-    <p><b>How the score works:</b> We compare lightness, not undertone. Soft-look score = 100 minus the light/dark gap; Bold-look score = that gap. Scores are rounded to 5-point steps. These are experimental styling indices, not percentages, expert ratings or validated suitability scores.</p>
-    <p><b>Lighting matters:</b> Face even daylight, avoid colored lamps and beauty filters, and refresh after moving. A steady frame does not prove neutral lighting. Do not use these scores alone to choose your season.</p>
-    {enabled&&<div className={styles.numbers}>
-     {colors.slice(0,2).map((color,i)=><p key={color.hex+i}>{color.label}: {comparison?`Light/dark gap: ${comparison.gaps[i]} / 100 · not a match score`:"No comparison yet"}</p>)}
-    </div>}
-    <p>The guide locates facial areas, not identity or a color season. Lighting, makeup and camera settings affect these estimates. It does not measure undertone, redness improvement, attractiveness or an expert-validated match.</p>
-    <p>No photo is held: only comparison values stay in memory. Turning Live Guide off clears them without stopping your camera. Pausing, leaving the page, missing faces and sustained poor conditions clear them too. No measurement analytics are sent.</p>
-   </details>
+   <div id={toolsId} hidden={!enabled} />
+   {phase==="error"&&<p className={styles.scanError} role="alert">{scanError}</p>}
   </section>
  </>;
 }
