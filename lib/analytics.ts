@@ -14,7 +14,7 @@ export type AnalyticsEventName =
   | "shade_drape_opened" | "shade_drape_shop_click"
   | "virtual_tryon_opened" | "virtual_tryon_camera_started" | "virtual_tryon_error" | "virtual_tryon_shade_selected" | "virtual_tryon_shop_click"
   | "product_check_started" | "product_check_completed" | "skincare_profile_completed" | "shop_viewed"
-  | "affiliate_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed"
+  | "affiliate_outbound_click" | "retailer_outbound_click" | "result_shared" | "wishlist_added" | "wishlist_removed" | "checkout_started" | "signup_started" | "signup_completed"
   | "welcome_quiz_popup_shown" | "welcome_quiz_popup_cta" | "welcome_quiz_popup_dismissed"
   | "ad_welcome_shown" | "ad_welcome_started" | "quiz_intro_shown" | "quiz_intro_started"
   | "drape_cta_clicked" | "drape_session_started" | "drape_pair_answered" | "drape_session_completed" | "drape_color_feedback" | "drape_screen_viewed"
