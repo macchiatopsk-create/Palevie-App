@@ -37,6 +37,7 @@ check("even deeper skin, no absolute brightness gate", "balanced",frame([16,12,1
 check("very dark but not clipped to black", "balanced",frame([9,9,9]));
 check("warm colored lighting is not automatically overexposed", "balanced",frame([255,130,85]));
 check("fair skin close to white but textured remains valid", "balanced",frame([249,235,217]));
+check("very light skin is not mistaken for an overexposed white screen", "balanced",frame([251,250,249]));
 check("pure white video clips", "clipped",frame([255,255,255]));
 check("pure black video clips", "clipped",frame([2,3,2]));
 check("both cheeks underexposed on otherwise normal frame", "clipped",
@@ -64,4 +65,4 @@ assert(studio.includes("lightingCanvasRef.current.width=0"),"Video pixel scratch
 assert(!studio.includes('track("virtual_tryon_lighting'),"Lighting results must never be analytics events");
 assert(studio.includes('lighting==="clipped"||lighting==="uneven"'),"Only definite quality issues display warnings");
 assert(css.includes(".lightingHint"),"Mobile lighting status must remain readable");
-console.log("TRYON_LIGHTING_SIMULATION_PASS synthetic_conditions=20 all_pixel_analysis_on_device=true actual_phone_camera_tested=false");
+console.log("TRYON_LIGHTING_SIMULATION_PASS synthetic_conditions=21 all_pixel_analysis_on_device=true actual_phone_camera_tested=false");
