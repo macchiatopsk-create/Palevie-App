@@ -80,3 +80,11 @@
 
 /* Photo-derived RGB is a distinct, non-calibrated source category. */
 .sourcePhoto{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;font-size:9px;font-weight:800;line-height:1.25;padding:4px 8px;margin:5px 0 2px;background:#F0F4FB;border:1px solid #C9DCEE;color:#58718D;white-space:normal}
+
+/* Camera-scene warning (not an undertone/skin-brightness judgement). */
+.lightingHint{position:absolute;top:59px;left:12px;right:12px;z-index:2;margin:0;
+  padding:9px 12px;border:1px solid rgba(255,255,255,.46);border-radius:12px;
+  background:rgba(44,34,47,.77);color:#fff;backdrop-filter:blur(8px);
+  font-size:11px;line-height:1.45;font-weight:650;text-align:left;pointer-events:none;
+  box-shadow:0 3px 15px rgba(32,18,29,.18)}
+@media(max-width:390px){.lightingHint{top:65px;font-size:10px;padding:8px 10px}}

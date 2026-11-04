@@ -7,6 +7,7 @@ import {shopPurchaseOffers} from "@/lib/shopEligibility";
 import {hasDocumentedSwatch} from "@/lib/colorDiscovery";
 import {isClearGloss,shadeEvidence,shadeEvidenceLabel} from "@/lib/shadeEvidence";
 import { getVisitorId, track } from "@/lib/analytics";
+import {assessTryOnLighting,type LightingState} from "@/lib/tryOnLighting";
 import styles from "./VirtualMakeupTryOn.module.css";
 
 type Area = MakeupTryOnArea;
@@ -212,6 +213,7 @@ export default function VirtualMakeupTryOn({
   const [filter,setFilter]=useState("");
   const [brandOnly,setBrandOnly]=useState(false);
   const [detected,setDetected]=useState(false);
+  const [lighting,setLighting]=useState<LightingState>("unavailable");
   const videoRef=useRef<HTMLVideoElement>(null);
   const canvasRef=useRef<HTMLCanvasElement>(null);
   const modelRef=useRef<FaceLandmarker|null>(null);
@@ -224,6 +226,11 @@ export default function VirtualMakeupTryOn({
   const presetRef=useRef(1);
   const visibleRef=useRef(true);
   const lastVideoTime=useRef(-1);
+  // Only a low-resolution scratch buffer, never stored, uploaded or logged.
+  const lightingCanvasRef=useRef<HTMLCanvasElement|null>(null);
+  const lastLightingAtRef=useRef(0);
+  const lightingHistoryRef=useRef<LightingState[]>([]);
+  const lightingStateRef=useRef<LightingState>("unavailable");
   useEffect(()=>{selectedRef.current=selected;},[selected]);
   useEffect(()=>{strengthRef.current=strength/100;},[strength]);
   useEffect(()=>{beforeRef.current=before;},[before]);
@@ -236,6 +243,14 @@ export default function VirtualMakeupTryOn({
     modelRef.current?.close();modelRef.current=null;
     const video=videoRef.current;if(video){video.pause();video.srcObject=null;}
     canvasRef.current?.getContext("2d")?.clearRect(0,0,canvasRef.current.width,canvasRef.current.height);
+    // Drop every camera pixel and any quality signal on stop/unmount.
+    if(lightingCanvasRef.current){
+      // Resize-to-zero clears the full GPU/scratch image even before GC.
+      lightingCanvasRef.current.width=0;lightingCanvasRef.current.height=0;
+    }
+    lightingCanvasRef.current=null;lightingHistoryRef.current=[];lastLightingAtRef.current=0;
+    lightingStateRef.current="unavailable";
+    if(aliveRef.current)setLighting("unavailable");
   },[]);
   useEffect(()=>()=>{aliveRef.current=false;stop();},[stop]);
 
@@ -250,11 +265,41 @@ export default function VirtualMakeupTryOn({
         if(ctx&&video.currentTime!==lastVideoTime.current){
           lastVideoTime.current=video.currentTime;
           try{
-            const result=detector.detectForVideo(video,performance.now());
+            const now=performance.now();
+            const result=detector.detectForVideo(video,now);
             const face=result.faceLandmarks?.[0];
             ctx.clearRect(0,0,width,height);
             if(face&&!beforeRef.current)renderFace(ctx,face,width,height,selectedRef.current,strengthRef.current,presetRef.current);
             setDetected(Boolean(face));
+            // Sample ONLY the original video, never the already-painted canvas.
+            // Limit scratch readback to once per ~1.1s to preserve mobile FPS.
+            if(!face){
+              lightingHistoryRef.current=[];
+              if(lightingStateRef.current!=="unavailable"){
+                lightingStateRef.current="unavailable";setLighting("unavailable");
+              }
+            }else if(now-lastLightingAtRef.current>=1100){
+              lastLightingAtRef.current=now;
+              let assessment:LightingState="unavailable";
+              try{
+                const sample=lightingCanvasRef.current??document.createElement("canvas");
+                lightingCanvasRef.current=sample;
+                const sw=192,sh=Math.max(64,Math.round(192*height/width));
+                if(sample.width!==sw)sample.width=sw;
+                if(sample.height!==sh)sample.height=sh;
+                const sampleContext=sample.getContext("2d",{willReadFrequently:true});
+                if(sampleContext){
+                  sampleContext.drawImage(video,0,0,sw,sh);
+                  assessment=assessTryOnLighting(sampleContext.getImageData(0,0,sw,sh),face);
+                }
+              }catch{/* Readback unsupported: omit lighting claims, keep the mirror. */}
+              const history=lightingHistoryRef.current;
+              history.push(assessment);if(history.length>2)history.shift();
+              // Two consecutive readings prevent one-frame false alarms.
+              if(history.length===2&&history[0]===history[1]&&lightingStateRef.current!==assessment){
+                lightingStateRef.current=assessment;setLighting(assessment);
+              }
+            }
           }catch{ /* transient background/video frame; keep camera working */ }
         }
       }
@@ -295,7 +340,17 @@ export default function VirtualMakeupTryOn({
   };
 
   useEffect(()=>{
-    const visibility=()=>{visibleRef.current=!document.hidden;};
+    const visibility=()=>{
+      visibleRef.current=!document.hidden;
+      // Never carry a lighting evaluation across an inactive camera session.
+      lightingHistoryRef.current=[];lastLightingAtRef.current=0;
+      if(document.hidden&&lightingCanvasRef.current){
+        lightingCanvasRef.current.width=0;lightingCanvasRef.current.height=0;
+      }
+      if(document.hidden&&lightingStateRef.current!=="unavailable"){
+        lightingStateRef.current="unavailable";setLighting("unavailable");
+      }
+    };
     document.addEventListener("visibilitychange",visibility);
     return()=>document.removeEventListener("visibilitychange",visibility);
   },[]);
@@ -335,6 +390,12 @@ export default function VirtualMakeupTryOn({
           <span>{detected?"Face tracked · Preview":"Move into the frame"}</span>
           <button onClick={()=>setBefore(b=>!b)}>{before?"Show makeup":"Before / After"}</button>
         </div>}
+        {status==="live"&&detected&&(lighting==="clipped"||lighting==="uneven")&&
+          <p className={styles.lightingHint} role="status">
+            {lighting==="clipped"
+              ?"Strong highlights or deep shadows may shift this color preview. Try soft, even light."
+              :"Uneven side lighting may shift this preview. Face a window or a centered light."}
+          </p>}
         <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Artistic shade illustration only; not a real skin-tone match, product finish, or color accuracy test.</p>
       </div>
       <div className={styles.controls}>
