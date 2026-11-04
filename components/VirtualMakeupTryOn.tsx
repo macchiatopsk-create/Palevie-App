@@ -10,8 +10,8 @@ import styles from "./VirtualMakeupTryOn.module.css";
 type Area = MakeupTryOnArea;
 type Selected = Partial<Record<Area, CatalogProduct>>;
 type Point = Pick<NormalizedLandmark, "x"|"y">;
-const labels:Record<Area,string>={lip:"Lips",blush:"Cheeks",eyeshadow:"Eyes",highlighter:"Glow",cushion:"Base"};
-const areas:Area[]=["lip","blush","eyeshadow","highlighter","cushion"];
+const labels:Record<Area,string>={lip:"Lips",blush:"Cheeks",eyeshadow:"Eyes",highlighter:"Glow",cushion:"Base",concealer:"Conceal"};
+const areas:Area[]=["lip","blush","eyeshadow","highlighter","cushion","concealer"];
 const isArea=makeupTryOnArea;
 const contourOuter=[61,40,37,0,267,270,291,321,314,17,84,91];
 const contourInner=[78,95,88,178,87,14,317,402,318,324,308,415,310,311,312,13,82,81,80,191];
@@ -141,11 +141,31 @@ function drawHighlight(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:numbe
   glow(pts[168].x*w,pts[168].y*h,faceWidth*.042,faceHeight*.12);
 }
 
+/** Lightweight under-eye patch illustration, not skin-color identification.
+ * Uses eye and face landmarks; fades before eyelids, lashes or cheeks.
+ */
+function drawConcealer(ctx:CanvasRenderingContext2D,pts:Point[],w:number,h:number,hex:string,intensity:number){
+  if([145,374,234,454,10,152].some(i=>!pts[i]))return;
+  const [r,g,b]=rgb(hex),fw=Math.abs(pts[454].x-pts[234].x)*w,fh=Math.abs(pts[152].y-pts[10].y)*h;
+  if(fw<20||fh<20)return;
+  for(const index of [145,374]){
+    const p=pts[index],x=p.x*w,y=p.y*h+fh*.034;
+    const rx=Math.max(6,fw*.13),ry=Math.max(4,fh*.055);
+    ctx.save();ctx.translate(x,y);ctx.scale(1,ry/rx);
+    const gradient=ctx.createRadialGradient(0,0,0,0,0,rx);
+    gradient.addColorStop(0,`rgba(${r},${g},${b},${(.32*intensity).toFixed(3)})`);
+    gradient.addColorStop(.56,`rgba(${r},${g},${b},${(.16*intensity).toFixed(3)})`);
+    gradient.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(0,0,rx,0,2*Math.PI);ctx.fill();ctx.restore();
+  }
+}
+
 function renderFace(ctx:CanvasRenderingContext2D, pts:Point[],w:number,h:number,selected:Selected,intensity:number,presetStrength:number) {
   ctx.clearRect(0,0,w,h);
   const eye=selected.eyeshadow?.colorHex,blush=selected.blush?.colorHex,lip=selected.lip?.colorHex;
-  const highlight=selected.highlighter?.colorHex,base=selected.cushion?.colorHex;
+  const highlight=selected.highlighter?.colorHex,base=selected.cushion?.colorHex,concealer=selected.concealer?.colorHex;
   if(base)drawComplexion(ctx,pts,w,h,base,Math.min(1,intensity*presetStrength));
+  if(concealer)drawConcealer(ctx,pts,w,h,concealer,Math.min(1,intensity*presetStrength));
   if(blush)drawBlush(ctx,pts,w,h,blush,Math.min(1.5,intensity*presetStrength));
   if(eye)drawEye(ctx,pts,w,h,eye,Math.min(1.5,intensity*presetStrength));
   if(highlight)drawHighlight(ctx,pts,w,h,highlight,Math.min(1.5,intensity*presetStrength));
@@ -262,7 +282,11 @@ export default function VirtualMakeupTryOn({
   const current=selected[active];
   const colorSource=current?.tags.includes("brand-digital-swatch")
     ? "Brand digital swatch reference (screen RGB, not measured skin color)."
-    : "Approximate illustrative preview — product swatch not yet verified.";
+    : current?.subcategory==="eyeshadow"&&/palette|quad|bite.size/i.test(current.name)
+    ? "Artistic palette mood preview, not individual eyeshadow-pan colors or measured finish."
+    : current?.subcategory==="concealer"
+    ? "Conceptual under-eye tint only. Not a foundation, concealer or skin tone match."
+    : "Palevie approximate illustration, NOT a brand swatch or actual makeup payoff.";
   const purchaseOptions=current?shopPurchaseOffers(current):[];
   const hasExactShade=purchaseOptions.some(o=>o.exactShade||o.retailer==="amazon");
   return <div className={styles.layer} role="dialog" aria-modal="true" aria-label="Palevie virtual makeup">
@@ -272,7 +296,7 @@ export default function VirtualMakeupTryOn({
         <video ref={videoRef} autoPlay muted playsInline className={styles.video}/>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden/>
         {status!=="live"&&<div className={styles.center}>
-          <span className={styles.camIcon}>✦</span><b>Your personal makeup mirror</b><p>Preview lips, cheeks, eyes, glow, and base color in a private live camera view.</p>
+          <span className={styles.camIcon}>✦</span><b>Your personal makeup mirror</b><p>Preview lips, cheeks, eyes, glow, base, and under-eye concealer in a private live camera view.</p>
           <button disabled={status==="loading"} onClick={start} className={styles.start}>{status==="loading"?"Preparing camera & face tracker…":"Enable camera & try on"}</button>
           {status==="error"&&<p role="alert">{message}</p>}
         </div>}
@@ -280,7 +304,7 @@ export default function VirtualMakeupTryOn({
           <span>{detected?"Face tracked · Preview":"Move into the frame"}</span>
           <button onClick={()=>setBefore(b=>!b)}>{before?"Show makeup":"Before / After"}</button>
         </div>}
-        <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Illustrative digital tint only, not a real foundation match or exact product finish.</p>
+        <p className={styles.disclaimer}>On-device face tracking. No face video uploaded or stored. Artistic shade illustration only; not a real skin-tone match, product finish, or color accuracy test.</p>
       </div>
       <div className={styles.controls}>
         <nav className={styles.tabs} aria-label="Makeup area">{areas.map(area=><button key={area} className={active===area?styles.current:""} onClick={()=>{setActive(area);setFilter("");}}>{labels[area]}{selected[area]?" ✓":""}</button>)}</nav>
@@ -293,7 +317,7 @@ export default function VirtualMakeupTryOn({
         </div>
         <label className={styles.strength}>Application strength <b>{strength}%</b><input aria-label="Makeup intensity" type="range" min="20" max="100" step="5" value={strength} onChange={e=>setStrength(Number(e.target.value))}/></label>
         <input className={styles.search} placeholder={"Search "+labels[active].toLowerCase()+" shades & brands"} value={filter} onChange={e=>setFilter(e.target.value)}/>
-        <div className={styles.shades} aria-label="Available makeup shades">{options.slice(0,180).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
+        <div className={styles.shades} aria-label={`Available makeup shades (${options.length})`}>{options.slice(0,500).map(p=><button key={p.id} className={current?.id===p.id?styles.activeShade:""} title={p.brand+" "+p.name} aria-label={"Try "+p.brand+" "+p.name} onClick={()=>{setSelected(v=>({...v,[active]:p}));track("virtual_tryon_shade_selected",{product:p.id,area:active});}}><span style={{background:p.colorHex??"#c9a6b3"}}/><small>{p.name.split(" · ").slice(-1)[0]}</small></button>)}</div>
         {current&&purchaseOptions.length>0&&<div className={styles.purchaseOptions} aria-label="Where to buy this makeup shade">{purchaseOptions.map(o=>{
           const retailerLabel=o.retailer==="official"?"Official store":o.retailer==="target"?"Target":"Amazon";
           const action=o.retailer==="amazon"?"View product":o.exactShade?"View shade":"Choose shade";
