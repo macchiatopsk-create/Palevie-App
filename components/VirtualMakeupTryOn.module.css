@@ -77,3 +77,6 @@
 
 /* Brand hue description reviewed; estimated RGB remains visually distinguishable. */
 .sourceDescribed{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;font-size:9px;font-weight:800;line-height:1.25;padding:4px 8px;margin:5px 0 2px;background:#F4F0FA;border:1px solid #E3DAF0;color:#75618C;white-space:normal}
+
+/* Photo-derived RGB is a distinct, non-calibrated source category. */
+.sourcePhoto{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;font-size:9px;font-weight:800;line-height:1.25;padding:4px 8px;margin:5px 0 2px;background:#F0F4FB;border:1px solid #C9DCEE;color:#58718D;white-space:normal}
