@@ -94,7 +94,7 @@ test("equal split landing reveals questions only after user chooses quiz",()=>{
  const h=componentHarness(false),root=h.render();
  const links=h.walk(root);
  const quizEntry=links.find(x=>x.type==="button"&&x.props.className==="entryQuiz");
- const cameraEntry=links.find(x=>x.type==="a"&&x.props.className==="entryCamera");
+ const cameraEntry=links.find(x=>x.props.className==="entryCamera"&&x.props.href==="/quiz?mode=draping&method=camera");
  assert(quizEntry,"Must show a real Start quiz button on first screen");
  assert(cameraEntry&&cameraEntry.props.href==="/quiz?mode=draping&method=camera","Must show genuine camera destination beside quiz");
  assert.equal(h.buttons().length,0,"Do not render full Q1 options underneath the initial chooser");
