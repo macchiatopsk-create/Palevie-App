@@ -1833,3 +1833,6 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 .sh-shade-source.is-brand{background:#F3EAF8;color:#785584;border:1px solid #E4D1EE}
 .sh-shade-source.is-illustrative{background:#FFF4EF;color:#946D57;border:1px solid #F2E2D9}
 .shop-grid.shop-grid-compact.c3 .sh-shade-source{font-size:7.5px;padding:3px 5px;margin-bottom:6px;white-space:normal}
+
+/* Clear gloss is no-pigment: transparency is more faithful than a gray chip. */
+.sh-product-swatch.is-clear{background-color:#fff;background-image:linear-gradient(45deg,#E9DEE5 25%,transparent 25%,transparent 75%,#E9DEE5 75%),linear-gradient(45deg,#E9DEE5 25%,transparent 25%,transparent 75%,#E9DEE5 75%);background-size:10px 10px;background-position:0 0,5px 5px}
