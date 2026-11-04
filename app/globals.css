@@ -1717,3 +1717,19 @@ body.quiz-intro-entry .h2-wrap{padding-top:0;padding-bottom:0}
 .shop-grid.shop-grid-compact.c1 .sh-where-buy a{padding:10px 13px}
 .shop-grid.shop-grid-compact.c1 .sh-where-buy a span{font-size:12px}
 .shop-grid.shop-grid-compact.c1 .sh-where-buy a b{font-size:11px}
+
+/* More realistic original Palevie packshots; never reuses retailer product art. */
+.shop-grid.shop-grid-compact .shop-art{background:radial-gradient(circle at 46% 25%,#FFFCFD 0%,#FBEFF5 69%,#F7E5EE 100%)}
+.shop-grid.shop-grid-compact .sh-product-visual{background:radial-gradient(ellipse at 52% 28%,rgba(255,255,255,.96),rgba(253,243,248,.72) 74%,rgba(247,227,239,.90))}
+.shop-grid.shop-grid-compact .sh-packshot-rich{width:min(92%,215px);max-height:100%;filter:drop-shadow(0 11px 9px rgba(65,35,55,.14));transition:transform .25s ease;overflow:visible}
+.shop-grid.shop-grid-compact .sh-card-image-link:hover .sh-packshot-rich{transform:translateY(-3px) scale(1.025)}
+.shop-grid.shop-grid-compact .sh-product-visual-caption{font-size:7px;max-width:74%;font-weight:600;color:#A37E94;background:rgba(255,251,253,.76);border-radius:6px;padding:3px 4px;bottom:7px;right:6px}
+.shop-grid.shop-grid-compact.c3 .sh-packshot-rich{width:min(100%,165px)}
+.shop-grid.shop-grid-compact.c3 .sh-product-visual-caption{font-size:6px;max-width:77%;bottom:3px;right:3px;padding:2px 3px}
+.shop-grid.shop-grid-compact.c1 .sh-packshot-rich{width:min(72%,250px)}
+@media(prefers-reduced-motion:reduce){.shop-grid.shop-grid-compact .sh-packshot-rich{transition:none}.shop-grid.shop-grid-compact .sh-card-image-link:hover .sh-packshot-rich{transform:none}}
+/* Third non-affiliate outlet: readable, neutral peach/cream distinct from pink brand stores. */
+.sh-where-buy a.sh-where-target{background:#FFFBF7;border-color:#F0E0D5;color:#755748}
+.sh-where-buy a.sh-where-target:hover{background:#FFF2E9;border-color:#DEB9A7}
+.sh-where-buy a.sh-where-target b{color:#A77554}
+.sh-where-buy a.sh-where-official{background:linear-gradient(120deg,#FFF5FA,#FDEAF3)}
