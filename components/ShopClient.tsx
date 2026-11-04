@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
 import {catalogProducts} from "@/data/products";
+import type {ProductOffer} from "@/lib/types";
 import {loadProfile} from "@/lib/profile";
 import {getToneProfile} from "@/lib/palettes";
 import {loadSkinProfile,ingredientConflict,shouldReferToDoctor} from "@/lib/skincare";
@@ -22,6 +23,14 @@ import {makeupTryOnArea} from "@/lib/tryOnEligibility";
 import styles from "./ShopClient.module.css";
 type Tab="all"|"lip"|"gloss"|"eyeshadow"|"blush"|"highlighter"|"cushion"|"skincare"|"clothes";
 function read<T>(fn:()=>T,fallback:T):T{try{return fn();}catch{return fallback;}}
+function offerPriceLabel(offer:ProductOffer):string|null{
+  if(offer.priceDisplayAuthorized!==true)return null;
+  if(offer.priceLabel?.trim())return offer.priceLabel.trim();
+  if(Number.isSafeInteger(offer.priceCents)&&offer.priceCents!==undefined&&offer.priceCents>=0){
+    return new Intl.NumberFormat("en-US",{style:"currency",currency:offer.currency??"USD"}).format(offer.priceCents/100);
+  }
+  return null;
+}
 function ProductVisual({category,subcategory,color}:{category:string;subcategory:string;color?:string}){
   const tone=isColorHex(color)?color:"#E8D7DE",stroke="#6E5962",shell="#FFFDFE",metal="#E8E1E4";
   if(category==="skincare"){
@@ -77,8 +86,8 @@ export default function ShopClient(){
   const drapeOffer=drapeProduct?verifiedAmazonOffer(drapeProduct):undefined;
   const drapeShades:DrapeShade[]=drapeProduct&&isColorHex(drapeProduct.colorHex)?[{label:"Product illustration",hex:drapeProduct.colorHex},...(referenceColors.length?referenceColors:profile?.colors??[]).slice(0,3).map((hex,i)=>({label:`Reference ${i+1}`,hex}))]:[];
   const chosenTryonProduct=tryonProduct?shopProducts.find(p=>p.id===tryonProduct):null;
-  function href(offerId:string,surface="shop"){
-    const params=new URLSearchParams({utm_source:surface,utm_medium:"affiliate"});if(ready)params.set("v",getVisitorId());if(profile)params.set("tone",profile.id);return `/go/${offerId}?${params}`;
+  function href(offerId:string,surface="shop",medium:"affiliate"|"referral"="affiliate"){
+    const params=new URLSearchParams({utm_source:surface,utm_medium:medium});if(ready)params.set("v",getVisitorId());if(profile)params.set("tone",profile.id);return `/go/${offerId}?${params}`;
   }
   const sortLabel=sort==="featured"?"K-Beauty first":sort==="match"?"Saved colors":sort==="brand"?"Brand":"Category";
   return <>
@@ -87,7 +96,7 @@ export default function ShopClient(){
     <div className="h2-top"><span className="h2-brand">Palevie</span><div className="h2-topbtns"><Link href="/wishlist" className="h2-ic" aria-label="My list">{NAV_ICON.heart}</Link><Link href="/account" className="h2-ic" aria-label="Account">{NAV_ICON.user}</Link></div></div>
     <div className="sh-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg><input aria-label="Search products, brands, or shades" value={qtext} onChange={e=>setQtext(e.target.value)} placeholder="Search products, brands, or shades"/></div>
     <div className="sh-pills">{([["all","All"],["lip","Lipstick"],["gloss","Gloss & oils"],["blush","Cheeks"],["eyeshadow","Eyes"],["highlighter","Glow"],["cushion","Base"],["skincare","Skincare"],["clothes","Clothes"]] as const).map(([key,label])=><button type="button" key={key} className={tab===key?"on":""} onClick={()=>{setTab(key);if(key==="skincare"||key==="clothes")setTryOnOnly(false);}}>{label}</button>)}</div>
-    {tab!=="clothes"&&<><div className="sh-brand-filter"><span className="sh-brand-filter-label">Brand</span><div className={`sh-brand-select${brandMenu?" open":""}`}><button type="button" className="sh-brand-select-trigger" aria-haspopup="listbox" aria-expanded={brandMenu} onClick={()=>setBrandMenu(v=>!v)}><span>{brandFilter||`All brands (${brands.length})`}</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg></button>{brandMenu&&<div className="sh-brand-select-menu" role="listbox" aria-label="Choose brand"><button type="button" role="option" aria-selected={!brandFilter} className={!brandFilter?"selected":""} onClick={()=>{setBrandFilter("");setBrandMenu(false);}}><span className="sh-brand-dot all"/><span>All brands</span><small>{brands.length}</small></button>{brands.map((b,i)=><button type="button" role="option" aria-selected={brandFilter===b} className={brandFilter===b?"selected":""} key={b} onClick={()=>{setBrandFilter(b);setBrandMenu(false);}}><span className={`sh-brand-dot d${i%5}`}/><span>{b}</span>{brandFilter===b&&<b aria-hidden="true">✓</b>}</button>)}</div>}</div></div><p className="sh-shop-explainer">Choose where to buy. Price and stock are confirmed on each retailer site; Palevie only shows numeric prices when an authorized retailer feed or API permits it.</p></>}
+    {tab!=="clothes"&&<><div className="sh-brand-filter"><span className="sh-brand-filter-label">Brand</span><div className={`sh-brand-select${brandMenu?" open":""}`}><button type="button" className="sh-brand-select-trigger" aria-haspopup="listbox" aria-expanded={brandMenu} onClick={()=>setBrandMenu(v=>!v)}><span>{brandFilter||`All brands (${brands.length})`}</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg></button>{brandMenu&&<div className="sh-brand-select-menu" role="listbox" aria-label="Choose brand"><button type="button" role="option" aria-selected={!brandFilter} className={!brandFilter?"selected":""} onClick={()=>{setBrandFilter("");setBrandMenu(false);}}><span className="sh-brand-dot all"/><span>All brands</span><small>{brands.length}</small></button>{brands.map((b,i)=><button type="button" role="option" aria-selected={brandFilter===b} className={brandFilter===b?"selected":""} key={b} onClick={()=>{setBrandFilter(b);setBrandMenu(false);}}><span className={`sh-brand-dot d${i%5}`}/><span>{b}</span>{brandFilter===b&&<b aria-hidden="true">✓</b>}</button>)}</div>}</div></div><p className="sh-shop-explainer">Compare buying options. Confirm the final price, shade and availability on each retailer’s site. Prices appear here only when display is authorized.</p></>}
     {tab!=="clothes"&&tab!=="skincare"&&<div className={styles.tryOnFilterRow}>
       <button type="button" className={tryOnOnly?styles.filterActive:styles.filterButton} aria-pressed={tryOnOnly}
         onClick={()=>setTryOnOnly(v=>!v)}>
@@ -104,7 +113,7 @@ export default function ShopClient(){
       const amazonOffer=verifiedAmazonOffer(p);if(!amazonOffer)return null;
       const purchaseOffers=p.offers.filter(o=>o.retailer==="official"||isVerifiedAmazonOffer(o));
       const primaryOffer=purchaseOffers.find(o=>o.retailer==="official")||amazonOffer;
-      const primaryUrl=href(primaryOffer.id,primaryOffer.retailer==="official"?"shop_official":"shop_amazon");
+      const primaryUrl=href(primaryOffer.id,primaryOffer.retailer==="official"?"shop_official":"shop_amazon",primaryOffer.retailer==="official"?"referral":"affiliate");
       const saved=wl.some(w=>w.id===productKey(p.id));
       const outbound=(retailer:string)=>{track("retailer_outbound_click",{retailer,product:p.id,surface:"shop_compare"});if(retailer==="amazon")track("affiliate_outbound_click",{retailer:"amazon",product:p.id,surface:"shop_compare"});};
       return <article className="shop-card" key={p.id}>
@@ -122,16 +131,16 @@ export default function ShopClient(){
           <div className="sh-where-buy">
             <span className="sh-where-label">Where to buy</span>
             {purchaseOffers.map(o=>{
-              const label=o.retailer==="official"?`${p.brand} official`:"Amazon";
-              const price=o.priceDisplayAuthorized&&o.priceLabel?o.priceLabel:null;
-              return <a key={o.id} href={href(o.id,o.retailer==="official"?"shop_official":"shop_amazon")} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
+              const label=o.retailer==="official"?"Official store":"Amazon";
+              const price=offerPriceLabel(o);
+              return <a key={o.id} href={href(o.id,o.retailer==="official"?"shop_official":"shop_amazon",o.retailer==="official"?"referral":"affiliate")} target="_blank" rel={o.retailer==="amazon"?"nofollow sponsored noopener noreferrer":"noopener noreferrer"} onClick={()=>outbound(o.retailer)}>
                 <span>{label}</span><b>{price||(o.retailer==="amazon"?"Check price":"View item")}</b><i aria-hidden="true">↗</i>
               </a>;
             })}
           </div>
         </div>
       </article>;
-    }})}{shown.length===0&&<p className="sh-empty-state">No products match these filters. Try another brand or category.</p>}</div>}
-    <p className="affiliate-disclosure"><strong>Disclosure:</strong> As an Amazon Associate, Palevie earns from qualifying purchases. Prices and availability are confirmed on Amazon. No stored Amazon prices are displayed. Digital colors are illustrative, not product photographs or guaranteed matches.</p>
+    })}{shown.length===0&&<p className="sh-empty-state">No products match these filters. Try another brand or category.</p>}</div>}
+    <p className="affiliate-disclosure"><strong>Disclosure:</strong> Some retailer links may be affiliate links. As an Amazon Associate, Palevie earns from qualifying purchases. Final prices, shades and availability are confirmed at each retailer. No stored Amazon prices are displayed. Digital colors are illustrative, not product photographs or guaranteed matches.</p>
   </>;
 }
