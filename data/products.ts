@@ -1,6 +1,7 @@
 import { expandedShades } from "./expandedShades";
 import {additionalShopProducts,expandedRetailerOffers,ILLUSTRATIVE_TRYON_COLORS} from "./shopExpansion";
 import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./megaCatalog";
+import {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES} from "./tryOnShadePalette";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
 
@@ -346,7 +347,8 @@ export const catalogProducts: CatalogProduct[] = [
       ...product,
       // Explicitly illustrative colors unlock comparison without claiming a
       // verified manufacturer shade swatch or a physical shade match.
-      colorHex:product.colorHex??ILLUSTRATIVE_TRYON_COLORS[product.id],
+      colorHex:product.colorHex??ILLUSTRATIVE_TRYON_COLORS[product.id]??ADDITIONAL_ILLUSTRATIVE_TINTS[product.id],
+      tags:!product.colorHex&&!ILLUSTRATIVE_TRYON_COLORS[product.id]&&ADDITIONAL_ILLUSTRATIVE_TINTS[product.id]?[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview","conceptual-tone"]:product.tags,
       offers:[
         ...product.offers.map(offer=>asin?{...offer,url:`https://www.amazon.com/dp/${asin}`,affiliateReady:true,priceLabel:undefined}:offer),
         ...expandedRetailerOffers(product),
@@ -355,7 +357,12 @@ export const catalogProducts: CatalogProduct[] = [
     };
   }),
   ...additionalShopProducts,
-  ...megaCatalogProducts,
+  ...megaCatalogProducts.map(product=>{
+    const tint=ADDITIONAL_ILLUSTRATIVE_TINTS[product.id];
+    if(product.colorHex||!tint)return product;
+    return {...product,colorHex:tint,tags:[...product.tags.filter(tag=>tag!=="shade-unverified"),"illustrative-preview","conceptual-tone"]};
+  }),
+  ...ADDITIONAL_TRYON_SHADES,
 ];
 
 export const allOffers = catalogProducts.flatMap(p => p.offers.map(o => ({ ...o, productId: p.id })));
