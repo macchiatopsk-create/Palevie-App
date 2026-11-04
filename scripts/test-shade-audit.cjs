@@ -28,6 +28,7 @@ for(const [seedId,sourceId] of Object.entries(aliases)){
 }
 const digital=tryOn.filter(p=>src.shadeEvidence(p)==="brand-digital");
 assert.equal(digital.length,48,"Only 46 sourced variants + 2 exact duplicate aliases qualify as brand-screen references");
+console.log("SHADE_AUDIT_COLORLESS_MAKEUP "+products.filter(p=>p.category==="makeup"&&!p.colorHex).map(p=>p.id+"="+p.name).join("|"));
 assert(tryOn.length>=416,"Previously released Try On items must be preserved");
 for(const p of tryOn){
  assert(["brand-digital","illustrative"].includes(src.shadeEvidence(p)));
