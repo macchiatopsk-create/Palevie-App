@@ -59,3 +59,15 @@
 .tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
 .tabs button{font-size:10px;padding:9px 3px;min-height:42px;min-width:0;overflow-wrap:anywhere}
 @media(max-width:600px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.tabs button{font-size:11px;min-height:40px}}
+
+/* Screen-reference provenance: compact, readable, not an accuracy badge. */
+.sourceBrand,.sourceConcept{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;font-size:9px;font-weight:800;line-height:1.25;padding:4px 8px;margin:5px 0 2px;white-space:normal}
+.sourceBrand{background:#F2EAF9;border:1px solid #E3CFEF;color:#765484}
+.sourceConcept{background:#FFF3ED;border:1px solid #EFDBCE;color:#936A53}
+.sourceFilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sourceFilterButton,.sourceFilterActive{min-height:35px;flex:none;max-width:100%;font:inherit;font-size:10.5px;font-weight:750;line-height:1.25;border:1px solid #DBC0D1;border-radius:999px;padding:8px 12px;cursor:pointer}
+.sourceFilterButton{background:#FFF9FD;color:#784C66}
+.sourceFilterActive{background:#A66A9B;color:#fff;border-color:#A66A9B}
+.sourceFilterButton:focus-visible,.sourceFilterActive:focus-visible{outline:3px solid #c9a7be;outline-offset:2px}
+.sourceFilter small{font-size:9.5px;line-height:1.45;color:#8E7080;flex:1;min-width:155px}
+@media(max-width:380px){.sourceFilter small{flex-basis:100%}}
