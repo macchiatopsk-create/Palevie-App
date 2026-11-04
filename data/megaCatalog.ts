@@ -72,7 +72,7 @@ const FAMILIES:readonly ShadeFamily[]=[
     "family": "Kill Cover Airy-Fit Concealer",
     "subcategory": "concealer",
     "url": "https://clubclio.shop/products/clio-kill-cover-airy-fit-concealer",
-    "shades": "1.5 Fair|2.0 Lingerie|2.5 Ivory|3.0 Linen|3.5 Vanilla|4.0 Ginger"
+    "shades": "1.5 Fair|2.0 Lingerie|2.5 Ivory|3.0 Linen|3.5 Vanila|4.0 Ginger"
   },
   {
     "slug": "rom-juicy",
@@ -183,7 +183,7 @@ const FAMILIES:readonly ShadeFamily[]=[
     "brand": "ColourPop",
     "family": "Super Shock Shadow",
     "subcategory": "eyeshadow",
-    "url": "https://colourpop.com/products/dgaf",
+    "url": "https://colourpop.com/collections/super-shock-shadow-singles",
     "shades": "Pink Icing|Glow Up|Fairy Coded|Barely Trying|Unhinged"
   }
 ];
@@ -315,7 +315,7 @@ export function brandOffer(id:string,url:string):ProductOffer {
 }
 /** Color words determine only a rough visual *illustration*, not measured skin payoff. */
 const SHADE_WORDS:readonly [RegExp,string][]=[
-  [/black plum|plum|grape|wine|copenhagen|berry|mulberry|burgundy|sangria/i,"#813951"],
+  [/black plum|\bplum\b|\bgrape\b|\bwine\b|\bcopenhagen\b|\bberry\b|\bmulberry\b|\bburgundy\b|\bsangria\b|\bblueberry\b/i,"#813951"],
   [/chocolate|cocoa|brown|coconut|ginger|cinnamon|coffee|toffee|mocha|caramel|latte|nucadamia/i,"#8D5A50"],
   [/fuchsia|hot pink|bubblegum|bright pink|fuschia/i,"#DA4D91"],
   [/red|cherry|apple|crimson|ruby|brick|flame|scarlet/i,"#C84A55"],
@@ -334,7 +334,9 @@ const NAMED:Readonly<Record<string,string>>={
   "cool it":"#B8879E","whimsy":"#DCA092","25/8":"#D99A7F",
   "dgaf":"#AC7259","barely trying":"#C49A8F",
   "rose in mind":"#BD7E8A","fenty glow":"#AA6D68",
-  "wattabrat":"#DFA4BC","fu$$y":"#D89FAD",
+  "wattabrat":"#DFA4BC","fu$y":"#D89FAD",
+  "strawberry sprinkles":"#D58BA4", // Pink family instead of dark berry
+  "strawberry cheesecake":"#D56688",
 };
 export function approxPreviewHex(label:string):string|undefined{
   const lower=label.toLowerCase().replace(/^\d+(?:\.\d+)?[a-z]?\s+/,"").trim();
@@ -383,11 +385,11 @@ export const EXISTING_BRAND_FAMILY_PAGES:Readonly<Record<string,string>>={
   "rmd-jlt-25":"https://romandbeauty.com/products/juicy-lasting-tint",
   "rmd-btp-fog":"https://romandbeauty.com/products/better-than-palette",
   "cp-shock-01":"https://colourpop.com/products/dgaf",
-  "cp-shock-02":"https://colourpop.com/products/dgaf",
-  "cp-shock-03":"https://colourpop.com/products/dgaf",
-  "cp-shock-04":"https://colourpop.com/products/dgaf",
-  "cp-shock-05":"https://colourpop.com/products/dgaf",
-  "cp-shock-06":"https://colourpop.com/products/dgaf",
-  "cp-shock-07":"https://colourpop.com/products/dgaf",
-  "cp-shock-08":"https://colourpop.com/products/dgaf",
+  "cp-shock-02":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-03":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-04":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-05":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-06":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-07":"https://colourpop.com/collections/super-shock-shadow-singles",
+  "cp-shock-08":"https://colourpop.com/collections/super-shock-shadow-singles",
 };
