@@ -6,10 +6,10 @@ const {makeupTryOnArea}=rt.load("lib/tryOnEligibility.ts");
 const {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES}=rt.load("data/megaCatalog.ts");
 const shop=elig.visibleShopProducts(catalog),amazon=elig.visibleAmazonProducts(catalog);
 const tryOn=shop.filter(p=>makeupTryOnArea(p));
-assert.equal(catalog.length,430,"Catalog must include 430 real product/variant records");
+assert.equal(catalog.length,464,"Catalog must include 464 named product/variant records");
 assert.equal(megaCatalogProducts.length,233,"New documented brand variants + skincare");
 assert(shop.length>=400,"At least 400 browseable Shop items, only with retailer links");
-assert(tryOn.length>116,"Try On must grow beyond prior 116 previews");
+assert(tryOn.length>=400,"Try On must include at least 400 illustrative previews");
 assert.equal(amazon.length,134,"Verified Amazon ASIN catalog must not loosen");
 const ids=new Set(),offerIds=new Set();
 for(const product of catalog){
