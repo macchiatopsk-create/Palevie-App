@@ -48,6 +48,22 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   stream.track.muted=false;h.find('video').props.onPlaying();h.flush();h.find('button','Looks better').props.onClick();assert.equal(picks,1);
   h.find('video').props.onWaiting();h.flush();assert.equal(h.find('button','Looks better').props.disabled,true);h.unmount();assert.equal(stream.track.stops,1);assert.equal(h.timers.size,0);
  });
+ await test('creative A/B color vote selects B directly without a prior preview switch',async()=>{
+  const stream=cameraStream(),votes=[];let switches=0;
+  const h=harness('components/CameraDrape.tsx',{
+    colors:[{label:'Rose',hex:'#B08699'},{label:'Peach',hex:'#DFA58B'}],side:0,
+    onSide(){switches++;},onPick:selected=>votes.push(selected),onCant(){},onUseMirror(){}
+  },{getUserMedia:()=>Promise.resolve(stream)});
+  h.find('button','Turn on front camera').props.onClick();await h.settle();
+  const blue=h.nodes().find(n=>n.type==='button'&&n.props['aria-label']==='Choose B, Peach, as looking better');
+  assert(blue&&blue.props.disabled===true,"Cannot vote while video has not begun playing");
+  h.find('video').props.onPlaying();h.flush();
+  const choice=h.nodes().find(n=>n.type==='button'&&n.props['aria-label']==='Choose B, Peach, as looking better');
+  assert(choice&&choice.props.disabled===false);
+  choice.props.onClick();assert.deepEqual(votes,[1]);assert.equal(switches,0,"A/B vote must not require a separate color switch");
+  stream.track.muted=true;choice.props.onClick();assert.deepEqual(votes,[1],"Inactive camera must block voting");
+  h.unmount();assert.equal(stream.track.stops,1);
+ });
  await test('camera permission timeout clears controls and offers mirror fallback',()=>{
   const h=harness('components/CameraDrape.tsx',{colors:[{label:'Rose',hex:'#B08699'}],side:0,onSide(){},onPick(){},onCant(){},onUseMirror(){}},{getUserMedia:()=>new Promise(()=>{}),userAgent:'Instagram'});
   h.find('button','Turn on front camera').props.onClick();h.flush();h.tick(45000);assert(h.text().includes('No camera preview'));assert(h.text().includes('Safari or Chrome'));h.find('button','Use a mirror instead');h.unmount();assert.equal(h.timers.size,0);
