@@ -61,7 +61,7 @@ export default function ShopClient(){
     return()=>{document.body.classList.remove("h2-clean");window.removeEventListener(WISHLIST_EVENT,sync);window.removeEventListener(DISCOVERY_EVENT,sync);window.removeEventListener("storage",sync);};
   },[]);
   function heart(id:string,name:string){const {items,saved}=toggleProduct(id),key=productKey(id);setWl(items);if(saved){const item=items.find(x=>x.id===key);if(item)void pushWishlistItem(item).catch(()=>{});}else void removeWishlistItem(key).catch(()=>{});track(saved?"wishlist_added":"wishlist_removed",{label:name,surface:"shop"});}
-  const items=shopProducts.filter(p=>tab==="all"||(tab==="skincare"?p.category==="skincare":p.subcategory===tab)).filter(p=>!tryOnOnly||Boolean(makeupTryOnArea(p))).filter(p=>!brandFilter||p.brand===brandFilter).filter(p=>!qtext||`${p.brand} ${p.name}`.toLowerCase().includes(qtext.toLowerCase())).map(p=>{
+  const items=shopProducts.filter(p=>tab==="all"||(tab==="skincare"?p.category==="skincare":tab==="cushion"?["cushion","concealer"].includes(p.subcategory):p.subcategory===tab)).filter(p=>!tryOnOnly||Boolean(makeupTryOnArea(p))).filter(p=>!brandFilter||p.brand===brandFilter).filter(p=>!qtext||`${p.brand} ${p.name}`.toLowerCase().includes(qtext.toLowerCase())).map(p=>{
     let held:string|null=null;
     if(p.category==="skincare"&&skin){try{const conflict=ingredientConflict(skin,p.tags);if(conflict.blocked)held=conflict.reason||"Review your skin preferences before adding this product.";}catch{held="Your saved skin preferences could not be read. Please review your skin profile.";}}
     const distance=p.category==="makeup"&&hasDocumentedSwatch(p)&&referenceColors.length?Math.min(...referenceColors.map(hex=>swatchDistance(hex,p.colorHex!))):Number.POSITIVE_INFINITY;
@@ -91,7 +91,7 @@ export default function ShopClient(){
         onClick={()=>setTryOnOnly(v=>!v)}>
         ◎ {tryOnOnly?"Showing Try On items":"Only Try On items"} <span>→</span>
       </button>
-      <span>Live previews: lips, cheeks, eyes, glow & base</span>
+      <span>Live previews: lips, cheeks, eyes, glow, base & concealer</span>
     </div>}
     {tab!=="skincare"&&tab!=="clothes"&&preferences.source&&<div className="notice inline-notice"><strong>{preferences.source==="drape"?"Your saved draping choices":preferences.mood?`${COLOR_MOODS[preferences.mood].label} preferences`:"Your color preferences"}</strong><p>{referenceColors.length?(nearby?`${nearby} nearby documented digital swatches in these filters. Choose Saved colors to put them first; other products remain browseable.`:"No close documented swatches in these filters. We won't imply the remaining products are a color match."):"No color recommendations are active. Choose a mood or mark a draping color as better to guide browsing."}</p><Link href="/quiz">Edit color preferences →</Link></div>}
     {!skin&&tab==="skincare"&&<div className="notice inline-notice">Add skin shopping preferences to screen product suggestions.</div>}
