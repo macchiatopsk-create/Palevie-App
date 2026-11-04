@@ -4,6 +4,7 @@ import {megaCatalogProducts,EXISTING_BRAND_FAMILY_PAGES,brandOffer} from "./mega
 import {ADDITIONAL_ILLUSTRATIVE_TINTS,ADDITIONAL_TRYON_SHADES} from "./tryOnShadePalette";
 import {BRAND_DESCRIBED_HUES} from "./brandDescribedHues";
 import {RARE_BEAUTY_PIXEL_REFERENCES} from "./rareBeautyPixelReferences";
+import {MERIT_PHOTO_SWATCHES} from "./meritPhotoSwatches";
 import { researchedAmazonAsins } from "./researchedAmazonAsins";
 import {verifiedShadeColors} from "./verifiedShadeColors";
 import { CatalogProduct, ProductOffer } from "@/lib/types";
@@ -344,6 +345,17 @@ function withMeasuredRareSwatch(product:CatalogProduct):CatalogProduct{
     tags:[...tags,"brand-digital-swatch","shade-source:"+ref.source,
       "digital-sample-method:center34-opaque-rgb-median"]};
 }
+/** Official photo-derived screen color, not a measured cosmetic or exact skin match. */
+function withReviewedMeritPhoto(product:CatalogProduct):CatalogProduct{
+  const ref=MERIT_PHOTO_SWATCHES[product.id];
+  if(!ref?.applied)return product;
+  const tags=product.tags.filter(t=>t!=="illustrative-preview"&&t!=="conceptual-tone"
+    &&t!=="brand-described-reference"&&t!=="brand-digital-swatch"
+    &&!t.startsWith("brand-description-source:")&&!t.startsWith("shade-source:"));
+  return {...product,colorHex:ref.hex,
+    tags:[...tags,"brand-photo-reference","shade-source:"+ref.source,
+      "photo-sample-method:"+ref.method]};
+}
 const SEED_REFERENCE_ALIAS:Readonly<Record<string,string>>={
   "elf-lipoil-rose":"elf-oil-03",
   "rare-pinch-joy":"rare-pinch-09",
@@ -400,6 +412,7 @@ export const catalogProducts: CatalogProduct[] = [
   }),
   ...ADDITIONAL_TRYON_SHADES.map(product=>{
     if(product.id.startsWith("rare-lip-oil-")&&RARE_BEAUTY_PIXEL_REFERENCES[product.id])return withMeasuredRareSwatch(product);
+    if(MERIT_PHOTO_SWATCHES[product.id]?.applied)return withReviewedMeritPhoto(product);
     const described=BRAND_DESCRIBED_HUES[product.id];
     return described?{...product,colorHex:described.illustrativeHex,
       tags:[...product.tags,"brand-described-reference","brand-description-source:"+described.source]}:product;
