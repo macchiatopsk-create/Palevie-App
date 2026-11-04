@@ -244,6 +244,10 @@ export default function VirtualMakeupTryOn({
     const video=videoRef.current;if(video){video.pause();video.srcObject=null;}
     canvasRef.current?.getContext("2d")?.clearRect(0,0,canvasRef.current.width,canvasRef.current.height);
     // Drop every camera pixel and any quality signal on stop/unmount.
+    if(lightingCanvasRef.current){
+      // Resize-to-zero clears the full GPU/scratch image even before GC.
+      lightingCanvasRef.current.width=0;lightingCanvasRef.current.height=0;
+    }
     lightingCanvasRef.current=null;lightingHistoryRef.current=[];lastLightingAtRef.current=0;
     lightingStateRef.current="unavailable";
     if(aliveRef.current)setLighting("unavailable");
@@ -340,6 +344,9 @@ export default function VirtualMakeupTryOn({
       visibleRef.current=!document.hidden;
       // Never carry a lighting evaluation across an inactive camera session.
       lightingHistoryRef.current=[];lastLightingAtRef.current=0;
+      if(document.hidden&&lightingCanvasRef.current){
+        lightingCanvasRef.current.width=0;lightingCanvasRef.current.height=0;
+      }
       if(document.hidden&&lightingStateRef.current!=="unavailable"){
         lightingStateRef.current="unavailable";setLighting("unavailable");
       }
