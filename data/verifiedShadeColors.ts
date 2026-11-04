@@ -1,5 +1,10 @@
+import {RARE_BEAUTY_PIXEL_REFERENCES} from "./rareBeautyPixelReferences";
+
 /**
  * Digital references taken from brand-controlled shade selectors on 2026-10-15.
+ * Added 8 Rare Beauty lip-oil digital swatches on 2026-11-04.
+ * Six luminous powder swatches were measured but held out of camera overlays
+ * because pearlescent highlights appear brighter than their shade descriptions.
  * Maybelline/e.l.f.: CSS hex in each official product shade option.
  * Rare Beauty: median opaque RGB from the center 34% of its own 164px digital
  * swatch images; NOT a physical colorimeter measurement.
@@ -284,5 +289,11 @@ export const verifiedShadeColors:Readonly<Record<string,DigitalShadeReference>> 
     "method": "sampled-official-swatch-image",
     "source": "https://www.rarebeauty.com/cdn/shop/files/swatch-b-faith.png?v=1727733485&width=164",
     "shade": "Faith"
-  }
+  },
+  // Digitally sampled official swatch assets, NOT physical product payoff.
+  ...Object.fromEntries(Object.entries(RARE_BEAUTY_PIXEL_REFERENCES)
+    .filter(([id])=>id.startsWith("rare-lip-oil-"))
+    .map(([id,r])=>[
+    id,{hex:r.hex,source:r.source,method:r.method,shade:r.shade}
+  ])),
 };
