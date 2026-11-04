@@ -1,4 +1,5 @@
 import type { CatalogProduct } from "./types";
+import {shadeEvidence} from "./shadeEvidence";
 import { amazonAsin, verifiedAmazonOffer } from "./shopEligibility";
 export const COLOR_MOODS={
   soft:{label:"Soft & everyday",description:"Dusty rose, muted mauve and easy neutrals to explore.",colors:["#B08699","#C9A099","#A8896C","#8D8197","#D6B8BA"]},
@@ -26,7 +27,7 @@ export function swatchDistance(a:string,b:string):number{
 // Product-design cutoff, not a validated cosmetic/perceptual accuracy threshold.
 export const MAX_SWATCH_DISTANCE=12;
 export function hasDocumentedSwatch(product:CatalogProduct):boolean{
-  return isColorHex(product.colorHex)&&product.tags.includes("brand-digital-swatch")&&product.tags.some(t=>t.startsWith("shade-source:https://"));
+  return shadeEvidence(product)==="brand-digital";
 }
 export function visuallySimilarShopProducts(products:CatalogProduct[],referenceHex:string,limit=3):CatalogProduct[]{
   if(!isColorHex(referenceHex)||!Number.isFinite(limit)||limit<=0)return [];
