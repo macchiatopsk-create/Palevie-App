@@ -483,10 +483,10 @@
   padding:11px 7px;width:100%;border-radius:14px;border:1px solid #dda3bd;text-decoration:none;text-align:center;
   font:inherit;font-size:clamp(12px,2.8vw,15px);font-weight:850;line-height:1.2;white-space:normal;cursor:pointer}
 .entryQuiz{background:#fff;color:#88466b;border-color:#e5b6ca}
-.entryCamera{background:var(--action-pink);color:var(--action-ink)!important;border-color:var(--action-border);box-shadow:0 5px 14px rgba(229,112,164,.20)}
+.entryCamera{background:var(--action-pink)!important;color:var(--action-ink)!important;border-color:var(--action-border);box-shadow:0 5px 14px rgba(229,112,164,.20)}
 .entryCameraGo{display:inline;font-size:18px;line-height:1;padding:0;color:inherit;background:transparent;border-radius:0}
 .entryQuiz:hover{background:#fff0f6;border-color:#d68bad}
-.entryCamera:hover{background:var(--action-hover);box-shadow:0 8px 20px #e18fa83b;transform:none}
+.entryCamera:hover{background:var(--action-hover)!important;box-shadow:0 8px 20px #e18fa83b;transform:none}
 .entryQuiz:active,.entryCamera:active{transform:scale(.985)}
 .entryQuiz:focus-visible,.entryCamera:focus-visible{outline:3px solid #be4d82;outline-offset:3px}
 .entryInfo{position:absolute;top:11px;right:11px;z-index:3;line-height:1}
@@ -534,4 +534,7 @@
   .entryQuiz,.entryCamera{font-size:11px;padding:9px 4px}
   .entryIllustration,.entryCameraIcon{width:56px;height:56px;border-radius:17px}
 }
+/* Override legacy camera CTA fills in all hydration and SSR entry states. */
+.entryScanTile .entryCamera{background:var(--action-pink)!important;color:var(--action-ink)!important}
+.entryScanTile .entryCamera:hover{background:var(--action-hover)!important}
 @media(prefers-reduced-motion:reduce){.entryCamera,.entryQuiz{transition:none}}
