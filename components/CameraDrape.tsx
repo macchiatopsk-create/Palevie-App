@@ -95,22 +95,15 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
     <button type="button" className={styles.setupMirror} onClick={useMirror}>Use a mirror instead</button>
     <small>On-device · No photos stored</small>
   </section>;
-  // Choosing A or B is a direct answer; switching the in-camera cloth is a
-  // preview-only action. This saves a scroll and avoids ambiguity on mobile.
-  const pickPanel=<div className={styles.pickPanel} aria-label="Choose which drape looks better">
-    <div className={styles.pickHeading}>
-      <b>Which color looks better?</b>
-      <span>Tap A or B</span>
-    </div>
-    <div className={styles.pickGrid}>
-      {colors.slice(0,2).map((color,i)=><button type="button" key={color.hex+i}
-        className={styles.pickCard} disabled={!cameraPlaying||!canPick}
-        onClick={()=>rate(()=>onPick(i===1?1:0))}
-        aria-label={`Choose ${i===0?"A":"B"}, ${color.label}, as looking better`}>
-        <span className={styles.pickOrb} style={{background:color.hex}} aria-hidden="true"/>
-        <span className={styles.pickLabel}><b>{i===0?"A":"B"} · {color.label}</b><small>Looks better <span aria-hidden="true">✓</span></small></span>
-      </button>)}
-    </div>
+  // The score and selection are one card above the camera; the slider in
+  // the live cloth only changes the preview. Rating still requires live video.
+  const voteButtons=colors.slice(0,2).map((color,i)=><button type="button" key={color.hex+i}
+    className={styles.voteAction} disabled={!cameraPlaying||!canPick}
+    onClick={()=>rate(()=>onPick(i===1?1:0))}
+    aria-label={`Choose ${i===0?"A":"B"}, ${color.label}, as looking better`}>
+    ✓ Looks better
+  </button>);
+  const secondaryActions=<div className={styles.secondaryActions} aria-label="Other comparison choices">
     <div className={styles.pickSecondary}>
       {onWorse&&<button type="button" disabled={!cameraPlaying} onClick={()=>rate(()=>onWorse(side===1?1:0))}
         aria-label={`Mark current color ${current.label} as looking worse`}>✕ Current color looks worse</button>}
@@ -135,12 +128,12 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
       {!cameraPlaying&&<p role="status" className={styles.compactStatus}>Camera playback is needed before you can rate colors.</p>}
       {!canPick&&<p role="status" className={styles.compactStatus}>Switch A → B → A to compare both colors before voting.</p>}
       <div className="qz-actions camera-drape-actions"><button type="button" disabled={!cameraPlaying||!canPick} className="dr-pick camera-drape-pick" onClick={()=>{if(canPick)rate(()=>onPick());}}>{MARK.check} Looks better</button>{onWorse&&<button type="button" disabled={!cameraPlaying} className="camera-drape-link" onClick={()=>rate(()=>onWorse())}>Looks worse</button>}<button type="button" disabled={!cameraPlaying} className="qz-skip dr-skip" onClick={()=>rate(onCant)}>Honestly can't tell</button><div className="camera-drape-subactions"><button type="button" className="camera-drape-link" onClick={useMirror}>Switch to mirror</button>{onPrev&&<button type="button" className="camera-drape-link" onClick={onPrev}>Previous comparison</button>}</div></div>
-    </> : <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors} side={side} onSide={chooseSide}>
+    </> : <DrapeLiveGuide videoRef={videoRef} stageRef={stageRef} playing={cameraPlaying} colors={colors} side={side} onSide={chooseSide} voteButtons={voteButtons}>
       <div className={`camera-drape-stage ${styles.stage}`} ref={stageRef}><video ref={videoRef} className="camera-drape-video" autoPlay playsInline muted onPlaying={playing} onTimeUpdate={playing} onPause={()=>setCameraPlaying(false)} onWaiting={()=>setCameraPlaying(false)} onStalled={()=>setCameraPlaying(false)} onEmptied={()=>setCameraPlaying(false)} onError={()=>fail("video_error","The preview could not be displayed. Try again or use a mirror.")} aria-label="Live front-camera preview"/>
         {!cameraPlaying&&<button type="button" className="camera-drape-resume" onClick={resume}>Tap to show camera</button>}
         <div className="camera-drape-vignette" aria-hidden="true"/><div className="camera-drape-guide" aria-hidden="true"/><div className="camera-drape-cloth" style={{background:current.hex}}><div className="camera-drape-cloth-folds" aria-hidden="true"/><span>{current.label}</span></div>
       </div>
-      {pickPanel}
+      {secondaryActions}
     </DrapeLiveGuide>}
   </div>;
 }

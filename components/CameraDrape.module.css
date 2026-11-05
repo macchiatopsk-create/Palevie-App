@@ -35,39 +35,32 @@
 /* Compact live scan: camera / two direct-selection cards / actions / tiny status. */
 .liveCompact{min-width:0}
 .liveCompact .stage:global(.camera-drape-stage){height:clamp(302px,46dvh,422px);min-height:302px;max-height:422px;margin-bottom:8px}
-.pickPanel{margin:0;padding:10px 10px 8px;background:#fff9fc;border:1px solid #efd2e0;border-radius:15px;box-shadow:0 6px 18px #9b66821a}
-.pickHeading{display:flex;justify-content:space-between;align-items:center;gap:7px;margin:0 2px 8px;color:#7a4160}
-.pickHeading b{font-size:14px;font-weight:850;line-height:1.3}
-.pickHeading span{font-size:10px;font-weight:750;color:#a26a8a}
-.pickGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.pickCard{min-width:0;min-height:73px;display:flex;align-items:center;gap:9px;padding:10px 9px;border-radius:13px;
-  border:1.5px solid #d995b7;background:linear-gradient(115deg,#fff,#ffedf5);box-shadow:0 3px 10px #b15b8822;
-  text-align:left;font:inherit;color:#5b3450;cursor:pointer}
-.pickCard:nth-child(2){background:linear-gradient(115deg,#ffedf5,#ffe2ef)}
-.pickCard:disabled{opacity:.50;cursor:not-allowed;box-shadow:none}
-.pickCard:not(:disabled):active{transform:scale(.98);background:#fff0f7}
-.pickCard:not(:disabled):hover{border-color:#bb5e8d}
-.pickCard:focus-visible,.pickSecondary button:focus-visible,.pickExtras button:focus-visible{outline:3px solid #b35c8a;outline-offset:2px}
-.pickOrb{width:43px;height:43px;flex:none;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #ad7b93,0 4px 8px #613b4930}
-.pickLabel{min-width:0;display:flex;flex-direction:column;gap:5px}
-.pickLabel b{font-size:11px;font-weight:850;line-height:1.3;overflow-wrap:anywhere}
-.pickLabel small{font-size:10px;font-weight:800;color:#ac3d77;line-height:1.2}
-.pickLabel small span{font-size:13px}
-.pickSecondary{display:flex;gap:8px;justify-content:stretch;align-items:center;margin-top:9px}
-.pickSecondary button{flex:1 1 0;min-width:0;min-height:39px;display:grid;place-items:center;
+/* One visible vote button is integrated with each A/B score tile above video. */
+.voteAction{box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:44px;padding:9px 7px;border:1px solid #9a4a7b;border-radius:11px;
+  background:#8e3e6a;color:#fff;font:inherit;font-size:12px;font-weight:850;
+  line-height:1.25;cursor:pointer;box-shadow:0 3px 9px #a75b8533}
+.voteAction:not(:disabled):hover{background:#7d305d}
+.voteAction:not(:disabled):active{transform:scale(.98)}
+.voteAction:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
+.voteAction:focus-visible,.pickSecondary button:focus-visible,.pickExtras button:focus-visible{
+  outline:3px solid #b35c8a;outline-offset:2px}
+.secondaryActions{margin:5px 0 0;padding:0 2px}
+.pickSecondary{display:flex;gap:8px;justify-content:stretch;align-items:center}
+.pickSecondary button{flex:1 1 0;min-width:0;min-height:38px;display:grid;place-items:center;
   border:1px solid #ebcbdc;border-radius:10px;background:#fff;color:#77556b;font:inherit;
-  font-size:10px;font-weight:730;line-height:1.3;padding:8px 5px;cursor:pointer}
+  font-size:10px;font-weight:730;line-height:1.3;padding:7px 5px;cursor:pointer}
 .pickSecondary button:disabled{opacity:.46;cursor:not-allowed}
-.pickExtras{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin:6px 0 0}
-.pickExtras button{min-height:30px;background:transparent;border:0;color:#956782;font:inherit;font-size:10px;font-weight:750;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 7px}
+.pickExtras{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin:3px 0 0}
+.pickExtras button{min-height:30px;background:transparent;border:0;color:#956782;font:inherit;
+  font-size:10px;font-weight:750;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 7px}
 .compactStatus{font-size:10px;color:#a24c72;margin:6px 0}
 /* Shorter mobile camera canvas keeps the real A/B voting cards above the bottom navigation. */
 @media(max-width:860px){
  .liveCompact .stage:global(.camera-drape-stage){height:clamp(264px,39dvh,355px);min-height:264px;max-height:355px}
 }
-@media(max-width:400px){.pickPanel{padding:9px 7px 7px}.pickGrid{gap:7px}.pickCard{padding:8px 6px;gap:6px;min-height:66px}
- .pickOrb{width:35px;height:35px}.pickLabel b{font-size:10px}.pickLabel small{font-size:9px}
- .pickHeading b{font-size:12px}.pickHeading span{font-size:9px}
+@media(max-width:400px){
+ .voteAction{font-size:11px;min-height:43px}
  .liveCompact .stage:global(.camera-drape-stage){height:clamp(250px,37dvh,330px);min-height:250px;max-height:330px}
 }
 

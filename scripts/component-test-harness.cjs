@@ -34,7 +34,7 @@ function harness(file,props={},options={}){
  }
  const Component=load(file).default;
  // Undefined children are leaves, not a request to traverse the root again.
- function nodes(value,result=[]){if(Array.isArray(value)){value.forEach(x=>nodes(x,result));return result;}if(!value||typeof value!=='object'||!value.props)return result;result.push(value);nodes(value.props.children,result);return result;}
+ function nodes(value,result=[]){if(Array.isArray(value)){value.forEach(x=>nodes(x,result));return result;}if(!value||typeof value!=='object'||!value.props)return result;result.push(value);nodes(value.props.children,result);if(value.props.voteButtons)nodes(value.props.voteButtons,result);return result;}
  function text(value){if(Array.isArray(value))return value.map(text).join(' ');if(value==null||typeof value==='boolean')return '';return typeof value==='object'?text(value.props?.children):String(value);}
  function flush(){if(unmounted)return;let n=0;do{if(++n>30)throw Error('Unexpected render loop');dirty=false;cursor=0;tree=Component(props);for(const node of nodes(tree))if(node.props.ref)node.props.ref.current=node.type==='video'?video:{};while(effects.length)effects.shift()();}while(dirty);return tree;}
  async function settle(){for(let i=0;i<12;i++){await Promise.resolve();if(dirty)flush();}return tree;}

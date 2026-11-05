@@ -59,34 +59,60 @@ test('face landmarks measure privately without drawing a forehead marker on prev
  const camera=src.indexOf('   {children}'),dock=src.indexOf('   <div className={styles.dock}');
  assert(camera>=0&&dock>camera, 'scan controls/status must render after camera, not over face');
 });
-test('scanner has score strip above camera and direct A/B voting below it',()=>{
+test('score tiles combine the A/B votes and only one range slider changes preview',()=>{
  const guide=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
  const camera=fs.readFileSync(path.join(root,'components/CameraDrape.tsx'),'utf8');
  const drape=fs.readFileSync(path.join(root,'components/ColorDrapingClient.tsx'),'utf8');
  const switcher=fs.readFileSync(path.join(root,'components/DrapeColorControls.tsx'),'utf8');
  const css=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.module.css'),'utf8');
- const top=guide.indexOf('className={styles.scoreTop}'),stage=guide.indexOf('   {children}');
- assert(top>=0&&top<stage,'Styling score must be above the video, not under scrolling instructions');
+ const top=guide.indexOf('className={styles.scoreTop}'),scoreAction=guide.indexOf('className={styles.scoreAction}'),stage=guide.indexOf('   {children}');
+ assert(top>=0&&scoreAction>top&&scoreAction<stage,
+   'Combined score/vote cards must stay above the live video preview');
  assert(guide.includes('data-look-score={i}')&&guide.includes('data-guide-comparison'),
-   'Separate A/B soft-bold styling indices must be visible in top row');
+   'Separate A/B soft-bold styling indices remain visible');
  assert(guide.includes('className={styles.help} data-guide-help')&&guide.includes('aria-label="About this scan and its scores"'),
-   'Detailed instructions must live inside keyboard/touch accessible information icon');
+   'Detailed instructions stay behind an accessible help icon');
  assert(guide.includes('className={styles.dock} data-guide-dock')&&guide.includes('conciseStatus'),
-   'Only a slim one-line status bar should remain below voting');
+   'Only a compact status and secondary controls remain below the preview');
  assert(!guide.includes('className={styles.recommendation}')&&!guide.includes('className={styles.lighting}'),
-   'No second recommendation card or standing light-instruction paragraph');
- assert(camera.includes('const pickPanel=')&&camera.includes('onPick(i===1?1:0)')&&camera.includes('aria-label={`Choose ${i===0?"A":"B"}'),
-   'Voting either shade must directly record selected A/B, not require separate switching');
- assert(camera.includes('{pickPanel}')&&camera.includes('rate(()=>onPick(i===1?1:0))'),
-   'Direct A/B cards must be reachable beside camera, with camera-playing safety gate');
- assert(!camera.includes('<p className="camera-drape-prompt">'),
-   'Avoid long always-visible instruction underneath scan');
+   'No standing recommendation/lighting explanations');
+ assert(camera.includes('const voteButtons=')&&camera.includes('onPick(i===1?1:0)')&&camera.includes('aria-label={`Choose ${i===0?"A":"B"}'),
+   'Voting A/B must record that precise shade with a clear accessible label');
+ assert(camera.includes('voteButtons={voteButtons}')&&camera.includes('rate(()=>onPick(i===1?1:0))'),
+   'Direct votes stay gated behind actual playing video');
+ assert(camera.includes('{secondaryActions}')&&!camera.includes('{pickPanel}'),
+   'Do not render duplicate A/B voting cards below the camera');
  assert(drape.includes('data-scan-more')&&drape.includes('styles.scanTopline'),
-   'Shopping notes belong in a collapsed area and the pair header must be compact');
- assert(!switcher.includes('className={styles.scoreLine}')&&!switcher.includes('/100'),
-   'Do not show duplicate numeric scores over the color cloth');
- assert(css.includes('.scoreTop')&&css.includes('.helpPanel')&&css.includes('max-height:min(65dvh,450px)'),
-   'Info should open as a capped, scrollable popover rather than expanding the page');
+   'Shop notes remain collapsed and pair heading stays compact');
+ assert(switcher.includes('type="range"')&&switcher.includes('min={0} max={1} step={1}')&&switcher.includes('onChange={e=>onSide(Number(e.currentTarget.value))}'),
+   'Exactly two slider positions switch preview without rating');
+ assert(!switcher.includes('<button')&&!switcher.includes('/100'),
+   'No duplicate A/B button pairs or score numbers over the video');
+ assert(css.includes('.scoreAction{')&&css.includes('max-height:min(65dvh,450px)'),
+   'Score tile actions and capped help must stay intact');
+});
+test('range slider changes camera preview only, never invokes a vote',()=>{
+ const ts=require('typescript');
+ const file=fs.readFileSync(path.join(root,'components/DrapeColorControls.tsx'),'utf8');
+ const transpiled=ts.transpileModule(file,{compilerOptions:{
+   module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2020,esModuleInterop:true
+ }}).outputText;
+ const mod={exports:{}},jsx=(type,props)=>({type,props});
+ vm.runInNewContext(transpiled,{module:mod,exports:mod.exports,require(name){
+   if(name==='react/jsx-runtime')return {jsx,jsxs:jsx,Fragment:'fragment'};
+   if(name.endsWith('.module.css'))return {__esModule:true,default:{controls:'controls',caption:'caption',slider:'slider',labels:'labels',active:'active'}};
+   throw Error('Unexpected slider import '+name);
+ }},{filename:'DrapeColorControls.compiled.cjs'});
+ let side=0;const votes=[];
+ const colors=[{hex:'#c98899',label:'Rose'},{hex:'#daaa82',label:'Peach'}];
+ const rootNode=mod.exports.default({colors,side,onSide:i=>{side=i;}});
+ const find=(node,predicate)=>{if(!node||typeof node!=='object')return null;if(predicate(node))return node;
+   const children=[node.props?.children].flat(Infinity);for(const child of children){const found=find(child,predicate);if(found)return found;}return null;};
+ const slider=find(rootNode,x=>x.type==='input'&&x.props?.type==='range');
+ assert(slider&&slider.props.min===0&&slider.props.max===1&&slider.props.step===1,'Native range has exactly two stops');
+ slider.props.onChange({currentTarget:{value:'1'}});assert.equal(side,1);
+ assert.equal(votes.length,0,'Moving slider should never submit a preference');
+ assert.equal(find(rootNode,x=>x.type==='button'),null,'No duplicate switch buttons inside camera');
 });
 test('guide component has no storage or analytics calls',()=>{const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');assert.ok(!/localStorage|sessionStorage|indexedDB|\btrack\(|\/api\//.test(src));assert.ok(src.includes('worker?.terminate()'));assert.ok(src.includes('bitmap?.close()')||src.includes('bitmap.close()'));assert.ok(src.includes('visibilitychange'));});
 (async()=>{

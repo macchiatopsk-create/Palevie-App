@@ -461,13 +461,19 @@
 .entryTitle{font-size:10px;letter-spacing:.17em;color:#9b6780;margin:3px 0 6px}
 .entryHeading{font-family:Georgia,"Times New Roman",serif;font-size:clamp(23px,5vw,33px);font-weight:500;line-height:1.15;letter-spacing:-.03em;color:#5e3550;margin:0 0 17px}
 .entryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;width:100%;min-width:0}
-.entryTile{box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
-  min-width:0;min-height:clamp(282px,44svh,388px);padding:24px 18px 19px;border-radius:21px;border:1.5px solid #efc3d6;
+.entryTile{box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;
+  min-width:0;min-height:clamp(340px,46svh,405px);padding:24px 18px 19px;border-radius:21px;border:1.5px solid #efc3d6;
   color:#59334b;text-align:center;box-shadow:0 12px 25px rgba(157,80,120,.08);overflow:visible}
 .entryQuizTile{background:linear-gradient(158deg,#fff5f9 0%,#fffafd 62%,#fcebf3 100%);border-color:#ecd0dc}
 .entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%);border-color:#e99cbd}
 .entryTile h3{font-size:clamp(20px,4vw,28px);font-weight:850;letter-spacing:-.04em;line-height:1.06;color:#573049;margin:0;overflow-wrap:normal}
-.entryDescription{font-size:clamp(11px,2.5vw,13px);line-height:1.45;color:#79576e;margin:0;min-height:32px}
+.entryDescription{font-size:clamp(11px,2.5vw,13px);line-height:1.45;color:#79576e;margin:0;min-height:0}
+.entryExplainer{box-sizing:border-box;display:flex;flex:1;flex-direction:column;justify-content:center;gap:5px;
+  width:100%;min-width:0;margin:2px 0 0;padding:12px 2px 7px;border-top:1px solid #e9c4d6;
+  color:#6d4e60;font-size:12px;line-height:1.48;text-align:center;overflow-wrap:break-word}
+.entryExplainer strong{display:block;font-size:12px;font-weight:850;color:#874668;line-height:1.28}
+.entryExplainer span{display:block;font-size:11px;line-height:1.45}
+.entryScanTile .entryExplainer{border-color:#e8a7c3;color:#714058}
 .entryStep{font-size:9px;font-weight:850;letter-spacing:.08em;color:#a16685;line-height:1.4}
 .entryIllustration,.entryCameraIcon{display:grid;place-items:center;flex:none;width:clamp(61px,14vw,82px);height:clamp(61px,14vw,82px);border-radius:23px;
   background:rgba(255,255,255,.74);color:#a6517b;box-shadow:inset 0 0 0 1px #ffffffaa}
@@ -506,10 +512,13 @@
   .entryScreen{padding:16px 11px 17px!important}
   .entryHeading{font-size:24px;margin-bottom:14px}
   .entryGrid{gap:9px}
-  .entryTile{min-height:clamp(260px,43svh,332px);gap:9px;padding:20px 10px 12px;border-radius:17px}
+  .entryTile{min-height:clamp(350px,47svh,398px);gap:8px;padding:20px 10px 13px;border-radius:17px}
   .entryTile h3{font-size:clamp(18px,4.8vw,22px)}
   .entryStep{font-size:8px;letter-spacing:.01em}
   .entryDescription{font-size:11px}
+  .entryExplainer{padding:10px 1px 6px;gap:5px;font-size:11px}
+  .entryExplainer strong{font-size:11px}
+  .entryExplainer span{font-size:10.5px;line-height:1.4}
   .entryQuiz,.entryCamera{font-size:12px;min-height:51px;padding:10px 5px}
   .entryInfo{top:8px;right:8px}
   .entryInfo>summary{width:32px;height:32px}
@@ -517,9 +526,11 @@
 @media(max-width:350px){
   .entryScreen{padding:14px 8px 17px!important}
   .entryGrid{gap:7px}
-  .entryTile{padding:18px 7px 10px;min-height:280px}
+  .entryTile{padding:18px 7px 12px;min-height:365px}
   .entryTile h3{font-size:18px}
   .entryDescription{font-size:10px}
+  .entryExplainer strong{font-size:10.5px}
+  .entryExplainer span{font-size:10px}
   .entryQuiz,.entryCamera{font-size:11px;padding:9px 4px}
   .entryIllustration,.entryCameraIcon{width:56px;height:56px;border-radius:17px}
 }

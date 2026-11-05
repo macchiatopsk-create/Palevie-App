@@ -1,20 +1,32 @@
-/* Two thumb-friendly preview switches ON the bottom draping band.
- * Look-index numbers live above the camera, never over the user's face. */
-.controls:global(.camera-drape-switch){position:absolute;inset:auto 9px 9px;z-index:8;margin:0;display:block;
-  padding:7px;border-radius:16px;background:rgba(44,29,42,.82);backdrop-filter:blur(10px);
-  color:#fff;box-sizing:border-box;box-shadow:0 5px 20px #2a162334}
-.caption{display:block;color:#fff7fa;text-align:center;font-size:9px;font-weight:750;line-height:1.35;
-  letter-spacing:.08em;margin:0 0 6px}
-.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.controls .option{width:100%;min-width:0;min-height:52px;display:flex;align-items:center;gap:9px;
-  border:1px solid #e8cad8;border-radius:12px;padding:7px 8px;background:rgba(255,249,253,.94);
-  color:#58314c;box-sizing:border-box;font:inherit;text-align:left;cursor:pointer}
-.controls .selected{background:#fff;border:2px solid #ef94b6;padding:6px 7px;box-shadow:0 0 0 2px #ffffff55}
-.controls .option:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.swatch{width:31px;height:31px;flex:none;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #b788a0}
-.optionBody{display:flex;flex-direction:column;gap:3px;min-width:0}
-.optionBody b{font-size:11px;line-height:1.2;font-weight:800;overflow-wrap:break-word}
-.optionBody small{font-size:9px;line-height:1.2;color:#9b6987;font-weight:700}
-@media(max-width:390px){.controls:global(.camera-drape-switch){inset:auto 7px 8px;padding:5px}
- .caption{font-size:8px;margin-bottom:4px}.controls .option{gap:6px;min-height:48px;padding:5px}
- .controls .selected{padding:4px}.swatch{width:27px;height:27px}.optionBody b{font-size:10px}.optionBody small{font-size:8.5px}}
+/* One accessible two-stop slider previews the live drape. Recording a choice
+ * happens only in the score/vote card above the camera. */
+.controls:global(.camera-drape-switch){
+  position:absolute;inset:auto 10px 10px;z-index:8;box-sizing:border-box;
+  display:block;margin:0;padding:10px 14px 9px;border:1px solid #f1cedf;border-radius:16px;
+  background:rgba(255,250,253,.96);backdrop-filter:blur(10px);
+  box-shadow:0 5px 18px #2a16233e;color:#744460;
+}
+.caption{display:block;margin:0 0 3px;text-align:center;font-size:9px;font-weight:850;
+  line-height:1.35;letter-spacing:.05em;color:#92546f}
+.slider{display:block;box-sizing:border-box;width:100%;height:42px;margin:0;padding:0;
+  appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;touch-action:pan-y}
+.slider::-webkit-slider-runnable-track{height:12px;border:2px solid #fff;border-radius:999px;
+  background:linear-gradient(90deg,var(--shade-a),var(--shade-b));box-shadow:0 0 0 1px #b98da3}
+.slider::-moz-range-track{height:12px;border:2px solid #fff;border-radius:999px;
+  background:linear-gradient(90deg,var(--shade-a),var(--shade-b));box-shadow:0 0 0 1px #b98da3}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:29px;height:29px;
+  margin-top:-10px;border:3px solid #fff;border-radius:50%;background:#9b4978;
+  box-shadow:0 0 0 2px #a34d7c,0 3px 9px #50263c66}
+.slider::-moz-range-thumb{width:23px;height:23px;border:3px solid #fff;border-radius:50%;
+  background:#9b4978;box-shadow:0 0 0 2px #a34d7c,0 3px 9px #50263c66}
+.slider:focus-visible{outline:3px solid #ba5f8f;outline-offset:1px;border-radius:12px}
+.labels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+  align-items:start;font-size:10px;font-weight:750;line-height:1.25;color:#a07a8f}
+.labels span{min-width:0;overflow-wrap:anywhere}
+.labels span:last-child{text-align:right}
+.labels .active{color:#713858;font-weight:900}
+@media(max-width:390px){
+  .controls:global(.camera-drape-switch){inset:auto 7px 8px;padding:7px 10px 6px}
+  .caption{font-size:8px}
+  .labels{font-size:9px;gap:7px}
+}
