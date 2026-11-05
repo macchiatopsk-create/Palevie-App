@@ -13,3 +13,12 @@ export function scoreDrapeLook(comparison:GuideComparison|null|undefined,goal:Dr
  const close=Math.abs(comparison.gaps[0]-comparison.gaps[1])<5||scores[0]===scores[1];
  return {scores,preferred:close?null:scores[0]>scores[1]?0:1,goal};
 }
+
+/** A descriptive relative contrast comparison, never an attractiveness or
+ * personal-color compatibility grade. A low numeric index is not a failure. */
+export function describeDrapeLook(look:DrapeLookScore|null|undefined,index:number):string {
+ if(!look)return "Checking…";
+ if(look.preferred===null)return "Similar contrast";
+ const stronger=look.goal==="bold"?look.preferred===index:look.preferred!==index;
+ return stronger?"Stronger contrast":"Softer contrast";
+}

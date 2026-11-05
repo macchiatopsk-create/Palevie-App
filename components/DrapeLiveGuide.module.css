@@ -36,10 +36,10 @@
 .scoreName{grid-column:1/-1;display:flex;align-items:center;gap:6px;min-width:0;
   font-size:10px;line-height:1.25;font-weight:750;color:#71455d;overflow-wrap:anywhere}
 .scoreName i{display:block;width:12px;height:12px;border-radius:4px;flex:none;border:1px solid #0002}
-.scoreNumber{display:flex;align-items:baseline;gap:2px;margin-top:5px;line-height:1}
-.scoreNumber strong{font-size:clamp(21px,5.5vw,28px);font-weight:850;color:#813e64;line-height:1;font-variant-numeric:tabular-nums}
-.scoreNumber span{font-size:9px;font-weight:650;color:#a08193}
-.scoreTile>small{margin-top:7px;font-size:9px;font-weight:800;white-space:nowrap;color:#a65a85;text-align:right}
+.scoreVerdict{grid-column:1/-1;display:grid;align-items:center;margin-top:5px;min-height:34px;
+  padding:7px 8px;border:1px solid #f2d2e1;border-radius:9px;background:#fff2f8}
+.scoreVerdict strong{font-size:clamp(11px,2.7vw,13px);font-weight:850;line-height:1.25;color:#87405f;
+  overflow-wrap:anywhere;text-align:center}
 /* The only direct A/B selection lives inside the score cards, not below video. */
 .scoreAction{grid-column:1/-1;min-width:0;margin-top:6px}
 .scoreTop .scoreDisclaimer{margin:6px 0 0;font-size:10px;line-height:1.35;font-weight:650;color:#916880;text-align:center}
@@ -63,7 +63,7 @@
  .scoreTop{padding:8px 8px 7px;margin-bottom:7px}
  .scoreCaption{font-size:9px}.scoreToolbar{margin-bottom:5px}
  .scoreTiles{gap:6px}.scoreTile{padding:7px 6px}
- .scoreName{font-size:9px}.scoreTile>small{font-size:8px}
+ .scoreName{font-size:9px}.scoreVerdict strong{font-size:11px}
  .goals button{padding:6px 8px;font-size:9px}
  .dock{padding:7px 6px;gap:5px}.statusRow{font-size:9px;min-width:110px}
  .refresh,.toggle{padding:7px;font-size:9px;min-height:33px}

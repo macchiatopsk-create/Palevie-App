@@ -92,6 +92,16 @@ export default function CameraDrape({colors,side,onSide,onPick,onWorse,onCant,on
     <button type="button" className="camera-drape-start" disabled={status==="starting"} onClick={startCamera}>
       {status==="starting"?"Waiting for camera permission…":"Turn on front camera"}
     </button>
+    <div className={styles.setupPreview} aria-label="Upcoming live color comparison">
+      <b>See your next two colors</b>
+      <div className={styles.setupSwatches}>
+        {colors.slice(0,2).map((color,i)=><span key={color.hex+i}>
+          <i style={{backgroundColor:color.hex}} aria-hidden="true"/>
+          <strong>{i===0?"A":"B"} · {color.label}</strong>
+        </span>)}
+      </div>
+      <p>Switch A / B on the live mirror, then choose your favorite.</p>
+    </div>
     <button type="button" className={styles.setupMirror} onClick={useMirror}>Use a mirror instead</button>
     <small>On-device · No photos stored</small>
   </section>;

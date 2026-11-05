@@ -38,6 +38,15 @@ for(const [id,url] of Object.entries(EXISTING_BRAND_FAMILY_PAGES)){
 }
 const shopSrc=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.tsx"),"utf8");
 const css=fs.readFileSync(path.resolve(__dirname,"../app/globals.css"),"utf8");
+assert(shopSrc.includes('data-shop-notes')&&shopSrc.includes('styles.savedNote'),
+  'Retailer, swatch and saved-color explanations should live in one optional disclosure.');
+assert(!shopSrc.includes('className="sh-shop-explainer"')&&!shopSrc.includes('className="sh-shop-curation"'),
+  'Long standing descriptions must not push the first product grid below the fold.');
+assert(shopSrc.indexOf('data-shop-notes')<shopSrc.indexOf('shop-grid shop-grid-compact'),
+  'Short disclosure must precede the immediately visible grid without another large notice.');
+const shopCss=fs.readFileSync(path.resolve(__dirname,"../components/ShopClient.module.css"),"utf8");
+assert(shopCss.includes('.shopNotes>summary')&&shopCss.includes('min-height:35px'),
+  'The notes disclosure has a small, accessible touch target.');
 assert(shopSrc.includes("shown.slice(0,visibleLimit)"),"Large Shop must paginate cards");
 assert(shopSrc.includes("Load more products"),"Users need full catalog access");
 assert(shopSrc.includes("setVisibleLimit(54)"),"Filters must reset page");
