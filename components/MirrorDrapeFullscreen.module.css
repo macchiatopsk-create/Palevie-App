@@ -1,0 +1,40 @@
+/* Physical mirror mode: the chosen color fills the entire phone viewport.
+   Controls sit above the safe-area; no fullscreen API or photo capture needed. */
+.overlay{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;
+  z-index:1100;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:contain;
+  box-sizing:border-box;color:#59334b}
+.colorField{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 13px 14px;
+  box-sizing:border-box;touch-action:pan-y}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.progress,.close,.shadeLabel{background:rgba(255,253,254,.92);border:1px solid rgba(105,57,83,.15);
+  box-shadow:0 3px 13px rgba(34,20,28,.13);color:#63354e}
+.progress{padding:10px 12px;border-radius:999px;font-size:10px;font-weight:850;letter-spacing:.07em}
+.close{min-width:92px;min-height:44px;padding:9px 12px;border-radius:999px;cursor:pointer;
+  font:inherit;font-size:13px;font-weight:850}
+.shadeLabel{align-self:center;max-width:min(92%,350px);padding:8px 18px;text-align:center;border-radius:16px;
+  display:flex;flex-direction:column;gap:2px;line-height:1.3}
+.shadeLabel strong{font-size:13px;font-weight:850;overflow-wrap:anywhere}
+.shadeLabel small{font-size:10px;color:#805e73}
+.controls{flex:none;box-sizing:border-box;width:100%;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 13px);
+  background:rgba(255,250,253,.97);border-top:1px solid #efc9db;box-shadow:0 -7px 22px #5c384a24}
+.pairTitle{margin:0 0 8px;font-size:12px;font-weight:850;text-align:center;color:#70445f;line-height:1.25}
+.switches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.switches button{min-width:0;min-height:46px;padding:7px 9px;border:1px solid #e7c1d4;border-radius:12px;background:#fff;
+  display:flex;align-items:center;gap:7px;cursor:pointer;font:inherit;font-size:11px;font-weight:750;color:#76516a;text-align:left}
+.switches button.active{border:2px solid #b84e82;background:#ffe6f1;padding:6px 8px;color:#743a5a}
+.switches i{flex:none;width:24px;height:24px;border:2px solid #fff;box-shadow:0 0 0 1px #d6a6bb;border-radius:50%}
+.switches span{min-width:0;overflow-wrap:anywhere}
+.primary{width:100%;min-height:48px;border:0;border-radius:12px;background:#913e6d;
+  color:white;font:inherit;font-size:14px;font-weight:850;cursor:pointer}
+.secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:7px}
+.secondary button{min-height:43px;border:1px solid #e9c6d7;border-radius:10px;background:#fff;
+  color:#805671;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
+.previous{display:block;min-height:32px;margin:5px auto 0;padding:5px 12px;border:0;background:none;
+  color:#8a6580;text-decoration:underline;font:inherit;font-size:11px;font-weight:750;cursor:pointer}
+.overlay button:focus-visible{outline:3px solid #ad4980;outline-offset:3px}
+@media(max-height:610px){.colorField{padding-top:calc(env(safe-area-inset-top,0px) + 6px);padding-bottom:6px}
+  .controls{padding-top:7px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 7px)}
+  .pairTitle{margin-bottom:5px}.switches{margin-bottom:6px}.switches button{min-height:40px}
+  .primary{min-height:42px}.secondary button{min-height:37px}
+  .shadeLabel small{display:none}}

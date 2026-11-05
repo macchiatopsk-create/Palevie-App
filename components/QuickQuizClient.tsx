@@ -115,13 +115,13 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
           <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
             <div className={styles.entryIllustration} aria-hidden="true">✎</div>
             <span className={styles.entryStep}>01 · SELF CHECK</span>
-            <h3>Self Quiz</h3><p className={styles.entryDescription}>7 self-guided questions</p><p className={styles.entryExplainer}><strong>Mirror recommended</strong><span>Check your natural coloring as you answer. No camera needed.</span></p>
+            <h3>Self Quiz</h3><p className={styles.entryDescription}>7 self-guided questions</p><p className={styles.entryExplainer}><strong>Just your preferences</strong><span>Answer at your own pace. No camera or special tools needed.</span></p>
             <Link className={styles.entryQuiz} href="/quiz?start=questions">Start self quiz →</Link>
           </div>
           <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
             <span className={styles.entryCameraIcon} aria-hidden="true">◎</span>
-            <span className={styles.entryStep}>02 · LIVE CAMERA</span>
-            <h3>Live Draping</h3><p className={styles.entryDescription}>Try colors beside your face</p><p className={styles.entryExplainer}><strong>A live mirror, not a photo</strong><span>No picture is taken, saved, or uploaded. Slide between colors.</span></p>
+            <span className={styles.entryStep}>02 · CAMERA OR MIRROR</span>
+            <h3>Live Draping</h3><p className={styles.entryDescription}>Try colors beside your face</p><p className={styles.entryExplainer}><strong>Camera or real mirror</strong><span>Use live camera colors or full-screen swatches. No picture is taken, saved, or uploaded.</span></p>
             <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Open draping →</Link>
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
             <summary aria-label="About the seven-question quiz" title="About this option">ⓘ</summary>
             <div className={styles.entryPopover}>
               <b>Self Quiz</b>
-              <p>Answer seven self-guided questions about coloring and style preferences. A mirror in natural light can help, but no camera is needed. This gives an exploratory palette, not a verified color-season diagnosis.</p>
+              <p>Answer seven self-guided questions about coloring and style preferences. No camera or special tools are needed. This gives an exploratory palette, not a verified color-season diagnosis.</p>
             </div>
           </details>
           <div className={styles.entryIllustration} aria-hidden="true">
@@ -197,7 +197,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
           <span className={styles.entryStep}>01 · SELF CHECK</span>
           <h3>Self Quiz</h3>
           <p className={styles.entryDescription}>7 self-guided questions</p>
-          <p className={styles.entryExplainer}><strong>Mirror recommended</strong><span>Check your natural coloring as you answer. No camera needed.</span></p>
+          <p className={styles.entryExplainer}><strong>Just your preferences</strong><span>Answer at your own pace. No camera or special tools needed.</span></p>
           <button type="button" className={styles.entryQuiz} onClick={()=>{
             setQuizStarted(true);
             track("quiz_intro_started",{source:"quiz_mode_choice",method:"questions"});
@@ -210,7 +210,7 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
             <summary aria-label="About live camera color scan" title="About this option">ⓘ</summary>
             <div className={styles.entryPopover}>
               <b>Live Draping</b>
-              <p>Your front camera works like a live mirror while colors appear beside your face. No photo is taken, saved, or uploaded. The on-device styling guide is not a certified undertone or season diagnosis.</p>
+              <p>Compare colors with an on-device camera preview, or view full-screen swatches beside a real mirror. No photo is taken, saved, or uploaded. Neither method is a certified undertone or season diagnosis.</p>
             </div>
           </details>
           <span className={styles.entryCameraIcon} aria-hidden="true">
@@ -221,10 +221,10 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
               <path d="M52 5v9M47.5 9.5h9"/>
             </svg>
           </span>
-          <span className={styles.entryStep}>02 · LIVE CAMERA</span>
+          <span className={styles.entryStep}>02 · CAMERA OR MIRROR</span>
           <h3>Live Draping</h3>
           <p className={styles.entryDescription}>Try colors beside your face</p>
-          <p className={styles.entryExplainer}><strong>A live mirror, not a photo</strong><span>No picture is taken, saved, or uploaded. Slide between colors.</span></p>
+          <p className={styles.entryExplainer}><strong>Camera or real mirror</strong><span>Use live camera colors or full-screen swatches. No picture is taken, saved, or uploaded.</span></p>
           <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera"
             onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
             Open draping <span className={styles.entryCameraGo} aria-hidden="true">→</span>
