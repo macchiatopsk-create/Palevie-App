@@ -55,30 +55,39 @@
     if(!reg)return fail('no-face');
     const {points,fw,fh}=reg;
     if(fw<.20||fh<.28)return fail('too-small',points);
-    if(fh>.90||points.some(p=>p.x-p.r<.02||p.x+p.r>.98||p.y-p.r<.02||p.y+p.r>.98))return fail('cropped',points);
+    // Lower forehead may be cropped by bangs, caps or portrait framing. Require
+    // both CHEEKS to be fully visible; the forehead is an optional third sample.
+    const cheeks=points.slice(1);
+    if(fw>.93||cheeks.some(p=>p.x-p.r<.02||p.x+p.r>.98||p.y-p.r<.02||p.y+p.r>.98))return fail('cropped',cheeks);
     const left=lm[33],right=lm[263],nose=lm[1];
     const dx=(right.x-left.x)*image.width,dy=(right.y-left.y)*image.height;
     const roll=Math.abs(Math.atan2(dy,Math.abs(dx))*180/Math.PI);
     const mid=(left.x+right.x)/2,eyeWidth=Math.abs(right.x-left.x);
     const yaw=Math.abs(nose.x-mid)/Math.max(eyeWidth,.001);
     if(roll>12||yaw>.30)return fail('pose',points);
-    const patches=points.map(p=>patch(image,p));
-    if(patches.some(p=>!p))return fail('cropped',points);
-    if(patches.some(p=>p.low>.15||p.high>.18))return fail('clipped',points);
-    // No absolute skin-brightness gate: dark skin must not be treated as bad light.
-    if(Math.abs(lightness(patches[1].rgb)-lightness(patches[2].rgb))>18)return fail('uneven',points);
-    // A hat brim, hair or deep shadow can be mistaken for forehead skin. Such a
-    // region should not yield an apparently successful three-site measurement.
-    const cheekLight=(lightness(patches[1].rgb)+lightness(patches[2].rgb))/2;
-    if(Math.abs(lightness(patches[0].rgb)-cheekLight)>28)return fail('forehead-covered',points);
-    const rgb=[0,1,2].map(c=>median(patches.map(p=>p.rgb[c])));
+    const cheekPatches=cheeks.map(p=>patch(image,p));
+    if(cheekPatches.some(p=>!p))return fail('cropped',cheeks);
+    if(cheekPatches.some(p=>p.low>.15||p.high>.18))return fail('clipped',cheeks);
+    // Natural skin brightness is not a quality gate. Compare the two CHEEKS
+    // for uneven lighting; a shadowed forehead cannot override valid cheeks.
+    if(Math.abs(lightness(cheekPatches[0].rgb)-lightness(cheekPatches[1].rgb))>18)return fail('uneven',cheeks);
+    const cheekLight=(lightness(cheekPatches[0].rgb)+lightness(cheekPatches[1].rgb))/2;
+    const forehead=patch(image,points[0]);
+    const usedForehead=Boolean(forehead&&forehead.low<=.15&&forehead.high<=.18&&
+      Math.abs(lightness(forehead.rgb)-cheekLight)<=28);
+    const patches=usedForehead?[forehead,...cheekPatches]:cheekPatches;
+    const usablePoints=usedForehead?points:cheeks;
+    // A cheek-only reading is an even two-cheek average; do not substitute
+    // hair/hat pixels or invent a forehead value when the top is obstructed.
+    const rgb=[0,1,2].map(c=>usedForehead?median(patches.map(p=>p.rgb[c])):
+      Math.round((cheekPatches[0].rgb[c]+cheekPatches[1].rgb[c])/2));
     const center={x:(lm[234].x+lm[454].x)/2,y:(lm[10].y+lm[152].y)/2};
     const motion=previous?.center?Math.hypot(center.x-previous.center.x,center.y-previous.center.y):0;
     const shift=previous?.rgb?Math.max(...rgb.map((v,i)=>Math.abs(v-previous.rgb[i]))):0;
-    const changed=motion>.018||shift>10;
+    const changed=motion>.018||shift>10||Boolean(previous&&previous.usedForehead!==usedForehead);
     const streak=changed?0:(previous?.streak||0)+1;
-    return {status:changed?'changed':streak<5?'settling':'ready',points,rgb:streak>=5&&!changed?rgb:null,
-      next:{center,rgb,streak:Math.min(streak,6)}};
+    return {status:changed?'changed':streak<5?'settling':'ready',points:usablePoints,rgb:streak>=5&&!changed?rgb:null,
+      next:{center,rgb,streak:Math.min(streak,6),usedForehead}};
   }
   const api={lightness,hexRgb,compare,coverPoint,patch,regions,inspect};
   root.PalevieDrapeMeasure=api;

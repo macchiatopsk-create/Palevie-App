@@ -109,6 +109,12 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   assert(guide.includes('className={styles.scoreAction}')&&guide.indexOf('className={styles.scoreAction}')<guide.indexOf('   {children}'),
     'Each score tile must contain its own recording control above the video.');
   assert(guide.includes('LIVE LOOK GUIDE')&&guide.includes('styles.scoreTop')&&guide.includes('styles.helpPanel'));
+  assert(camera.includes('styles.setupPreview')&&camera.includes('styles.setupSwatches')&&
+    camera.includes('No photos stored')&&camera.includes('Turn on front camera'),
+    'Camera setup should show a compact A/B preview and privacy reassurance without burying the start CTA.');
+  assert(guide.includes('data-look-contrast={i}')&&!guide.includes('data-look-score={i}')&&
+    !guide.includes('<span>/100</span>'),
+    'Guide should describe contrast, not suggest a personal-color accuracy or beauty grade.');
   const palette=source('app/globals.css'),v=source('components/VirtualMakeupTryOn.module.css'),
     q=source('components/QuickQuizClient.module.css'),shop=source('components/ShopClient.module.css'),
     mirror=source('components/MirrorDrapeFullscreen.module.css');

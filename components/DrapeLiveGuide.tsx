@@ -6,25 +6,25 @@ import {advanceGuideView,emptyGuideView,mapGuidePoint,patchObstructed} from "@/l
 import type {GuideComparison,GuideLayout,GuidePoint} from "@/lib/drapeGuideView";
 import styles from "./DrapeLiveGuide.module.css";
 import DrapeColorControls from "./DrapeColorControls";
-import {scoreDrapeLook,type DrapeLookGoal} from "@/lib/drapeLookScore";
+import {scoreDrapeLook,describeDrapeLook,type DrapeLookGoal} from "@/lib/drapeLookScore";
 import {captureLocalGuideFrame} from "@/lib/localGuideFrame";
 
 type Color={label:string;hex:string};
 type Measurement={type:"measurement";status:string;points:GuidePoint[];comparison:GuideComparison|null;pair:string;received:number};
 type Phase="off"|"loading"|"running"|"error"|"paused";
 const MESSAGES:Record<string,[string,string]>={
- "no-face":["Find your face","Keep your forehead and cheeks in view. You do not need to match the outline."],
+ "no-face":["Find your face","Keep both cheeks and your eyes in view. Your forehead can be covered."],
  multiple:["One face at a time","Move other faces out of the preview. The previous comparison has been cleared."],
- "too-small":["Come a little closer","Hold the phone at a comfortable distance with your forehead and cheeks visible."],
- cropped:["Keep forehead and cheeks visible","Re-center the phone gently. You do not need to fit your whole head inside the outline."],
+ "too-small":["Come a little closer","Keep both cheeks comfortably in view. Your forehead does not need to show."],
+ cropped:["Keep both cheeks in view","Re-center so both cheeks fit. Your forehead may be out of frame."],
  pose:["Look toward the camera","Level your head gently. There is no need to stretch your arm out."],
  clipped:["Try softer light","Some camera detail is lost. Move away from harsh glare or very deep shadow."],
  uneven:["Try more even light","The cheeks look different in brightness. Light, makeup or natural color differences can cause this."],
  changed:["Let the camera settle","Rest your elbow and hold comfortably for a moment. We will wait for a steady comparison."],
  settling:["Checking your view","Hold comfortably for a moment. The comparison will stay still once it is ready."],
  held:["Comparison held","This is your last steady comparison, not a changing live score. Read at your pace, or refresh for a new reading."],
- obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."],
- "forehead-covered":["Forehead may be covered or shadowed","Move your hat or hair away from your forehead and avoid strong shadow. The scan will not score this view."]
+ obstructed:["Move your cheeks into view","Keep both cheeks above the color band; your forehead can be covered."],
+ "forehead-covered":["Checking visible cheeks","The guide can use both cheeks when the forehead is covered, provided the lighting is even."]
 };
 export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide,voteButtons}:{
  videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;voteButtons:ReactNode[];
@@ -158,24 +158,23 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
        <summary title="About the scan and scores" aria-label="About this scan and its scores">ⓘ</summary>
        <div className={styles.helpPanel} id={consentId}>
         <b>How to use your camera</b>
-        <p><strong>Preview:</strong> Drag the single slider left or right across the color cloth. Moving the slider does not save your choice.</p>
-        <p><strong>Pick:</strong> Tap “Looks better” inside the A or B score card above your camera to save your preference. Scores are styling references, not personal-color results. You can mark the currently previewed color as worse, or skip.</p>
-        <p><strong>Look score:</strong> Soft/Bold scores describe light-and-dark contrast for the chosen style, not skin compatibility, seasonal type, attractiveness, color accuracy, or a likelihood percentage. Similar scores do not prove a winner.</p>
-        <p><strong>Scan:</strong> Keep your forehead and cheeks in even daylight. The guide waits for a steady view, then holds the comparison until refreshed. You can pause it without closing your camera.</p>
+        <p><strong>Preview:</strong> Tap A or B on the color cloth to switch shades. Previewing does not save a choice.</p>
+        <p><strong>Pick:</strong> Tap “Looks better” inside the A or B comparison card above your camera to save your preference. You can also mark the previewed color as worse or skip.</p>
+        <p><strong>Contrast guide:</strong> Softer, stronger or similar describes only relative light-and-dark contrast. It is not a suitability rating, accurate skin-tone measurement, season diagnosis or confidence percentage. You decide which color looks better.</p>
+        <p><strong>Scan:</strong> Keep both cheeks visible in even daylight. The forehead can be covered or cropped. Uneven light, clipped cheeks, rapid motion or multiple faces still prevent a comparison. The guide waits for a steady view.</p>
         <p><strong>Privacy:</strong> Facial areas are located on your device, not identity or personal color. No camera frames uploaded or stored and no measurement analytics sent. Illumination, filters and makeup influence the estimates.</p>
        </div>
       </details>
      </div>
     </div>
-    <div className={styles.scoreTiles} aria-label={`Two ${goal}-look styling scores, not personal color match scores`}>
+    <div className={styles.scoreTiles} aria-label={`Two ${goal}-look contrast descriptions, not personal-color match scores`}>
      {scoreLabels.map((color,i)=><div className={`${styles.scoreTile} ${side===i?styles.scoreCurrent:""}`} key={color.hex+i}>
       <span className={styles.scoreName}><i style={{background:color.hex}} aria-hidden="true"/>{i===0?"A":"B"} · {color.label}</span>
-      <div className={styles.scoreNumber}><strong data-look-score={i}>{enabled&&lookScore?lookScore.scores[i]:"—"}</strong><span>/100</span></div>
-      <small>{enabled&&lookScore?lookScore.preferred===null?"Similar":lookScore.preferred===i?"Try first":"Compare":"Waiting…"}</small>
+      <div className={styles.scoreVerdict} data-look-contrast={i}><strong>{describeDrapeLook(enabled?lookScore:null,i)}</strong></div>
       <div className={styles.scoreAction}>{voteButtons[i]}</div>
      </div>)}
     </div>
-    <p className={styles.scoreDisclaimer}>Soft/Bold scores = contrast only · Tap ✓ to choose</p>
+    <p className={styles.scoreDisclaimer}>Contrast only · You decide what looks better</p>
    </div>
    {children}
    <div className={styles.dock} data-guide-dock>

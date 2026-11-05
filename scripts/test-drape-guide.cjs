@@ -39,16 +39,39 @@ test('camera face-area coordinates match CSS cover crop with horizontal selfie m
  assert.ok(Math.abs(testPoint.y-(.5*520-8.8))<1e-6);
  assert.ok(Math.abs(testPoint.x-195)<1e-6);
 });
-test('forehead samples avoid hairline and reject dark hat/shadow rather than report readiness',()=>{
+test('shadowed forehead falls back to two even cheeks, never hat pixels',()=>{
  const region=M.regions(landmarks());
- assert.ok(Math.abs(region.points[0].y-.27)<1e-8,'landmark 151 should set central forehead center');
+ assert.ok(Math.abs(region.points[0].y-.27)<1e-8,'lower forehead location remains measurable when visible');
  const im=image([140,140,140]);
  for(let y=70;y<=103;y++)for(let x=140;x<=180;x++)im.data.set([20,20,20,255],(y*im.width+x)*4);
- const sampled=M.inspect(im,[landmarks()],null);
- assert.equal(sampled.status,'forehead-covered');
- assert.equal(sampled.rgb,null);
- const normal=M.inspect(image([140,140,140]),[landmarks()],null);
- assert.equal(normal.status,'settling');
+ let sample=M.inspect(im,[landmarks()],null);
+ assert.equal(sample.status,'settling');assert.equal(sample.points.length,2,'Covered forehead is excluded');
+ let previous=sample.next;
+ for(let i=0;i<5;i++){sample=M.inspect(im,[landmarks()],previous);previous=sample.next;}
+ assert.equal(sample.status,'ready');assert.ok(sample.rgb);
+ assert.deepEqual(sample.rgb,[140,140,140],'No dark hair/hat pixels influence the cheek-only estimate');
+ assert.equal(M.inspect(image(),[landmarks()],null).points.length,3,'Usable forehead remains a valid third sample');
+});
+test('forehead can be out of view when both cheeks are visible',()=>{
+ const lm=landmarks();lm[10].y=-.22;lm[151].y=-.04;
+ let sample,previous=null;
+ for(let i=0;i<6;i++){sample=M.inspect(image(),[lm],previous);previous=sample.next;}
+ assert.equal(sample.status,'ready','A cropped forehead alone must not block a valid cheek comparison');
+ assert.equal(sample.points.length,2);
+});
+test('cheek gates stay strict for shadows, clipping, missing face and unstable frames',()=>{
+ const im=image([140,140,140]);
+ for(let y=145;y<170;y++)for(let x=96;x<118;x++)im.data.set([0,0,0,255],(y*im.width+x)*4);
+ assert.notEqual(M.inspect(im,[landmarks()],null).status,'ready');
+ const l=landmarks();l[50].x=-.2;l[101].x=-.2;l[205].x=-.2;l[187].x=-.2;
+ assert.equal(M.inspect(image(),[l],null).status,'cropped');
+ assert.equal(M.inspect(image(),[],null).status,'no-face');
+ assert.equal(M.inspect(image(),[landmarks(),landmarks()],null).status,'multiple');
+ const full=M.inspect(image(),[landmarks()],null);
+ const hidden=image([140,140,140]);
+ for(let y=70;y<=103;y++)for(let x=140;x<=180;x++)hidden.data.set([20,20,20,255],(y*hidden.width+x)*4);
+ const switched=M.inspect(hidden,[landmarks()],full.next);
+ assert.equal(switched.status,'changed','Switching from three-site to cheek-only needs fresh stable frames');
 });
 test('face landmarks measure privately without drawing a forehead marker on preview',()=>{
  const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
@@ -68,7 +91,7 @@ test('score tiles combine votes and compact preview A/B tabs',()=>{
  const top=guide.indexOf('className={styles.scoreTop}'),scoreAction=guide.indexOf('className={styles.scoreAction}'),stage=guide.indexOf('   {children}');
  assert(top>=0&&scoreAction>top&&scoreAction<stage,
    'Combined score/vote cards must stay above the live video preview');
- assert(guide.includes('data-look-score={i}')&&guide.includes('data-guide-comparison'),
+ assert(guide.includes('data-look-contrast={i}')&&guide.includes('data-guide-comparison'),
    'Separate A/B soft-bold styling indices remain visible');
  assert(guide.includes('className={styles.help} data-guide-help')&&guide.includes('aria-label="About this scan and its scores"'),
    'Detailed instructions stay behind an accessible help icon');
