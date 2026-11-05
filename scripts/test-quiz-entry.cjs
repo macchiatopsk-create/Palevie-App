@@ -64,10 +64,15 @@ assert(entryStyles.includes(".entryExplainer{")&&entryStyles.includes("justify-c
   "Explanations should fill the card below the illustration instead of leaving an empty gap.");
 assert(quick.includes("<h3>Self Quiz</h3>")&&quick.includes("<h3>Live Draping</h3>")&&page.includes("Live Draping"),
   "SSR and hydrated opening must name the self-guided quiz and live draping consistently.");
-assert(quick.includes("Mirror recommended")&&quick.includes("No picture is taken, saved, or uploaded."),
-  "Show honest mirror guidance and on-device photo-free privacy before the user starts.");
-assert(page.includes("Mirror recommended")&&page.includes("No picture is taken, saved, or uploaded."),
-  "SSR fallback must show the same choice explanations.");
+assert(!quick.includes("Mirror recommended")&&!page.includes("Mirror recommended"),
+  "Self Quiz must not suggest a physical mirror; mirror comparison belongs in Draping.");
+assert(quick.includes("Just your preferences")&&page.includes("Just your preferences"),
+  "Both the hydrated and server entry should present a self-guided, no-tools quiz.");
+assert(quick.includes("Camera or real mirror")&&page.includes("Camera or real mirror"),
+  "The Draping tile should explain that camera and physical-mirror methods live together.");
+assert(quick.includes("full-screen swatches")&&page.includes("full-screen swatches")&&
+  quick.includes("No picture is taken, saved, or uploaded."),
+  "Draping entry must disclose fullscreen mirror mode and camera privacy accurately.");
 const nav=read("components/MobileNav.tsx"),globalStyle=read("app/globals.css");
 assert(!nav.includes('["/diagnose","Scan"')&&globalStyle.includes("grid-template-columns:repeat(5,1fr)"),
   "Mobile tab bar should remove the redundant Scan entry, leaving five equal destinations.");
