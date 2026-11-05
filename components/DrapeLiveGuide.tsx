@@ -26,8 +26,8 @@ const MESSAGES:Record<string,[string,string]>={
  obstructed:["Re-center your face gently","Keep forehead and cheeks above the color band. You do not need to fit the outline."],
  "forehead-covered":["Forehead may be covered or shadowed","Move your hat or hair away from your forehead and avoid strong shadow. The scan will not score this view."]
 };
-export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide}:{
- videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;
+export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,children,side,onSide,voteButtons}:{
+ videoRef:RefObject<HTMLVideoElement|null>;stageRef:RefObject<HTMLDivElement|null>;playing:boolean;colors:Color[];children:ReactNode;side:number;onSide:(side:number)=>void;voteButtons:ReactNode[];
 }){
  const consentId=useId(),toolsId=useId();
  const [goal,setGoal]=useState<DrapeLookGoal>("soft");
@@ -144,7 +144,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
   message[0];
  const scoreLabels=colors.slice(0,2);
  return <>
-  {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide} enabled={enabled} score={lookScore}/>,stage)}
+  {stage&&createPortal(<DrapeColorControls colors={colors} side={side} onSide={onSide}/>,stage)}
   <section className={styles.panel} aria-label="Palevie live color comparison guide">
    <div className={styles.scoreTop} data-guide-comparison data-look-recommendation>
     <div className={styles.scoreToolbar}>
@@ -158,8 +158,8 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
        <summary title="About the scan and scores" aria-label="About this scan and its scores">ⓘ</summary>
        <div className={styles.helpPanel} id={consentId}>
         <b>How to use your camera</b>
-        <p><strong>Preview:</strong> Tap A or B on the color cloth to switch shades. Look at the colors beside your face.</p>
-        <p><strong>Pick:</strong> Choose A or B below the camera to save the color you like. You can mark the currently previewed color as “not for me” or skip if unsure.</p>
+        <p><strong>Preview:</strong> Drag the single slider left or right across the color cloth. Moving the slider does not save your choice.</p>
+        <p><strong>Pick:</strong> Tap “Looks better” inside the A or B score card above your camera to save your preference. Scores are styling references, not personal-color results. You can mark the currently previewed color as worse, or skip.</p>
         <p><strong>Look score:</strong> Soft/Bold scores describe light-and-dark contrast for the chosen style, not skin compatibility, seasonal type, attractiveness, color accuracy, or a likelihood percentage. Similar scores do not prove a winner.</p>
         <p><strong>Scan:</strong> Keep your forehead and cheeks in even daylight. The guide waits for a steady view, then holds the comparison until refreshed. You can pause it without closing your camera.</p>
         <p><strong>Privacy:</strong> Facial areas are located on your device, not identity or personal color. No camera frames uploaded or stored and no measurement analytics sent. Illumination, filters and makeup influence the estimates.</p>
@@ -172,9 +172,10 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       <span className={styles.scoreName}><i style={{background:color.hex}} aria-hidden="true"/>{i===0?"A":"B"} · {color.label}</span>
       <div className={styles.scoreNumber}><strong data-look-score={i}>{enabled&&lookScore?lookScore.scores[i]:"—"}</strong><span>/100</span></div>
       <small>{enabled&&lookScore?lookScore.preferred===null?"Similar":lookScore.preferred===i?"Try first":"Compare":"Waiting…"}</small>
+      <div className={styles.scoreAction}>{voteButtons[i]}</div>
      </div>)}
     </div>
-    <p className={styles.scoreDisclaimer}>For a {goal} look · not a personal-color match</p>
+    <p className={styles.scoreDisclaimer}>Contrast guide only · Choose A or B above to record your preference</p>
    </div>
    {children}
    <div className={styles.dock} data-guide-dock>
@@ -186,7 +187,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       onClick={()=>{clearMeasurements();setEpoch(n=>n+1);}} aria-label="Refresh styling comparison">↻ Refresh</button>
     <button type="button" className={styles.toggle} aria-label={phase==="error"?"Retry on-device scan":enabled?"Pause on-device scan and clear measurements":"Start live scan"}
       aria-pressed={enabled} aria-controls={toolsId} onClick={()=>{clearMeasurements();if(phase==="error"){setScanError("");setEpoch(v=>v+1);}else setEnabled(v=>!v);}}>
-      {phase==="error"?"Retry":enabled?"Scan on":"Scan off"}
+      {phase==="error"?"Retry":enabled?"Pause":"Resume"}
     </button>
    </div>
    <div id={toolsId} hidden={!enabled} />
