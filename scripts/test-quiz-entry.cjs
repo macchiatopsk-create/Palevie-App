@@ -58,8 +58,12 @@ assert(entryStyles.includes(".entryScanTile{background:linear-gradient(155deg,#f
   "Camera half remains unmistakably blush pink.");
 assert(entryStyles.includes(".entryCamera:focus-visible")&&entryStyles.includes(".entryInfo>summary:focus-visible"),
   "Camera and info controls must remain keyboard accessible.");
-assert(entryStyles.includes("min-height:clamp(286px,52svh,392px)"),
-  "Mobile two-column choice must be tall and comfortably tappable.");
+assert(entryStyles.includes("min-height:clamp(260px,43svh,332px)"),
+  "Mobile two-column cards must be compact but comfortably tappable.");
+assert(entryStyles.includes(".entryTile:has(.entryInfo[open])")&&entryStyles.includes("overflow:visible"),
+  "Opened help must layer above adjacent cards without clipping.");
+assert(entryStyles.includes("max-height:min(260px,calc(100dvh - 132px))")&&entryStyles.includes("overflow-y:auto"),
+  "Help details need a capped, scrollable popover for short phones.");
 // Rapid answers must never be throttled just because Q2 appears <250ms after Q1.
 const q0=q.initialQuickState();
 const q1=q.answerQuickStateOnce(q0,1,null);
