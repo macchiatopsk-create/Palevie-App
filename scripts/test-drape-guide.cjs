@@ -114,6 +114,91 @@ test('range slider changes camera preview only, never invokes a vote',()=>{
  assert.equal(votes.length,0,'Moving slider should never submit a preference');
  assert.equal(find(rootNode,x=>x.type==='button'),null,'No duplicate switch buttons inside camera');
 });
+test('mirror mode offers a full viewport color without camera or photo capture',()=>{
+ const mirror=fs.readFileSync(path.join(root,'components/MirrorDrapeFullscreen.tsx'),'utf8');
+ const css=fs.readFileSync(path.join(root,'components/MirrorDrapeFullscreen.module.css'),'utf8');
+ const drape=fs.readFileSync(path.join(root,'components/ColorDrapingClient.tsx'),'utf8');
+ assert(drape.includes('mode==="mirror"&&mirrorFullscreen&&<MirrorDrapeFullscreen'),
+   'Fullscreen belongs exclusively to the camera-free mirror draping method');
+ assert(drape.includes('className={styles.mirrorFullscreen}')&&drape.includes('onBetter={()=>answer(side===1?1:0,"better")}'),
+   'Mirror offers a visible expand control and records real A/B feedback via existing draping state');
+ assert(mirror.includes('createPortal(')&&mirror.includes('role="dialog" aria-modal="true"'),
+   'The color must fill the viewport above any mobile navigation');
+ assert(css.includes('position:fixed;inset:0')&&css.includes('height:100dvh')&&css.includes('z-index:1100'),
+   'True viewport-filling overlay handles dynamic mobile viewport');
+ assert(css.includes('env(safe-area-inset-bottom')&&css.includes('env(safe-area-inset-top'),
+   'Fullscreen controls avoid notches and home indicator');
+ assert(!/getUserMedia|captureStream|toDataURL|toBlob|canvas|fetch\(|track\(/.test(mirror),
+   'Mirror color view never asks for camera permission, captures images or sends image data');
+ assert(mirror.includes('onTouchEnd={endSwipe}')&&mirror.includes('onSide(end<x?1:0)'),
+   'A simple horizontal gesture changes the preview without automatically voting');
+});
+test('fullscreen color swipe previews only; deliberate vote, escape and scroll cleanup work',()=>{
+ const ts=require('typescript');
+ const file=fs.readFileSync(path.join(root,'components/MirrorDrapeFullscreen.tsx'),'utf8');
+ const source=ts.transpileModule(file,{compilerOptions:{
+   module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true
+ }}).outputText;
+ const mod={exports:{}},jsx=(type,props)=>({type,props});
+ const listeners=new Map(),hooks=[],cleanups=[];
+ let cursor=0,restored=0;
+ class Focused{focus(){restored++;}}
+ const doc={
+   body:{style:{overflow:'auto'}},activeElement:new Focused(),
+   addEventListener(type,fn){listeners.set(type,fn);},
+   removeEventListener(type,fn){if(listeners.get(type)===fn)listeners.delete(type);}
+ };
+ const react={
+   useRef(value){const i=cursor++;if(!(i in hooks))hooks[i]={current:value};return hooks[i];},
+   useEffect(fn){const i=cursor++;if(!(i in hooks)){hooks[i]={effect:true};cleanups.push(fn());}}
+ };
+ vm.runInNewContext(source,{module:mod,exports:mod.exports,document:doc,HTMLElement:Focused,
+   require(name){
+     if(name==='react')return react;
+     if(name==='react-dom')return {createPortal:node=>node};
+     if(name==='react/jsx-runtime')return {jsx,jsxs:jsx,Fragment:'fragment'};
+     if(name.endsWith('.module.css'))return {__esModule:true,default:new Proxy({},{get:(_,key)=>key})};
+     throw Error('Unexpected mirror import '+name);
+   }
+ },{filename:'MirrorDrapeFullscreen.compiled.cjs'});
+ const colors=[{label:'Soft ivory',hex:'#f1e7da'},{label:'Pure white',hex:'#ffffff'}];
+ let preview=-1,better=0,worse=0,unsure=0,close=0;
+ const props={colors,side:0,title:'Ivory or pure white?',step:1,total:4,
+   onSide:index=>preview=index,onBetter:()=>better++,onWorse:()=>worse++,
+   onUnsure:()=>unsure++,onClose:()=>close++};
+ const render=side=>{cursor=0;return mod.exports.default({...props,side});};
+ const find=(node,pred)=>{
+   if(!node||typeof node!=='object')return null;
+   if(pred(node))return node;
+   for(const child of [node.props?.children].flat(Infinity)){
+     const found=find(child,pred);if(found)return found;
+   }
+   return null;
+ };
+ const tree=render(0);assert.equal(doc.body.style.overflow,'hidden');
+ assert.equal(tree.props.role,'dialog');
+ const field=find(tree,n=>n.props?.onTouchStart&&n.props?.onTouchEnd);
+ assert(field,'Large swatch should accept a horizontal swipe');
+ field.props.onTouchStart({changedTouches:[{clientX:290}]});
+ field.props.onTouchEnd({changedTouches:[{clientX:120}]});
+ assert.equal(preview,1);assert.equal(better,0,'Swiping must not vote');
+ const white=render(1);
+ assert.equal(white.props.style.backgroundColor,'#ffffff');
+ const vote=find(white,n=>n.type==='button'&&n.props?.['aria-label']==='Mark Pure white as looking better');
+ assert(vote,'The selected full screen shade must have a deliberate vote control');
+ vote.props.onClick();assert.equal(better,1);
+ const worseButton=find(white,n=>n.type==='button'&&n.props?.['aria-label']==='Mark Pure white as looking worse');
+ worseButton.props.onClick();assert.equal(worse,1);
+ const notSure=find(white,n=>n.type==='button'&&n.props?.children==='Not sure');
+ notSure.props.onClick();assert.equal(unsure,1);
+ const keys=listeners.get('keydown');assert(keys,'Escape and arrow keys must be handled');
+ keys({key:'ArrowLeft',preventDefault(){}});assert.equal(preview,0);
+ keys({key:'Escape',preventDefault(){}});assert.equal(close,1);
+ cleanups.forEach(fn=>fn?.());
+ assert.equal(doc.body.style.overflow,'auto');
+ assert.equal(listeners.size,0);
+ assert.equal(restored,1,'Return focus when the full-screen overlay closes');
+});
 test('guide component has no storage or analytics calls',()=>{const src=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');assert.ok(!/localStorage|sessionStorage|indexedDB|\btrack\(|\/api\//.test(src));assert.ok(src.includes('worker?.terminate()'));assert.ok(src.includes('bitmap?.close()')||src.includes('bitmap.close()'));assert.ok(src.includes('visibilitychange'));});
 (async()=>{
  const calls=[],messages=[];let closed=false,bitmapClosed=false;
