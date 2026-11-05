@@ -95,13 +95,31 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   assert(camera.includes('styles.scanSwitch')&&camera.indexOf('styles.scanSwitch')>camera.indexOf('camera-drape-cloth'));
   assert(style.includes('object-fit:cover')&&!style.includes('object-fit:contain'));
   assert(style.includes('bottom:10px'));
-  assert(style.includes('height:clamp(250px,37dvh,330px)')&&style.includes('height:clamp(235px,35dvh,280px)'),
-    'Live mobile camera height must leave room for voting above the fixed bottom navigation.');
+  assert(style.includes('height:clamp(385px,56dvh,510px)')&&style.includes('height:clamp(350px,54dvh,445px)'),
+    'Mobile camera height must preserve a face-sized portrait view instead of cropping the head.');
+  assert(style.includes('height:30%')&&style.includes('object-fit:cover'),
+    'Draping cloth leaves more of the live face visible without altering cover mapping.');
+  const control=source('components/DrapeColorControls.tsx'),controlCss=source('components/DrapeColorControls.module.css');
+  assert(control.includes('onClick={()=>onSide(i)}')&&!control.includes('type="range"'),
+    'Only two compact preview taps remain; the long slider is removed.');
+  assert(controlCss.includes('width:min(300px,calc(100% - 16px))'),
+    'A/B preview choices should not span the full camera width.');
   assert(camera.includes('className={styles.voteAction}')&&camera.includes('voteButtons={voteButtons}')&&camera.includes('{secondaryActions}'),
     'Actual A/B votes should live inside score cards, leaving only secondary choices below the preview.');
   assert(guide.includes('className={styles.scoreAction}')&&guide.indexOf('className={styles.scoreAction}')<guide.indexOf('   {children}'),
     'Each score tile must contain its own recording control above the video.');
   assert(guide.includes('LIVE LOOK GUIDE')&&guide.includes('styles.scoreTop')&&guide.includes('styles.helpPanel'));
+  const palette=source('app/globals.css'),v=source('components/VirtualMakeupTryOn.module.css'),
+    q=source('components/QuickQuizClient.module.css'),shop=source('components/ShopClient.module.css'),
+    mirror=source('components/MirrorDrapeFullscreen.module.css');
+  assert(palette.includes('--action-pink:#F58FB3')&&palette.includes('.qh-tab.on{background:var(--action-soft)'),
+    'Active tabs and interactive surfaces share the Palevie pink palette.');
+  assert(v.includes('.tabs button.current{background:var(--action-soft)')&&
+    v.includes('.presetActive{background:var(--action-soft)')&&
+    shop.includes('.filterActive{background:var(--action-pink)')&&
+    q.includes('.entryCamera{background:var(--action-pink)')&&
+    mirror.includes('background:var(--action-pink)'),
+    'Shop, Try On, quiz, and mirror controls must not revert to dark plum fills.');
  });
  console.log('MOBILE_PASSWORD_REGRESSION_PASS tests='+count+' browser=simulated physical_device=false');
 })().catch(error=>{console.error('MOBILE_PASSWORD_REGRESSION_FAILED',error.stack||error);process.exitCode=1;});

@@ -79,7 +79,7 @@ export default function ColorDrapingClient(){
       </button>
       <div className={styles.mirrorOptions}>
         {pair.colors.map((c,i)=><div key={c.label} className={styles.mirrorChoice}>
-          <span className={styles.mirrorColor} style={{background:c.hex}} aria-hidden="true"/>
+          <button type="button" className={styles.mirrorColor} style={{background:c.hex}} aria-label={`Expand ${c.label} to full-screen color`} onClick={()=>{setSide(i);setMirrorFullscreen(true);}}><span className={styles.mirrorExpandCue} aria-hidden="true">⛶ Full screen</span></button>
           <b>{c.label}</b>
           <button type="button" className={styles.mirrorBetter} onClick={()=>answer(i===1?1:0,"better")}>Looks better ✓</button>
           <button type="button" className={styles.mirrorWorse} onClick={()=>answer(i===1?1:0,"worse")}>Looks worse</button>

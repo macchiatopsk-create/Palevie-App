@@ -17,12 +17,13 @@
 /* Prominent opt-in for filling the actual screen with a physical-mirror swatch. */
 .mirrorIntro{margin:2px 0 11px!important;font-size:13px!important;line-height:1.5!important;color:#76516a!important}
 .mirrorFullscreen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  width:100%;min-height:70px;padding:12px;border:1px solid #b9578a;border-radius:14px;
-  background:linear-gradient(110deg,#a64e7e,#86365f);color:#fff;box-shadow:0 6px 18px #9b43742c;
+  width:100%;min-height:70px;padding:12px;border:1px solid var(--action-border);border-radius:14px;
+  background:linear-gradient(115deg,#FFE2ED,#F9B3CF);color:var(--action-ink);box-shadow:0 6px 18px #e38cab33;
   font:inherit;font-size:16px;font-weight:850;line-height:1.25;cursor:pointer}
-.mirrorFullscreen span{font-size:11px;font-weight:650;color:#ffe4f0}
+.mirrorFullscreen span{font-size:11px;font-weight:700;color:#75435e}
 .mirrorFullscreen:focus-visible{outline:3px solid #c96199;outline-offset:3px}
 .mirrorFullscreen:active{transform:scale(.99)}
+.mirrorFullscreen:hover{background:linear-gradient(115deg,#FFD9E9,#F6A4C3)}
 
 .mirrorOptions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
 .mirrorOption{min-width:0;text-align:center;border:1px solid #EDD6E3;background:#fff;border-radius:15px;overflow:hidden;padding:0 0 12px;color:#5A254B;cursor:pointer}
@@ -48,21 +49,27 @@
 .skipShop{display:block;text-align:center;margin:4px 0 17px;min-height:40px;font-size:12px;line-height:1.5;font-weight:750;color:#8e4771;text-decoration:underline;text-underline-offset:3px}
 .skipShop:focus-visible,.mirrorBetter:focus-visible,.mirrorWorse:focus-visible{outline:3px solid #FF5C8A;outline-offset:2px}
 .mirrorChoice{min-width:0;text-align:center;border:1px solid #EDD6E3;background:#fff;border-radius:15px;overflow:hidden;padding:0 8px 10px;color:#5A254B}
-.mirrorColor{display:block;height:120px;margin:0 -8px 10px;border-bottom:1px solid rgba(0,0,0,.05)}
+.mirrorColor{display:flex;width:calc(100% + 16px);height:166px;margin:0 -8px 10px;padding:0 6px 10px;
+  align-items:flex-end;justify-content:center;border:0;border-bottom:1px solid #ebd7e0;
+  text-align:center;cursor:pointer}
+.mirrorColor:focus-visible{outline:3px solid #db7da9;outline-offset:-3px}
+.mirrorExpandCue{display:inline-block;padding:7px 9px;border:1px solid #e5bed0;border-radius:999px;
+  background:rgba(255,251,253,.94);color:var(--action-ink);font-size:10px;font-weight:800;
+  line-height:1.15;box-shadow:0 2px 8px #a96f8a26}
 .mirrorChoice b{display:block;font-size:13px;line-height:1.35;min-height:35px}
 .mirrorBetter,.mirrorWorse{display:block;width:100%;min-height:42px;border-radius:10px;border:1px solid #E7B5CB;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
-.mirrorBetter{background:#FFE6F0;color:#5A254B;margin:7px 0 6px}
+.mirrorBetter{background:var(--action-soft);border-color:var(--action-border);color:var(--action-ink);margin:7px 0 6px}
 .mirrorWorse{background:#fff;color:#7E5D6E}
 .emptyPicks{padding:13px 15px;background:#FFF0F6;border:1px solid #F4D4E3;border-radius:12px;text-align:center}
 .action{background:#FF5C8A;color:#fff!important;border-radius:14px}
 .action:hover{background:#E95180}
-@media(max-width:440px){.mirrorColor{height:105px}.mirrorOptions{gap:8px}}
+@media(max-width:440px){.mirrorColor{height:145px}.mirrorOptions{gap:8px}}
 
 /* Scan versus mirror must be the first obvious action, not small controls buried under instructions. */
 .headlineIntro{font-size:13px!important;line-height:1.45!important;margin:4px 0 14px!important;color:#76516a!important}
 .methodCards{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:14px 0 10px}
 .cameraCard,.mirrorCard{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-height:115px;border:1px solid #d57ca6;border-radius:17px;padding:15px;text-align:left;cursor:pointer;font-family:inherit}
-.cameraCard{background:linear-gradient(140deg,#d04e86,#9e386d);color:white;box-shadow:0 9px 22px #8d31693b}
+.cameraCard{background:linear-gradient(140deg,#FFE0ED,#F8A8C7);color:var(--action-ink);box-shadow:0 9px 22px #e49cb53b}
 .mirrorCard{background:#fff0f7;color:#6b3855;border-color:#dfb4cc}
 .cameraCard strong,.mirrorCard strong{font-size:14px;letter-spacing:.015em;line-height:1.4;display:flex;width:100%;justify-content:space-between}
 .cameraCard small,.mirrorCard small{font-size:11px;line-height:1.4;opacity:.92}
