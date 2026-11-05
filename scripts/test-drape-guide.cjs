@@ -59,7 +59,7 @@ test('face landmarks measure privately without drawing a forehead marker on prev
  const camera=src.indexOf('   {children}'),dock=src.indexOf('   <div className={styles.dock}');
  assert(camera>=0&&dock>camera, 'scan controls/status must render after camera, not over face');
 });
-test('score tiles combine the A/B votes and only one range slider changes preview',()=>{
+test('score tiles combine votes and compact preview A/B tabs',()=>{
  const guide=fs.readFileSync(path.join(root,'components/DrapeLiveGuide.tsx'),'utf8');
  const camera=fs.readFileSync(path.join(root,'components/CameraDrape.tsx'),'utf8');
  const drape=fs.readFileSync(path.join(root,'components/ColorDrapingClient.tsx'),'utf8');
@@ -84,14 +84,14 @@ test('score tiles combine the A/B votes and only one range slider changes previe
    'Do not render duplicate A/B voting cards below the camera');
  assert(drape.includes('data-scan-more')&&drape.includes('styles.scanTopline'),
    'Shop notes remain collapsed and pair heading stays compact');
- assert(switcher.includes('type="range"')&&switcher.includes('min={0} max={1} step={1}')&&switcher.includes('onChange={e=>onSide(Number(e.currentTarget.value))}'),
-   'Exactly two slider positions switch preview without rating');
- assert(!switcher.includes('<button')&&!switcher.includes('/100'),
-   'No duplicate A/B button pairs or score numbers over the video');
+ assert(switcher.includes('onClick={()=>onSide(i)}')&&switcher.includes('aria-pressed={active===i}'),
+   'Exactly two preview taps switch colors without rating');
+ assert(switcher.includes('<button')&&!switcher.includes('type="range"')&&!switcher.includes('/100'),
+   'No slider or duplicated scores over the video');
  assert(css.includes('.scoreAction{')&&css.includes('max-height:min(65dvh,450px)'),
    'Score tile actions and capped help must stay intact');
 });
-test('range slider changes camera preview only, never invokes a vote',()=>{
+test('two compact preview buttons switch colors without saving a vote',()=>{
  const ts=require('typescript');
  const file=fs.readFileSync(path.join(root,'components/DrapeColorControls.tsx'),'utf8');
  const transpiled=ts.transpileModule(file,{compilerOptions:{
@@ -100,19 +100,25 @@ test('range slider changes camera preview only, never invokes a vote',()=>{
  const mod={exports:{}},jsx=(type,props)=>({type,props});
  vm.runInNewContext(transpiled,{module:mod,exports:mod.exports,require(name){
    if(name==='react/jsx-runtime')return {jsx,jsxs:jsx,Fragment:'fragment'};
-   if(name.endsWith('.module.css'))return {__esModule:true,default:{controls:'controls',caption:'caption',slider:'slider',labels:'labels',active:'active'}};
-   throw Error('Unexpected slider import '+name);
+   if(name.endsWith('.module.css'))return {__esModule:true,default:{controls:'controls',caption:'caption',options:'options',option:'option',selected:'selected',swatch:'swatch',optionLabel:'optionLabel'}};
+   throw Error('Unexpected preview switch import '+name);
  }},{filename:'DrapeColorControls.compiled.cjs'});
  let side=0;const votes=[];
  const colors=[{hex:'#c98899',label:'Rose'},{hex:'#daaa82',label:'Peach'}];
  const rootNode=mod.exports.default({colors,side,onSide:i=>{side=i;}});
  const find=(node,predicate)=>{if(!node||typeof node!=='object')return null;if(predicate(node))return node;
    const children=[node.props?.children].flat(Infinity);for(const child of children){const found=find(child,predicate);if(found)return found;}return null;};
- const slider=find(rootNode,x=>x.type==='input'&&x.props?.type==='range');
- assert(slider&&slider.props.min===0&&slider.props.max===1&&slider.props.step===1,'Native range has exactly two stops');
- slider.props.onChange({currentTarget:{value:'1'}});assert.equal(side,1);
- assert.equal(votes.length,0,'Moving slider should never submit a preference');
- assert.equal(find(rootNode,x=>x.type==='button'),null,'No duplicate switch buttons inside camera');
+ const collect=node=>{if(!node||typeof node!=='object')return [];return [node,...[node.props?.children].flat(Infinity).flatMap(collect)];};
+ const buttons=collect(rootNode).filter(x=>x.type==='button');
+ assert.equal(buttons.length,2,'Exactly two compact preview buttons');
+ assert.equal(buttons[0].props['aria-pressed'],true);
+ buttons[1].props.onClick();assert.equal(side,1);
+ assert.equal(votes.length,0,'Previewing B must not submit a preference');
+ const nextTree=mod.exports.default({colors,side,onSide:i=>{side=i;}});
+ const after=collect(nextTree).filter(x=>x.type==='button');
+ assert.equal(after[1].props['aria-pressed'],true);
+ after[0].props.onClick();assert.equal(side,0);
+ assert.equal(votes.length,0,'Previewing A must not submit a preference');
 });
 test('mirror mode offers a full viewport color without camera or photo capture',()=>{
  const mirror=fs.readFileSync(path.join(root,'components/MirrorDrapeFullscreen.tsx'),'utf8');
@@ -120,7 +126,8 @@ test('mirror mode offers a full viewport color without camera or photo capture',
  const drape=fs.readFileSync(path.join(root,'components/ColorDrapingClient.tsx'),'utf8');
  assert(drape.includes('mode==="mirror"&&mirrorFullscreen&&<MirrorDrapeFullscreen'),
    'Fullscreen belongs exclusively to the camera-free mirror draping method');
- assert(drape.includes('className={styles.mirrorFullscreen}')&&drape.includes('onBetter={()=>answer(side===1?1:0,"better")}'),
+ assert(drape.includes('className={styles.mirrorFullscreen}')&&drape.includes('onBetter={()=>answer(side===1?1:0,"better")}')&&
+   drape.includes('aria-label={`Expand ${c.label} to full-screen color`}'),
    'Mirror offers a visible expand control and records real A/B feedback via existing draping state');
  assert(mirror.includes('createPortal(')&&mirror.includes('role="dialog" aria-modal="true"'),
    'The color must fill the viewport above any mobile navigation');

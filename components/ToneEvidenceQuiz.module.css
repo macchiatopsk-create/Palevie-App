@@ -17,7 +17,7 @@
 .tip{font-size:12px;line-height:1.55;color:#876a7c;text-align:center}
 .unsure{min-height:50px;width:100%;background:#fff;border:1px solid #e6c6d7;color:#6b4160;font-weight:750;font-size:13px;border-radius:12px;cursor:pointer}
 .actions{display:grid;gap:10px;margin:20px 0}.primary,.secondary,.back,.skip{display:flex;align-items:center;justify-content:center;width:100%;text-decoration:none;min-height:50px;border-radius:13px;padding:10px 12px;font-family:inherit;font-size:14px;font-weight:750;cursor:pointer}
-.primary{background:#d76596;color:#fff;border:1px solid #cd6090}.secondary{background:#fff;color:#75425e;border:1px solid #ebc5d8}.back,.skip{border:none;background:transparent;color:#856479;text-decoration:underline;font-size:12px;min-height:35px}
+.primary{background:var(--action-pink);color:var(--action-ink);border:1px solid var(--action-border)}.secondary{background:#fff;color:#75425e;border:1px solid #ebc5d8}.back,.skip{border:none;background:transparent;color:#856479;text-decoration:underline;font-size:12px;min-height:35px}
 .evidenceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:20px 0}.evidenceCard{background:#fff;border:1px solid #eed8e4;border-radius:13px;padding:12px 10px;min-height:105px;display:flex;flex-direction:column;gap:6px}
 .evidenceCard small{font-size:10px;color:#996e86;text-transform:uppercase}.evidenceCard strong{font-size:15px;color:#5f304e}.evidenceCard span{font-size:10px;color:#927586;line-height:1.5}
 .palette{padding:17px;border:1px solid #edd4df;border-radius:16px;background:#fff}.palette h3{font-size:17px;color:#61354f;margin:0 0 12px}

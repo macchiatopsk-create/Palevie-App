@@ -175,7 +175,7 @@ export default function DrapeLiveGuide({videoRef,stageRef,playing,colors,childre
       <div className={styles.scoreAction}>{voteButtons[i]}</div>
      </div>)}
     </div>
-    <p className={styles.scoreDisclaimer}>Contrast guide only · Choose A or B above to record your preference</p>
+    <p className={styles.scoreDisclaimer}>Soft/Bold scores = contrast only · Tap ✓ to choose</p>
    </div>
    {children}
    <div className={styles.dock} data-guide-dock>

@@ -110,7 +110,7 @@
 .scanFirst{padding:16px;margin:12px 0 15px;border-radius:17px;background:#fff0f6;border:1px solid #f0c7da;text-align:center}
 .scanFirst p{margin:0 0 12px;font-size:14px;font-weight:750;color:#653752}
 .scanPrimary,.scanMirror{display:flex;justify-content:center;align-items:center;text-align:center;min-height:52px;border-radius:13px;text-decoration:none;font-size:14px;font-weight:800;padding:9px 11px}
-.scanPrimary{background:#d45b8d;color:#fff!important;box-shadow:0 5px 13px #b8588433}
+.scanPrimary{background:var(--action-pink);color:var(--action-ink)!important;box-shadow:0 5px 13px #e189ae33}
 .scanMirror{margin-top:8px;background:#fff;border:1px solid #e3bad0;color:#73445f!important}
 .scanEntry{display:flex;margin:14px auto 8px;justify-content:center;align-items:center;min-height:44px;border:1px solid #eab6d0;background:#ffeaf3;border-radius:12px;padding:8px 10px;font-weight:750;font-size:12px;color:#743e61;text-decoration:none;text-align:center}
 .scanFirst a:focus-visible,.scanEntry:focus-visible{outline:3px solid #cf5890;outline-offset:2px}
@@ -483,10 +483,10 @@
   padding:11px 7px;width:100%;border-radius:14px;border:1px solid #dda3bd;text-decoration:none;text-align:center;
   font:inherit;font-size:clamp(12px,2.8vw,15px);font-weight:850;line-height:1.2;white-space:normal;cursor:pointer}
 .entryQuiz{background:#fff;color:#88466b;border-color:#e5b6ca}
-.entryCamera{background:#8b3a67;color:#fff!important;border-color:#8b3a67;box-shadow:0 5px 14px rgba(125,45,89,.15)}
+.entryCamera{background:var(--action-pink)!important;color:var(--action-ink)!important;border-color:var(--action-border);box-shadow:0 5px 14px rgba(229,112,164,.20)}
 .entryCameraGo{display:inline;font-size:18px;line-height:1;padding:0;color:inherit;background:transparent;border-radius:0}
 .entryQuiz:hover{background:#fff0f6;border-color:#d68bad}
-.entryCamera:hover{background:#793059;box-shadow:0 8px 20px #9c477638;transform:none}
+.entryCamera:hover{background:var(--action-hover)!important;box-shadow:0 8px 20px #e18fa83b;transform:none}
 .entryQuiz:active,.entryCamera:active{transform:scale(.985)}
 .entryQuiz:focus-visible,.entryCamera:focus-visible{outline:3px solid #be4d82;outline-offset:3px}
 .entryInfo{position:absolute;top:11px;right:11px;z-index:3;line-height:1}
@@ -534,4 +534,7 @@
   .entryQuiz,.entryCamera{font-size:11px;padding:9px 4px}
   .entryIllustration,.entryCameraIcon{width:56px;height:56px;border-radius:17px}
 }
+/* Override legacy camera CTA fills in all hydration and SSR entry states. */
+.entryScanTile .entryCamera{background:var(--action-pink)!important;color:var(--action-ink)!important}
+.entryScanTile .entryCamera:hover{background:var(--action-hover)!important}
 @media(prefers-reduced-motion:reduce){.entryCamera,.entryQuiz{transition:none}}

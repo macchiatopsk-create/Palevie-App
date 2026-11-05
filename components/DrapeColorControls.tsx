@@ -1,23 +1,22 @@
 "use client";
-import type {CSSProperties} from "react";
 import styles from "./DrapeColorControls.module.css";
-
-/** Preview-only control: the draggable slider never records an A/B answer. */
+/** Two compact preview-only taps. Choosing a preferred color happens above the video. */
 export default function DrapeColorControls({colors,side,onSide}:{
  colors:{label:string;hex:string}[];side:number;onSide:(side:number)=>void;
 }){
  const pair=colors.slice(0,2);
  if(pair.length<2)return null;
  const active=side===1?1:0;
- return <div className={`camera-drape-switch ${styles.controls}`} data-camera-colors aria-label="Color draping preview">
-  <span className={styles.caption}>SLIDE TO PREVIEW · DOES NOT RECORD A VOTE</span>
-  <input className={styles.slider} type="range" min={0} max={1} step={1} value={active}
-    aria-label="Slide between color A and color B"
-    aria-valuetext={`Previewing ${active===0?"A":"B"}: ${pair[active].label}`}
-    onChange={e=>onSide(Number(e.currentTarget.value))}
-    style={{"--shade-a":pair[0].hex,"--shade-b":pair[1].hex} as CSSProperties}/>
-  <div className={styles.labels} aria-hidden="true">
-   {pair.map((color,i)=><span key={color.hex+i} className={active===i?styles.active:""}>{i===0?"A":"B"} · {color.label}</span>)}
-  </div>
+ return <div className={`camera-drape-switch ${styles.controls}`} data-camera-colors role="group" aria-label="Preview A or B color without saving a vote">
+   <span className={styles.caption}>TAP A / B TO PREVIEW · NO VOTE SAVED</span>
+   <div className={styles.options}>
+     {pair.map((color,i)=><button type="button" key={color.hex+i}
+       className={`${styles.option} ${active===i?styles.selected:""}`}
+       aria-label={`Preview color ${i===0?"A":"B"}: ${color.label}`}
+       aria-pressed={active===i} onClick={()=>onSide(i)}>
+       <i className={styles.swatch} style={{backgroundColor:color.hex}} aria-hidden="true"/>
+       <span className={styles.optionLabel}><b>{i===0?"A":"B"}</b> · {color.label}</span>
+     </button>)}
+   </div>
  </div>;
 }
