@@ -58,8 +58,19 @@ assert(entryStyles.includes(".entryScanTile{background:linear-gradient(155deg,#f
   "Camera half remains unmistakably blush pink.");
 assert(entryStyles.includes(".entryCamera:focus-visible")&&entryStyles.includes(".entryInfo>summary:focus-visible"),
   "Camera and info controls must remain keyboard accessible.");
-assert(entryStyles.includes("min-height:clamp(260px,43svh,332px)"),
-  "Mobile two-column cards must be compact but comfortably tappable.");
+assert(entryStyles.includes("min-height:clamp(350px,47svh,398px)"),
+  "Equal-width choice cards should make room for actual explanations without dead space.");
+assert(entryStyles.includes(".entryExplainer{")&&entryStyles.includes("justify-content:flex-start"),
+  "Explanations should fill the card below the illustration instead of leaving an empty gap.");
+assert(quick.includes("<h3>Self Quiz</h3>")&&quick.includes("<h3>Live Draping</h3>")&&page.includes("Live Draping"),
+  "SSR and hydrated opening must name the self-guided quiz and live draping consistently.");
+assert(quick.includes("Mirror recommended")&&quick.includes("No picture is taken, saved, or uploaded."),
+  "Show honest mirror guidance and on-device photo-free privacy before the user starts.");
+assert(page.includes("Mirror recommended")&&page.includes("No picture is taken, saved, or uploaded."),
+  "SSR fallback must show the same choice explanations.");
+const nav=read("components/MobileNav.tsx"),globalStyle=read("app/globals.css");
+assert(!nav.includes('["/diagnose","Scan"')&&globalStyle.includes("grid-template-columns:repeat(5,1fr)"),
+  "Mobile tab bar should remove the redundant Scan entry, leaving five equal destinations.");
 assert(entryStyles.includes(".entryTile:has(.entryInfo[open])")&&entryStyles.includes("overflow:visible"),
   "Opened help must layer above adjacent cards without clipping.");
 assert(entryStyles.includes("max-height:min(260px,calc(100dvh - 132px))")&&entryStyles.includes("overflow-y:auto"),
