@@ -23,13 +23,13 @@ export default function QuizPage(){
           <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
             <div className={styles.entryIllustration} aria-hidden="true">✎</div>
             <span className={styles.entryStep}>01 · SELF CHECK</span>
-            <h3>Self Quiz</h3><p className={styles.entryDescription}>7 self-guided questions</p><p className={styles.entryExplainer}><strong>Mirror recommended</strong><span>Check your natural coloring as you answer. No camera needed.</span></p>
+            <h3>Self Quiz</h3><p className={styles.entryDescription}>7 self-guided questions</p><p className={styles.entryExplainer}><strong>Just your preferences</strong><span>Answer at your own pace. No camera or special tools needed.</span></p>
             <Link className={styles.entryQuiz} href="/quiz?start=questions">Start self quiz →</Link>
           </div>
           <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
             <span className={styles.entryCameraIcon} aria-hidden="true">◎</span>
-            <span className={styles.entryStep}>02 · LIVE CAMERA</span>
-            <h3>Live Draping</h3><p className={styles.entryDescription}>Try colors beside your face</p><p className={styles.entryExplainer}><strong>A live mirror, not a photo</strong><span>No picture is taken, saved, or uploaded. Slide between colors.</span></p>
+            <span className={styles.entryStep}>02 · CAMERA OR MIRROR</span>
+            <h3>Live Draping</h3><p className={styles.entryDescription}>Try colors beside your face</p><p className={styles.entryExplainer}><strong>Camera or real mirror</strong><span>Use live camera colors or full-screen swatches. No picture is taken, saved, or uploaded.</span></p>
             <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Open draping →</Link>
           </div>
         </div>
