@@ -95,6 +95,10 @@ const request=(input,headers={})=>new Request('https://palevie.example/api/passw
   assert(camera.includes('styles.scanSwitch')&&camera.indexOf('styles.scanSwitch')>camera.indexOf('camera-drape-cloth'));
   assert(style.includes('object-fit:cover')&&!style.includes('object-fit:contain'));
   assert(style.includes('bottom:10px'));
+  assert(style.includes('height:clamp(250px,37dvh,330px)')&&style.includes('height:clamp(235px,35dvh,280px)'),
+    'Live mobile camera height must leave room for voting above the fixed bottom navigation.');
+  assert(camera.includes('className={styles.pickCard}')&&camera.indexOf('{pickPanel}')>camera.indexOf('camera-drape-stage'),
+    'Actual A/B vote cards must remain directly after the preview, not hidden among instructions.');
   assert(guide.includes('LIVE LOOK GUIDE')&&guide.includes('styles.scoreTop')&&guide.includes('styles.helpPanel'));
  });
  console.log('MOBILE_PASSWORD_REGRESSION_PASS tests='+count+' browser=simulated physical_device=false');
