@@ -456,13 +456,13 @@
 /* 2026-11-04: true equal-width choice-first opening screen.
  * No question list or tiny camera banner until a mode is selected.
  */
-.entryScreen{max-width:690px!important;padding:19px 16px 21px!important;min-height:0;margin-bottom:24px!important}
+.entryScreen{max-width:690px!important;padding:19px 16px 21px!important;min-height:0;margin-bottom:24px!important;overflow:visible}
 .entryChoice{margin:0;text-align:center;min-width:0}
 .entryTitle{font-size:10px;letter-spacing:.17em;color:#9b6780;margin:3px 0 6px}
 .entryHeading{font-family:Georgia,"Times New Roman",serif;font-size:clamp(23px,5vw,33px);font-weight:500;line-height:1.15;letter-spacing:-.03em;color:#5e3550;margin:0 0 17px}
 .entryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;width:100%;min-width:0}
 .entryTile{box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
-  min-width:0;min-height:clamp(302px,52svh,448px);padding:24px 18px 19px;border-radius:21px;border:1.5px solid #efc3d6;
+  min-width:0;min-height:clamp(282px,44svh,388px);padding:24px 18px 19px;border-radius:21px;border:1.5px solid #efc3d6;
   color:#59334b;text-align:center;box-shadow:0 12px 25px rgba(157,80,120,.08);overflow:visible}
 .entryQuizTile{background:linear-gradient(158deg,#fff5f9 0%,#fffafd 62%,#fcebf3 100%);border-color:#ecd0dc}
 .entryScanTile{background:linear-gradient(155deg,#ffd8e8 0%,#ffc9df 100%);border-color:#e99cbd}
@@ -484,13 +484,17 @@
 .entryQuiz:active,.entryCamera:active{transform:scale(.985)}
 .entryQuiz:focus-visible,.entryCamera:focus-visible{outline:3px solid #be4d82;outline-offset:3px}
 .entryInfo{position:absolute;top:11px;right:11px;z-index:3;line-height:1}
-.entryInfo[open]{z-index:20}
+.entryInfo[open]{z-index:30}
+/* Open help needs to sit above the neighboring half; neither tile may clip it. */
+.entryTile:focus-within,.entryTile:has(.entryInfo[open]){z-index:6}
 .entryInfo>summary{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e9bad0;border-radius:50%;
   background:#ffffffee;color:#84466b;font-size:19px;font-weight:750;list-style:none;cursor:pointer;box-shadow:0 3px 9px #a4578320}
 .entryInfo>summary::-webkit-details-marker{display:none}
 .entryInfo>summary::marker{content:""}
 .entryInfo>summary:focus-visible{outline:3px solid #bf6a99;outline-offset:3px}
-.entryPopover{position:absolute;top:40px;right:0;width:min(270px,calc(100vw - 38px));padding:13px 14px;
+.entryPopover{position:absolute;top:40px;right:0;width:min(270px,calc(100vw - 38px));
+  box-sizing:border-box;max-height:min(260px,calc(100dvh - 132px));overflow-y:auto;overscroll-behavior:contain;
+  padding:13px 14px;
   border:1px solid #e8c7d8;border-radius:13px;background:#fffdfd;color:#704761;
   text-align:left;box-shadow:0 13px 30px #733a5b32;line-height:1.5}
 .entryQuizTile .entryPopover{left:0;right:auto}
@@ -502,7 +506,7 @@
   .entryScreen{padding:16px 11px 17px!important}
   .entryHeading{font-size:24px;margin-bottom:14px}
   .entryGrid{gap:9px}
-  .entryTile{min-height:clamp(286px,52svh,392px);gap:9px;padding:20px 10px 12px;border-radius:17px}
+  .entryTile{min-height:clamp(260px,43svh,332px);gap:9px;padding:20px 10px 12px;border-radius:17px}
   .entryTile h3{font-size:clamp(18px,4.8vw,22px)}
   .entryStep{font-size:8px;letter-spacing:.01em}
   .entryDescription{font-size:11px}
