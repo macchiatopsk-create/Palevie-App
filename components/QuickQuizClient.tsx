@@ -114,15 +114,15 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
         <div className={styles.entryGrid}>
           <div className={`${styles.entryTile} ${styles.entryQuizTile}`}>
             <div className={styles.entryIllustration} aria-hidden="true">✎</div>
-            <span className={styles.entryStep}>01 · WITHOUT CAMERA</span>
-            <h3>Quick quiz</h3><p className={styles.entryDescription}>7 simple questions</p>
-            <Link className={styles.entryQuiz} href="/quiz?start=questions">Start quiz →</Link>
+            <span className={styles.entryStep}>01 · SELF CHECK</span>
+            <h3>Self Quiz</h3><p className={styles.entryDescription}>7 self-guided questions</p><p className={styles.entryExplainer}><strong>Mirror recommended</strong><span>Check your natural coloring as you answer. No camera needed.</span></p>
+            <Link className={styles.entryQuiz} href="/quiz?start=questions">Start self quiz →</Link>
           </div>
           <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
             <span className={styles.entryCameraIcon} aria-hidden="true">◎</span>
             <span className={styles.entryStep}>02 · LIVE CAMERA</span>
-            <h3>Face scan</h3><p className={styles.entryDescription}>See colors beside your face</p>
-            <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Start scan →</Link>
+            <h3>Live Draping</h3><p className={styles.entryDescription}>Try colors beside your face</p><p className={styles.entryExplainer}><strong>A live mirror, not a photo</strong><span>No picture is taken, saved, or uploaded. Slide between colors.</span></p>
+            <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera">Open draping →</Link>
           </div>
         </div>
       </div>
@@ -183,8 +183,8 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
           <details className={styles.entryInfo}>
             <summary aria-label="About the seven-question quiz" title="About this option">ⓘ</summary>
             <div className={styles.entryPopover}>
-              <b>Quick quiz</b>
-              <p>Answer seven short questions about colors you notice and styles you like. Get a starting palette to explore, not a verified seasonal or skin-tone diagnosis.</p>
+              <b>Self Quiz</b>
+              <p>Answer seven self-guided questions about coloring and style preferences. A mirror in natural light can help, but no camera is needed. This gives an exploratory palette, not a verified color-season diagnosis.</p>
             </div>
           </details>
           <div className={styles.entryIllustration} aria-hidden="true">
@@ -194,22 +194,23 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
               <circle cx="32" cy="6" r="3" fill="currentColor" stroke="none"/>
             </svg>
           </div>
-          <span className={styles.entryStep}>01 · WITHOUT CAMERA</span>
-          <h3>Quick quiz</h3>
-          <p className={styles.entryDescription}>7 simple questions</p>
+          <span className={styles.entryStep}>01 · SELF CHECK</span>
+          <h3>Self Quiz</h3>
+          <p className={styles.entryDescription}>7 self-guided questions</p>
+          <p className={styles.entryExplainer}><strong>Mirror recommended</strong><span>Check your natural coloring as you answer. No camera needed.</span></p>
           <button type="button" className={styles.entryQuiz} onClick={()=>{
             setQuizStarted(true);
             track("quiz_intro_started",{source:"quiz_mode_choice",method:"questions"});
           }}>
-            Start quiz <span aria-hidden="true">→</span>
+            Start self quiz <span aria-hidden="true">→</span>
           </button>
         </div>
         <div className={`${styles.entryTile} ${styles.entryScanTile}`}>
           <details className={styles.entryInfo}>
             <summary aria-label="About live camera color scan" title="About this option">ⓘ</summary>
             <div className={styles.entryPopover}>
-              <b>Face color scan</b>
-              <p>Enable your front camera to compare virtual color drapes. The on-device guide offers styling comparisons, not a certified skin or undertone result. Mirror mode is available too.</p>
+              <b>Live Draping</b>
+              <p>Your front camera works like a live mirror while colors appear beside your face. No photo is taken, saved, or uploaded. The on-device styling guide is not a certified undertone or season diagnosis.</p>
             </div>
           </details>
           <span className={styles.entryCameraIcon} aria-hidden="true">
@@ -221,11 +222,12 @@ export default function QuickQuizClient({detail=false,retake=false,showResult=fa
             </svg>
           </span>
           <span className={styles.entryStep}>02 · LIVE CAMERA</span>
-          <h3>Face scan</h3>
-          <p className={styles.entryDescription}>See colors beside your face</p>
+          <h3>Live Draping</h3>
+          <p className={styles.entryDescription}>Try colors beside your face</p>
+          <p className={styles.entryExplainer}><strong>A live mirror, not a photo</strong><span>No picture is taken, saved, or uploaded. Slide between colors.</span></p>
           <Link className={styles.entryCamera} href="/quiz?mode=draping&method=camera"
             onClick={()=>track("drape_cta_clicked",{source:"quick_quest_scan_top"})}>
-            Start scan <span className={styles.entryCameraGo} aria-hidden="true">→</span>
+            Open draping <span className={styles.entryCameraGo} aria-hidden="true">→</span>
           </Link>
         </div>
       </div>
