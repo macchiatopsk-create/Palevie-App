@@ -1,0 +1,31 @@
+{
+  "id": "palevie-pilot-001",
+  "status": "draft",
+  "format": "beauty-real",
+  "title": "Same lipstick: one small change in finish",
+  "hook": "Same lipstick, different finish.",
+  "script": "00–02s: actual close-up of hand applying lipstick. 02–05s: same lips, dabbing gloss at center. 05–09s: two finishes shown under the same light. Keep the product and model consistent.",
+  "caption": "Same lipstick, two different finishes. Which would you wear? An illustration of technique, not product shade accuracy.",
+  "media": {
+    "asset": "",
+    "origin": "licensed-stock",
+    "rightsEvidence": "",
+    "commercialUseCleared": false,
+    "personReleaseChecked": false,
+    "audioCleared": false,
+    "aspectRatio": "9:16",
+    "durationSeconds": 9,
+    "realHumanAction": true,
+    "staticSlideDeck": false
+  },
+  "quality": {
+    "watchedFinalVideo": false,
+    "firstTwoSecondsCompelling": false,
+    "readableOnPhone": false,
+    "realVisualChange": false,
+    "accurateDemonstration": false,
+    "noMisleadingResults": false,
+    "claimsReviewed": false
+  },
+  "ownerApproved": false
+}
