@@ -27,12 +27,12 @@ while IFS='|' read -r id name title direct fallback; do
   echo "::endgroup::"
   echo "::group::Render $name"
   if [[ "$name" == *_LIPS_* ]]; then
-    # Center on actual lower face/lips, not the person's whole face.
-    vf="crop=ih*0.585*9/16:ih*0.585:(iw-ow)*0.47:(ih-oh)*0.9,scale=1080:1920,fps=24,setsar=1,drawtext=
+    # Crop out the eyes/nose and center the action on lips.
+    framing="crop=ih*0.585*9/16:ih*0.585:(iw-ow)*0.47:(ih-oh)*0.9,scale=1080:1920"
   else
-    vf="scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=24,setsar=1,drawtext=
+    framing="scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
   fi
-  vf="$vf"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='$title':fontcolor=white:fontsize=43:bordercolor=black@0.7:borderw=4:x=(w-text_w)/2:y=210:enable='between(t,0.1,2.5)',format=yuv420p"
+  vf="$framing,fps=24,setsar=1,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='$title':fontcolor=white:fontsize=43:bordercolor=black@0.7:borderw=4:x=(w-text_w)/2:y=210:enable='between(t,0.1,2.5)',format=yuv420p"
   if ffmpeg -nostdin -hide_banner -loglevel warning -y -ss 0.2 -i "$src" -t 9 -an -vf "$vf" -c:v libx264 -preset veryfast -crf 24 -movflags +faststart "$out"; then
     ffprobe -v error -show_entries stream=width,height -show_entries format=duration,size -of default=noprint_wrappers=1 "$out"
     ffmpeg -nostdin -hide_banner -loglevel error -y -ss 3 -i "$out" -frames:v 1 -vf scale=270:480 "output/$name.jpg"
