@@ -27,8 +27,14 @@ while IFS='|' read -r id name title direct fallback; do
   echo "::endgroup::"
   echo "::group::Render $name"
   if [[ "$name" == *_LIPS_* ]]; then
-    # Crop out the eyes/nose and center the action on lips.
-    framing="crop=ih*0.585*9/16:ih*0.585:(iw-ow)*0.47:(ih-oh)*0.9,scale=1080:1920"
+    # Individual pan/zoom calibration puts the actual lips in the center.
+    case "$id" in
+      8997502) focus_x=0.47; focus_y=0.78 ;;
+      7987961) focus_x=0.53; focus_y=0.39 ;;
+      5068256) focus_x=0.565; focus_y=0.49 ;;
+      *) focus_x=0.50; focus_y=0.55 ;;
+    esac
+    framing="crop=ih*0.42*9/16:ih*0.42:(iw-ow)*$focus_x:(ih-oh)*$focus_y,scale=1080:1920"
   else
     framing="scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
   fi
@@ -48,7 +54,7 @@ done <<'EOF'
 5068256|03_LIPS_Dramatic_Lip|A BOLD LIP MOMENT|https://videos.pexels.com/video-files/5068256/5068256-hd_1920_1080_25fps.mp4|https://videos.pexels.com/video-files/5068256/5068256-uhd_3840_2160_25fps.mp4
 6868400|04_FACE_Cheek_Brush|THE BLUSH MOMENT|https://videos.pexels.com/video-files/6868400/6868400-hd_1080_1920_25fps.mp4|https://www.pexels.com/download/video/6868400/
 6944159|05_FACE_Blush_Tutorial|THE FINISHING TOUCH|https://videos.pexels.com/video-files/6944159/6944159-hd_1080_1920_24fps.mp4|https://videos.pexels.com/video-files/6944159/6944159-uhd_2160_3840_24fps.mp4
-8998892|06_FACE_Everyday_Finish|REAL MAKEUP IN MOTION|https://videos.pexels.com/video-files/8998892/8998892-hd_1080_1920_25fps.mp4|https://videos.pexels.com/video-files/8998892/8998892-uhd_2160_3840_25fps.mp4
+8999389|06_FACE_Lipstick_Front|LIPSTICK, FACE TO CAMERA|https://videos.pexels.com/video-files/8999389/8999389-hd_1080_1920_25fps.mp4|https://videos.pexels.com/video-files/8999389/8999389-uhd_2160_3840_25fps.mp4
 EOF
 echo "SUCCESSFUL_REELS=$ok"
 if [ "$ok" -eq 0 ]; then exit 1; fi
