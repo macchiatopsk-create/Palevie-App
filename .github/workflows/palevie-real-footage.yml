@@ -1,0 +1,26 @@
+name: Real footage Reel prototypes
+on:
+  push:
+    branches: [reels/real-footage-prototype-20261108]
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg curl fonts-dejavu-core
+      - name: Render real footage
+        run: bash scripts/render-real-stock-reels.sh
+      - name: Save MP4 drafts and review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: palevie-six-real-footage-drafts
+          path: output/
+          retention-days: 7
+          if-no-files-found: warn
