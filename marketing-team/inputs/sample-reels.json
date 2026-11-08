@@ -1,0 +1,82 @@
+{
+  "kind": "synthetic_fixture",
+  "source": "Illustrative values for tests only, NOT Palevie or Metricool actual performance",
+  "reels": [
+    {
+      "id": "sample-battle-a",
+      "postedDate": "2026-11-02",
+      "title": "Demo shade battle 1",
+      "format": "shade-battle",
+      "views": 1540,
+      "reach": 1180,
+      "likes": 18,
+      "comments": 3,
+      "saves": 2,
+      "shares": 1,
+      "avgWatchSeconds": 7.3
+    },
+    {
+      "id": "sample-battle-b",
+      "postedDate": "2026-11-03",
+      "title": "Demo shade battle 2",
+      "format": "shade-battle",
+      "views": 1250,
+      "reach": 960,
+      "likes": 12,
+      "comments": 2,
+      "saves": 1,
+      "shares": 0,
+      "avgWatchSeconds": 6.4
+    },
+    {
+      "id": "sample-real-a",
+      "postedDate": "2026-11-03",
+      "title": "Demo real hands applying lip balm",
+      "format": "beauty-real",
+      "views": 920,
+      "reach": 720,
+      "likes": 16,
+      "comments": 1,
+      "saves": 8,
+      "shares": 3,
+      "avgWatchSeconds": 9.1
+    },
+    {
+      "id": "sample-real-b",
+      "postedDate": "2026-11-04",
+      "title": "Demo real blush application",
+      "format": "beauty-real",
+      "views": 1140,
+      "reach": 870,
+      "likes": 23,
+      "comments": 2,
+      "saves": 7,
+      "shares": 2,
+      "avgWatchSeconds": 8.4
+    },
+    {
+      "id": "sample-pov",
+      "postedDate": "2026-11-05",
+      "title": "Demo humorous makeup bag",
+      "format": "beauty-pov",
+      "views": 300,
+      "reach": 270,
+      "likes": 4,
+      "comments": 0,
+      "saves": 0,
+      "shares": 1
+    },
+    {
+      "id": "sample-color",
+      "postedDate": "2026-11-06",
+      "title": "Demo verified identical color experiment",
+      "format": "color-lab",
+      "views": 650,
+      "reach": 520,
+      "likes": 8,
+      "comments": 1,
+      "saves": 3,
+      "shares": 2
+    }
+  ]
+}

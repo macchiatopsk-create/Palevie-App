@@ -170,3 +170,15 @@ See `PALEVIE_CLAUDE_HANDOFF_v0_4.md`, `DESIGN_SYSTEM.md`, and `설치_및_다음
 - `/admin/finance`: self-fund/loan scenario planning + expense ledger + CSV export
 
 These internal tools are planning/bookkeeping helpers, not financial, lending, accounting or tax advice.
+
+## PALEVIE Marketing Ops (internal offline tools)
+
+Adapted workflow influenced by the MIT-licensed Claude [marketing-team](https://github.com/steveaimkt/marketing-team) project. This repo **does not install the Claude plugin**; the PALEVIE implementation offers two working local commands, an approval gate and synthetic test fixtures. No MP4 generation, login, publishing, paid call or hidden background scheduling is added.
+
+- [PALEVIE Marketing Ops guide](./marketing-team/README.md)
+- [Footage-first editorial quality rules](./marketing-team/OPERATING-RULES.md)
+- Example report: npm run marketing:report -- marketing-team/inputs/sample-reels.json
+- Blocked-by-default reel preflight: npm run marketing:review -- marketing-team/briefs/pilot-real-beauty.json
+- Offline tests: npm run test:marketing (also included in production build)
+
+Metricool is accessed separately through the authorized connected account; do not commit its real private reports or rights files. Review actual video and obtain owner approval before Instagram scheduling.

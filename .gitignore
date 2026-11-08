@@ -8,3 +8,8 @@ node_modules
 .quiztest
 .skintest
 /public/drape-tools/vendor/
+
+# Marketing account exports and third-party footage/rights stay private.
+/marketing-team/inputs/private/
+/marketing-team/reports/private/
+/marketing-team/media/
