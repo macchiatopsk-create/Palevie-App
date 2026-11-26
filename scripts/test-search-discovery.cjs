@@ -4,7 +4,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const ts=require('typescript'),React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
 const {runtime,browser,source}=require('./free-service-test-runtime.cjs');
-const root=path.resolve(__dirname,'..'),cache=new Map(),events=[];
+const root=path.resolve(__dirname,'..'),cache=new Map(),events=[],testEnv={};
 const escape=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
 function resolve(spec,from){const base=spec.startsWith('@/')?path.join(root,spec.slice(2)):path.resolve(path.dirname(from),spec);for(const ext of ['','.ts','.tsx','.js','.json'])if(fs.existsSync(base+ext)&&fs.statSync(base+ext).isFile())return base+ext;throw Error('Unresolved '+spec);}
 function load(file){
@@ -15,14 +15,14 @@ function load(file){
  const req=spec=>{
   if(spec==='react'||spec==='react/jsx-runtime')return require(spec);
   if(spec==='next/link')return {__esModule:true,default:({children,prefetch,replace,scroll,legacyBehavior,...props})=>React.createElement('a',props,children)};
-  if(spec==='next/navigation')return {notFound(){throw Error('NOT_FOUND');}};
+  if(spec==='next/navigation')return {notFound(){throw Error('NOT_FOUND');},permanentRedirect(url){throw Error('PERMANENT_REDIRECT:'+url);}};
   if(spec.endsWith('.css'))return {__esModule:true,default:new Proxy({}, {get:(_,key)=>String(key)})};
   if(spec==='@/lib/analytics')return {track:(name,props)=>events.push({name,props})};
-  if(['@/components/HomeClient','@/components/AttributionCapture','@/components/VisitorInteractionTracker','@/components/MobileNav','@/components/FreshnessGuard'].includes(spec))return {__esModule:true,default:()=>null};
+  if(['@/components/HomeClient','@/components/AttributionCapture','@/components/VisitorInteractionTracker','@/components/MobileNav','@/components/FreshnessGuard','@/components/CameraGuidePreview'].includes(spec))return {__esModule:true,default:()=>null};
   if(spec.startsWith('.')||spec.startsWith('@/'))return load(resolve(spec,abs));
   throw Error('Unmocked import '+spec);
  };
- vm.runInNewContext('(function(require,module,exports){'+compiled.outputText+'\n})',{console,URL,URLSearchParams,Date,Math,Set,Map,process:{env:{}}},{filename:abs})(req,mod,mod.exports);
+ vm.runInNewContext('(function(require,module,exports){'+compiled.outputText+'\n})',{console,URL,URLSearchParams,Date,Math,Set,Map,process:{env:testEnv}},{filename:abs})(req,mod,mod.exports);
  return mod.exports;
 }
 let checks=0;async function test(name,fn){await fn();checks++;console.log('PASS search discovery: '+name);}
@@ -64,6 +64,20 @@ const makeBrowser=(referrer='',query='')=>{const w=browser();w.location={origin,
   for(const g of data.colorGuides){assert(index.includes('href="'+data.guidePath(g.slug)+'"'));assert(home.includes('href="'+data.guidePath(g.slug)+'"'));}
   assert(layout.includes('href="/guides"'));assert(index.includes('id="about"'));assert(index.includes('As an Amazon Associate'));
   const schema=jsonBlocks(index)[0];assert.equal(schema['@type'],'CollectionPage');assert.equal(schema.mainEntity.itemListElement.length,4);
+ });
+ await test('Instagram camera CTA uses the live draping route and legacy camera URL redirects only in production',()=>{
+  const destination='/quiz?mode=draping&method=camera';
+  const instagram=renderToStaticMarkup(load('app/instagram/page.tsx').default());
+  assert(instagram.includes('href="'+escape(destination)+'"'));
+  assert(!instagram.includes('href="/camera-guide"'));
+  const camera=load('app/camera-guide/page.tsx');
+  try {
+   testEnv.VERCEL_ENV='production';
+   assert.throws(()=>camera.default(),error=>error.message==='PERMANENT_REDIRECT:'+destination);
+   testEnv.VERCEL_ENV='preview';
+   assert.doesNotThrow(()=>renderToStaticMarkup(camera.default()));
+   assert.equal(camera.metadata.robots.index,false);
+  } finally {delete testEnv.VERCEL_ENV;}
  });
  await test('JSON-LD safely escapes closing-script payloads without losing content',()=>{
   const payload={headline:'</script><script>alert("x")</script>&'};

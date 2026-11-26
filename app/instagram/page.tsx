@@ -26,7 +26,7 @@ export default function InstagramBeautyPage() {
           <strong style={{fontSize:23, letterSpacing:"-.03em"}}>Find my color season <span aria-hidden="true">↗</span></strong>
           <span style={{fontSize:14, color:"#776761", lineHeight:1.5}}>Seven quick questions. Explore your palette afterward.</span>
         </Link>
-        <Link href="/camera-guide" style={card}>
+        <Link href="/quiz?mode=draping&method=camera" style={card}>
           <span style={{fontSize:12, color:"#af777b", letterSpacing:".08em", fontWeight:700}}>WANT TO COMPARE SHADES?</span>
           <strong style={{fontSize:23, letterSpacing:"-.03em"}}>Compare colors by camera <span aria-hidden="true">↗</span></strong>
           <span style={{fontSize:14, color:"#776761", lineHeight:1.5}}>Use the live guide when lighting and camera access allow, or compare with a mirror.</span>
